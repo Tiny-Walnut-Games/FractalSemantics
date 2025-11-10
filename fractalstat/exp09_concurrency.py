@@ -18,12 +18,9 @@ Expected Result:
 
 import json
 import time
-import asyncio
-import aiohttp
-import threading
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass, asdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -31,6 +28,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 @dataclass
 class ConcurrencyTestResult:
     """Results for concurrency test."""
+
     experiment: str = "EXP-09"
     title: str = "Concurrency & Thread Safety Test"
     timestamp: str = ""
@@ -55,9 +53,10 @@ class ConcurrencyTester:
         """Check if API service is running."""
         try:
             import requests
+
             response = requests.get(f"{self.api_base_url}/health", timeout=5)
             return response.status_code == 200
-        except:
+        except (requests.RequestException, Exception):
             return False
 
     def single_query(self, query_id: int, session) -> Dict[str, Any]:
@@ -70,13 +69,11 @@ class ConcurrencyTester:
                 "semantic_query": f"test query number {query_id}",
                 "use_hybrid": True,
                 "weight_semantic": 0.6,
-                "weight_stat7": 0.4
+                "weight_stat7": 0.4,
             }
 
             response = session.post(
-                f"{self.api_base_url}/query",
-                json=query_data,
-                timeout=10
+                f"{self.api_base_url}/query", json=query_data, timeout=10
             )
 
             end_time = time.time()
@@ -89,8 +86,10 @@ class ConcurrencyTester:
                     "success": True,
                     "execution_time_ms": execution_time,
                     "results_count": data.get("results_count", 0),
-                    "narrative_coherence": data.get("narrative_analysis", {}).get("coherence_score", 0),
-                    "http_status": response.status_code
+                    "narrative_coherence": data.get("narrative_analysis", {}).get(
+                        "coherence_score", 0
+                    ),
+                    "http_status": response.status_code,
                 }
             else:
                 return {
@@ -98,7 +97,7 @@ class ConcurrencyTester:
                     "success": False,
                     "execution_time_ms": execution_time,
                     "error": f"HTTP {response.status_code}",
-                    "http_status": response.status_code
+                    "http_status": response.status_code,
                 }
 
         except Exception as e:
@@ -110,7 +109,7 @@ class ConcurrencyTester:
                 "success": False,
                 "execution_time_ms": execution_time,
                 "error": str(e),
-                "http_status": None
+                "http_status": None,
             }
 
     def test_concurrent_queries(self, num_queries: int = 20) -> Dict[str, Any]:
@@ -147,7 +146,9 @@ class ConcurrencyTester:
         failed_queries = [r for r in query_results if not r["success"]]
 
         execution_times = [r["execution_time_ms"] for r in successful_queries]
-        avg_execution_time = sum(execution_times) / len(execution_times) if execution_times else 0
+        avg_execution_time = (
+            sum(execution_times) / len(execution_times) if execution_times else 0
+        )
 
         throughput = num_queries / total_time if total_time > 0 else 0
 
@@ -162,7 +163,7 @@ class ConcurrencyTester:
             "min_execution_time_ms": min(execution_times) if execution_times else 0,
             "max_execution_time_ms": max(execution_times) if execution_times else 0,
             "query_results": query_results,
-            "errors": [r["error"] for r in failed_queries if "error" in r]
+            "errors": [r["error"] for r in failed_queries if "error" in r],
         }
 
     def test_data_consistency(self, query_results: List[Dict]) -> Dict[str, Any]:
@@ -180,16 +181,21 @@ class ConcurrencyTester:
                     corrupted_responses.append(result)
 
         # Check narrative coherence consistency
-        coherence_scores = [r["narrative_coherence"] for r in query_results
-                           if r["success"] and "narrative_coherence" in r]
-        avg_coherence = sum(coherence_scores) / len(coherence_scores) if coherence_scores else 0
+        coherence_scores = [
+            r["narrative_coherence"]
+            for r in query_results
+            if r["success"] and "narrative_coherence" in r
+        ]
+        avg_coherence = (
+            sum(coherence_scores) / len(coherence_scores) if coherence_scores else 0
+        )
 
         return {
             "duplicate_query_ids": duplicate_ids,
             "data_corruption_detected": len(corrupted_responses) > 0,
             "corrupted_responses": corrupted_responses,
             "average_narrative_coherence": avg_coherence,
-            "coherence_preserved": avg_coherence >= 0  # Basic sanity check
+            "coherence_preserved": avg_coherence >= 0,  # Basic sanity check
         }
 
     def run_comprehensive_test(self) -> ConcurrencyTestResult:
@@ -205,7 +211,7 @@ class ConcurrencyTester:
             self.results.status = "FAIL"
             self.results.results = {
                 "error": "API service not available",
-                "api_healthy": False
+                "api_healthy": False,
             }
             return self.results
 
@@ -214,21 +220,33 @@ class ConcurrencyTester:
         # Test concurrent queries
         print("\n2. Testing concurrent queries...")
         concurrency_results = self.test_concurrent_queries(20)
-        print(f"   Concurrent queries: {concurrency_results['successful_queries']}/{concurrency_results['total_queries']} successful")
-        print(f"   Throughput: {concurrency_results['throughput_queries_per_second']:.1f} queries/second")
+        print(
+            f"   Concurrent queries: {concurrency_results['successful_queries']}/{concurrency_results['total_queries']} successful"
+        )
+        print(
+            f"   Throughput: {concurrency_results['throughput_queries_per_second']:.1f} queries/second"
+        )
 
         # Test data consistency
         print("\n3. Testing data consistency...")
-        consistency_results = self.test_data_consistency(concurrency_results["query_results"])
-        print(f"   Data consistency: {'✅ Passed' if not consistency_results['data_corruption_detected'] else '❌ Failed'}")
-        print(f"   Narrative coherence preserved: {'✅ Yes' if consistency_results['coherence_preserved'] else '❌ No'}")
+        consistency_results = self.test_data_consistency(
+            concurrency_results["query_results"]
+        )
+        print(
+            f"   Data consistency: {'✅ Passed' if not consistency_results['data_corruption_detected'] else '❌ Failed'}"
+        )
+        print(
+            f"   Narrative coherence preserved: {'✅ Yes' if consistency_results['coherence_preserved'] else '❌ No'}"
+        )
 
         # Determine overall success
         success_criteria = {
-            "all_queries_succeeded": concurrency_results["success_rate"] >= 0.95,  # Allow 1 failure
-            "throughput_met": concurrency_results["throughput_queries_per_second"] >= 5,  # Adjusted for single instance
+            "all_queries_succeeded": concurrency_results["success_rate"]
+            >= 0.95,  # Allow 1 failure
+            "throughput_met": concurrency_results["throughput_queries_per_second"]
+            >= 5,  # Adjusted for single instance
             "no_data_corruption": not consistency_results["data_corruption_detected"],
-            "coherence_preserved": consistency_results["coherence_preserved"]
+            "coherence_preserved": consistency_results["coherence_preserved"],
         }
 
         all_criteria_met = all(success_criteria.values())
@@ -239,7 +257,7 @@ class ConcurrencyTester:
             "concurrency_test": concurrency_results,
             "consistency_test": consistency_results,
             "success_criteria": success_criteria,
-            "overall_success": all_criteria_met
+            "overall_success": all_criteria_met,
         }
 
         if all_criteria_met:
@@ -248,7 +266,9 @@ class ConcurrencyTester:
         else:
             self.results.status = "FAIL"
             print("\n❌ EXP-09 FAILED: Concurrency test criteria not met")
-            print(f"   Failed criteria: {[k for k, v in success_criteria.items() if not v]}")
+            print(
+                f"   Failed criteria: {[k for k, v in success_criteria.items() if not v]}"
+            )
 
         return self.results
 
@@ -263,7 +283,7 @@ class ConcurrencyTester:
 
         output_path = results_dir / output_file
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(asdict(self.results), f, indent=2)
 
         print(f"\n📄 Results saved to: {output_path}")

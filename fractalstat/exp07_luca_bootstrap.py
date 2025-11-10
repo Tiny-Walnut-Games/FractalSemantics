@@ -21,21 +21,21 @@ import time
 import uuid
 import hashlib
 from datetime import datetime, timezone
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict, field
+from typing import Dict, List, Any, Tuple
+from dataclasses import dataclass, field
 
 # Import STAT7 components
-from stat7_entity import Realm, Horizon, Polarity, STAT7Coordinates
 
 
 # ============================================================================
 # Test Entity (Concrete Implementation for Testing)
 # ============================================================================
 
+
 @dataclass
 class TestBitChain:
     """Minimal test bit-chain for LUCA bootstrap testing."""
+
     bit_chain_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     content: str = ""
     lineage: int = 0  # Distance from LUCA
@@ -43,37 +43,42 @@ class TestBitChain:
     horizon: str = "genesis"
     polarity: str = "logic"
     dimensionality: int = 1
-    
-    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
-            'bit_chain_id': self.bit_chain_id,
-            'content': self.content,
-            'lineage': self.lineage,
-            'realm': self.realm,
-            'horizon': self.horizon,
-            'polarity': self.polarity,
-            'dimensionality': self.dimensionality,
-            'timestamp': self.timestamp,
-            'metadata': self.metadata
+            "bit_chain_id": self.bit_chain_id,
+            "content": self.content,
+            "lineage": self.lineage,
+            "realm": self.realm,
+            "horizon": self.horizon,
+            "polarity": self.polarity,
+            "dimensionality": self.dimensionality,
+            "timestamp": self.timestamp,
+            "metadata": self.metadata,
         }
-    
+
     def to_json(self) -> str:
         """Convert to JSON string."""
         return json.dumps(self.to_dict())
-    
+
     def get_stat7_address(self) -> str:
         """Generate STAT7-like address."""
-        return (f"STAT7-{self.realm[0].upper()}-{self.lineage:03d}-"
-                f"50-{self.horizon[0].upper()}-50-{self.polarity[0].upper()}-{self.dimensionality}")
+        return (
+            f"STAT7-{self.realm[0].upper()}-{self.lineage:03d}-"
+            f"50-{self.horizon[0].upper()}-50-{self.polarity[0].upper()}-{self.dimensionality}"
+        )
 
 
 @dataclass
 class LUCABootstrapResult:
     """Results for LUCA bootstrap test."""
+
     experiment: str = "EXP-07"
     title: str = "LUCA Bootstrap Test"
     timestamp: str = ""
@@ -86,17 +91,18 @@ class LUCABootstrapResult:
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            'experiment': self.experiment,
-            'title': self.title,
-            'timestamp': self.timestamp,
-            'status': self.status,
-            'results': self.results
+            "experiment": self.experiment,
+            "title": self.title,
+            "timestamp": self.timestamp,
+            "status": self.status,
+            "results": self.results,
         }
 
 
 # ============================================================================
 # LUCA Bootstrap Tester
 # ============================================================================
+
 
 class LUCABootstrapTester:
     """Test LUCA bootstrap and system reconstruction."""
@@ -112,19 +118,25 @@ class LUCABootstrapTester:
         for i in range(num_entities):
             # Create entity with lineage from LUCA
             lineage = i + 1  # LUCA is lineage 0, these are descendants
-            
+
             entity = TestBitChain(
                 content=f"Test entity {i}: data fragment with id {i:03d}",
                 lineage=lineage,
-                realm="pattern" if i % 3 == 0 else ("data" if i % 3 == 1 else "narrative"),
-                horizon="emergence" if i % 3 == 0 else ("peak" if i % 3 == 1 else "crystallization"),
+                realm=(
+                    "pattern" if i % 3 == 0 else ("data" if i % 3 == 1 else "narrative")
+                ),
+                horizon=(
+                    "emergence"
+                    if i % 3 == 0
+                    else ("peak" if i % 3 == 1 else "crystallization")
+                ),
                 polarity="logic" if i % 2 == 0 else "creativity",
                 dimensionality=i + 1,  # fractal depth
                 metadata={
                     "index": i,
                     "sequence": i,
-                    "checksum": hashlib.md5(f"entity-{i}".encode()).hexdigest()[:8]
-                }
+                    "checksum": hashlib.md5(f"entity-{i}".encode()).hexdigest()[:8],
+                },
             )
             entities.append(entity)
 
@@ -137,15 +149,15 @@ class LUCABootstrapTester:
         """
         # LUCA state contains only the essential addressing info + content hash
         luca_form = {
-            'id': entity.bit_chain_id,
-            'hash': hashlib.sha256(entity.to_json().encode()).hexdigest(),
-            'lineage': entity.lineage,
-            'realm_sig': entity.realm[0],  # Single character signature
-            'horizon_sig': entity.horizon[0],
-            'polarity_sig': entity.polarity[0],
-            'dimensionality': entity.dimensionality,
-            'content_size': len(entity.content),
-            'metadata_keys': list(entity.metadata.keys())
+            "id": entity.bit_chain_id,
+            "hash": hashlib.sha256(entity.to_json().encode()).hexdigest(),
+            "lineage": entity.lineage,
+            "realm_sig": entity.realm[0],  # Single character signature
+            "horizon_sig": entity.horizon[0],
+            "polarity_sig": entity.polarity[0],
+            "dimensionality": entity.dimensionality,
+            "content_size": len(entity.content),
+            "metadata_keys": list(entity.metadata.keys()),
         }
         return luca_form
 
@@ -176,17 +188,23 @@ class LUCABootstrapTester:
             "encodings": luca_encodings,
             "total_original_size": total_original,
             "total_compressed_size": total_compressed,
-            "compression_ratio": total_compressed / total_original if total_original > 0 else 1.0,
+            "compression_ratio": (
+                total_compressed / total_original if total_original > 0 else 1.0
+            ),
             "luca_timestamp": datetime.now(timezone.utc).isoformat(),
-            "luca_hash": hashlib.sha256(json.dumps(luca_encodings, sort_keys=True).encode()).hexdigest()
+            "luca_hash": hashlib.sha256(
+                json.dumps(luca_encodings, sort_keys=True).encode()
+            ).hexdigest(),
         }
 
         # Store as reference (this is the irreducible minimum)
         self.luca_dictionary = luca_state
-        
+
         return luca_state
 
-    def bootstrap_from_luca(self, luca_state: Dict[str, Any]) -> Tuple[List[TestBitChain], List[bool]]:
+    def bootstrap_from_luca(
+        self, luca_state: Dict[str, Any]
+    ) -> Tuple[List[TestBitChain], List[bool]]:
         """
         Bootstrap entities back from LUCA state.
         This reconstructs the full entity from minimal encoding.
@@ -200,16 +218,18 @@ class LUCABootstrapTester:
             try:
                 # Reconstruct entity from LUCA encoding
                 entity = TestBitChain(
-                    bit_chain_id=luca_encoding['id'],
+                    bit_chain_id=luca_encoding["id"],
                     content=f"[BOOTSTRAPPED] {luca_encoding['content_size']} bytes",
-                    lineage=luca_encoding['lineage'],
-                    realm=self._expand_signature(luca_encoding['realm_sig']),
-                    horizon=self._expand_signature(luca_encoding['horizon_sig']),
-                    polarity=self._expand_signature(luca_encoding['polarity_sig']),
-                    dimensionality=luca_encoding['dimensionality'],
-                    metadata={key: None for key in luca_encoding.get('metadata_keys', [])}
+                    lineage=luca_encoding["lineage"],
+                    realm=self._expand_signature(luca_encoding["realm_sig"]),
+                    horizon=self._expand_signature(luca_encoding["horizon_sig"]),
+                    polarity=self._expand_signature(luca_encoding["polarity_sig"]),
+                    dimensionality=luca_encoding["dimensionality"],
+                    metadata={
+                        key: None for key in luca_encoding.get("metadata_keys", [])
+                    },
                 )
-                
+
                 bootstrapped_entities.append(entity)
                 expansion_success.append(True)
 
@@ -222,13 +242,20 @@ class LUCABootstrapTester:
     def _expand_signature(self, sig: str) -> str:
         """Expand single-character signature back to full value."""
         signature_map = {
-            'p': 'pattern', 'd': 'data', 'n': 'narrative',
-            'e': 'emergence', 'k': 'peak', 'c': 'crystallization',
-            'l': 'logic', 'c': 'creativity'
+            "p": "pattern",
+            "d": "data",
+            "n": "narrative",
+            "e": "emergence",
+            "k": "peak",
+            "c": "crystallization",
+            "l": "logic",
+            "r": "creativity",
         }
-        return signature_map.get(sig, 'unknown')
+        return signature_map.get(sig, "unknown")
 
-    def compare_entities(self, original: List[TestBitChain], bootstrapped: List[TestBitChain]) -> Dict[str, Any]:
+    def compare_entities(
+        self, original: List[TestBitChain], bootstrapped: List[TestBitChain]
+    ) -> Dict[str, Any]:
         """Compare original and bootstrapped entities."""
         print("   Comparing original and bootstrapped entities...")
 
@@ -241,7 +268,7 @@ class LUCABootstrapTester:
             "realm_matches": 0,
             "dimensionality_matches": 0,
             "information_loss_detected": False,
-            "details": []
+            "details": [],
         }
 
         # Create lookup for bootstrapped entities
@@ -263,32 +290,43 @@ class LUCABootstrapTester:
                 if realm_match:
                     comparison["realm_matches"] += 1
 
-                dimensionality_match = original_entity.dimensionality == bootstrapped_entity.dimensionality
+                dimensionality_match = (
+                    original_entity.dimensionality == bootstrapped_entity.dimensionality
+                )
                 if dimensionality_match:
                     comparison["dimensionality_matches"] += 1
 
                 # Record mismatch
                 if not (lineage_match and realm_match and dimensionality_match):
                     comparison["information_loss_detected"] = True
-                    comparison["details"].append({
-                        "entity_id": entity_id,
-                        "lineage_match": lineage_match,
-                        "realm_match": realm_match,
-                        "dimensionality_match": dimensionality_match
-                    })
+                    comparison["details"].append(
+                        {
+                            "entity_id": entity_id,
+                            "lineage_match": lineage_match,
+                            "realm_match": realm_match,
+                            "dimensionality_match": dimensionality_match,
+                        }
+                    )
             else:
                 comparison["information_loss_detected"] = True
-                comparison["details"].append({
-                    "entity_id": entity_id,
-                    "error": "Entity missing after bootstrap"
-                })
+                comparison["details"].append(
+                    {"entity_id": entity_id, "error": "Entity missing after bootstrap"}
+                )
 
         # Calculate recovery rates
         total = len(original)
-        comparison["entity_recovery_rate"] = comparison["id_matches"] / total if total > 0 else 0
-        comparison["lineage_recovery_rate"] = comparison["lineage_matches"] / total if total > 0 else 0
-        comparison["realm_recovery_rate"] = comparison["realm_matches"] / total if total > 0 else 0
-        comparison["dimensionality_recovery_rate"] = comparison["dimensionality_matches"] / total if total > 0 else 0
+        comparison["entity_recovery_rate"] = (
+            comparison["id_matches"] / total if total > 0 else 0
+        )
+        comparison["lineage_recovery_rate"] = (
+            comparison["lineage_matches"] / total if total > 0 else 0
+        )
+        comparison["realm_recovery_rate"] = (
+            comparison["realm_matches"] / total if total > 0 else 0
+        )
+        comparison["dimensionality_recovery_rate"] = (
+            comparison["dimensionality_matches"] / total if total > 0 else 0
+        )
 
         return comparison
 
@@ -301,7 +339,7 @@ class LUCABootstrapTester:
             "scale_invariance": True,
             "recursive_structure": True,
             "luca_traceability": True,
-            "details": {}
+            "details": {},
         }
 
         # Test LUCA traceability: all entities have valid lineage
@@ -312,7 +350,9 @@ class LUCABootstrapTester:
 
         # Test self-similarity: entities have consistent structure
         entity_structure_keys = [set(e.to_dict().keys()) for e in entities]
-        all_same = all(struct == entity_structure_keys[0] for struct in entity_structure_keys)
+        all_same = all(
+            struct == entity_structure_keys[0] for struct in entity_structure_keys
+        )
         fractal_tests["self_similarity"] = all_same
         fractal_tests["details"]["structural_consistency"] = all_same
 
@@ -343,21 +383,21 @@ class LUCABootstrapTester:
             "metadata_preservation": True,
             "bootstraps_performed": 0,
             "bootstrap_failures": 0,
-            "reconstruction_errors": []
+            "reconstruction_errors": [],
         }
 
         # Test 1: Multiple bootstrap cycles
         current_entities = original
         for cycle in range(3):
             print(f"      Bootstrap cycle {cycle + 1}/3...")
-            
+
             # Compress to LUCA
             luca_state = self.compress_to_luca(current_entities)
-            
+
             # Bootstrap back
             bootstrapped, success_list = self.bootstrap_from_luca(luca_state)
             continuity_test["bootstraps_performed"] += 1
-            
+
             if not all(success_list):
                 continuity_test["bootstrap_failures"] += 1
 
@@ -388,7 +428,9 @@ class LUCABootstrapTester:
         original_entities = self.create_test_entities(10)
         print(f"      ✓ Created {len(original_entities)} test entities")
         for i, e in enumerate(original_entities[:3]):
-            print(f"        - Entity {i}: lineage={e.lineage}, realm={e.realm}, address={e.get_stat7_address()}")
+            print(
+                f"        - Entity {i}: lineage={e.lineage}, realm={e.realm}, address={e.get_stat7_address()}"
+            )
 
         # Phase 2: Compress to LUCA
         print("\n[2/6] Compressing to LUCA state...")
@@ -400,19 +442,27 @@ class LUCABootstrapTester:
         # Phase 3: Bootstrap from LUCA
         print("\n[3/6] Bootstrapping from LUCA state...")
         bootstrapped_entities, expansion_success = self.bootstrap_from_luca(luca_state)
-        success_rate = sum(expansion_success) / len(expansion_success) if expansion_success else 0
-        print(f"      ✓ Bootstrapped {len(bootstrapped_entities)}/{len(original_entities)} entities")
+        success_rate = (
+            sum(expansion_success) / len(expansion_success) if expansion_success else 0
+        )
+        print(
+            f"      ✓ Bootstrapped {len(bootstrapped_entities)}/{len(original_entities)} entities"
+        )
         print(f"      ✓ Success rate: {success_rate:.1%}")
 
         # Phase 4: Compare entities
         print("\n[4/6] Comparing original and bootstrapped entities...")
         comparison = self.compare_entities(original_entities, bootstrapped_entities)
         print(f"      ✓ Entity recovery rate: {comparison['entity_recovery_rate']:.1%}")
-        print(f"      ✓ Lineage recovery rate: {comparison['lineage_recovery_rate']:.1%}")
+        print(
+            f"      ✓ Lineage recovery rate: {comparison['lineage_recovery_rate']:.1%}"
+        )
         print(f"      ✓ Realm recovery rate: {comparison['realm_recovery_rate']:.1%}")
-        print(f"      ✓ Dimensionality recovery rate: {comparison['dimensionality_recovery_rate']:.1%}")
-        if comparison['information_loss_detected']:
-            print(f"      ⚠ Information loss detected!")
+        print(
+            f"      ✓ Dimensionality recovery rate: {comparison['dimensionality_recovery_rate']:.1%}"
+        )
+        if comparison["information_loss_detected"]:
+            print("      ⚠ Information loss detected!")
 
         # Phase 5: Test fractal properties
         print("\n[5/6] Testing fractal properties...")
@@ -421,7 +471,9 @@ class LUCABootstrapTester:
         print(f"      ✓ Scale invariance: {fractal_tests['scale_invariance']}")
         print(f"      ✓ Recursive structure: {fractal_tests['recursive_structure']}")
         print(f"      ✓ LUCA traceability: {fractal_tests['luca_traceability']}")
-        print(f"      ✓ Lineage depth: {fractal_tests['details'].get('lineage_depth', 'unknown')}")
+        print(
+            f"      ✓ Lineage depth: {fractal_tests['details'].get('lineage_depth', 'unknown')}"
+        )
 
         # Phase 6: Test LUCA continuity
         print("\n[6/6] Testing LUCA continuity and entity health...")
@@ -429,18 +481,18 @@ class LUCABootstrapTester:
         print(f"      ✓ Bootstrap cycles: {continuity['bootstraps_performed']}")
         print(f"      ✓ Bootstrap failures: {continuity['bootstrap_failures']}")
         print(f"      ✓ Lineage continuity: {continuity['lineage_continuity']}")
-        if continuity['reconstruction_errors']:
-            for err in continuity['reconstruction_errors'][:3]:
+        if continuity["reconstruction_errors"]:
+            for err in continuity["reconstruction_errors"][:3]:
                 print(f"      ⚠ {err}")
 
         # Determine test result
         elapsed = time.time() - start_time
         all_pass = (
-            comparison['entity_recovery_rate'] >= 0.95
-            and comparison['lineage_recovery_rate'] >= 0.95
-            and fractal_tests['luca_traceability']
-            and continuity['lineage_continuity']
-            and continuity['bootstrap_failures'] == 0
+            comparison["entity_recovery_rate"] >= 0.95
+            and comparison["lineage_recovery_rate"] >= 0.95
+            and fractal_tests["luca_traceability"]
+            and continuity["lineage_continuity"]
+            and continuity["bootstrap_failures"] == 0
         )
 
         status = "PASS" if all_pass else "FAIL"
@@ -449,28 +501,30 @@ class LUCABootstrapTester:
         self.results.status = status
         self.results.results = {
             "compression": {
-                "ratio": luca_state['compression_ratio'],
-                "original_size": luca_state['total_original_size'],
-                "luca_size": luca_state['total_compressed_size']
+                "ratio": luca_state["compression_ratio"],
+                "original_size": luca_state["total_original_size"],
+                "luca_size": luca_state["total_compressed_size"],
             },
             "bootstrap": {
                 "bootstrapped_count": len(bootstrapped_entities),
-                "success_rate": success_rate
+                "success_rate": success_rate,
             },
             "comparison": {
-                "entity_recovery_rate": comparison['entity_recovery_rate'],
-                "lineage_recovery_rate": comparison['lineage_recovery_rate'],
-                "realm_recovery_rate": comparison['realm_recovery_rate'],
-                "dimensionality_recovery_rate": comparison['dimensionality_recovery_rate'],
-                "information_loss": comparison['information_loss_detected']
+                "entity_recovery_rate": comparison["entity_recovery_rate"],
+                "lineage_recovery_rate": comparison["lineage_recovery_rate"],
+                "realm_recovery_rate": comparison["realm_recovery_rate"],
+                "dimensionality_recovery_rate": comparison[
+                    "dimensionality_recovery_rate"
+                ],
+                "information_loss": comparison["information_loss_detected"],
             },
-            "fractal": fractal_tests['details'],
+            "fractal": fractal_tests["details"],
             "continuity": {
-                "cycles_performed": continuity['bootstraps_performed'],
-                "failures": continuity['bootstrap_failures'],
-                "lineage_preserved": continuity['lineage_continuity']
+                "cycles_performed": continuity["bootstraps_performed"],
+                "failures": continuity["bootstrap_failures"],
+                "lineage_preserved": continuity["lineage_continuity"],
             },
-            "elapsed_time": f"{elapsed:.2f}s"
+            "elapsed_time": f"{elapsed:.2f}s",
         }
 
         print("\n" + "=" * 70)
@@ -485,16 +539,17 @@ class LUCABootstrapTester:
 # Main Execution
 # ============================================================================
 
+
 def main():
     """Run EXP-07 LUCA Bootstrap Test."""
     tester = LUCABootstrapTester()
     results = tester.run_comprehensive_test()
-    
+
     # Print summary
     print("\n📊 SUMMARY")
     print("-" * 70)
     print(json.dumps(results.results, indent=2))
-    
+
     return results
 
 

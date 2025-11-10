@@ -31,6 +31,12 @@ FractalStat is a complete validation suite for the STAT7 7-dimensional addressin
 **Package Manager**: pip  
 
 ## Dependencies
+
+**Python Version**: 3.11+
+**Terminal Support**: ANSI escape codes supported (Windows PowerShell, Linux Terminal) 
+**Operating Systems**: Windows, macOS, Linux 
+**Note**: all terminals run as user mode and that means nothing is in path at the start of your turn. You must add python and all dependencies to PATH manually before beginning work.
+
 **Main Dependencies**:
 - pydantic ≥2.0.0 (data validation)
 - numpy ≥1.20.0 (numerical computations)

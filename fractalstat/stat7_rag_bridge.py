@@ -22,10 +22,12 @@ import random
 # Data Structures: Realm-Agnostic STAT7 Addressing
 # ============================================================================
 
+
 @dataclass
 class Realm:
     """Flexible realm definition for any relationship domain."""
-    type: str   # e.g. "game", "system", "faculty", "pattern", "data", "narrative", "business", "concept"
+
+    type: str  # e.g. "game", "system", "faculty", "pattern", "data", "narrative", "business", "concept"
     label: str  # human-readable name
 
 
@@ -33,7 +35,7 @@ class Realm:
 class STAT7Address:
     """
     STAT7 coordinate system: 7 dimensions for unique, multidimensional addressing.
-    
+
     - realm: Domain/context (flexible type + label)
     - lineage: Version/generation (int >= 0)
     - adjacency: Graph connectivity score (0.0-1.0)
@@ -42,6 +44,7 @@ class STAT7Address:
     - polarity: Tension/contrast/resonance (0.0-1.0)
     - dimensionality: Complexity/thread count (1-7 or bucketed)
     """
+
     realm: Realm
     lineage: int
     adjacency: float
@@ -52,11 +55,19 @@ class STAT7Address:
 
     def __post_init__(self):
         """Validate STAT7 constraints."""
-        assert 0.0 <= self.adjacency <= 1.0, f"adjacency must be [0,1], got {self.adjacency}"
-        assert 0.0 <= self.luminosity <= 1.0, f"luminosity must be [0,1], got {self.luminosity}"
-        assert 0.0 <= self.polarity <= 1.0, f"polarity must be [0,1], got {self.polarity}"
+        assert (
+            0.0 <= self.adjacency <= 1.0
+        ), f"adjacency must be [0,1], got {self.adjacency}"
+        assert (
+            0.0 <= self.luminosity <= 1.0
+        ), f"luminosity must be [0,1], got {self.luminosity}"
+        assert (
+            0.0 <= self.polarity <= 1.0
+        ), f"polarity must be [0,1], got {self.polarity}"
         assert self.lineage >= 0, f"lineage must be >= 0, got {self.lineage}"
-        assert 1 <= self.dimensionality <= 7, f"dimensionality must be [1,7], got {self.dimensionality}"
+        assert (
+            1 <= self.dimensionality <= 7
+        ), f"dimensionality must be [1,7], got {self.dimensionality}"
 
     def to_dict(self) -> Dict[str, Any]:
         """Export as dictionary for serialization."""
@@ -74,6 +85,7 @@ class STAT7Address:
 @dataclass
 class RAGDocument:
     """RAG document enhanced with STAT7 addressing."""
+
     id: str
     text: str
     embedding: List[float]
@@ -89,6 +101,7 @@ class RAGDocument:
 # Scoring Functions: Semantic + STAT7 Hybrid
 # ============================================================================
 
+
 def cosine_similarity(a: List[float], b: List[float]) -> float:
     """
     Compute cosine similarity between two embedding vectors.
@@ -96,11 +109,11 @@ def cosine_similarity(a: List[float], b: List[float]) -> float:
     """
     if not a or not b:
         return 0.0
-    
+
     dot = sum(x * y for x, y in zip(a, b))
     norm_a = math.sqrt(sum(x * x for x in a))
     norm_b = math.sqrt(sum(y * y for y in b))
-    
+
     denom = norm_a * norm_b + 1e-12  # Avoid division by zero
     return dot / denom
 
@@ -108,16 +121,16 @@ def cosine_similarity(a: List[float], b: List[float]) -> float:
 def stat7_resonance(query_stat7: STAT7Address, doc_stat7: STAT7Address) -> float:
     """
     Compute STAT7 resonance between query and document addresses.
-    
+
     This is the "entanglement score" — how well-aligned are the 7 dimensions?
-    
+
     Scoring strategy:
     - Realm match (type > label): 1.0 if type matches, 0.85 if not; +0.1 if label matches
     - Horizon alignment: 1.0 if same, 0.9 if adjacent, 0.7 if different
     - Lineage proximity: decay by generation distance (±1 best)
     - Signal alignment: how close are luminosity/polarity? (0.0-1.0)
     - Adjacency/Dimensionality: connectivity and complexity bonuses
-    
+
     Returns: [0.0, 1.0] resonance score
     """
     # Realm match (type is primary, label is secondary boost)
@@ -125,39 +138,39 @@ def stat7_resonance(query_stat7: STAT7Address, doc_stat7: STAT7Address) -> float
     if query_stat7.realm.label == doc_stat7.realm.label:
         realm_score += 0.1
     realm_score = min(realm_score, 1.0)  # Cap at 1.0
-    
+
     # Horizon alignment: scale by distance
     horizon_levels = {"logline": 1, "outline": 2, "scene": 3, "panel": 4}
     h_query = horizon_levels.get(query_stat7.horizon, 3)
     h_doc = horizon_levels.get(doc_stat7.horizon, 3)
     h_distance = abs(h_query - h_doc)
-    
+
     if h_distance == 0:
         horizon_score = 1.0
     elif h_distance == 1:
         horizon_score = 0.9
     else:
         horizon_score = 0.7
-    
+
     # Lineage proximity: prefer ±0-1 generation distance
     lineage_distance = abs(query_stat7.lineage - doc_stat7.lineage)
     lineage_score = max(0.7, 1.0 - 0.05 * lineage_distance)
-    
+
     # Signal alignment: luminosity + polarity
     luminosity_diff = abs(query_stat7.luminosity - doc_stat7.luminosity)
     polarity_diff = abs(query_stat7.polarity - doc_stat7.polarity)
     signal_score = 1.0 - 0.5 * (luminosity_diff + polarity_diff)
     signal_score = max(0.0, signal_score)
-    
+
     # Adjacency/Dimensionality bonus: connectivity + complexity
     adj_bonus = doc_stat7.adjacency  # Prefer well-connected docs
     dim_bonus = min(1.0, doc_stat7.dimensionality / 7.0)  # Normalize to [0,1]
     adj_dim_score = 0.5 * adj_bonus + 0.5 * dim_bonus
-    
+
     # Combine all scores (multiplicative for strict alignment, additive bonus for complexity)
     resonance = realm_score * horizon_score * lineage_score * signal_score
-    resonance *= (0.8 + 0.2 * adj_dim_score)  # 20% bonus from connectivity/complexity
-    
+    resonance *= 0.8 + 0.2 * adj_dim_score  # 20% bonus from connectivity/complexity
+
     return max(0.0, min(resonance, 1.0))  # Clamp to [0,1]
 
 
@@ -170,21 +183,21 @@ def hybrid_score(
 ) -> float:
     """
     Hybrid scoring: combine semantic similarity with STAT7 resonance.
-    
+
     Args:
         query_embedding: Query embedding vector
         doc: RAG document with embedding and STAT7 address
         query_stat7: Query STAT7 address
         weight_semantic: Weight for semantic similarity (default 0.6)
         weight_stat7: Weight for STAT7 resonance (default 0.4)
-    
+
     Returns: [0.0, 1.0] hybrid score
     """
     assert weight_semantic + weight_stat7 == 1.0, "Weights must sum to 1.0"
-    
+
     semantic_sim = cosine_similarity(query_embedding, doc.embedding)
     stat7_res = stat7_resonance(query_stat7, doc.stat7)
-    
+
     hybrid = (weight_semantic * semantic_sim) + (weight_stat7 * stat7_res)
     return max(0.0, min(hybrid, 1.0))  # Clamp to [0,1]
 
@@ -192,6 +205,7 @@ def hybrid_score(
 # ============================================================================
 # Retrieval: Hybrid RAG Search
 # ============================================================================
+
 
 def retrieve(
     documents: List[RAGDocument],
@@ -203,7 +217,7 @@ def retrieve(
 ) -> List[Tuple[str, float]]:
     """
     Retrieve top-k documents using hybrid (semantic + STAT7) scoring.
-    
+
     Args:
         documents: List of RAG documents to search
         query_embedding: Query embedding vector
@@ -211,14 +225,16 @@ def retrieve(
         k: Number of results to return
         weight_semantic: Weight for semantic similarity
         weight_stat7: Weight for STAT7 resonance
-    
+
     Returns: List of (doc_id, hybrid_score) tuples, sorted by score (descending)
     """
     scores = []
     for doc in documents:
-        score = hybrid_score(query_embedding, doc, query_stat7, weight_semantic, weight_stat7)
+        score = hybrid_score(
+            query_embedding, doc, query_stat7, weight_semantic, weight_stat7
+        )
         scores.append((doc.id, score))
-    
+
     # Sort by score descending, return top-k
     return sorted(scores, key=lambda x: x[1], reverse=True)[:k]
 
@@ -230,25 +246,26 @@ def retrieve_semantic_only(
 ) -> List[Tuple[str, float]]:
     """
     Retrieve top-k documents using semantic similarity only (baseline).
-    
+
     Args:
         documents: List of RAG documents to search
         query_embedding: Query embedding vector
         k: Number of results to return
-    
+
     Returns: List of (doc_id, semantic_score) tuples, sorted by score (descending)
     """
     scores = []
     for doc in documents:
         score = cosine_similarity(query_embedding, doc.embedding)
         scores.append((doc.id, score))
-    
+
     return sorted(scores, key=lambda x: x[1], reverse=True)[:k]
 
 
 # ============================================================================
 # Utilities: Document Generation & STAT7 Randomization
 # ============================================================================
+
 
 def generate_random_stat7_address(
     realm: Realm,
@@ -258,18 +275,18 @@ def generate_random_stat7_address(
 ) -> STAT7Address:
     """
     Generate a random STAT7 address with optional seeding.
-    
+
     Args:
         realm: Realm for this address
         lineage_range: Min/max for lineage generation
         horizon_choices: List of horizon options (default: common levels)
         seed_offset: For reproducibility, offset from global random state
-    
+
     Returns: Randomized STAT7Address
     """
     if horizon_choices is None:
         horizon_choices = ["logline", "outline", "scene", "panel"]
-    
+
     return STAT7Address(
         realm=realm,
         lineage=random.randint(lineage_range[0], lineage_range[1]),
@@ -291,7 +308,7 @@ def generate_synthetic_rag_documents(
 ) -> List[RAGDocument]:
     """
     Generate synthetic RAG documents with STAT7 addresses.
-    
+
     Args:
         base_texts: List of base text templates (will be varied)
         realm: Realm for all generated documents
@@ -299,22 +316,22 @@ def generate_synthetic_rag_documents(
         embedding_fn: Function to embed text (e.g., embedding_provider.embed_text)
         randomize_stat7: If True, randomize all 7 STAT7 dimensions per doc
         seed: Random seed for reproducibility
-    
+
     Returns: List of RAGDocument with embeddings and STAT7 addresses
     """
     if seed is not None:
         random.seed(seed)
-    
+
     documents = []
     for i in range(scale):
         # Vary text template
         base_idx = i % len(base_texts)
         base_text = base_texts[base_idx]
         text = f"[Context {i}] {base_text} (instance {i})"
-        
+
         # Embed text
         embedding = embedding_fn(text)
-        
+
         # Assign STAT7 address
         if randomize_stat7:
             stat7 = generate_random_stat7_address(realm, seed_offset=i)
@@ -329,7 +346,7 @@ def generate_synthetic_rag_documents(
                 polarity=round(((i + 5) % 10) / 10.0, 2),
                 dimensionality=1 + (i % 7),
             )
-        
+
         doc = RAGDocument(
             id=f"doc-{i:06d}",
             text=text,
@@ -342,13 +359,14 @@ def generate_synthetic_rag_documents(
             },
         )
         documents.append(doc)
-    
+
     return documents
 
 
 # ============================================================================
 # Analysis: Comparison & Diagnostics
 # ============================================================================
+
 
 def compare_retrieval_results(
     semantic_results: List[Tuple[str, float]],
@@ -357,7 +375,7 @@ def compare_retrieval_results(
 ) -> Dict[str, Any]:
     """
     Compare semantic-only vs hybrid retrieval results.
-    
+
     Returns metrics:
     - overlap: How many of top-k are shared?
     - semantic_avg_score: Average semantic score in top-k
@@ -366,25 +384,29 @@ def compare_retrieval_results(
     """
     semantic_ids = {doc_id for doc_id, _ in semantic_results[:k]}
     hybrid_ids = {doc_id for doc_id, _ in hybrid_results[:k]}
-    
+
     overlap = len(semantic_ids & hybrid_ids)
     overlap_pct = (overlap / k * 100) if k > 0 else 0.0
-    
+
     semantic_avg = sum(score for _, score in semantic_results[:k]) / k if k > 0 else 0.0
     hybrid_avg = sum(score for _, score in hybrid_results[:k]) / k if k > 0 else 0.0
-    
+
     # Measure ranking distance: how far did top-k items move?
-    semantic_rank = {doc_id: idx for idx, (doc_id, _) in enumerate(semantic_results[:k])}
+    semantic_rank = {
+        doc_id: idx for idx, (doc_id, _) in enumerate(semantic_results[:k])
+    }
     reranking_distances = []
     for idx, (doc_id, _) in enumerate(hybrid_results[:k]):
         if doc_id in semantic_rank:
             distance = abs(idx - semantic_rank[doc_id])
             reranking_distances.append(distance)
-    
+
     avg_reranking_distance = (
-        sum(reranking_distances) / len(reranking_distances) if reranking_distances else 0.0
+        sum(reranking_distances) / len(reranking_distances)
+        if reranking_distances
+        else 0.0
     )
-    
+
     return {
         "overlap_count": overlap,
         "overlap_pct": overlap_pct,
@@ -399,29 +421,32 @@ def compare_retrieval_results(
 # STAT7RAGBridge: Wrapper for RetrievalAPI Integration
 # ============================================================================
 
+
 class STAT7RAGBridge:
     """
     Bridge class that provides STAT7 functionality for RetrievalAPI integration.
-    
+
     Wraps the module-level STAT7 functions (stat7_resonance, hybrid_score, retrieve)
     to provide a consistent interface for the RetrievalAPI's hybrid scoring system.
-    
+
     This allows RetrievalAPI to work with STAT7 coordinates seamlessly through
     dependency injection.
     """
-    
-    def stat7_resonance(self, query_stat7: STAT7Address, doc_stat7: STAT7Address) -> float:
+
+    def stat7_resonance(
+        self, query_stat7: STAT7Address, doc_stat7: STAT7Address
+    ) -> float:
         """
         Compute STAT7 resonance between query and document addresses.
-        
+
         Args:
             query_stat7: Query STAT7 address
             doc_stat7: Document STAT7 address
-        
+
         Returns: [0.0, 1.0] resonance score
         """
         return stat7_resonance(query_stat7, doc_stat7)
-    
+
     def hybrid_score(
         self,
         query_embedding: List[float],
@@ -432,18 +457,20 @@ class STAT7RAGBridge:
     ) -> float:
         """
         Compute hybrid score combining semantic similarity with STAT7 resonance.
-        
+
         Args:
             query_embedding: Query embedding vector
             doc: RAG document with embedding and STAT7 address
             query_stat7: Query STAT7 address
             weight_semantic: Weight for semantic similarity (default 0.6)
             weight_stat7: Weight for STAT7 resonance (default 0.4)
-        
+
         Returns: [0.0, 1.0] hybrid score
         """
-        return hybrid_score(query_embedding, doc, query_stat7, weight_semantic, weight_stat7)
-    
+        return hybrid_score(
+            query_embedding, doc, query_stat7, weight_semantic, weight_stat7
+        )
+
     def retrieve(
         self,
         documents: List[RAGDocument],
@@ -455,7 +482,7 @@ class STAT7RAGBridge:
     ) -> List[Tuple[str, float]]:
         """
         Retrieve top-k documents using hybrid (semantic + STAT7) scoring.
-        
+
         Args:
             documents: List of RAG documents to search
             query_embedding: Query embedding vector
@@ -463,7 +490,9 @@ class STAT7RAGBridge:
             k: Number of results to return
             weight_semantic: Weight for semantic similarity
             weight_stat7: Weight for STAT7 resonance
-        
+
         Returns: List of (doc_id, hybrid_score) tuples, sorted by score (descending)
         """
-        return retrieve(documents, query_embedding, query_stat7, k, weight_semantic, weight_stat7)
+        return retrieve(
+            documents, query_embedding, query_stat7, k, weight_semantic, weight_stat7
+        )

@@ -16,17 +16,17 @@ Expected Result:
 """
 
 import json
-import time
 import requests
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any
 from dataclasses import dataclass, asdict
 
 
 @dataclass
 class RAGTestResult:
     """Results for RAG integration test."""
+
     experiment: str = "EXP-08"
     title: str = "RAG Integration Test"
     timestamp: str = ""
@@ -52,7 +52,7 @@ class RAGIntegrationTester:
         try:
             response = requests.get(f"{self.api_base_url}/health", timeout=5)
             return response.status_code == 200
-        except:
+        except (requests.RequestException, Exception):
             return False
 
     def test_semantic_retrieval(self) -> Dict[str, Any]:
@@ -61,18 +61,18 @@ class RAGIntegrationTester:
             {
                 "query_id": "rag_test_1",
                 "semantic": "bounty hunter dangerous missions",
-                "expected_results": 1
+                "expected_results": 1,
             },
             {
                 "query_id": "rag_test_2",
                 "semantic": "wisdom about courage",
-                "expected_results": 0  # This specific phrase may not exist
+                "expected_results": 0,  # This specific phrase may not exist
             },
             {
                 "query_id": "rag_test_3",
                 "semantic": "character dialogue",
-                "expected_results": 1
-            }
+                "expected_results": 1,
+            },
         ]
 
         semantic_results = []
@@ -83,47 +83,53 @@ class RAGIntegrationTester:
                     f"{self.api_base_url}/query",
                     json={
                         "query_id": query["query_id"],
-                        "semantic_query": query["semantic"]
+                        "semantic_query": query["semantic"],
                     },
-                    timeout=10
+                    timeout=10,
                 )
 
                 if response.status_code == 200:
                     data = response.json()
                     result_count = data.get("results_count", 0)
 
-                    semantic_results.append({
-                        "query_id": query["query_id"],
-                        "semantic": query["semantic"],
-                        "results_count": result_count,
-                        "expected_results": query["expected_results"],
-                        "success": result_count >= query["expected_results"],
-                        "execution_time_ms": data.get("execution_time_ms", 0)
-                    })
+                    semantic_results.append(
+                        {
+                            "query_id": query["query_id"],
+                            "semantic": query["semantic"],
+                            "results_count": result_count,
+                            "expected_results": query["expected_results"],
+                            "success": result_count >= query["expected_results"],
+                            "execution_time_ms": data.get("execution_time_ms", 0),
+                        }
+                    )
                 else:
-                    semantic_results.append({
+                    semantic_results.append(
+                        {
+                            "query_id": query["query_id"],
+                            "semantic": query["semantic"],
+                            "results_count": 0,
+                            "expected_results": query["expected_results"],
+                            "success": False,
+                            "error": f"HTTP {response.status_code}",
+                        }
+                    )
+
+            except Exception as e:
+                semantic_results.append(
+                    {
                         "query_id": query["query_id"],
                         "semantic": query["semantic"],
                         "results_count": 0,
                         "expected_results": query["expected_results"],
                         "success": False,
-                        "error": f"HTTP {response.status_code}"
-                    })
-
-            except Exception as e:
-                semantic_results.append({
-                    "query_id": query["query_id"],
-                    "semantic": query["semantic"],
-                    "results_count": 0,
-                    "expected_results": query["expected_results"],
-                    "success": False,
-                    "error": str(e)
-                })
+                        "error": str(e),
+                    }
+                )
 
         return {
             "total_queries": len(test_queries),
             "successful_queries": len([r for r in semantic_results if r["success"]]),
-            "results": semantic_results
+            "results": semantic_results,
         }
 
     def test_hybrid_retrieval(self) -> Dict[str, Any]:
@@ -133,14 +139,14 @@ class RAGIntegrationTester:
                 "query_id": "hybrid_test_1",
                 "semantic": "find wisdom about resilience",
                 "weight_semantic": 0.6,
-                "weight_stat7": 0.4
+                "weight_stat7": 0.4,
             },
             {
                 "query_id": "hybrid_test_2",
                 "semantic": "the nature of consciousness",
                 "weight_semantic": 0.6,
-                "weight_stat7": 0.4
-            }
+                "weight_stat7": 0.4,
+            },
         ]
 
         hybrid_results = []
@@ -154,51 +160,59 @@ class RAGIntegrationTester:
                         "semantic_query": query["semantic"],
                         "use_hybrid": True,
                         "weight_semantic": query["weight_semantic"],
-                        "weight_stat7": query["weight_stat7"]
+                        "weight_stat7": query["weight_stat7"],
                     },
-                    timeout=10
+                    timeout=10,
                 )
 
                 if response.status_code == 200:
                     data = response.json()
                     result_count = data.get("results_count", 0)
 
-                    hybrid_results.append({
-                        "query_id": query["query_id"],
-                        "semantic": query["semantic"],
-                        "weight_semantic": query["weight_semantic"],
-                        "weight_stat7": query["weight_stat7"],
-                        "results_count": result_count,
-                        "success": True,  # Hybrid queries succeeding is the win
-                        "execution_time_ms": data.get("execution_time_ms", 0),
-                        "narrative_coherence": data.get("narrative_analysis", {}).get("coherence_score", 0)
-                    })
+                    hybrid_results.append(
+                        {
+                            "query_id": query["query_id"],
+                            "semantic": query["semantic"],
+                            "weight_semantic": query["weight_semantic"],
+                            "weight_stat7": query["weight_stat7"],
+                            "results_count": result_count,
+                            "success": True,  # Hybrid queries succeeding is the win
+                            "execution_time_ms": data.get("execution_time_ms", 0),
+                            "narrative_coherence": data.get(
+                                "narrative_analysis", {}
+                            ).get("coherence_score", 0),
+                        }
+                    )
                 else:
-                    hybrid_results.append({
+                    hybrid_results.append(
+                        {
+                            "query_id": query["query_id"],
+                            "semantic": query["semantic"],
+                            "weight_semantic": query["weight_semantic"],
+                            "weight_stat7": query["weight_stat7"],
+                            "results_count": 0,
+                            "success": False,
+                            "error": f"HTTP {response.status_code}",
+                        }
+                    )
+
+            except Exception as e:
+                hybrid_results.append(
+                    {
                         "query_id": query["query_id"],
                         "semantic": query["semantic"],
                         "weight_semantic": query["weight_semantic"],
                         "weight_stat7": query["weight_stat7"],
                         "results_count": 0,
                         "success": False,
-                        "error": f"HTTP {response.status_code}"
-                    })
-
-            except Exception as e:
-                hybrid_results.append({
-                    "query_id": query["query_id"],
-                    "semantic": query["semantic"],
-                    "weight_semantic": query["weight_semantic"],
-                    "weight_stat7": query["weight_stat7"],
-                    "results_count": 0,
-                    "success": False,
-                    "error": str(e)
-                })
+                        "error": str(e),
+                    }
+                )
 
         return {
             "total_queries": len(hybrid_queries),
             "successful_queries": len([r for r in hybrid_results if r["success"]]),
-            "results": hybrid_results
+            "results": hybrid_results,
         }
 
     def check_rag_data_integration(self) -> Dict[str, Any]:
@@ -214,20 +228,20 @@ class RAGIntegrationTester:
                     "total_queries": metrics.get("total_queries", 0),
                     "concurrent_queries": metrics.get("concurrent_queries", 0),
                     "errors": metrics.get("errors", 0),
-                    "data_integration_success": True
+                    "data_integration_success": True,
                 }
             else:
                 return {
                     "api_healthy": False,
                     "data_integration_success": False,
-                    "error": f"Metrics endpoint failed: {response.status_code}"
+                    "error": f"Metrics endpoint failed: {response.status_code}",
                 }
 
         except Exception as e:
             return {
                 "api_healthy": False,
                 "data_integration_success": False,
-                "error": str(e)
+                "error": str(e),
             }
 
     def run_comprehensive_test(self) -> RAGTestResult:
@@ -243,7 +257,7 @@ class RAGIntegrationTester:
             self.results.status = "FAIL"
             self.results.results = {
                 "error": "API service not available",
-                "api_healthy": False
+                "api_healthy": False,
             }
             return self.results
 
@@ -252,21 +266,32 @@ class RAGIntegrationTester:
         # Test semantic retrieval
         print("\n2. Testing semantic retrieval...")
         semantic_results = self.test_semantic_retrieval()
-        print(f"   Semantic queries: {semantic_results['successful_queries']}/{semantic_results['total_queries']} successful")
+        print(
+            f"   Semantic queries: {semantic_results['successful_queries']}/{semantic_results['total_queries']} successful"
+        )
 
         # Test hybrid retrieval
         print("\n3. Testing hybrid STAT7 + semantic retrieval...")
         hybrid_results = self.test_hybrid_retrieval()
-        print(f"   Hybrid queries: {hybrid_results['successful_queries']}/{hybrid_results['total_queries']} successful")
+        print(
+            f"   Hybrid queries: {hybrid_results['successful_queries']}/{hybrid_results['total_queries']} successful"
+        )
 
         # Check RAG data integration
         print("\n4. Checking RAG data integration...")
         rag_integration = self.check_rag_data_integration()
-        print(f"   RAG integration: {'✅ Success' if rag_integration['data_integration_success'] else '❌ Failed'}")
+        print(
+            f"   RAG integration: {'✅ Success' if rag_integration['data_integration_success'] else '❌ Failed'}"
+        )
 
         # Compile results
-        total_queries = semantic_results['total_queries'] + hybrid_results['total_queries']
-        successful_queries = semantic_results['successful_queries'] + hybrid_results['successful_queries']
+        total_queries = (
+            semantic_results["total_queries"] + hybrid_results["total_queries"]
+        )
+        successful_queries = (
+            semantic_results["successful_queries"]
+            + hybrid_results["successful_queries"]
+        )
 
         self.results.results = {
             "api_healthy": True,
@@ -276,16 +301,20 @@ class RAGIntegrationTester:
             "overall_metrics": {
                 "total_queries_tested": total_queries,
                 "successful_queries": successful_queries,
-                "success_rate": successful_queries / total_queries if total_queries > 0 else 0,
-                "rag_documents_accessible": semantic_results['successful_queries'] > 0,
-                "hybrid_search_working": hybrid_results['successful_queries'] > 0
-            }
+                "success_rate": (
+                    successful_queries / total_queries if total_queries > 0 else 0
+                ),
+                "rag_documents_accessible": semantic_results["successful_queries"] > 0,
+                "hybrid_search_working": hybrid_results["successful_queries"] > 0,
+            },
         }
 
         # Determine overall status
-        if (rag_integration['data_integration_success'] and
-            semantic_results['successful_queries'] > 0 and
-            hybrid_results['successful_queries'] > 0):
+        if (
+            rag_integration["data_integration_success"]
+            and semantic_results["successful_queries"] > 0
+            and hybrid_results["successful_queries"] > 0
+        ):
             self.results.status = "PASS"
             print("\n✅ EXP-08 PASSED: RAG integration successful")
         else:
@@ -305,7 +334,7 @@ class RAGIntegrationTester:
 
         output_path = results_dir / output_file
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(asdict(self.results), f, indent=2)
 
         print(f"\n📄 Results saved to: {output_path}")
