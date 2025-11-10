@@ -67,7 +67,7 @@ validate_experiments:
     - python -m fractalstat.exp05_compression_expansion
     - python -m fractalstat.exp06_entanglement_detection
     - python -m fractalstat.exp07_luca_bootstrap
-    - python -m fractalstat.exp08_rag_integration
+    - python -m fractalstat.exp08_llm_integration
     - python -m fractalstat.exp09_concurrency
   artifacts:
     paths:
