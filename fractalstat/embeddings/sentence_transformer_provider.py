@@ -9,7 +9,7 @@ import json
 import time
 import hashlib
 from pathlib import Path
-from warbler_cda.embeddings.base_provider import EmbeddingProvider
+from fractalstat.embeddings.base_provider import EmbeddingProvider
 
 
 class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
