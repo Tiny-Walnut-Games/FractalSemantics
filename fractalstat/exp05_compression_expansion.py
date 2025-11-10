@@ -220,12 +220,13 @@ class CompressionPipeline:
 
         # Stage 2: Fragment representation
         fragment_id = str(uuid.uuid4())[:12]
+        heat: float = bc.coordinates.velocity
         fragment = {
             "id": fragment_id,
             "bitchain_id": bc.id,
             "realm": bc.coordinates.realm,
             "text": f"{bc.coordinates.realm}:{bc.coordinates.lineage}:{bc.coordinates.density}",
-            "heat": bc.coordinates.velocity,
+            "heat": heat,
             "embedding": [bc.coordinates.velocity, bc.coordinates.resonance],
         }
         self.fragment_store[fragment_id] = fragment
@@ -237,10 +238,10 @@ class CompressionPipeline:
             record_count=1,
             key_metadata={
                 "fragment_id": fragment_id,
-                "heat": fragment["heat"],
+                "heat": heat,
                 "embedding": fragment["embedding"],
             },
-            luminosity=fragment["heat"],
+            luminosity=heat,
             provenance_intact=True,
         )
         path.stages.append(fragment_stage)
@@ -268,7 +269,7 @@ class CompressionPipeline:
                 "source_bitchain_ids": cluster["source_bitchain_ids"],
                 "provenance_hash": cluster["provenance_hash"],
             },
-            luminosity=fragment["heat"] * 0.95,  # Slight decay
+            luminosity=heat * 0.95,
             provenance_intact=True,
         )
         path.stages.append(cluster_stage)
@@ -278,6 +279,7 @@ class CompressionPipeline:
         affect_intensity = abs(
             bc.coordinates.resonance
         )  # Use resonance as affect proxy
+        heat_seed: float = heat * 0.85
         glyph = {
             "id": glyph_id,
             "source_ids": [bc.id],
@@ -289,9 +291,9 @@ class CompressionPipeline:
                 "humor": affect_intensity * 0.2,
                 "tension": affect_intensity * 0.1,
             },
-            "heat_seed": fragment["heat"] * 0.85,  # More decay
+            "heat_seed": heat_seed,
             "provenance_hash": cluster["provenance_hash"],
-            "luminosity": fragment["heat"] * 0.85,
+            "luminosity": heat_seed,
         }
         self.glyph_store[glyph_id] = glyph
 
@@ -306,13 +308,14 @@ class CompressionPipeline:
                 "affect": glyph["affect"],
                 "provenance_hash": glyph["provenance_hash"],
             },
-            luminosity=glyph["heat_seed"],
+            luminosity=heat_seed,
             provenance_intact=True,
         )
         path.stages.append(glyph_stage)
 
         # Stage 5: Mist (final compression - proto-thought)
         mist_id = f"mist_{glyph_id[7:]}"  # Remove mglyph_ prefix
+        mist_luminosity: float = heat_seed * 0.7
         mist = {
             "id": mist_id,
             "source_glyph": glyph_id,
@@ -320,7 +323,7 @@ class CompressionPipeline:
             "evaporation_temp": 0.7,
             "mythic_weight": affect_intensity,
             "technical_clarity": 0.6,
-            "luminosity": glyph["heat_seed"] * 0.7,  # Final decay
+            "luminosity": mist_luminosity,
             # Preserve just enough for reconstruction
             "recovery_breadcrumbs": {
                 "original_realm": bc.coordinates.realm,
@@ -338,16 +341,16 @@ class CompressionPipeline:
             key_metadata={
                 "mist_id": mist_id,
                 "recovery_breadcrumbs": mist["recovery_breadcrumbs"],
-                "luminosity": mist["luminosity"],
+                "luminosity": mist_luminosity,
             },
-            luminosity=mist["luminosity"],
+            luminosity=mist_luminosity,
             provenance_intact=True,  # Breadcrumbs preserve some info
         )
         path.stages.append(mist_stage)
 
         # Calculate path statistics
         path.final_compression_ratio = path.original_serialized_size / max(mist_size, 1)
-        path.luminosity_final = mist["luminosity"]
+        path.luminosity_final = mist_luminosity
 
         # Attempt reconstruction
         path = self._reconstruct_from_mist(path, mist)

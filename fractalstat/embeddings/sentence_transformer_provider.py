@@ -6,9 +6,12 @@ High-quality embeddings using pre-trained transformer models with CUDA support
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
 from fractalstat.embeddings.base_provider import EmbeddingProvider
+
+if TYPE_CHECKING:
+    from sentence_transformers import SentenceTransformer as SentenceTransformerType
 
 
 class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
@@ -17,27 +20,31 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         super().__init__(config)
         model_name_default = "all-MiniLM-L6-v2"
-        self.model_name = (
+        self.model_name: str = (
             config.get("model_name", model_name_default)
             if config
             else model_name_default
         )
-        self.batch_size = config.get("batch_size", 32) if config else 32
+        self.batch_size: int = config.get("batch_size", 32) if config else 32
         cache_dir_default = ".embedding_cache"
-        self.cache_dir = (
+        self.cache_dir: str = (
             config.get("cache_dir", cache_dir_default) if config else cache_dir_default
         )
 
-        self.model = None
-        self.device = None
+        self.model: Optional["SentenceTransformerType"] = None
+        self.device: Optional[str] = None
         self.dimension: Optional[int] = None
         self.cache: Dict[str, List[float]] = {}
-        self.cache_stats = {"hits": 0, "misses": 0, "total_embeddings": 0}
+        self.cache_stats: Dict[str, int] = {
+            "hits": 0,
+            "misses": 0,
+            "total_embeddings": 0,
+        }
 
         self._initialize_model()
         self._load_cache()
 
-    def _initialize_model(self):
+    def _initialize_model(self) -> None:
         """Initialize the SentenceTransformer model with device detection."""
         try:
             from sentence_transformers import SentenceTransformer
@@ -46,7 +53,8 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
 
             self.device = "cuda" if torch.cuda.is_available() else "cpu"
             self.model = SentenceTransformer(self.model_name, device=self.device)
-            self.dimension = self.model.get_sentence_embedding_dimension()
+            if self.model is not None:
+                self.dimension = self.model.get_sentence_embedding_dimension()
 
         except ImportError:
             raise ImportError(
@@ -65,9 +73,9 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         self.cache_stats["misses"] += 1
         if self.model is None:
             raise RuntimeError("Model not initialized. Call _initialize_model first.")
-        embedding = self.model.encode(text, convert_to_tensor=False)
+        embedding: Any = self.model.encode(text, convert_to_tensor=False)
 
-        embedding_list = (
+        embedding_list: List[float] = (
             embedding.tolist() if hasattr(embedding, "tolist") else list(embedding)
         )
         self.cache[cache_key] = embedding_list
@@ -79,10 +87,10 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         self, texts: List[str], show_progress: bool = False
     ) -> List[List[float]]:
         """Generate embeddings for multiple texts with batching and caching."""
-        embeddings = []
-        texts_to_embed = []
-        cache_keys = []
-        indices_to_embed = []
+        embeddings: List[List[float]] = []
+        texts_to_embed: List[str] = []
+        cache_keys: List[str] = []
+        indices_to_embed: List[int] = []
 
         for i, text in enumerate(texts):
             cache_key = self._get_cache_key(text)
@@ -102,7 +110,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
                 raise RuntimeError(
                     "Model not initialized. Call _initialize_model first."
                 )
-            batch_embeddings = self.model.encode(
+            batch_embeddings: Any = self.model.encode(
                 texts_to_embed,
                 batch_size=self.batch_size,
                 convert_to_tensor=False,
@@ -110,8 +118,8 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
             )
 
             for idx, batch_idx in enumerate(indices_to_embed):
-                embedding = batch_embeddings[idx]
-                embedding_list = (
+                embedding: Any = batch_embeddings[idx]
+                embedding_list: List[float] = (
                     embedding.tolist()
                     if hasattr(embedding, "tolist")
                     else list(embedding)
@@ -121,7 +129,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
 
             self._save_cache()
 
-        result = []
+        result: List[List[float]] = []
         for cache_key in cache_keys:
             result.append(self.cache[cache_key])
 
@@ -131,11 +139,11 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         self, query_text: str, embeddings: List[List[float]], top_k: int = 5
     ) -> List[Tuple[int, float]]:
         """Find k semantically similar embeddings from a list."""
-        query_embedding = self.embed_text(query_text)
+        query_embedding: List[float] = self.embed_text(query_text)
 
-        similarities = []
+        similarities: List[Tuple[int, float]] = []
         for i, emb in enumerate(embeddings):
-            sim = self.calculate_similarity(query_embedding, emb)
+            sim: float = self.calculate_similarity(query_embedding, emb)
             similarities.append((i, sim))
 
         similarities.sort(key=lambda x: x[1], reverse=True)
@@ -168,7 +176,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         """Generate consistent cache key for text."""
         return hashlib.sha256(text.encode()).hexdigest()
 
-    def _load_cache(self):
+    def _load_cache(self) -> None:
         """Load embeddings from disk cache."""
         cache_file = Path(self.cache_dir) / (
             f"{self.model_name.replace('/', '_')}_cache.json"
@@ -182,7 +190,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
             except Exception as e:
                 print(f"Warning: Could not load cache from {cache_file}: {e}")
 
-    def _save_cache(self):
+    def _save_cache(self) -> None:
         """Save embeddings to disk cache."""
         Path(self.cache_dir).mkdir(parents=True, exist_ok=True)
         cache_file = Path(self.cache_dir) / (

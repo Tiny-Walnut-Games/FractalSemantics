@@ -6,6 +6,7 @@ import hashlib
 import math
 import struct
 from typing import Any, Dict, List, Optional
+from types import ModuleType
 
 from fractalstat.embeddings.base_provider import EmbeddingProvider
 
@@ -15,13 +16,15 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         super().__init__(config)
-        self.api_key = config.get("api_key") if config else None
+        self.api_key: Optional[str] = config.get("api_key") if config else None
         model_default = "text-embedding-ada-002"
-        self.model = config.get("model", model_default) if config else model_default
-        self.dimension = config.get("dimension", 1536) if config else 1536
-        self._client = None
+        self.model: str = (
+            config.get("model", model_default) if config else model_default
+        )
+        self.dimension: int = config.get("dimension", 1536) if config else 1536
+        self._client: Optional[ModuleType] = None
 
-    def _get_client(self):
+    def _get_client(self) -> ModuleType:
         """Lazy initialization of OpenAI client."""
         if self._client is None:
             try:
@@ -40,7 +43,9 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         """Generate OpenAI embedding for text."""
         try:
             client = self._get_client()
-            response = client.Embedding.create(model=self.model, input=text)
+            response: Dict[str, Any] = client.Embedding.create(
+                model=self.model, input=text
+            )
             return response["data"][0]["embedding"]
         except Exception as e:
             print(f"Warning: OpenAI API failed ({e}), using mock embedding")
@@ -50,7 +55,9 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         """Generate OpenAI embeddings for multiple texts."""
         try:
             client = self._get_client()
-            response = client.Embedding.create(model=self.model, input=texts)
+            response: Dict[str, Any] = client.Embedding.create(
+                model=self.model, input=texts
+            )
             return [item["embedding"] for item in response["data"]]
         except Exception as e:
             print(f"Warning: OpenAI API failed ({e}), using mock embeddings")
