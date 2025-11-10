@@ -27,7 +27,7 @@ import statistics
 from pathlib import Path
 
 # Reuse canonical serialization from Phase 1
-from stat7_experiments import (
+from fractalstat.stat7_experiments import (
     canonical_serialize,
     Coordinates,
     BitChain,

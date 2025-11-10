@@ -20,7 +20,7 @@ from collections import defaultdict
 import statistics
 
 # Reuse canonical serialization from Phase 1
-from stat7_experiments import (
+from fractalstat.stat7_experiments import (
     BitChain,
     generate_random_bitchain,
 )
