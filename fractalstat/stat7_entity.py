@@ -151,7 +151,7 @@ class LifecycleEvent:
         return {
             'timestamp': self.timestamp.isoformat(),
             'event_type': self.event_type,
-            'description': description,
+            'description': self.description,
             'metadata': self.metadata
         }
 
