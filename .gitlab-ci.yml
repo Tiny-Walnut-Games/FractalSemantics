@@ -46,7 +46,7 @@ type_check:
   stage: quality
   image: python:${PYTHON_VERSION}
   script:
-    - pip install mypy types-click
+    - pip install mypy types-click types-requests
     - mypy fractalstat/ --ignore-missing-imports
   allow_failure: true
   only:

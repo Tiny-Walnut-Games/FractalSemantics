@@ -42,6 +42,7 @@ dev = [
     "ruff>=0.1.0",
     "mypy>=1.0.0",
     "types-click>=8.1.0",
+    "types-requests>=2.28.0",
 ]
 
 [project.urls]
