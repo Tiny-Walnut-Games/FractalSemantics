@@ -259,16 +259,22 @@ class LUCABootstrapTester:
         """Compare original and bootstrapped entities."""
         print("   Comparing original and bootstrapped entities...")
 
+        id_matches: int = 0
+        lineage_matches: int = 0
+        realm_matches: int = 0
+        dimensionality_matches: int = 0
+        details: List[Dict[str, Any]] = []
+
         comparison = {
             "original_count": len(original),
             "bootstrapped_count": len(bootstrapped),
             "count_match": len(original) == len(bootstrapped),
-            "id_matches": 0,
-            "lineage_matches": 0,
-            "realm_matches": 0,
-            "dimensionality_matches": 0,
+            "id_matches": id_matches,
+            "lineage_matches": lineage_matches,
+            "realm_matches": realm_matches,
+            "dimensionality_matches": dimensionality_matches,
             "information_loss_detected": False,
-            "details": [],
+            "details": details,
         }
 
         # Create lookup for bootstrapped entities
@@ -279,27 +285,27 @@ class LUCABootstrapTester:
 
             if entity_id in bootstrapped_by_id:
                 bootstrapped_entity = bootstrapped_by_id[entity_id]
-                comparison["id_matches"] += 1
+                id_matches += 1
 
                 # Compare critical attributes
                 lineage_match = original_entity.lineage == bootstrapped_entity.lineage
                 if lineage_match:
-                    comparison["lineage_matches"] += 1
+                    lineage_matches += 1
 
                 realm_match = original_entity.realm == bootstrapped_entity.realm
                 if realm_match:
-                    comparison["realm_matches"] += 1
+                    realm_matches += 1
 
                 dimensionality_match = (
                     original_entity.dimensionality == bootstrapped_entity.dimensionality
                 )
                 if dimensionality_match:
-                    comparison["dimensionality_matches"] += 1
+                    dimensionality_matches += 1
 
                 # Record mismatch
                 if not (lineage_match and realm_match and dimensionality_match):
                     comparison["information_loss_detected"] = True
-                    comparison["details"].append(
+                    details.append(
                         {
                             "entity_id": entity_id,
                             "lineage_match": lineage_match,
@@ -309,23 +315,27 @@ class LUCABootstrapTester:
                     )
             else:
                 comparison["information_loss_detected"] = True
-                comparison["details"].append(
+                details.append(
                     {"entity_id": entity_id, "error": "Entity missing after bootstrap"}
                 )
 
         # Calculate recovery rates
         total = len(original)
+        comparison["id_matches"] = id_matches
+        comparison["lineage_matches"] = lineage_matches
+        comparison["realm_matches"] = realm_matches
+        comparison["dimensionality_matches"] = dimensionality_matches
         comparison["entity_recovery_rate"] = (
-            comparison["id_matches"] / total if total > 0 else 0
+            id_matches / total if total > 0 else 0
         )
         comparison["lineage_recovery_rate"] = (
-            comparison["lineage_matches"] / total if total > 0 else 0
+            lineage_matches / total if total > 0 else 0
         )
         comparison["realm_recovery_rate"] = (
-            comparison["realm_matches"] / total if total > 0 else 0
+            realm_matches / total if total > 0 else 0
         )
         comparison["dimensionality_recovery_rate"] = (
-            comparison["dimensionality_matches"] / total if total > 0 else 0
+            dimensionality_matches / total if total > 0 else 0
         )
 
         return comparison

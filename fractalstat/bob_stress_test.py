@@ -13,7 +13,7 @@ import random
 import statistics
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 import logging
 import requests
 import numpy as np
@@ -151,12 +151,12 @@ class BobStressTester:
         self.api_base_url = api_base_url
         self.config = BobStressTestConfig()
         self.query_generator = NPCQueryGenerator()
-        self.results = []
-        self.start_time = None
-        self.end_time = None
+        self.results: List[Dict[str, Any]] = []
+        self.start_time: Optional[datetime] = None
+        self.end_time: Optional[datetime] = None
 
         # Performance tracking
-        self.query_times = []
+        self.query_times: List[float] = []
         self.bob_verdicts = {"PASSED": 0, "VERIFIED": 0, "QUARANTINED": 0}
         self.error_count = 0
         self.queries_per_second_actual = 0
@@ -268,7 +268,7 @@ class BobStressTester:
 
         logger.info(f"Worker {worker_id} completed {queries_executed} queries")
 
-    async def run_stress_test(self, duration_minutes: int = None) -> Dict[str, Any]:
+    async def run_stress_test(self, duration_minutes: Optional[int] = None) -> Dict[str, Any]:
         """Run the complete stress test"""
 
         duration_minutes = duration_minutes or self.config.TEST_DURATION_MINUTES

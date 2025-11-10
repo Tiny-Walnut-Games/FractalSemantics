@@ -13,7 +13,7 @@ Status: Production-ready validation bridge
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List, Tuple, Optional, Callable
 import math
 import random
 
@@ -302,7 +302,7 @@ def generate_synthetic_rag_documents(
     base_texts: List[str],
     realm: Realm,
     scale: int,
-    embedding_fn: callable,
+    embedding_fn: Callable,
     randomize_stat7: bool = False,
     seed: Optional[int] = None,
 ) -> List[RAGDocument]:

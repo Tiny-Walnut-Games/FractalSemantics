@@ -6,7 +6,7 @@ Simple TF-IDF based embeddings for offline operation
 import math
 import re
 from collections import Counter
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from fractalstat.embeddings.base_provider import EmbeddingProvider
 
@@ -16,8 +16,8 @@ class LocalEmbeddingProvider(EmbeddingProvider):
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         super().__init__(config)
-        self.vocabulary = set()
-        self.document_frequency = Counter()
+        self.vocabulary: Set[str] = set()
+        self.document_frequency: Counter[str] = Counter()
         self.total_documents = 0
         self.vector_dimension = config.get("dimension", 128) if config else 128
 

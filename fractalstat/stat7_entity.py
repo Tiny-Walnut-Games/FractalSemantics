@@ -187,7 +187,7 @@ class STAT7Entity(ABC):
     entity_type: str = ""  # Overridden in subclasses
 
     # STAT7 Addressing
-    stat7: STAT7Coordinates = None
+    stat7: Optional[STAT7Coordinates] = None
 
     # Legacy Fields (backward compatibility)
     legacy_data: Dict[str, Any] = field(default_factory=dict)
@@ -252,7 +252,7 @@ class STAT7Entity(ABC):
     # ========================================================================
 
     def _record_event(
-        self, event_type: str, description: str, metadata: Dict[str, Any] = None
+        self, event_type: str, description: str, metadata: Optional[Dict[str, Any]] = None
     ):
         """Record a lifecycle event"""
         event = LifecycleEvent(

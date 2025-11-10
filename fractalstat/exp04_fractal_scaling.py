@@ -375,7 +375,7 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
 # ============================================================================
 
 
-def save_results(results: FractalScalingResults, output_file: str = None) -> str:
+def save_results(results: FractalScalingResults, output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")

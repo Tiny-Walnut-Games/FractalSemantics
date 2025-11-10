@@ -622,7 +622,7 @@ def run_compression_expansion_test(
 # ============================================================================
 
 
-def save_results(results: CompressionExperimentResults, output_file: str = None) -> str:
+def save_results(results: CompressionExperimentResults, output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")

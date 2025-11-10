@@ -31,7 +31,7 @@ class RAGTestResult:
     title: str = "RAG Integration Test"
     timestamp: str = ""
     status: str = "PASS"
-    results: Dict[str, Any] = None
+    results: Optional[Dict[str, Any]] = None
 
     def __post_init__(self):
         if self.timestamp == "":
@@ -323,7 +323,7 @@ class RAGIntegrationTester:
 
         return self.results
 
-    def save_results(self, output_file: str = None) -> str:
+    def save_results(self, output_file: Optional[str] = None) -> str:
         """Save test results to JSON file."""
         if output_file is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

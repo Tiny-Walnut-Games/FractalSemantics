@@ -30,8 +30,8 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
 
         self.model = None
         self.device = None
-        self.dimension = None
-        self.cache = {}
+        self.dimension: Optional[int] = None
+        self.cache: Dict[str, List[float]] = {}
         self.cache_stats = {"hits": 0, "misses": 0, "total_embeddings": 0}
 
         self._initialize_model()
@@ -63,6 +63,8 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
             return self.cache[cache_key]
 
         self.cache_stats["misses"] += 1
+        if self.model is None:
+            raise RuntimeError("Model not initialized. Call _initialize_model first.")
         embedding = self.model.encode(text, convert_to_tensor=False)
 
         embedding_list = (
@@ -96,6 +98,8 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         if texts_to_embed:
             self.cache_stats["misses"] += len(texts_to_embed)
 
+            if self.model is None:
+                raise RuntimeError("Model not initialized. Call _initialize_model first.")
             batch_embeddings = self.model.encode(
                 texts_to_embed,
                 batch_size=self.batch_size,
@@ -137,6 +141,8 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
 
     def get_dimension(self) -> int:
         """Get embedding dimension."""
+        if self.dimension is None:
+            raise RuntimeError("Dimension not initialized. Call _initialize_model first.")
         return self.dimension
 
     def get_provider_info(self) -> Dict[str, Any]:
