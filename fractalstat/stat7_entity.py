@@ -252,7 +252,10 @@ class STAT7Entity(ABC):
     # ========================================================================
 
     def _record_event(
-        self, event_type: str, description: str, metadata: Optional[Dict[str, Any]] = None
+        self,
+        event_type: str,
+        description: str,
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         """Record a lifecycle event"""
         event = LifecycleEvent(
@@ -319,6 +322,7 @@ class STAT7Entity(ABC):
     @property
     def luca_distance(self) -> int:
         """Distance from LUCA (Last Universal Common Ancestor)"""
+        assert self.stat7 is not None, "stat7 coordinates must be initialized"
         return self.stat7.lineage
 
     def get_luca_trace(self) -> Dict[str, Any]:
@@ -326,6 +330,7 @@ class STAT7Entity(ABC):
         Get path back to LUCA bootstrap origin.
         In a real system, this would trace parent entities.
         """
+        assert self.stat7 is not None, "stat7 coordinates must be initialized"
         return {
             "entity_id": self.entity_id,
             "luca_distance": self.luca_distance,
@@ -348,6 +353,7 @@ class STAT7Entity(ABC):
         if not self.opt_in_stat7_nft:
             raise ValueError("Entity not opted in to STAT7-NFT system")
 
+        assert self.stat7 is not None, "stat7 coordinates must be initialized"
         card_data = self.to_collectible_card_data()
 
         return {
@@ -446,6 +452,7 @@ class STAT7Entity(ABC):
         if level < 1 or level > 7:
             raise ValueError(f"Invalid zoom level: {level}")
 
+        assert self.stat7 is not None, "stat7 coordinates must be initialized"
         card_data = self.to_collectible_card_data()
 
         base = {

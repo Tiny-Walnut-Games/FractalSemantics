@@ -159,7 +159,7 @@ class BobStressTester:
         self.query_times: List[float] = []
         self.bob_verdicts = {"PASSED": 0, "VERIFIED": 0, "QUARANTINED": 0}
         self.error_count = 0
-        self.queries_per_second_actual = 0
+        self.queries_per_second_actual = 0.0
 
     async def single_query(self, query_data: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a single query and track Bob's response"""
@@ -268,7 +268,9 @@ class BobStressTester:
 
         logger.info(f"Worker {worker_id} completed {queries_executed} queries")
 
-    async def run_stress_test(self, duration_minutes: Optional[int] = None) -> Dict[str, Any]:
+    async def run_stress_test(
+        self, duration_minutes: Optional[int] = None
+    ) -> Dict[str, Any]:
         """Run the complete stress test"""
 
         duration_minutes = duration_minutes or self.config.TEST_DURATION_MINUTES
@@ -299,23 +301,25 @@ class BobStressTester:
     def generate_report(self) -> Dict[str, Any]:
         """Generate comprehensive stress test report"""
 
+        assert self.start_time is not None, "start_time must be set"
+        assert self.end_time is not None, "end_time must be set"
         total_duration = (self.end_time - self.start_time).total_seconds()
         total_queries = len(self.results)
         successful_queries = len([r for r in self.results if "error" not in r])
 
         # Calculate QPS
         self.queries_per_second_actual = (
-            total_queries / total_duration if total_duration > 0 else 0
+            total_queries / total_duration if total_duration > 0 else 0.0
         )
 
         # Performance metrics
         if self.query_times:
-            avg_query_time = statistics.mean(self.query_times)
-            median_query_time = statistics.median(self.query_times)
-            p95_query_time = np.percentile(self.query_times, 95)
-            p99_query_time = np.percentile(self.query_times, 99)
+            avg_query_time = float(statistics.mean(self.query_times))
+            median_query_time = float(statistics.median(self.query_times))
+            p95_query_time = float(np.percentile(self.query_times, 95))
+            p99_query_time = float(np.percentile(self.query_times, 99))
         else:
-            avg_query_time = median_query_time = p95_query_time = p99_query_time = 0
+            avg_query_time = median_query_time = p95_query_time = p99_query_time = 0.0
 
         # Bob analysis
         total_bob_decisions = sum(self.bob_verdicts.values())

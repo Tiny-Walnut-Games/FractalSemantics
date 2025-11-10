@@ -19,7 +19,7 @@ import json
 import requests
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from dataclasses import dataclass, asdict
 
 

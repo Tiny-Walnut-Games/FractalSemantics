@@ -35,7 +35,7 @@ class EmbeddingProviderFactory:
             )
 
         provider_class = cls.PROVIDERS[provider_type]
-        return provider_class(config)
+        return provider_class(config)  # type: ignore
 
     @classmethod
     def get_default_provider(

@@ -325,15 +325,11 @@ class LUCABootstrapTester:
         comparison["lineage_matches"] = lineage_matches
         comparison["realm_matches"] = realm_matches
         comparison["dimensionality_matches"] = dimensionality_matches
-        comparison["entity_recovery_rate"] = (
-            id_matches / total if total > 0 else 0
-        )
+        comparison["entity_recovery_rate"] = id_matches / total if total > 0 else 0
         comparison["lineage_recovery_rate"] = (
             lineage_matches / total if total > 0 else 0
         )
-        comparison["realm_recovery_rate"] = (
-            realm_matches / total if total > 0 else 0
-        )
+        comparison["realm_recovery_rate"] = realm_matches / total if total > 0 else 0
         comparison["dimensionality_recovery_rate"] = (
             dimensionality_matches / total if total > 0 else 0
         )
@@ -344,19 +340,20 @@ class LUCABootstrapTester:
         """Test fractal properties of the system."""
         print("   Testing fractal properties...")
 
+        details: Dict[str, Any] = {}
         fractal_tests = {
             "self_similarity": True,
             "scale_invariance": True,
             "recursive_structure": True,
             "luca_traceability": True,
-            "details": {},
+            "details": details,
         }
 
         # Test LUCA traceability: all entities have valid lineage
         lineages = [e.lineage for e in entities]
         if not all(0 <= lineage for lineage in lineages):
             fractal_tests["luca_traceability"] = False
-        fractal_tests["details"]["lineages"] = sorted(set(lineages))
+        details["lineages"] = sorted(set(lineages))
 
         # Test self-similarity: entities have consistent structure
         entity_structure_keys = [set(e.to_dict().keys()) for e in entities]
@@ -364,13 +361,13 @@ class LUCABootstrapTester:
             struct == entity_structure_keys[0] for struct in entity_structure_keys
         )
         fractal_tests["self_similarity"] = all_same
-        fractal_tests["details"]["structural_consistency"] = all_same
+        details["structural_consistency"] = all_same
 
         # Test scale invariance: multiple lineage levels exist
         unique_lineages = len(set(lineages))
         has_multiple_scales = unique_lineages >= 2
         fractal_tests["scale_invariance"] = has_multiple_scales
-        fractal_tests["details"]["lineage_depth"] = unique_lineages
+        details["lineage_depth"] = unique_lineages
 
         # Test recursive structure: dimensionality matches lineage conceptually
         for entity in entities:
@@ -387,13 +384,18 @@ class LUCABootstrapTester:
         """
         print("   Testing LUCA continuity and entity health...")
 
+        bootstraps_performed: int = 0
+        bootstrap_failures: int = 0
+        reconstruction_errors: List[str] = []
+        lineage_continuity: bool = True
+
         continuity_test = {
-            "lineage_continuity": True,
+            "lineage_continuity": lineage_continuity,
             "address_stability": True,
             "metadata_preservation": True,
-            "bootstraps_performed": 0,
-            "bootstrap_failures": 0,
-            "reconstruction_errors": [],
+            "bootstraps_performed": bootstraps_performed,
+            "bootstrap_failures": bootstrap_failures,
+            "reconstruction_errors": reconstruction_errors,
         }
 
         # Test 1: Multiple bootstrap cycles
@@ -406,21 +408,26 @@ class LUCABootstrapTester:
 
             # Bootstrap back
             bootstrapped, success_list = self.bootstrap_from_luca(luca_state)
-            continuity_test["bootstraps_performed"] += 1
+            bootstraps_performed += 1
 
             if not all(success_list):
-                continuity_test["bootstrap_failures"] += 1
+                bootstrap_failures += 1
 
             # Verify lineage is preserved
             for orig, boot in zip(current_entities, bootstrapped):
                 if orig.lineage != boot.lineage:
-                    continuity_test["lineage_continuity"] = False
-                    continuity_test["reconstruction_errors"].append(
+                    lineage_continuity = False
+                    reconstruction_errors.append(
                         f"Cycle {cycle}: Lineage mismatch for {orig.bit_chain_id}"
                     )
 
             # Next cycle uses bootstrapped entities
             current_entities = bootstrapped
+
+        continuity_test["lineage_continuity"] = lineage_continuity
+        continuity_test["bootstraps_performed"] = bootstraps_performed
+        continuity_test["bootstrap_failures"] = bootstrap_failures
+        continuity_test["reconstruction_errors"] = reconstruction_errors
 
         return continuity_test
 
