@@ -1,0 +1,241 @@
+"""
+SentenceTransformer Embedding Provider - GPU-Accelerated Semantic Grounding
+High-quality embeddings using pre-trained transformer models with CUDA support
+"""
+
+from typing import List, Dict, Any, Optional, Tuple
+import os
+import json
+import time
+import hashlib
+from pathlib import Path
+from warbler_cda.embeddings.base_provider import EmbeddingProvider
+
+
+class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
+    """GPU-accelerated embedding provider using SentenceTransformers."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        super().__init__(config)
+        self.model_name = config.get("model_name", "all-MiniLM-L6-v2") if config else "all-MiniLM-L6-v2"
+        self.batch_size = config.get("batch_size", 32) if config else 32
+        self.cache_dir = config.get("cache_dir", ".embedding_cache") if config else ".embedding_cache"
+        
+        self.model = None
+        self.device = None
+        self.dimension = None
+        self.cache = {}
+        self.cache_stats = {"hits": 0, "misses": 0, "total_embeddings": 0}
+        
+        self._initialize_model()
+        self._load_cache()
+    
+    def _initialize_model(self):
+        """Initialize the SentenceTransformer model with device detection."""
+        try:
+            from sentence_transformers import SentenceTransformer
+            import torch
+            
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+            self.model = SentenceTransformer(self.model_name, device=self.device)
+            self.dimension = self.model.get_sentence_embedding_dimension()
+            
+        except ImportError:
+            raise ImportError("sentence-transformers not installed. Install with: pip install sentence-transformers")
+    
+    def embed_text(self, text: str) -> List[float]:
+        """Generate embedding for a single text."""
+        cache_key = self._get_cache_key(text)
+        
+        if cache_key in self.cache:
+            self.cache_stats["hits"] += 1
+            return self.cache[cache_key]
+        
+        self.cache_stats["misses"] += 1
+        embedding = self.model.encode(text, convert_to_tensor=False)
+        
+        embedding_list = embedding.tolist() if hasattr(embedding, 'tolist') else list(embedding)
+        self.cache[cache_key] = embedding_list
+        self.cache_stats["total_embeddings"] += 1
+        
+        return embedding_list
+    
+    def embed_batch(self, texts: List[str], show_progress: bool = False) -> List[List[float]]:
+        """Generate embeddings for multiple texts with batching and caching."""
+        embeddings = []
+        texts_to_embed = []
+        cache_keys = []
+        indices_to_embed = []
+        
+        for i, text in enumerate(texts):
+            cache_key = self._get_cache_key(text)
+            cache_keys.append(cache_key)
+            
+            if cache_key in self.cache:
+                embeddings.append(self.cache[cache_key])
+                self.cache_stats["hits"] += 1
+            else:
+                texts_to_embed.append(text)
+                indices_to_embed.append(i)
+        
+        if texts_to_embed:
+            self.cache_stats["misses"] += len(texts_to_embed)
+            
+            batch_embeddings = self.model.encode(
+                texts_to_embed,
+                batch_size=self.batch_size,
+                convert_to_tensor=False,
+                show_progress_bar=show_progress
+            )
+            
+            for idx, batch_idx in enumerate(indices_to_embed):
+                embedding = batch_embeddings[idx]
+                embedding_list = embedding.tolist() if hasattr(embedding, 'tolist') else list(embedding)
+                self.cache[cache_keys[batch_idx]] = embedding_list
+                self.cache_stats["total_embeddings"] += 1
+            
+            self._save_cache()
+        
+        result = []
+        for i, cache_key in enumerate(cache_keys):
+            result.append(self.cache[cache_key])
+        
+        return result
+    
+    def semantic_search(self, query_text: str, embeddings: List[List[float]], 
+                       top_k: int = 5) -> List[Tuple[int, float]]:
+        """Find k semantically similar embeddings from a list."""
+        query_embedding = self.embed_text(query_text)
+        
+        import numpy as np
+        
+        query_vec = np.array(query_embedding)
+        embed_vecs = np.array(embeddings)
+        
+        similarities = []
+        for i, emb in enumerate(embed_vecs):
+            sim = self.calculate_similarity(query_embedding, emb)
+            similarities.append((i, sim))
+        
+        similarities.sort(key=lambda x: x[1], reverse=True)
+        return similarities[:top_k]
+    
+    def get_dimension(self) -> int:
+        """Get embedding dimension."""
+        return self.dimension
+    
+    def get_provider_info(self) -> Dict[str, Any]:
+        """Get detailed provider information."""
+        info = super().get_provider_info()
+        info.update({
+            "model_name": self.model_name,
+            "device": self.device,
+            "batch_size": self.batch_size,
+            "cache_stats": self.cache_stats.copy(),
+            "cache_size": len(self.cache),
+            "cache_dir": self.cache_dir,
+        })
+        return info
+    
+    def _get_cache_key(self, text: str) -> str:
+        """Generate consistent cache key for text."""
+        return hashlib.sha256(text.encode()).hexdigest()
+    
+    def _load_cache(self):
+        """Load embeddings from disk cache."""
+        cache_file = Path(self.cache_dir) / f"{self.model_name.replace('/', '_')}_cache.json"
+        
+        if cache_file.exists():
+            try:
+                with open(cache_file, 'r') as f:
+                    self.cache = json.load(f)
+                    self.cache_stats["total_embeddings"] = len(self.cache)
+            except Exception as e:
+                print(f"Warning: Could not load cache from {cache_file}: {e}")
+    
+    def _save_cache(self):
+        """Save embeddings to disk cache."""
+        Path(self.cache_dir).mkdir(parents=True, exist_ok=True)
+        cache_file = Path(self.cache_dir) / f"{self.model_name.replace('/', '_')}_cache.json"
+        
+        try:
+            with open(cache_file, 'w') as f:
+                json.dump(self.cache, f)
+        except Exception as e:
+            print(f"Warning: Could not save cache to {cache_file}: {e}")
+    
+    def compute_stat7_from_embedding(self, embedding: List[float]) -> Dict[str, Any]:
+        """
+        Compute STAT7 coordinates from embedding vector.
+        Maps 384D embedding to 7D STAT7 addressing space using robust statistical features.
+        """
+        import numpy as np
+        
+        emb_array = np.array(embedding)
+        dim = len(embedding)
+        
+        if dim == 0:
+            return {
+                "lineage": 0.5,
+                "adjacency": 0.5,
+                "luminosity": 0.7,
+                "polarity": 0.5,
+                "dimensionality": 0.5,
+                "horizon": "scene",
+                "realm": {"type": "semantic", "label": "embedding-derived"}
+            }
+        
+        abs_emb = np.abs(emb_array)
+        
+        seg_size = dim // 7
+        
+        seg0 = emb_array[:seg_size]
+        seg1 = emb_array[seg_size:2*seg_size]
+        seg2 = emb_array[2*seg_size:3*seg_size]
+        seg3 = emb_array[3*seg_size:4*seg_size]
+        seg4 = emb_array[4*seg_size:5*seg_size]
+        seg5 = emb_array[5*seg_size:6*seg_size]
+        seg6 = emb_array[6*seg_size:]
+        
+        lineage = float(np.mean(seg0 ** 2))
+        
+        if len(seg1) > 1 and len(seg2) > 1 and len(seg3) > 1:
+            corr_12 = np.corrcoef(seg1, seg2)[0, 1]
+            corr_23 = np.corrcoef(seg2, seg3)[0, 1]
+            corr_34 = np.corrcoef(seg3, seg4)[0, 1] if len(seg4) > 1 else 0.0
+            
+            corr_12 = corr_12 if not np.isnan(corr_12) else 0.0
+            corr_23 = corr_23 if not np.isnan(corr_23) else 0.0
+            corr_34 = corr_34 if not np.isnan(corr_34) else 0.0
+            
+            adjacency = float(abs(corr_12 + corr_23 + corr_34) / 3.0)
+        else:
+            adjacency = 0.5
+        
+        luminosity = float(np.max(abs_emb[2*seg_size:3*seg_size]))
+        
+        polarity = float(np.mean(seg3 > np.median(emb_array)))
+        
+        chunk_size = 12
+        num_chunks = dim // chunk_size
+        chunk_sums = [np.sum(abs_emb[i*chunk_size:(i+1)*chunk_size]) for i in range(num_chunks)]
+        chunk_entropy = float(np.std(chunk_sums) / (np.mean(chunk_sums) + 1e-8))
+        
+        high_magnitude = float(np.sum(abs_emb > np.percentile(abs_emb, 75)) / dim)
+        dimensionality = (high_magnitude + min(1.0, chunk_entropy * 0.2)) / 2.0
+        
+        lineage = max(0.0, min(1.0, lineage))
+        adjacency = max(0.0, min(1.0, adjacency))
+        luminosity = max(0.0, min(1.0, luminosity))
+        polarity = max(0.0, min(1.0, polarity))
+        dimensionality = max(0.0, min(1.0, dimensionality))
+        
+        return {
+            "lineage": lineage,
+            "adjacency": adjacency,
+            "luminosity": luminosity,
+            "polarity": polarity,
+            "dimensionality": dimensionality,
+            "horizon": "scene",
+            "realm": {"type": "semantic", "label": "embedding-derived"}
+        }

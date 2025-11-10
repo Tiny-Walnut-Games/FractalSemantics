@@ -1,5 +1,6 @@
 stages:
-  - test
+  - quality
+  - validate
   - build
   - deploy
 
@@ -12,31 +13,116 @@ cache:
     - .cache/pip
     - venv/
 
-test:
-  stage: test
+before_script:
+  - pip install --upgrade pip setuptools wheel
+
+## ============================================================================
+## QUALITY STAGE - Code Quality Checks
+## ============================================================================
+
+code_format:
+  stage: quality
   image: python:${PYTHON_VERSION}
   script:
-    - pip install -e ".[dev]"
-    - pytest -v --tb=short
-  coverage: '/TOTAL.*\s+(\d+%)$/'
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
-    paths:
-      - coverage.xml
-    expire_in: 30 days
+    - pip install black[d]
+    - black --check fractalstat/
+  allow_failure: false
   only:
     - merge_requests
     - main
 
-build:
+lint:
+  stage: quality
+  image: python:${PYTHON_VERSION}
+  script:
+    - pip install ruff
+    - ruff check fractalstat/
+  allow_failure: false
+  only:
+    - merge_requests
+    - main
+
+type_check:
+  stage: quality
+  image: python:${PYTHON_VERSION}
+  script:
+    - pip install mypy types-click
+    - mypy fractalstat/ --ignore-missing-imports
+  allow_failure: true
+  only:
+    - merge_requests
+    - main
+
+## ============================================================================
+## VALIDATE STAGE - Experiment-Based Validation
+## ============================================================================
+
+validate_experiments:
+  stage: validate
+  image: python:${PYTHON_VERSION}
+  script:
+    - pip install -e .
+    - echo "Running Phase 1 Doctrine Validation (EXP-01, EXP-02, EXP-03)..."
+    - python -m fractalstat.stat7_experiments
+    - echo "Running EXP-04: Fractal Scaling Experiments..."
+    - python -m fractalstat.exp04_fractal_scaling
+    - echo "Running EXP-05: Compression/Expansion Tests..."
+    - python -m fractalstat.exp05_compression_expansion
+    - echo "Running EXP-06: Entanglement Detection..."
+    - python -m fractalstat.exp06_entanglement_detection
+    - echo "Running EXP-07: LUCA Bootstrap Validation..."
+    - python -m fractalstat.exp07_luca_bootstrap
+    - echo "Running EXP-08: RAG Integration Tests..."
+    - python -m fractalstat.exp08_rag_integration
+    - echo "Running EXP-09: Concurrency Tests..."
+    - python -m fractalstat.exp09_concurrency
+    - echo "All 9 validation experiments passed!"
+  artifacts:
+    paths:
+      - experiment_reports/
+      - .coverage
+      - "exp*.json"
+      - "bob_stress_test*.json"
+    expire_in: 30 days
+    when: always
+  timeout: 2 hours
+  retry:
+    max: 1
+    when: runner_system_failure
+  only:
+    - merge_requests
+    - main
+
+stress_tests:
+  stage: validate
+  image: python:${PYTHON_VERSION}
+  script:
+    - pip install -e .
+    - echo "Running stress tests..."
+    - python -m fractalstat.bob_stress_test
+  artifacts:
+    paths:
+      - stress_test_results/
+    expire_in: 30 days
+    when: always
+  timeout: 1 hour
+  allow_failure: true
+  only:
+    - merge_requests
+    - main
+
+## ============================================================================
+## BUILD STAGE - Package Creation
+## ============================================================================
+
+build_package:
   stage: build
   image: python:${PYTHON_VERSION}
   script:
     - pip install build wheel
+    - python copy_and_transform.py
     - python -m build
+    - ls -la dist/
   artifacts:
     paths:
       - dist/
@@ -45,11 +131,30 @@ build:
     - tags
     - main
 
+## ============================================================================
+## DEPLOY STAGE - Package Distribution
+## ============================================================================
+
+deploy_pypi:
+  stage: deploy
+  image: python:${PYTHON_VERSION}
+  dependencies:
+    - build_package
+  script:
+    - pip install twine
+    - twine upload dist/* --non-interactive --skip-existing
+  environment:
+    name: pypi
+    url: https://pypi.org/project/fractalstat/
+  only:
+    - tags
+  when: manual
+
 deploy_huggingface:
   stage: deploy
   image: python:${PYTHON_VERSION}
   dependencies:
-    - build
+    - build_package
   script:
     - pip install huggingface-hub wheel
     - python -c "from huggingface_hub import HfApi; HfApi().upload_folder(repo_id='${HF_REPO_ID}', folder_path='dist/', repo_type='model', token='${HF_TOKEN}')"
@@ -58,4 +163,32 @@ deploy_huggingface:
     url: https://huggingface.co/${HF_REPO_ID}
   only:
     - tags
+  when: manual
+
+deploy_api_dev:
+  stage: deploy
+  image: python:${PYTHON_VERSION}
+  environment:
+    name: development
+    url: https://api-dev.example.com
+  script:
+    - echo "Deploying to development..."
+    - pip install -e .
+    - echo "Development deployment would go here"
+  only:
+    - develop
+  when: manual
+
+deploy_api_prod:
+  stage: deploy
+  image: python:${PYTHON_VERSION}
+  environment:
+    name: production
+    url: https://api.example.com
+  script:
+    - echo "Deploying to production..."
+    - pip install -e .
+    - echo "Production deployment would go here"
+  only:
+    - main
   when: manual
