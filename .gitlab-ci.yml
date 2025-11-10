@@ -62,21 +62,13 @@ validate_experiments:
   image: python:${PYTHON_VERSION}
   script:
     - pip install -e .
-    - echo "Running Phase 1 Doctrine Validation (EXP-01, EXP-02, EXP-03)..."
     - python -m fractalstat.stat7_experiments
-    - echo "Running EXP-04: Fractal Scaling Experiments..."
     - python -m fractalstat.exp04_fractal_scaling
-    - echo "Running EXP-05: Compression/Expansion Tests..."
     - python -m fractalstat.exp05_compression_expansion
-    - echo "Running EXP-06: Entanglement Detection..."
     - python -m fractalstat.exp06_entanglement_detection
-    - echo "Running EXP-07: LUCA Bootstrap Validation..."
     - python -m fractalstat.exp07_luca_bootstrap
-    - echo "Running EXP-08: RAG Integration Tests..."
     - python -m fractalstat.exp08_rag_integration
-    - echo "Running EXP-09: Concurrency Tests..."
     - python -m fractalstat.exp09_concurrency
-    - echo "All 9 validation experiments passed!"
   artifacts:
     paths:
       - experiment_reports/
@@ -98,7 +90,6 @@ stress_tests:
   image: python:${PYTHON_VERSION}
   script:
     - pip install -e .
-    - echo "Running stress tests..."
     - python -m fractalstat.bob_stress_test
   artifacts:
     paths:
@@ -120,7 +111,6 @@ build_package:
   image: python:${PYTHON_VERSION}
   script:
     - pip install build wheel
-    - python copy_and_transform.py
     - python -m build
     - ls -la dist/
   artifacts:
@@ -172,9 +162,7 @@ deploy_api_dev:
     name: development
     url: https://api-dev.example.com
   script:
-    - echo "Deploying to development..."
     - pip install -e .
-    - echo "Development deployment would go here"
   only:
     - develop
   when: manual
@@ -186,9 +174,7 @@ deploy_api_prod:
     name: production
     url: https://api.example.com
   script:
-    - echo "Deploying to production..."
     - pip install -e .
-    - echo "Production deployment would go here"
   only:
     - main
   when: manual
