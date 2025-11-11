@@ -130,9 +130,8 @@ publication_archive:
   stage: build
   image: python:${PYTHON_VERSION}
   dependencies:
-    - validate_experiments
-  script:
-    - pip install -e .
+
+  dependencies: []
     - python scripts/generate_doi_metadata.py ${CI_COMMIT_TAG#v}
     - python scripts/create_publication_archive.py ${CI_COMMIT_TAG#v}
   artifacts:

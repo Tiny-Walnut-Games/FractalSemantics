@@ -40,8 +40,8 @@ def create_archive(version: str) -> None:
     manifest = {
         "version": version,
         "archived_at": datetime.now().isoformat(),
-        "repository": "https://gitlab.com/tiny-walnut-games/fractalstat",
-        "tag": f"v{version}",
+
+        "repository": os.environ.get("CI_PROJECT_URL", "https://gitlab.com/tiny-walnut-games/fractalstat"),
         "experiments": [
             {"id": "EXP-01", "name": "Address Uniqueness"},
             {"id": "EXP-02", "name": "Retrieval Efficiency"},
