@@ -82,15 +82,10 @@ class BitChainCompressionPath:
 
     def calculate_stats(self) -> Dict[str, Any]:
         """Compute summary statistics for this compression path."""
-        if not self.stages:
-            return {}
-
-        final_stage = self.stages[-1]
-        return {
+        result = {
             "original_realm": self.original_stat7_dict.get("realm"),
             "original_address": self.original_address[:16] + "...",
             "stages_count": len(self.stages),
-            "final_stage": final_stage.stage_name,
             "compression_ratio": self.final_compression_ratio,
             "luminosity_decay": self.original_luminosity - self.luminosity_final,
             "coordinate_accuracy": round(self.coordinate_match_accuracy, 4),
@@ -98,6 +93,12 @@ class BitChainCompressionPath:
             "narrative_preserved": self.narrative_preserved,
             "can_expand": self.can_expand_completely,
         }
+
+        if self.stages:
+            final_stage = self.stages[-1]
+            result["final_stage"] = final_stage.stage_name
+
+        return result
 
 
 @dataclass
@@ -200,7 +201,7 @@ class CompressionPipeline:
             original_address=bc.compute_address(),
             original_stat7_dict=asdict(bc.coordinates),
             original_serialized_size=len(canonical_serialize(bc_dict)),
-            original_luminosity=bc.coordinates.velocity,  # Use velocity as activity proxy
+            original_luminosity=abs(bc.coordinates.velocity),  # Use absolute value for luminosity
         )
 
         # Stage 1: Original (baseline)
@@ -213,14 +214,14 @@ class CompressionPipeline:
                 "realm": bc.coordinates.realm,
                 "velocity": bc.coordinates.velocity,
             },
-            luminosity=bc.coordinates.velocity,
+            luminosity=abs(bc.coordinates.velocity),  # Use absolute value for luminosity
             provenance_intact=True,
         )
         path.stages.append(original_stage)
 
         # Stage 2: Fragment representation
         fragment_id = str(uuid.uuid4())[:12]
-        heat: float = bc.coordinates.velocity
+        heat: float = abs(bc.coordinates.velocity)  # Use absolute value for heat/luminosity
         fragment = {
             "id": fragment_id,
             "bitchain_id": bc.id,
@@ -648,6 +649,7 @@ if __name__ == "__main__":
     # Load from config or fall back to command-line args
     try:
         from fractalstat.config import ExperimentConfig
+
         config = ExperimentConfig()
         num_bitchains = config.get("EXP-05", "num_bitchains", 100)
         show_samples = config.get("EXP-05", "show_samples", True)

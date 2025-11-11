@@ -32,17 +32,26 @@ class BobStressTestConfig:
         """Initialize config from ExperimentConfig or use defaults."""
         try:
             from fractalstat.config import ExperimentConfig
+
             config = ExperimentConfig()
-            
+
             # Test duration and volume
             self.TEST_DURATION_MINUTES = config.get("EXP-10", "duration_minutes", 30)
-            self.QUERIES_PER_SECOND_TARGET = config.get("EXP-10", "queries_per_second_target", 10)
-            self.MAX_CONCURRENT_QUERIES = config.get("EXP-10", "max_concurrent_queries", 50)
-            
+            self.QUERIES_PER_SECOND_TARGET = config.get(
+                "EXP-10", "queries_per_second_target", 10
+            )
+            self.MAX_CONCURRENT_QUERIES = config.get(
+                "EXP-10", "max_concurrent_queries", 50
+            )
+
             # Bob thresholds
             self.BOB_COHERENCE_HIGH = config.get("EXP-10", "bob_coherence_high", 0.85)
-            self.BOB_ENTANGLEMENT_LOW = config.get("EXP-10", "bob_entanglement_low", 0.30)
-            self.BOB_CONSISTENCY_THRESHOLD = config.get("EXP-10", "bob_consistency_threshold", 0.85)
+            self.BOB_ENTANGLEMENT_LOW = config.get(
+                "EXP-10", "bob_entanglement_low", 0.30
+            )
+            self.BOB_CONSISTENCY_THRESHOLD = config.get(
+                "EXP-10", "bob_consistency_threshold", 0.85
+            )
         except Exception:
             # Fallback to default values if config not available
             self.TEST_DURATION_MINUTES = 30
@@ -51,7 +60,7 @@ class BobStressTestConfig:
             self.BOB_COHERENCE_HIGH = 0.85
             self.BOB_ENTANGLEMENT_LOW = 0.30
             self.BOB_CONSISTENCY_THRESHOLD = 0.85
-        
+
         # Query patterns (static)
         self.QUERY_TYPES = [
             "npc_character_development",
@@ -428,29 +437,38 @@ async def main():
     # Load defaults from config
     try:
         from fractalstat.config import ExperimentConfig
+
         exp_config = ExperimentConfig()
         default_duration = exp_config.get("EXP-10", "duration_minutes", 30)
         default_qps = exp_config.get("EXP-10", "queries_per_second_target", 10)
         default_concurrent = exp_config.get("EXP-10", "max_concurrent_queries", 50)
-        default_api_url = exp_config.get("EXP-10", "api_base_url", "http://localhost:8000")
+        default_api_url = exp_config.get(
+            "EXP-10", "api_base_url", "http://localhost:8000"
+        )
     except Exception:
         default_duration = 30
         default_qps = 10
         default_concurrent = 50
         default_api_url = "http://localhost:8000"
-    
+
     parser.add_argument(
-        "--duration", "-d", type=int, default=default_duration, help="Test duration in minutes"
+        "--duration",
+        "-d",
+        type=int,
+        default=default_duration,
+        help="Test duration in minutes",
     )
     parser.add_argument(
         "--qps", "-q", type=int, default=default_qps, help="Target queries per second"
     )
     parser.add_argument(
-        "--concurrent", "-c", type=int, default=default_concurrent, help="Maximum concurrent queries"
+        "--concurrent",
+        "-c",
+        type=int,
+        default=default_concurrent,
+        help="Maximum concurrent queries",
     )
-    parser.add_argument(
-        "--api-url", "-u", default=default_api_url, help="API base URL"
-    )
+    parser.add_argument("--api-url", "-u", default=default_api_url, help="API base URL")
 
     args = parser.parse_args()
 

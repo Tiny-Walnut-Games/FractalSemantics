@@ -4,7 +4,8 @@
 
 ```bash
 cd fractalstat-package
-python copy_and_transform.py
+make build
+sudo make install
 pip install -e .
 ```
 

@@ -211,7 +211,8 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
     retrieval_p95 = sorted(retrieval_times)[int(len(retrieval_times) * 0.95)]
     retrieval_p99 = sorted(retrieval_times)[int(len(retrieval_times) * 0.99)]
 
-    addresses_per_second = config.scale / total_time
+    # Prevent division by zero for very fast tests
+    addresses_per_second = config.scale / max(total_time, 0.001)
 
     return ScaleTestResults(
         scale=config.scale,
@@ -295,6 +296,7 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
     # Load experiment configuration
     try:
         from fractalstat.config import ExperimentConfig
+
         config = ExperimentConfig()
         quick_mode = config.get("EXP-04", "quick_mode", quick_mode)
         scales = config.get("EXP-04", "scales", [1_000, 10_000, 100_000])
@@ -305,16 +307,14 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
         if not quick_mode:
             scales.append(1_000_000)
         num_retrievals = 1000
-    
+
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
     print("\n" + "=" * 70)
     print("EXP-04: STAT7 FRACTAL SCALING TEST")
     print("=" * 70)
-    print(
-        f"Mode: {'Quick' if quick_mode else 'Full'} (scales: {scales})"
-    )
+    print(f"Mode: {'Quick' if quick_mode else 'Full'} (scales: {scales})")
     print()
 
     scale_results = []
@@ -403,6 +403,7 @@ if __name__ == "__main__":
     # Load from config or fall back to command-line args
     try:
         from fractalstat.config import ExperimentConfig
+
         exp_config = ExperimentConfig()
         quick_mode = exp_config.get("EXP-04", "quick_mode", True)
     except Exception:

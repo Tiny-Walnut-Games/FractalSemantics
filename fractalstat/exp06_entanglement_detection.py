@@ -72,10 +72,10 @@ def compute_polarity_vector(bitchain: Dict) -> List[float]:
     }
     horizon_ord = horizon_map.get(coords.get("horizon", "genesis"), 0) / 4.0
 
-    # Direct coordinate values (already in proper ranges)
-    resonance = coords.get("resonance", 0.0)  # [-1, 1]
-    velocity = coords.get("velocity", 0.0)  # [-1, 1]
-    density = coords.get("density", 0.5)  # [0, 1]
+    # Direct coordinate values - normalize to [0, 1]
+    resonance = (coords.get("resonance", 0.0) + 1.0) / 2.0
+    velocity = (coords.get("velocity", 0.0) + 1.0) / 2.0
+    density = coords.get("density", 0.5)
 
     return [
         realm_ord,
@@ -153,11 +153,11 @@ def polarity_resonance(bc1: Dict, bc2: Dict) -> float:
 REALM_ADJACENCY = {
     "data": {"data", "narrative", "system", "event", "pattern"},
     "narrative": {"data", "narrative", "system", "faculty", "event", "pattern"},
-    "system": {"data", "system", "faculty", "pattern", "void"},
+    "system": {"data", "system", "faculty", "pattern"},
     "faculty": {"narrative", "system", "faculty", "event"},
     "event": {"data", "narrative", "faculty", "event", "pattern"},
     "pattern": {"data", "narrative", "system", "event", "pattern", "void"},
-    "void": {"system", "pattern", "void"},
+    "void": {"pattern", "void"},
 }
 
 

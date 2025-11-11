@@ -87,6 +87,10 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         self, texts: List[str], show_progress: bool = False
     ) -> List[List[float]]:
         """Generate embeddings for multiple texts with batching and caching."""
+        # Check model initialization first, before processing
+        if texts and self.model is None:
+            raise RuntimeError("Model not initialized. Call _initialize_model first.")
+        
         embeddings: List[List[float]] = []
         texts_to_embed: List[str] = []
         cache_keys: List[str] = []
@@ -105,11 +109,6 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
 
         if texts_to_embed:
             self.cache_stats["misses"] += len(texts_to_embed)
-
-            if self.model is None:
-                raise RuntimeError(
-                    "Model not initialized. Call _initialize_model first."
-                )
             batch_embeddings: Any = self.model.encode(
                 texts_to_embed,
                 batch_size=self.batch_size,
@@ -244,11 +243,11 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
             corr_12 = np.corrcoef(seg1, seg2)[0, 1]
             corr_23 = np.corrcoef(seg2, seg3)[0, 1]
             corr_34 = np.corrcoef(seg3, seg4)[0, 1] if len(seg4) > 1 else 0.0
-            corr_56 = (
-                np.corrcoef(seg5, seg6)[0, 1]
-                if len(seg5) > 1 and len(seg6) > 1
-                else 0.0
-            )
+            # Only compute corr_56 if both segments have the same length
+            if len(seg5) > 1 and len(seg6) > 1 and len(seg5) == len(seg6):
+                corr_56 = np.corrcoef(seg5, seg6)[0, 1]
+            else:
+                corr_56 = 0.0
 
             corr_12 = corr_12 if not np.isnan(corr_12) else 0.0
             corr_23 = corr_23 if not np.isnan(corr_23) else 0.0
@@ -261,26 +260,30 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
 
         luminosity = float(np.max(abs_emb[2 * seg_size : 3 * seg_size]))
 
-        polarity = float(np.mean(seg3 > np.median(emb_array))) + float(
-            np.mean(seg5 > np.median(emb_array)) / 2.0
-        )
+        polarity_part1 = float(np.mean(seg3 > np.median(emb_array)))
+        polarity_part2 = float(np.mean(seg5 > np.median(emb_array)) / 2.0)
+        polarity = polarity_part1 + polarity_part2
 
         chunk_size = 12
         num_chunks = dim // chunk_size
-        chunk_sums = [
-            np.sum(abs_emb[i * chunk_size : (i + 1) * chunk_size])
-            for i in range(num_chunks)
-        ]
-        chunk_entropy = float(np.std(chunk_sums) / (np.mean(chunk_sums) + 1e-8))
+        if num_chunks > 0:
+            chunk_sums = [
+                np.sum(abs_emb[i * chunk_size : (i + 1) * chunk_size])
+                for i in range(num_chunks)
+            ]
+            chunk_entropy = float(np.std(chunk_sums) / (np.mean(chunk_sums) + 1e-8))
+        else:
+            chunk_entropy = 0.0
 
         high_magnitude = float(np.sum(abs_emb > np.percentile(abs_emb, 75)) / dim)
         dimensionality = (high_magnitude + min(1.0, chunk_entropy * 0.2)) / 2.0
 
-        lineage = max(0.0, min(1.0, lineage))
-        adjacency = max(0.0, min(1.0, adjacency))
-        luminosity = max(0.0, min(1.0, luminosity))
-        polarity = max(0.0, min(1.0, polarity))
-        dimensionality = max(0.0, min(1.0, dimensionality))
+        # Ensure all coordinates are clamped to [0.0, 1.0] range
+        lineage = float(np.clip(lineage, 0.0, 1.0))
+        adjacency = float(np.clip(adjacency, 0.0, 1.0))
+        luminosity = float(np.clip(luminosity, 0.0, 1.0))
+        polarity = float(np.clip(polarity, 0.0, 1.0))
+        dimensionality = float(np.clip(dimensionality, 0.0, 1.0))
 
         return {
             "lineage": lineage,

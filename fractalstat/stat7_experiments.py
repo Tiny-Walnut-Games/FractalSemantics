@@ -273,21 +273,42 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
 
     if seed is not None:
         random.seed(seed)
+        base_id = hashlib.sha256(str(seed).encode()).hexdigest()[:32]
+        id_str = f"{base_id[:8]}-{base_id[8:12]}-{base_id[12:16]}-{base_id[16:20]}-{base_id[20:32]}"
+        created_at_str = f"2024-01-01T{seed % 24:02d}:{(seed // 24) % 60:02d}:{(seed // 1440) % 60:02d}.000Z"
+    else:
+        id_str = str(uuid.uuid4())
+        created_at_str = datetime.now(timezone.utc).isoformat()
+
+    adjacency_ids = [
+        (
+            hashlib.sha256(f"{seed}-adj-{i}".encode()).hexdigest()[:32]
+            if seed is not None
+            else str(uuid.uuid4())
+        )
+        for i in range(random.randint(0, 5))
+    ]
+
+    if seed is not None and adjacency_ids:
+        adjacency_ids = [
+            f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}-{uuid_hex[20:32]}"
+            for uuid_hex in adjacency_ids
+        ]
 
     return BitChain(
-        id=str(uuid.uuid4()),
+        id=id_str,
         entity_type=random.choice(ENTITY_TYPES),
         realm=random.choice(REALMS),
         coordinates=Coordinates(
             realm=random.choice(REALMS),
             lineage=random.randint(1, 100),
-            adjacency=[str(uuid.uuid4()) for _ in range(random.randint(0, 5))],
+            adjacency=adjacency_ids,
             horizon=random.choice(HORIZONS),
             resonance=random.uniform(-1.0, 1.0),
             velocity=random.uniform(-1.0, 1.0),
             density=random.uniform(0.0, 1.0),
         ),
-        created_at=datetime.now(timezone.utc).isoformat(),
+        created_at=created_at_str,
         state={"value": random.randint(0, 1000)},
     )
 
@@ -719,6 +740,7 @@ def run_all_experiments(
     # Load experiment configuration
     try:
         from fractalstat.config import ExperimentConfig
+
         config = ExperimentConfig()
     except Exception:
         # Fallback to default parameters if config not available
@@ -731,7 +753,7 @@ def run_all_experiments(
         if config:
             exp01_samples = config.get("EXP-01", "sample_size", exp01_samples)
             exp01_iterations = config.get("EXP-01", "iterations", exp01_iterations)
-        
+
         exp01 = EXP01_AddressUniqueness(
             sample_size=exp01_samples, iterations=exp01_iterations
         )
@@ -745,7 +767,7 @@ def run_all_experiments(
     if config is None or config.is_enabled("EXP-02"):
         if config:
             exp02_queries = config.get("EXP-02", "query_count", exp02_queries)
-        
+
         exp02 = EXP02_RetrievalEfficiency(query_count=exp02_queries)
         _, exp02_success = exp02.run()
         results["EXP-02"] = {
@@ -757,7 +779,7 @@ def run_all_experiments(
     if config is None or config.is_enabled("EXP-03"):
         if config:
             exp03_samples = config.get("EXP-03", "sample_size", exp03_samples)
-        
+
         exp03 = EXP03_DimensionNecessity(sample_size=exp03_samples)
         _, exp03_success = exp03.run()
         results["EXP-03"] = {
