@@ -7,7 +7,7 @@
 
 ## What is FractalStat?
 
-FractalStat is a research package containing **10 validation experiments** that prove the STAT7 addressing system works at scale. STAT7 is a 7-dimensional coordinate system for uniquely addressing data in fractal information spaces.
+FractalStat is a research package containing **12 validation experiments** that prove the STAT7 addressing system works at scale. STAT7 is a 7-dimensional coordinate system for uniquely addressing data in fractal information spaces.
 
 **The 7 Dimensions:**
 - **Realm** - Domain classification (data, narrative, system, etc.)
@@ -18,7 +18,7 @@ FractalStat is a research package containing **10 validation experiments** that 
 - **Velocity** - Rate of change
 - **Density** - Compression distance (0.0 to 1.0)
 
-## The 10 Experiments
+## The 12 Experiments
 
 | Exp | Name | Tests | Status |
 |-----|------|-------|--------|
@@ -32,6 +32,8 @@ FractalStat is a research package containing **10 validation experiments** that 
 | **EXP-08** | RAG Integration | Storage compatibility | ✅ PASS |
 | **EXP-09** | Concurrency | Thread-safe queries | ✅ PASS |
 | **EXP-10** | Bob the Skeptic | Anti-hallucination | ✅ PASS |
+| **EXP-11** | Dimension Cardinality | Optimal dimension count analysis | ✅ PASS |
+| **EXP-12** | Benchmark Comparison | STAT7 vs. common systems | ✅ PASS |
 
 ## Quick Start
 
@@ -81,7 +83,8 @@ python -m fractalstat.exp05_compression_expansion
 # fractalstat/config/experiments.toml
 [experiments]
 enabled = ["EXP-01", "EXP-02", "EXP-03", "EXP-04", "EXP-05", 
-           "EXP-06", "EXP-07", "EXP-08", "EXP-09", "EXP-10"]
+           "EXP-06", "EXP-07", "EXP-08", "EXP-09", "EXP-10",
+           "EXP-11", "EXP-12"]
 
 [experiments.EXP-01]
 name = "Address Uniqueness Test"

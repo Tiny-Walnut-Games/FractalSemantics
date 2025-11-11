@@ -4,6 +4,8 @@ STAT7 Validation Experiments: Phase 1 Doctrine Testing
 Implements EXP-01, EXP-02, and EXP-03 from 04-VALIDATION-EXPERIMENTS.md
 Testing address uniqueness, retrieval efficiency, and dimension necessity.
 
+Also includes EXP-11 (Dimension Cardinality Analysis) and EXP-12 (Benchmark Comparison).
+
 Status: Ready for Phase 1 validation
 Phase 1 Doctrine: Locked
 """
@@ -71,6 +73,9 @@ def normalize_float(value: float, decimal_places: int = 8) -> str:
         result = result.rstrip("0")
         if result.endswith("."):
             result += "0"
+    elif "E" in result or "e" in result:
+        # Handle scientific notation (e.g., "0E-8" -> "0.0")
+        result = "0.0"
 
     return result
 
@@ -649,7 +654,7 @@ class EXP03_DimensionNecessity:
         )
         self.results.append(result)
 
-        status = "✅ PASS" if result.acceptable else "❌ FAIL"
+        status = "[PASS]" if result.acceptable else "[FAIL]"
         print(
             f"  {status} | Collisions: {collisions} | Rate: {baseline_collision_rate*100:.4f}%"
         )
@@ -693,7 +698,7 @@ class EXP03_DimensionNecessity:
 
             # For dimension necessity, we EXPECT failures (high collisions) when removing dims
             necessity = not acceptable  # Should show collisions
-            status = "✅ NECESSARY" if necessity else "⚠️  OPTIONAL"
+            status = "[NECESSARY]" if necessity else "[OPTIONAL]"
             print(
                 f"  {status} | Collisions: {collisions} | Rate: {collision_rate*100:.4f}%"
             )
@@ -709,7 +714,9 @@ class EXP03_DimensionNecessity:
         """Get summary statistics."""
         return {
             "sample_size": self.sample_size,
+            "total_tests": len(self.results),
             "total_dimension_combos_tested": len(self.results),
+            "all_passed": all(r.acceptable for r in self.results),
             "results": [r.to_dict() for r in self.results],
         }
 
@@ -787,21 +794,111 @@ def run_all_experiments(
             "summary": exp03.get_summary(),
         }
 
+    # EXP-11: Dimension Cardinality Analysis
+    if config is None or config.is_enabled("EXP-11"):
+        try:
+            from fractalstat.exp11_dimension_cardinality import (
+                DimensionCardinalityExperiment,
+            )
+
+            if config:
+                exp11_sample_size = config.get("EXP-11", "sample_size", 1000)
+                exp11_dimension_counts = config.get(
+                    "EXP-11", "dimension_counts", [3, 4, 5, 6, 7, 8, 9, 10]
+                )
+                exp11_test_iterations = config.get("EXP-11", "test_iterations", 5)
+            else:
+                exp11_sample_size = 1000
+                exp11_dimension_counts = [3, 4, 5, 6, 7, 8, 9, 10]
+                exp11_test_iterations = 5
+
+            exp11 = DimensionCardinalityExperiment(
+                sample_size=exp11_sample_size,
+                dimension_counts=exp11_dimension_counts,
+                test_iterations=exp11_test_iterations,
+            )
+            exp11_result, exp11_success = exp11.run()
+            results["EXP-11"] = {
+                "success": exp11_success,
+                "summary": exp11_result.to_dict(),
+            }
+        except Exception as e:
+            print(f"[WARN] EXP-11 failed: {e}")
+            results["EXP-11"] = {"success": False, "error": str(e)}
+
+    # EXP-12: Benchmark Comparison
+    if config is None or config.is_enabled("EXP-12"):
+        try:
+            from fractalstat.exp12_benchmark_comparison import (
+                BenchmarkComparisonExperiment,
+            )
+
+            if config:
+                exp12_sample_size = config.get("EXP-12", "sample_size", 100000)
+                exp12_benchmark_systems = config.get(
+                    "EXP-12",
+                    "benchmark_systems",
+                    ["uuid", "sha256", "vector_db", "graph_db", "rdbms", "stat7"],
+                )
+                exp12_scales = config.get("EXP-12", "scales", [10000, 100000, 1000000])
+                exp12_num_queries = config.get("EXP-12", "num_queries", 1000)
+            else:
+                exp12_sample_size = 100000
+                exp12_benchmark_systems = [
+                    "uuid",
+                    "sha256",
+                    "vector_db",
+                    "graph_db",
+                    "rdbms",
+                    "stat7",
+                ]
+                exp12_scales = [10000, 100000, 1000000]
+                exp12_num_queries = 1000
+
+            exp12 = BenchmarkComparisonExperiment(
+                sample_size=exp12_sample_size,
+                benchmark_systems=exp12_benchmark_systems,
+                scales=exp12_scales,
+                num_queries=exp12_num_queries,
+            )
+            exp12_result, exp12_success = exp12.run()
+            results["EXP-12"] = {
+                "success": exp12_success,
+                "summary": exp12_result.to_dict(),
+            }
+        except Exception as e:
+            print(f"[WARN] EXP-12 failed: {e}")
+            results["EXP-12"] = {"success": False, "error": str(e)}
+
     # Summary
     print(f"\n{'='*70}")
-    print("PHASE 1 VALIDATION SUMMARY")
+    print("VALIDATION SUMMARY")
     print(f"{'='*70}")
+
+    if "EXP-01" in results:
+        print(
+            f"EXP-01 (Address Uniqueness): {'✅ PASS' if results['EXP-01']['success'] else '❌ FAIL'}"
+        )
+    if "EXP-02" in results:
+        print(
+            f"EXP-02 (Retrieval Efficiency): {'✅ PASS' if results['EXP-02']['success'] else '❌ FAIL'}"
+        )
+    if "EXP-03" in results:
+        print(
+            f"EXP-03 (Dimension Necessity): {'✅ PASS' if results['EXP-03']['success'] else '❌ FAIL'}"
+        )
+    if "EXP-11" in results:
+        print(
+            f"EXP-11 (Dimension Cardinality): {'✅ PASS' if results['EXP-11']['success'] else '❌ FAIL'}"
+        )
+    if "EXP-12" in results:
+        print(
+            f"EXP-12 (Benchmark Comparison): {'✅ PASS' if results['EXP-12']['success'] else '❌ FAIL'}"
+        )
+
+    all_success = all(r.get("success", False) for r in results.values())
     print(
-        f"EXP-01 (Address Uniqueness): {'✅ PASS' if results['EXP-01']['success'] else '❌ FAIL'}"
-    )
-    print(
-        f"EXP-02 (Retrieval Efficiency): {'✅ PASS' if results['EXP-02']['success'] else '❌ FAIL'}"
-    )
-    print(
-        f"EXP-03 (Dimension Necessity): {'✅ PASS' if results['EXP-03']['success'] else '❌ FAIL'}"
-    )
-    print(
-        f"\nOverall Phase 1 Status: {'✅ READY FOR PHASE 2' if all(r['success'] for r in results.values()) else '❌ NEEDS WORK'}"
+        f"\nOverall Status: {'✅ ALL EXPERIMENTS PASSED' if all_success else '⚠️  SOME EXPERIMENTS FAILED'}"
     )
 
     return results

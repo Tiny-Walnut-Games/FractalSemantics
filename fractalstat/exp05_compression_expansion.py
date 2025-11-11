@@ -201,7 +201,9 @@ class CompressionPipeline:
             original_address=bc.compute_address(),
             original_stat7_dict=asdict(bc.coordinates),
             original_serialized_size=len(canonical_serialize(bc_dict)),
-            original_luminosity=abs(bc.coordinates.velocity),  # Use absolute value for luminosity
+            original_luminosity=abs(
+                bc.coordinates.velocity
+            ),  # Use absolute value for luminosity
         )
 
         # Stage 1: Original (baseline)
@@ -214,14 +216,18 @@ class CompressionPipeline:
                 "realm": bc.coordinates.realm,
                 "velocity": bc.coordinates.velocity,
             },
-            luminosity=abs(bc.coordinates.velocity),  # Use absolute value for luminosity
+            luminosity=abs(
+                bc.coordinates.velocity
+            ),  # Use absolute value for luminosity
             provenance_intact=True,
         )
         path.stages.append(original_stage)
 
         # Stage 2: Fragment representation
         fragment_id = str(uuid.uuid4())[:12]
-        heat: float = abs(bc.coordinates.velocity)  # Use absolute value for heat/luminosity
+        heat: float = abs(
+            bc.coordinates.velocity
+        )  # Use absolute value for heat/luminosity
         fragment = {
             "id": fragment_id,
             "bitchain_id": bc.id,

@@ -90,7 +90,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         # Check model initialization first, before processing
         if texts and self.model is None:
             raise RuntimeError("Model not initialized. Call _initialize_model first.")
-        
+
         embeddings: List[List[float]] = []
         texts_to_embed: List[str] = []
         cache_keys: List[str] = []

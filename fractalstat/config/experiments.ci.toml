@@ -17,7 +17,9 @@ enabled = [
     "EXP-07",
     "EXP-08",
     "EXP-09",
-    "EXP-10"
+    "EXP-10",
+    "EXP-11",
+    "EXP-12"
 ]
 
 # EXP-01: Fast uniqueness validation
@@ -72,3 +74,16 @@ test_duration_seconds = 30  # Reasonable CI duration
 duration_minutes = 2        # Quick stress test for CI
 queries_per_second_target = 5   # Reduced for CI
 max_concurrent_queries = 20     # Reduced for CI
+
+# EXP-11: CI dimension cardinality test
+[experiments.EXP-11]
+sample_size = 50            # Balanced for CI
+dimension_counts = [3, 5, 7, 9]  # Reduced set for CI
+test_iterations = 2         # Reduced from 5
+
+# EXP-12: CI benchmark comparison
+[experiments.EXP-12]
+sample_size = 500           # Balanced for CI
+benchmark_systems = ["uuid", "sha256", "stat7"]  # Subset for CI
+scales = [500, 5000]        # Reduced for CI
+num_queries = 100           # Reduced from 1000

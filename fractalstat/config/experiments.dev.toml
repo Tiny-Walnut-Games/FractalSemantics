@@ -9,9 +9,12 @@
 # Enable only a subset for quick development testing
 enabled = [
     "EXP-01",
-    "EXP-02", 
+    "EXP-02",
+    "EXP-03",
     "EXP-04",
-    "EXP-05"
+    "EXP-05",
+    "EXP-11",
+    "EXP-12"
 ]
 
 # EXP-01: Reduced for quick iteration
@@ -66,3 +69,16 @@ test_duration_seconds = 10  # Shorter duration
 duration_minutes = 1        # Reduced from 30
 queries_per_second_target = 5   # Reduced from 10
 max_concurrent_queries = 10     # Reduced from 50
+
+# EXP-11: Quick dimension cardinality test
+[experiments.EXP-11]
+sample_size = 100           # Reduced from 1000
+dimension_counts = [3, 5, 7, 9]  # Reduced set for dev
+test_iterations = 2         # Reduced from 5
+
+# EXP-12: Quick benchmark comparison
+[experiments.EXP-12]
+sample_size = 1000          # Reduced from 100000
+benchmark_systems = ["uuid", "sha256", "stat7"]  # Subset for dev
+scales = [1000, 10000]      # Reduced from [10000, 100000, 1000000]
+num_queries = 100           # Reduced from 1000

@@ -3,7 +3,6 @@ Extended tests for STAT7 Experiments to achieve 95%+ coverage
 Tests EXP-02, EXP-03, run_all_experiments(), and edge cases
 """
 
-import pytest
 import json
 import tempfile
 from pathlib import Path
@@ -30,9 +29,9 @@ class TestEXP02RetrievalEfficiency:
         exp = EXP02_RetrievalEfficiency(query_count=100)
         # Override scales for faster testing
         exp.scales = [100]
-        
+
         results, success = exp.run()
-        
+
         assert isinstance(results, list)
         assert len(results) == 1
         assert isinstance(success, bool)
@@ -45,9 +44,9 @@ class TestEXP02RetrievalEfficiency:
 
         exp = EXP02_RetrievalEfficiency(query_count=50)
         exp.scales = [50]
-        
+
         results, _ = exp.run()
-        
+
         result = results[0]
         assert result.mean_latency_ms >= 0
         assert result.median_latency_ms >= 0
@@ -62,9 +61,9 @@ class TestEXP02RetrievalEfficiency:
 
         exp = EXP02_RetrievalEfficiency(query_count=50)
         exp.scales = [1000]
-        
+
         results, success = exp.run()
-        
+
         # Success should be based on threshold comparison
         result = results[0]
         assert isinstance(result.success, bool)
@@ -75,10 +74,10 @@ class TestEXP02RetrievalEfficiency:
 
         exp = EXP02_RetrievalEfficiency(query_count=50)
         exp.scales = [100]
-        
+
         exp.run()
         summary = exp.get_summary()
-        
+
         assert isinstance(summary, dict)
         assert "total_scales_tested" in summary
         assert "all_passed" in summary
@@ -149,7 +148,7 @@ class TestEXP03DimensionNecessity:
 
         exp = EXP03_DimensionNecessity(sample_size=100)
         results, _ = exp.run()
-        
+
         # First result should be baseline with all dimensions
         baseline = results[0]
         assert len(baseline.dimensions_used) == 7
@@ -161,7 +160,7 @@ class TestEXP03DimensionNecessity:
 
         exp = EXP03_DimensionNecessity(sample_size=100)
         results, _ = exp.run()
-        
+
         # Find result where realm was removed
         realm_ablation = [r for r in results if "realm" not in r.dimensions_used]
         assert len(realm_ablation) > 0
@@ -173,7 +172,7 @@ class TestEXP03DimensionNecessity:
 
         exp = EXP03_DimensionNecessity(sample_size=100)
         results, _ = exp.run()
-        
+
         # Find result where lineage was removed
         lineage_ablation = [r for r in results if "lineage" not in r.dimensions_used]
         assert len(lineage_ablation) > 0
@@ -184,9 +183,11 @@ class TestEXP03DimensionNecessity:
 
         exp = EXP03_DimensionNecessity(sample_size=100)
         results, _ = exp.run()
-        
+
         # Find result where adjacency was removed
-        adjacency_ablation = [r for r in results if "adjacency" not in r.dimensions_used]
+        adjacency_ablation = [
+            r for r in results if "adjacency" not in r.dimensions_used
+        ]
         assert len(adjacency_ablation) > 0
 
     def test_exp03_ablation_horizon(self):
@@ -195,7 +196,7 @@ class TestEXP03DimensionNecessity:
 
         exp = EXP03_DimensionNecessity(sample_size=100)
         results, _ = exp.run()
-        
+
         # Find result where horizon was removed
         horizon_ablation = [r for r in results if "horizon" not in r.dimensions_used]
         assert len(horizon_ablation) > 0
@@ -206,9 +207,11 @@ class TestEXP03DimensionNecessity:
 
         exp = EXP03_DimensionNecessity(sample_size=100)
         results, _ = exp.run()
-        
+
         # Find result where resonance was removed
-        resonance_ablation = [r for r in results if "resonance" not in r.dimensions_used]
+        resonance_ablation = [
+            r for r in results if "resonance" not in r.dimensions_used
+        ]
         assert len(resonance_ablation) > 0
 
     def test_exp03_ablation_velocity(self):
@@ -217,7 +220,7 @@ class TestEXP03DimensionNecessity:
 
         exp = EXP03_DimensionNecessity(sample_size=100)
         results, _ = exp.run()
-        
+
         # Find result where velocity was removed
         velocity_ablation = [r for r in results if "velocity" not in r.dimensions_used]
         assert len(velocity_ablation) > 0
@@ -228,7 +231,7 @@ class TestEXP03DimensionNecessity:
 
         exp = EXP03_DimensionNecessity(sample_size=100)
         results, _ = exp.run()
-        
+
         # Find result where density was removed
         density_ablation = [r for r in results if "density" not in r.dimensions_used]
         assert len(density_ablation) > 0
@@ -240,7 +243,7 @@ class TestEXP03DimensionNecessity:
         exp = EXP03_DimensionNecessity(sample_size=100)
         exp.run()
         summary = exp.get_summary()
-        
+
         assert isinstance(summary, dict)
         assert "sample_size" in summary
         assert "total_dimension_combos_tested" in summary
@@ -315,7 +318,7 @@ class TestRunAllExperiments:
         mock_config.is_enabled.side_effect = lambda exp: exp == "EXP-01"
         mock_config.get.return_value = 10
 
-        with patch('fractalstat.stat7_experiments.ExperimentConfig', return_value=mock_config):
+        with patch("fractalstat.config.ExperimentConfig", return_value=mock_config):
             results = run_all_experiments(
                 exp01_samples=10,
                 exp01_iterations=1,
@@ -332,7 +335,7 @@ class TestRunAllExperiments:
         mock_config.is_enabled.return_value = True
         mock_config.get.side_effect = lambda exp, param, default: 10
 
-        with patch('fractalstat.stat7_experiments.ExperimentConfig', return_value=mock_config):
+        with patch("fractalstat.config.ExperimentConfig", return_value=mock_config):
             results = run_all_experiments()
 
             assert isinstance(results, dict)
@@ -342,7 +345,10 @@ class TestRunAllExperiments:
         from fractalstat.stat7_experiments import run_all_experiments
 
         # Mock config import to raise exception
-        with patch('fractalstat.stat7_experiments.ExperimentConfig', side_effect=Exception("Config not found")):
+        with patch(
+            "fractalstat.config.ExperimentConfig",
+            side_effect=Exception("Config not found"),
+        ):
             results = run_all_experiments(
                 exp01_samples=10,
                 exp01_iterations=1,
@@ -385,14 +391,14 @@ class TestMainEntryPoint:
         )
 
         # Test JSON serialization
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(results, f, indent=2)
             temp_path = f.name
 
         # Verify file was created and is valid JSON
         assert Path(temp_path).exists()
-        
-        with open(temp_path, 'r') as f:
+
+        with open(temp_path, "r") as f:
             loaded = json.load(f)
             assert loaded == results
 
@@ -422,15 +428,15 @@ class TestEdgeCases:
         }
 
         sorted_obj = sort_json_keys(nested)
-        
+
         # Check top level is sorted
         keys = list(sorted_obj.keys())
         assert keys == ["a", "z"]
-        
+
         # Check nested dict is sorted
         nested_keys = list(sorted_obj["z"].keys())
         assert nested_keys == ["b", "y"]
-        
+
         # Check deeply nested dict is sorted
         deep_keys = list(sorted_obj["z"]["y"].keys())
         assert deep_keys == ["a", "x"]
@@ -443,7 +449,7 @@ class TestEdgeCases:
         ts_utc = "2024-01-01T12:00:00Z"
         result_utc = normalize_timestamp(ts_utc)
         assert result_utc.endswith("Z")
-        
+
         # Test with offset timezone
         ts_offset = "2024-01-01T12:00:00+00:00"
         result_offset = normalize_timestamp(ts_offset)
@@ -507,7 +513,7 @@ class TestEdgeCases:
         )
 
         uri = bc.get_stat7_uri()
-        
+
         assert uri.startswith("stat7://")
         assert "void" in uri
         assert "999" in uri

@@ -1,0 +1,33 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.4.2, pluggy-1.6.0
+rootdir: c:\Users\jerio\RiderProjects\fractalstat
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.11.0, asyncio-1.2.0, cov-7.0.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 545 items
+
+tests\test_bob_stress_test.py .................                          [  3%]
+tests\test_bob_stress_test_extended.py ............                      [  5%]
+tests\test_config_feature_flags.py .............................         [ 10%]
+tests\test_embeddings.py .....................................           [ 17%]
+tests\test_embeddings_extended.py ..................                     [ 20%]
+tests\test_exp04_extended.py ..........                                  [ 22%]
+tests\test_exp04_fractal_scaling.py .........                            [ 24%]
+tests\test_exp05_compression_expansion.py ...........                    [ 26%]
+tests\test_exp05_extended.py ....................                        [ 29%]
+tests\test_exp06_entanglement_detection.py .........................     [ 34%]
+tests\test_exp06_extended.py .........                                   [ 36%]
+tests\test_exp07_extended.py ..........                                  [ 37%]
+tests\test_exp07_luca_bootstrap.py .....................                 [ 41%]
+tests\test_exp08_llm_integration.py ..................                   [ 45%]
+tests\test_exp08_rag_integration.py ...............                      [ 47%]
+tests\test_exp09_concurrency.py ................                         [ 50%]
+tests\test_exp11_dimension_cardinality.py ..........................     [ 55%]
+tests\test_exp12_benchmark_comparison.py .............................   [ 60%]
+tests\test_llm_integration_demo.py ...................                   [ 64%]
+tests\test_stat7_entity.py ............................................. [ 72%]
+.......                                                                  [ 73%]
+tests\test_stat7_experiments.py ........................................ [ 81%]
+.........................................                                [ 88%]
+tests\test_stat7_experiments_extended.py ........................
