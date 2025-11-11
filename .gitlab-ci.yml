@@ -129,9 +129,9 @@ build_package:
 publication_archive:
   stage: build
   image: python:${PYTHON_VERSION}
-  dependencies:
-
   dependencies: []
+  script:
+    - pip install -e .
     - python scripts/generate_doi_metadata.py ${CI_COMMIT_TAG#v}
     - python scripts/create_publication_archive.py ${CI_COMMIT_TAG#v}
   artifacts:
