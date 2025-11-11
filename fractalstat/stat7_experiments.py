@@ -716,33 +716,54 @@ def run_all_experiments(
     Returns:
         Dictionary with all results
     """
+    # Load experiment configuration
+    try:
+        from fractalstat.config import ExperimentConfig
+        config = ExperimentConfig()
+    except Exception:
+        # Fallback to default parameters if config not available
+        config = None
+
     results = {}
 
     # EXP-01
-    exp01 = EXP01_AddressUniqueness(
-        sample_size=exp01_samples, iterations=exp01_iterations
-    )
-    _, exp01_success = exp01.run()
-    results["EXP-01"] = {
-        "success": exp01_success,
-        "summary": exp01.get_summary(),
-    }
+    if config is None or config.is_enabled("EXP-01"):
+        if config:
+            exp01_samples = config.get("EXP-01", "sample_size", exp01_samples)
+            exp01_iterations = config.get("EXP-01", "iterations", exp01_iterations)
+        
+        exp01 = EXP01_AddressUniqueness(
+            sample_size=exp01_samples, iterations=exp01_iterations
+        )
+        _, exp01_success = exp01.run()
+        results["EXP-01"] = {
+            "success": exp01_success,
+            "summary": exp01.get_summary(),
+        }
 
     # EXP-02
-    exp02 = EXP02_RetrievalEfficiency(query_count=exp02_queries)
-    _, exp02_success = exp02.run()
-    results["EXP-02"] = {
-        "success": exp02_success,
-        "summary": exp02.get_summary(),
-    }
+    if config is None or config.is_enabled("EXP-02"):
+        if config:
+            exp02_queries = config.get("EXP-02", "query_count", exp02_queries)
+        
+        exp02 = EXP02_RetrievalEfficiency(query_count=exp02_queries)
+        _, exp02_success = exp02.run()
+        results["EXP-02"] = {
+            "success": exp02_success,
+            "summary": exp02.get_summary(),
+        }
 
     # EXP-03
-    exp03 = EXP03_DimensionNecessity(sample_size=exp03_samples)
-    _, exp03_success = exp03.run()
-    results["EXP-03"] = {
-        "success": exp03_success,
-        "summary": exp03.get_summary(),
-    }
+    if config is None or config.is_enabled("EXP-03"):
+        if config:
+            exp03_samples = config.get("EXP-03", "sample_size", exp03_samples)
+        
+        exp03 = EXP03_DimensionNecessity(sample_size=exp03_samples)
+        _, exp03_success = exp03.run()
+        results["EXP-03"] = {
+            "success": exp03_success,
+            "summary": exp03.get_summary(),
+        }
 
     # Summary
     print(f"\n{'='*70}")

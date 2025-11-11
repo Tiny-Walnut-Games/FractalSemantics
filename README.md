@@ -46,6 +46,70 @@ pip install -e .
 python -m fractalstat.stat7_experiments
 ```
 
+## Experiment Configuration
+
+FractalStat uses **feature flags** to configure experiments. This allows you to:
+- Run experiments with different parameters without code changes
+- Use environment-specific configurations (dev, ci, production)
+- Ensure reproducibility by locking configuration for publication
+
+### Configuration Files
+
+- `fractalstat/config/experiments.toml` - Default configuration for all experiments
+- `fractalstat/config/experiments.dev.toml` - Development overrides (quick modes, smaller samples)
+- `fractalstat/config/experiments.ci.toml` - CI/CD overrides (balanced for pipeline speed)
+
+### Using Different Environments
+
+```bash
+# Use development config (fast iteration)
+export FRACTALSTAT_ENV=dev
+python -m fractalstat.stat7_experiments
+
+# Use CI config (balanced testing)
+export FRACTALSTAT_ENV=ci
+python -m fractalstat.exp04_fractal_scaling
+
+# Use production config (full validation)
+export FRACTALSTAT_ENV=production
+python -m fractalstat.exp05_compression_expansion
+```
+
+### Example Configuration
+
+```toml
+# fractalstat/config/experiments.toml
+[experiments]
+enabled = ["EXP-01", "EXP-02", "EXP-03", "EXP-04", "EXP-05", 
+           "EXP-06", "EXP-07", "EXP-08", "EXP-09", "EXP-10"]
+
+[experiments.EXP-01]
+name = "Address Uniqueness Test"
+sample_size = 1000
+iterations = 10
+
+[experiments.EXP-04]
+name = "Fractal Scaling"
+quick_mode = true
+scales = [1000, 10000, 100000]
+```
+
+### Programmatic Access
+
+```python
+from fractalstat.config import ExperimentConfig
+
+config = ExperimentConfig()
+
+# Check if experiment is enabled
+if config.is_enabled("EXP-01"):
+    sample_size = config.get("EXP-01", "sample_size", 1000)
+    iterations = config.get("EXP-01", "iterations", 10)
+    # Run experiment...
+```
+
+For more details, see `fractalstat/config/feature_flags.py`.
+
 ## License
 
 MIT License

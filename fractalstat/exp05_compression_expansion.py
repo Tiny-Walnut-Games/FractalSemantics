@@ -645,14 +645,24 @@ def save_results(
 
 
 if __name__ == "__main__":
-    num_bitchains = 100
-    if "--quick" in sys.argv:
-        num_bitchains = 20
-    elif "--full" in sys.argv:
-        num_bitchains = 500
+    # Load from config or fall back to command-line args
+    try:
+        from fractalstat.config import ExperimentConfig
+        config = ExperimentConfig()
+        num_bitchains = config.get("EXP-05", "num_bitchains", 100)
+        show_samples = config.get("EXP-05", "show_samples", True)
+    except Exception:
+        num_bitchains = 100
+        show_samples = True
+        if "--quick" in sys.argv:
+            num_bitchains = 20
+        elif "--full" in sys.argv:
+            num_bitchains = 500
 
     try:
-        results = run_compression_expansion_test(num_bitchains=num_bitchains)
+        results = run_compression_expansion_test(
+            num_bitchains=num_bitchains, show_samples=show_samples
+        )
         output_file = save_results(results)
 
         print("\n" + "=" * 80)

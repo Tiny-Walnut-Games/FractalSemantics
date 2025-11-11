@@ -2,6 +2,7 @@
 """Create a publication archive for a specific version."""
 
 import json
+import os
 import shutil
 import sys
 from datetime import datetime
@@ -35,6 +36,22 @@ def create_archive(version: str) -> None:
         dest.parent.mkdir(exist_ok=True)
         shutil.copy2(json_file, dest)
         print(f"✓ Archived {json_file.name}")
+    
+    # Copy experiment configuration files for reproducibility
+    config_dir = Path("fractalstat") / "config"
+    if config_dir.exists():
+        dest = archive_dir / "config"
+        dest.mkdir(exist_ok=True)
+        for config_file in ["experiments.toml", "experiments.dev.toml", "experiments.ci.toml"]:
+            config_path = config_dir / config_file
+            if config_path.exists():
+                shutil.copy2(config_path, dest / config_file)
+                print(f"✓ Archived {config_file}")
+        # Also copy feature_flags.py for reference
+        feature_flags = config_dir / "feature_flags.py"
+        if feature_flags.exists():
+            shutil.copy2(feature_flags, dest / "feature_flags.py")
+            print(f"✓ Archived feature_flags.py")
 
     # Create manifest
     manifest = {
@@ -58,6 +75,7 @@ def create_archive(version: str) -> None:
             "results": "results/",
             "reports": "reports/",
             "experiment_data": "experiment_data/",
+            "config": "config/",
             "code_snapshot": f"https://gitlab.com/tiny-walnut-games/fractalstat/-/tree/v{version}",
         },
         "reproducibility": {
@@ -82,6 +100,7 @@ Archived: {datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")}
 - `results/` - Raw experiment results
 - `reports/` - Experiment validation reports
 - `experiment_data/` - JSON data files from experiments
+- `config/` - Experiment configuration files (experiments.toml, etc.)
 
 ## Reproducibility
 

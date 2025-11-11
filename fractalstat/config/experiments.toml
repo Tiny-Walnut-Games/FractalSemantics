@@ -1,0 +1,111 @@
+# FractalStat Experiment Configuration
+# Default configuration for all 10 validation experiments
+# 
+# This file defines the baseline parameters for publication-quality experiments.
+# For development or CI/CD, use experiments.dev.toml or experiments.ci.toml overrides.
+
+[experiments]
+# List of enabled experiments (EXP-01 through EXP-10)
+enabled = [
+    "EXP-01",
+    "EXP-02", 
+    "EXP-03",
+    "EXP-04",
+    "EXP-05",
+    "EXP-06",
+    "EXP-07",
+    "EXP-08",
+    "EXP-09",
+    "EXP-10"
+]
+
+# EXP-01: Address Uniqueness Test
+# Tests that every bit-chain gets a unique address with zero collisions
+[experiments.EXP-01]
+name = "Address Uniqueness Test"
+enabled = true
+sample_size = 1000          # Bit-chains to generate per iteration
+iterations = 10             # Number of test iterations
+quick_mode = false          # If true, reduce sample_size to 100
+
+# EXP-02: Retrieval Efficiency Test
+# Tests that retrieving a bit-chain by address is fast (< 1ms) at scale
+[experiments.EXP-02]
+name = "Retrieval Efficiency Test"
+enabled = true
+query_count = 1000          # Number of random retrieval queries per scale
+scales = [1000, 10000, 100000]  # Test scales (add 1000000 for full mode)
+
+# EXP-03: Dimension Necessity Test
+# Tests that all 7 STAT7 dimensions are necessary to avoid collisions
+[experiments.EXP-03]
+name = "Dimension Necessity Test"
+enabled = true
+sample_size = 1000          # Bit-chains for ablation testing
+
+# EXP-04: Fractal Scaling
+# Tests whether STAT7 addressing maintains consistency at all scales
+[experiments.EXP-04]
+name = "Fractal Scaling"
+enabled = true
+quick_mode = true           # If false, test up to 1M scale
+scales = [1000, 10000, 100000]  # Add 1000000 for full mode
+num_retrievals = 1000       # Queries per scale
+timeout_seconds = 300       # Kill test if it takes too long
+
+# EXP-05: Compression/Expansion
+# Tests lossless compression through fragments → clusters → glyphs → mist
+[experiments.EXP-05]
+name = "Compression/Expansion"
+enabled = true
+num_bitchains = 100         # Number of bit-chains to compress
+show_samples = true         # Print detailed sample compression paths
+
+# EXP-06: Entanglement Detection
+# Tests detection of narrative entanglement between bit-chains
+[experiments.EXP-06]
+name = "Entanglement Detection"
+enabled = true
+threshold = 0.85            # Coherence threshold for entanglement
+sample_size = 100           # Number of bit-chain pairs to test
+
+# EXP-07: LUCA Bootstrap
+# Tests bootstrapping from Last Universal Common Ancestor
+[experiments.EXP-07]
+name = "LUCA Bootstrap"
+enabled = true
+num_entities = 10           # Number of entities to derive from LUCA
+max_generations = 5         # Maximum lineage depth
+
+# EXP-08: RAG Integration
+# Tests integration with Retrieval-Augmented Generation systems
+[experiments.EXP-08]
+name = "RAG Integration"
+enabled = true
+api_base_url = "http://localhost:8000"  # RAG API endpoint
+num_queries = 50            # Number of test queries
+timeout_seconds = 30        # Query timeout
+
+# EXP-09: Concurrency
+# Tests concurrent access to STAT7 space
+[experiments.EXP-09]
+name = "Concurrency"
+enabled = true
+num_workers = 4             # Number of concurrent workers
+operations_per_worker = 100 # Operations per worker
+test_duration_seconds = 60  # Maximum test duration
+
+# EXP-10: Bob the Skeptic
+# Stress tests Bob with high-volume queries
+[experiments.EXP-10]
+name = "Bob the Skeptic"
+enabled = true
+duration_minutes = 30       # Extended stress test duration
+queries_per_second_target = 10  # Target query rate
+max_concurrent_queries = 50     # Maximum concurrent queries
+api_base_url = "http://localhost:8000"  # API endpoint
+
+# Bob thresholds (can be tuned)
+bob_coherence_high = 0.85
+bob_entanglement_low = 0.30
+bob_consistency_threshold = 0.85

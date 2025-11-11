@@ -1,0 +1,68 @@
+# FractalStat Development Environment Overrides
+# 
+# This file overrides experiments.toml for faster development iteration.
+# Use quick modes and smaller sample sizes for rapid testing.
+#
+# To use: export FRACTALSTAT_ENV=dev
+
+[experiments]
+# Enable only a subset for quick development testing
+enabled = [
+    "EXP-01",
+    "EXP-02", 
+    "EXP-04",
+    "EXP-05"
+]
+
+# EXP-01: Reduced for quick iteration
+[experiments.EXP-01]
+sample_size = 100           # Reduced from 1000
+iterations = 3              # Reduced from 10
+quick_mode = true
+
+# EXP-02: Smaller scales for dev
+[experiments.EXP-02]
+query_count = 100           # Reduced from 1000
+scales = [100, 1000]        # Smaller scales
+
+# EXP-03: Quick ablation test
+[experiments.EXP-03]
+sample_size = 100           # Reduced from 1000
+
+# EXP-04: Quick mode only
+[experiments.EXP-04]
+quick_mode = true
+scales = [100, 1000]        # Smaller scales
+num_retrievals = 100        # Reduced from 1000
+timeout_seconds = 60        # Shorter timeout
+
+# EXP-05: Minimal compression test
+[experiments.EXP-05]
+num_bitchains = 20          # Reduced from 100
+show_samples = true
+
+# EXP-06: Quick entanglement check
+[experiments.EXP-06]
+sample_size = 20            # Reduced from 100
+
+# EXP-07: Minimal LUCA test
+[experiments.EXP-07]
+num_entities = 3            # Reduced from 10
+max_generations = 3         # Reduced from 5
+
+# EXP-08: Quick RAG test
+[experiments.EXP-08]
+num_queries = 10            # Reduced from 50
+timeout_seconds = 10        # Shorter timeout
+
+# EXP-09: Minimal concurrency test
+[experiments.EXP-09]
+num_workers = 2             # Reduced from 4
+operations_per_worker = 20  # Reduced from 100
+test_duration_seconds = 10  # Shorter duration
+
+# EXP-10: Quick Bob stress test
+[experiments.EXP-10]
+duration_minutes = 1        # Reduced from 30
+queries_per_second_target = 5   # Reduced from 10
+max_concurrent_queries = 10     # Reduced from 50

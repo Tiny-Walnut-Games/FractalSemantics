@@ -292,6 +292,20 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
     Returns:
         Complete results object
     """
+    # Load experiment configuration
+    try:
+        from fractalstat.config import ExperimentConfig
+        config = ExperimentConfig()
+        quick_mode = config.get("EXP-04", "quick_mode", quick_mode)
+        scales = config.get("EXP-04", "scales", [1_000, 10_000, 100_000])
+        num_retrievals = config.get("EXP-04", "num_retrievals", 1000)
+    except Exception:
+        # Fallback to default parameters if config not available
+        scales = [1_000, 10_000, 100_000]
+        if not quick_mode:
+            scales.append(1_000_000)
+        num_retrievals = 1000
+    
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
@@ -299,14 +313,9 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
     print("EXP-04: STAT7 FRACTAL SCALING TEST")
     print("=" * 70)
     print(
-        f"Mode: {'Quick' if quick_mode else 'Full'} (1K, 10K, 100K{', 1M' if not quick_mode else ''})"
+        f"Mode: {'Quick' if quick_mode else 'Full'} (scales: {scales})"
     )
     print()
-
-    # Define scale progression
-    scales = [1_000, 10_000, 100_000]
-    if not quick_mode:
-        scales.append(1_000_000)
 
     scale_results = []
 
@@ -314,14 +323,14 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
         print(f"SCALE: {scale:,} bit-chains")
         print("-" * 70)
 
-        config = ScaleTestConfig(
+        scale_config = ScaleTestConfig(
             scale=scale,
-            num_retrievals=1000,
+            num_retrievals=num_retrievals,
             timeout_seconds=300,
         )
 
         try:
-            result = run_scale_test(config)
+            result = run_scale_test(scale_config)
             scale_results.append(result)
 
             # Print summary for this scale
@@ -391,7 +400,13 @@ def save_results(
 
 
 if __name__ == "__main__":
-    quick_mode = "--full" not in sys.argv
+    # Load from config or fall back to command-line args
+    try:
+        from fractalstat.config import ExperimentConfig
+        exp_config = ExperimentConfig()
+        quick_mode = exp_config.get("EXP-04", "quick_mode", True)
+    except Exception:
+        quick_mode = "--full" not in sys.argv
 
     try:
         results = run_fractal_scaling_test(quick_mode=quick_mode)
