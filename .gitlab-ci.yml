@@ -58,6 +58,8 @@ type_check:
 ## ============================================================================
 
 validate_experiments:
+  tags:
+    - saas-linux-medium-amd64
   stage: validate
   image: python:${PYTHON_VERSION}
   script:
@@ -86,6 +88,8 @@ validate_experiments:
     - main
 
 stress_tests:
+  tags:
+    - saas-linux-large-amd64
   stage: validate
   image: python:${PYTHON_VERSION}
   script:
@@ -99,7 +103,7 @@ stress_tests:
   timeout: 1 hour
   allow_failure: true
   only:
-    - merge_requests
+    - manual
     - main
 
 ## ============================================================================
