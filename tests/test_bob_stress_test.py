@@ -3,8 +3,6 @@ Test suite for Bob Skeptic High-Volume Stress Test Framework
 Tests stress testing capabilities, query generation, and performance metrics.
 """
 
-import json
-import pytest
 from datetime import datetime
 
 
@@ -115,7 +113,7 @@ class TestBobStressTester:
         """single_query should return result dict with expected fields."""
         from fractalstat.bob_stress_test import BobStressTester, NPCQueryGenerator
 
-        tester = BobStressTester()
+        BobStressTester()
         gen = NPCQueryGenerator()
         query_data = gen.generate_query("npc_character_development")
 
@@ -126,7 +124,6 @@ class TestBobStressTester:
     def test_generate_report_structure(self):
         """generate_report should create valid report structure."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -142,7 +139,6 @@ class TestBobStressTester:
     def test_report_has_performance_metrics(self):
         """Report should include performance metrics."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -159,7 +155,6 @@ class TestBobStressTester:
     def test_bob_verdicts_tracking(self):
         """Bob verdicts should track decision types."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         assert "PASSED" in tester.bob_verdicts
@@ -195,7 +190,6 @@ class TestStressTestIntegration:
     def test_report_calculation_with_no_results(self):
         """Report should handle zero results gracefully."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -267,7 +261,6 @@ class TestBobStressTesterReportGeneration:
     def test_report_with_successful_queries(self):
         """Report should handle successful queries."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -291,7 +284,6 @@ class TestBobStressTesterReportGeneration:
     def test_report_with_errors(self):
         """Report should handle queries with errors."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -308,7 +300,6 @@ class TestBobStressTesterReportGeneration:
     def test_report_with_quarantined_queries(self):
         """Report should track quarantined queries."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -330,7 +321,6 @@ class TestBobStressTesterReportGeneration:
     def test_report_bob_alert_rate_calculation(self):
         """Report should calculate Bob alert rate correctly."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -346,7 +336,6 @@ class TestBobStressTesterReportGeneration:
     def test_report_query_type_analysis(self):
         """Report should analyze queries by type."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -383,7 +372,6 @@ class TestBobStressTesterReportGeneration:
     def test_report_with_no_query_times(self):
         """Report should handle empty query_times list."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -399,7 +387,6 @@ class TestBobStressTesterReportGeneration:
     def test_report_with_zero_bob_decisions(self):
         """Report should handle zero Bob decisions."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -415,17 +402,15 @@ class TestBobStressTesterReportGeneration:
     def test_report_saves_to_file(self):
         """Report should be saved to file."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
         from pathlib import Path
         import os
-        import shutil
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
         tester.end_time = datetime.now()
         tester.results = []
 
-        report = tester.generate_report()
+        tester.generate_report()
 
         results_dir = Path(__file__).parent.parent / "fractalstat" / "results"
         if results_dir.exists():
@@ -443,7 +428,7 @@ class TestSingleQueryExecution:
         """single_query should return properly structured result."""
         from fractalstat.bob_stress_test import BobStressTester, NPCQueryGenerator
 
-        tester = BobStressTester()
+        BobStressTester()
         gen = NPCQueryGenerator()
         query_data = gen.generate_query("npc_character_development")
 
@@ -567,7 +552,6 @@ class TestBranchCoverageBobStressTest:
     def test_report_with_query_times_populated(self):
         """Report should calculate metrics when query_times is populated."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -582,7 +566,6 @@ class TestBranchCoverageBobStressTest:
     def test_report_query_type_in_result(self):
         """Report should process results with query_type field."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -599,7 +582,6 @@ class TestBranchCoverageBobStressTest:
     def test_report_query_type_not_in_stats(self):
         """Report should create new entry for query type not in stats."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -614,7 +596,6 @@ class TestBranchCoverageBobStressTest:
     def test_report_with_errors_in_query_type(self):
         """Report should count errors per query type."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -633,7 +614,6 @@ class TestBranchCoverageBobStressTest:
     def test_report_with_quarantined_in_query_type(self):
         """Report should count quarantined per query type."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -655,7 +635,6 @@ class TestBranchCoverageBobStressTest:
     def test_report_success_rate_calculation(self):
         """Report should calculate success rate correctly."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -673,7 +652,6 @@ class TestBranchCoverageBobStressTest:
     def test_report_zero_total_queries(self):
         """Report should handle zero total queries."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -687,7 +665,7 @@ class TestBranchCoverageBobStressTest:
         """single_query should handle hybrid query parameters."""
         from fractalstat.bob_stress_test import BobStressTester, NPCQueryGenerator
 
-        tester = BobStressTester()
+        BobStressTester()
         gen = NPCQueryGenerator()
         query_data = gen.generate_query("npc_character_development")
         query_data["hybrid"] = True
@@ -698,7 +676,7 @@ class TestBranchCoverageBobStressTest:
         """single_query should handle non-hybrid query parameters."""
         from fractalstat.bob_stress_test import BobStressTester, NPCQueryGenerator
 
-        tester = BobStressTester()
+        BobStressTester()
         gen = NPCQueryGenerator()
         query_data = gen.generate_query("npc_character_development")
         query_data["hybrid"] = False
@@ -748,7 +726,6 @@ class TestBranchCoverageBobStressTest:
     def test_report_detailed_results_limit(self):
         """Report should limit detailed_results to last 100."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -761,7 +738,6 @@ class TestBranchCoverageBobStressTest:
     def test_report_detailed_results_less_than_100(self):
         """Report should include all results if less than 100."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -774,7 +750,6 @@ class TestBranchCoverageBobStressTest:
     def test_bob_verdicts_all_passed(self):
         """Bob verdicts should handle all PASSED."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -788,7 +763,6 @@ class TestBranchCoverageBobStressTest:
     def test_bob_verdicts_all_verified(self):
         """Bob verdicts should handle all VERIFIED."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()
@@ -802,7 +776,6 @@ class TestBranchCoverageBobStressTest:
     def test_bob_verdicts_mixed(self):
         """Bob verdicts should handle mixed results."""
         from fractalstat.bob_stress_test import BobStressTester
-        from datetime import datetime
 
         tester = BobStressTester()
         tester.start_time = datetime.now()

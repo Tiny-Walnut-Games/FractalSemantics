@@ -4,7 +4,6 @@ Tests semantic entanglement scoring between bit-chains.
 """
 
 import pytest
-import math
 
 
 class TestPolarityVector:

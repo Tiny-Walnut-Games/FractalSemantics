@@ -6,9 +6,7 @@ import pytest
 import json
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import Mock, patch
 import tempfile
-import shutil
 
 
 class TestRealmEnum:

@@ -2,7 +2,6 @@
 Extended tests for EXP-07 LUCA Bootstrap to achieve 95%+ coverage
 """
 
-import pytest
 import tempfile
 import json
 from pathlib import Path

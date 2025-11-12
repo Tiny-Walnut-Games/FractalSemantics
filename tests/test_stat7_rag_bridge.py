@@ -3,7 +3,6 @@ Comprehensive tests for STAT7-RAG Bridge
 """
 
 import pytest
-import math
 
 
 class TestRealm:

@@ -4,9 +4,7 @@ Comprehensive unit tests for config/feature_flags.py module
 
 import pytest
 import os
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 
 
 class TestExperimentConfig:
@@ -149,7 +147,7 @@ class TestExperimentConfig:
         from fractalstat.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
-        original_enabled = config.get_enabled_experiments().copy()
+        config.get_enabled_experiments().copy()
         
         override = {
             "experiments": {
@@ -186,7 +184,7 @@ class TestExperimentConfig:
         from fractalstat.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
-        enabled_before = config.get_enabled_experiments()
+        config.get_enabled_experiments()
         
         override = {
             "experiments": {

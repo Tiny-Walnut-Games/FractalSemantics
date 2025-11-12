@@ -4,7 +4,6 @@ Comprehensive tests for embedding providers (EmbeddingProvider and subclasses)
 
 import pytest
 import math
-from unittest.mock import Mock, patch, MagicMock
 
 
 class TestEmbeddingProvider:

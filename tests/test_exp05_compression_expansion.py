@@ -3,7 +3,6 @@ Test suite for EXP-05: Bit-Chain Compression/Expansion Losslessness Validation
 Tests compression pipeline and coordinate reconstruction.
 """
 
-import pytest
 
 
 class TestCompressionStage:
@@ -382,7 +381,6 @@ class TestSaveResults:
             run_compression_expansion_test,
             save_results,
         )
-        from pathlib import Path
         import os
 
         results = run_compression_expansion_test(num_bitchains=2, show_samples=False)
@@ -414,7 +412,6 @@ class TestReconstructionEdgeCases:
         """Reconstruction should handle missing breadcrumbs gracefully."""
         from fractalstat.exp05_compression_expansion import (
             CompressionPipeline,
-            BitChainCompressionPath,
         )
         from fractalstat.stat7_experiments import BitChain, Coordinates
         from datetime import datetime, timezone

@@ -6,7 +6,7 @@ Tests LLM capabilities, embedding generation, narrative enhancement, and STAT7 e
 import pytest
 import numpy as np
 from dataclasses import dataclass
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 
 @dataclass
@@ -184,7 +184,7 @@ class TestLLMIntegrationDemo:
             assert "deployment_readiness" in report
             
             # Check academic validation
-            assert report["academic_validation"]["integration_ready"] == True
+            assert report["academic_validation"]["integration_ready"]
         except ImportError:
             pytest.skip("sentence-transformers or transformers not installed")
 
@@ -194,7 +194,7 @@ class TestLLMIntegrationDemo:
             from fractalstat.exp08_llm_integration import LLMIntegrationDemo
             
             with pytest.raises(ImportError, match="sentence-transformers not installed"):
-                demo = LLMIntegrationDemo()
+                LLMIntegrationDemo()
 
     def test_generator_initialization_error_handling(self):
         """Should raise ImportError if transformers not available."""
@@ -206,7 +206,7 @@ class TestLLMIntegrationDemo:
             mock_init.side_effect = ImportError("transformers not installed. Install with: pip install transformers")
             
             with pytest.raises(ImportError, match="transformers not installed"):
-                demo = LLMIntegrationDemo()
+                LLMIntegrationDemo()
 
     def test_enhance_narrative_with_generator_error(self):
         """enhance_bit_chain_narrative should handle generator errors gracefully."""

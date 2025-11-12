@@ -51,7 +51,7 @@ def create_archive(version: str) -> None:
         feature_flags = config_dir / "feature_flags.py"
         if feature_flags.exists():
             shutil.copy2(feature_flags, dest / "feature_flags.py")
-            print(f"✓ Archived feature_flags.py")
+            print("✓ Archived feature_flags.py")
 
     # Create manifest
     manifest = {

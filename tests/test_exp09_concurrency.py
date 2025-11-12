@@ -479,7 +479,6 @@ class TestBranchCoverageExp09:
     def test_save_results_creates_file(self):
         """save_results should create a JSON file."""
         from fractalstat.exp09_concurrency import ConcurrencyTester
-        from pathlib import Path
         import os
 
         tester = ConcurrencyTester()

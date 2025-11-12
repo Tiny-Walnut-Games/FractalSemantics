@@ -3,8 +3,6 @@ Test suite for EXP-08: RAG Integration Test
 Tests RAG document integration with STAT7 addressing system.
 """
 
-import pytest
-import json
 from unittest.mock import Mock, patch
 
 
@@ -192,7 +190,7 @@ class TestRAGQueryStructure:
         """Semantic queries should have required fields."""
         from fractalstat.exp08_rag_integration import RAGIntegrationTester
 
-        tester = RAGIntegrationTester()
+        RAGIntegrationTester()
 
         queries = [
             {
@@ -209,7 +207,7 @@ class TestRAGQueryStructure:
         """Hybrid queries should include weight parameters."""
         from fractalstat.exp08_rag_integration import RAGIntegrationTester
 
-        tester = RAGIntegrationTester()
+        RAGIntegrationTester()
 
         queries = [
             {

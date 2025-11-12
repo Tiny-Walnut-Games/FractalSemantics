@@ -3,7 +3,6 @@ Test suite for EXP-04: Bit-Chain STAT7 Fractal Scaling Test
 Tests address collision detection and retrieval performance at scale.
 """
 
-import pytest
 
 
 class TestScaleTestConfig:

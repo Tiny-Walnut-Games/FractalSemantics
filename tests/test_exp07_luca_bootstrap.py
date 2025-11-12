@@ -3,7 +3,6 @@ Test suite for EXP-07: LUCA Bootstrap Test
 Tests system reconstruction from minimal LUCA representation.
 """
 
-import pytest
 import json
 
 

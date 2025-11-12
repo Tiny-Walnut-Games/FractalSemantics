@@ -2,7 +2,6 @@
 Extended tests for EXP-04 Fractal Scaling to achieve 95%+ coverage
 """
 
-import pytest
 import tempfile
 import json
 from pathlib import Path
@@ -54,7 +53,7 @@ class TestExp04Extended:
         from fractalstat.exp04_fractal_scaling import run_fractal_scaling_test
         
         # Override config to use very small scales
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory():
             results = run_fractal_scaling_test(quick_mode=True)
             
             assert len(results.scale_results) > 0
@@ -175,7 +174,7 @@ class TestExp04Extended:
             with open(result_path) as f:
                 data = json.load(f)
                 assert data["experiment"] == "EXP-04"
-                assert data["is_fractal"] == True
+                assert data["is_fractal"]
 
     def test_scale_test_timeout_handling(self):
         """run_scale_test should respect timeout."""
@@ -249,5 +248,5 @@ class TestExp04Extended:
         
         result_dict = results.to_dict()
         
-        assert result_dict["all_valid"] == True
+        assert result_dict["all_valid"]
         assert len(result_dict["scale_results"]) == 1
