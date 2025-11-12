@@ -200,14 +200,14 @@
 |-----------------|--------|----------|
 | Methodology documented | ✅ DONE | docs/EXP01_METHODOLOGY.md |
 | Results tables prepared | ✅ DONE | docs/EXP01_RESULTS_TABLES.md |
-| Figures generated | ⏳ TODO | docs/EXP01_FIGURES.md |
-| Reproducibility guide | ⏳ TODO | docs/EXP01_REPRODUCIBILITY.md |
-| Peer review guide | ⏳ TODO | docs/EXP01_PEER_REVIEW_GUIDE.md |
-| Summary document | ⏳ TODO | docs/EXP01_SUMMARY.md |
+| Figures generated | ✅ DONE | docs/figures/ (5 figures: collision_rate, uniqueness_distribution, coordinate_distribution, theoretical_comparison, summary) |
+| Reproducibility guide | ✅ DONE | docs/EXP01_REPRODUCIBILITY.md |
+| Peer review guide | ✅ DONE | docs/EXP01_PEER_REVIEW_GUIDE.md |
+| Summary document | ✅ DONE | docs/EXP01_SUMMARY.md |
 | Code documentation | ✅ DONE | fractalstat/stat7_experiments.py |
 | Test coverage | ✅ DONE | tests/test_stat7_experiments.py |
-| Results archived | ⏳ TODO | VALIDATION_RESULTS_PHASE1.json |
-| README updated | ⏳ TODO | README.md |
+| Results archived | ✅ DONE | VALIDATION_RESULTS_PHASE1.json (with system metadata, git info, checksums) |
+| README updated | ✅ DONE | README.md |
 
 ## Notes
 
