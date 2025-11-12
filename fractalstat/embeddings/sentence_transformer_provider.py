@@ -240,23 +240,24 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         lineage = float(np.mean(seg0**2))
 
         if len(seg1) > 1 and len(seg2) > 1 and len(seg3) > 1:
-            corr_12 = np.corrcoef(seg1, seg2)[0, 1]
-            corr_23 = np.corrcoef(seg2, seg3)[0, 1]
-            corr_34 = np.corrcoef(seg3, seg4)[0, 1] if len(seg4) > 1 else 0.0
+            def safe_corrcoef(a, b):
+                if np.std(a) > 1e-10 and np.std(b) > 1e-10:
+                    corr = np.corrcoef(a, b)[0, 1]
+                    return corr if not np.isnan(corr) else 0.0
+                return 0.0
+            
+            corr_12 = safe_corrcoef(seg1, seg2)
+            corr_23 = safe_corrcoef(seg2, seg3)
+            corr_34 = safe_corrcoef(seg3, seg4) if len(seg4) > 1 else 0.0
             # Only compute corr_56 if both segments have the same length
             if len(seg5) > 1 and len(seg6) > 1 and len(seg5) == len(seg6):
-                corr_56 = np.corrcoef(seg5, seg6)[0, 1]
+                corr_56 = safe_corrcoef(seg5, seg6)
             else:
                 corr_56 = 0.0
 
-            corr_12 = corr_12 if not np.isnan(corr_12) else 0.0
-            corr_23 = corr_23 if not np.isnan(corr_23) else 0.0
-            corr_34 = corr_34 if not np.isnan(corr_34) else 0.0
-            corr_56 = corr_56 if not np.isnan(corr_56) else 0.0
-
             adjacency = float(abs(corr_12 + corr_23 + corr_34 + corr_56) / 4.0)
         else:
-            adjacency = 0.5
+            adjacency = 0.0
 
         luminosity = float(np.max(abs_emb[2 * seg_size : 3 * seg_size]))
 
@@ -278,12 +279,13 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         high_magnitude = float(np.sum(abs_emb > np.percentile(abs_emb, 75)) / dim)
         dimensionality = (high_magnitude + min(1.0, chunk_entropy * 0.2)) / 2.0
 
-        # Ensure all coordinates are clamped to [0.0, 1.0] range
-        lineage = float(np.clip(lineage, 0.0, 1.0))
-        adjacency = float(np.clip(adjacency, 0.0, 1.0))
+        # Hybrid normalization preserving fractal structure:
+        # - Fractal dimensions (lineage, dimensionality): unbounded, preserve scale
+        # - Relational dimensions (adjacency, polarity): symmetric [-1, 1]
+        # - Intensity dimensions (luminosity): asymmetric [0, 1]
+        adjacency = float(np.clip(adjacency * 2.0 - 1.0, -1.0, 1.0))
         luminosity = float(np.clip(luminosity, 0.0, 1.0))
-        polarity = float(np.clip(polarity, 0.0, 1.0))
-        dimensionality = float(np.clip(dimensionality, 0.0, 1.0))
+        polarity = float(np.clip(polarity * 2.0 - 1.0, -1.0, 1.0))
 
         return {
             "lineage": lineage,

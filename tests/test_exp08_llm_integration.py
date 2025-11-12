@@ -124,12 +124,12 @@ class TestLLMIntegrationDemo:
             assert "horizon" in stat7
             assert "realm" in stat7
             
-            # All coordinates should be in [0, 1] range
-            assert 0.0 <= stat7["lineage"] <= 1.0
-            assert 0.0 <= stat7["adjacency"] <= 1.0
+            # Hybrid bounds: fractal dimensions unbounded, relational symmetric, intensity asymmetric
+            assert isinstance(stat7["lineage"], (int, float))
+            assert -1.0 <= stat7["adjacency"] <= 1.0
             assert 0.0 <= stat7["luminosity"] <= 1.0
-            assert 0.0 <= stat7["polarity"] <= 1.0
-            assert 0.0 <= stat7["dimensionality"] <= 1.0
+            assert -1.0 <= stat7["polarity"] <= 1.0
+            assert isinstance(stat7["dimensionality"], (int, float))
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 
@@ -273,23 +273,23 @@ class TestLLMIntegrationDemo:
             pytest.skip("sentence-transformers not installed")
 
     def test_extract_stat7_coordinate_normalization(self):
-        """extract_stat7_from_embedding should normalize all coordinates."""
+        """extract_stat7_from_embedding should use hybrid normalization bounds."""
         try:
             from fractalstat.exp08_llm_integration import LLMIntegrationDemo
             
             demo = LLMIntegrationDemo()
             
-            # Create embedding with extreme values
-            embedding = np.array([100.0] * 384)
+            # Create embedding with varied values to test normalization
+            embedding = np.random.randn(384) * 10.0
             
             stat7 = demo.extract_stat7_from_embedding(embedding)
             
-            # All values should still be in [0, 1]
-            assert 0.0 <= stat7["lineage"] <= 1.0
-            assert 0.0 <= stat7["adjacency"] <= 1.0
+            # Hybrid bounds: fractal dimensions unbounded, relational symmetric, intensity asymmetric
+            assert isinstance(stat7["lineage"], (int, float))
+            assert -1.0 <= stat7["adjacency"] <= 1.0
             assert 0.0 <= stat7["luminosity"] <= 1.0
-            assert 0.0 <= stat7["polarity"] <= 1.0
-            assert 0.0 <= stat7["dimensionality"] <= 1.0
+            assert -1.0 <= stat7["polarity"] <= 1.0
+            assert isinstance(stat7["dimensionality"], (int, float))
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 

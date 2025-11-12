@@ -267,7 +267,7 @@ class TestSTAT7CoordinateExtraction:
             assert dim in coords, f"Missing dimension: {dim}"
 
     def test_coordinates_are_normalized(self):
-        """Extracted coordinates should be normalized (0-1 or valid enums)."""
+        """Extracted coordinates should use hybrid normalization bounds."""
         from fractalstat.exp08_llm_integration import LLMIntegrationDemo
         
         demo = LLMIntegrationDemo()
@@ -275,9 +275,12 @@ class TestSTAT7CoordinateExtraction:
         
         coords = demo.extract_stat7_from_embedding(embedding)
         
-        # Check numeric dimensions are in valid range
-        for dim in ['lineage', 'adjacency', 'luminosity', 'polarity', 'dimensionality']:
-            assert 0.0 <= coords[dim] <= 1.0, f"{dim} out of range: {coords[dim]}"
+        # Hybrid bounds: fractal dimensions unbounded, relational symmetric, intensity asymmetric
+        assert isinstance(coords['lineage'], (int, float)), "lineage should be numeric"
+        assert -1.0 <= coords['adjacency'] <= 1.0, f"adjacency out of range: {coords['adjacency']}"
+        assert 0.0 <= coords['luminosity'] <= 1.0, f"luminosity out of range: {coords['luminosity']}"
+        assert -1.0 <= coords['polarity'] <= 1.0, f"polarity out of range: {coords['polarity']}"
+        assert isinstance(coords['dimensionality'], (int, float)), "dimensionality should be numeric"
 
     def test_different_embeddings_yield_different_coordinates(self):
         """Different embeddings should produce different STAT7 coordinates."""

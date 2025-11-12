@@ -182,12 +182,15 @@ class LLMIntegrationDemo:
         for i in range(len(segments) - 1):
             if len(segments[i]) > 1 and len(segments[i + 1]) > 1:
                 try:
-                    corr = np.corrcoef(segments[i], segments[i + 1])[0, 1]
-                    if not np.isnan(corr):
-                        adjacencies.append(abs(corr))
+                    std_i = np.std(segments[i])
+                    std_j = np.std(segments[i + 1])
+                    if std_i > 1e-10 and std_j > 1e-10:
+                        corr = np.corrcoef(segments[i], segments[i + 1])[0, 1]
+                        if not np.isnan(corr):
+                            adjacencies.append(abs(corr))
                 except (ValueError, np.linalg.LinAlgError):
                     pass
-        adjacency = float(np.mean(adjacencies)) if adjacencies else 0.5
+        adjacency = float(np.mean(adjacencies)) if adjacencies else 0.0
 
         # Luminosity from peak magnitude
         luminosity = float(np.max(abs_emb)) if len(abs_emb) > 0 else 0.5
@@ -208,12 +211,14 @@ class LLMIntegrationDemo:
             chunk_entropy = 0.5
         dimensionality = min(1.0, chunk_entropy * 0.2)
 
-        # Normalize all values to [0, 1]
-        lineage = max(0.0, min(1.0, lineage))
-        adjacency = max(0.0, min(1.0, adjacency))
+        # Hybrid normalization preserving fractal structure:
+        # - Fractal dimensions (lineage, dimensionality): unbounded, preserve scale
+        # - Relational dimensions (adjacency, polarity): symmetric [-1, 1]
+        # - Intensity dimensions (luminosity): asymmetric [0, 1]
+        
+        adjacency = max(-1.0, min(1.0, adjacency * 2.0 - 1.0))
         luminosity = max(0.0, min(1.0, luminosity))
-        polarity = max(0.0, min(1.0, polarity))
-        dimensionality = max(0.0, min(1.0, dimensionality))
+        polarity = max(-1.0, min(1.0, polarity * 2.0 - 1.0))
 
         return {
             "lineage": lineage,

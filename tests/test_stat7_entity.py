@@ -389,7 +389,7 @@ class TestSTAT7EntityBase:
         entity = ConcreteEntity()
 
         assert isinstance(entity.last_activity, datetime)
-        now_utc = datetime.now(timezone.utc).replace(tzinfo=None)
+        now_utc = datetime.now(timezone.utc)
         assert entity.last_activity <= now_utc
 
     def test_entity_add_entanglement(self):

@@ -12,7 +12,7 @@ Features:
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
@@ -20,6 +20,11 @@ import json
 import uuid
 import hashlib
 from abc import ABC, abstractmethod
+
+
+def _utc_now() -> datetime:
+    """Helper function for timezone-aware UTC datetime."""
+    return datetime.now(timezone.utc)
 
 
 # ============================================================================
@@ -204,8 +209,8 @@ class STAT7Entity(ABC):
     entanglement_strength: List[float] = field(default_factory=list)
 
     # Temporal
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    last_activity: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=_utc_now)
+    last_activity: datetime = field(default_factory=_utc_now)
     lifecycle_events: List[LifecycleEvent] = field(default_factory=list)
 
     # Owner/User
@@ -259,7 +264,7 @@ class STAT7Entity(ABC):
     ):
         """Record a lifecycle event"""
         event = LifecycleEvent(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             event_type=event_type,
             description=description,
             metadata=metadata or {},
