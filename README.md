@@ -35,6 +35,60 @@ FractalStat is a research package containing **12 validation experiments** that 
 | **EXP-11** | Dimension Cardinality | Optimal dimension count analysis | ✅ PASS |
 | **EXP-12** | Benchmark Comparison | STAT7 vs. common systems | ✅ PASS |
 
+## EXP-01: Address Uniqueness Test
+
+**Status**: ✅ PASS (Publication Ready)  
+**Confidence**: 99.9%  
+**Sample Size**: 10,000 bit-chains  
+
+### Quick Summary
+
+EXP-01 validates that every bit-chain in STAT7 space receives a unique address with zero hash collisions. Using SHA-256 hashing of canonical serialization, we tested 10,000 randomly generated bit-chains across 10 iterations and detected **zero collisions**, achieving a 100% uniqueness rate.
+
+### Key Results
+
+- **Total Bit-Chains Tested**: 10,000
+- **Unique Addresses**: 10,000
+- **Collisions Detected**: 0
+- **Collision Rate**: 0.0%
+- **Success Rate**: 100% (10/10 iterations passed)
+
+### Documentation
+
+- **[Methodology](docs/EXP01_METHODOLOGY.md)** - Detailed experimental design and statistical analysis
+- **[Results Tables](docs/EXP01_RESULTS_TABLES.md)** - Complete iteration-by-iteration results
+- **[Reproducibility Guide](docs/EXP01_REPRODUCIBILITY.md)** - Step-by-step reproduction instructions
+- **[Peer Review Guide](docs/EXP01_PEER_REVIEW_GUIDE.md)** - Checklist for reviewers
+- **[Publication Checklist](docs/EXP01_PUBLICATION_CHECKLIST.md)** - Publication readiness tracking
+- **[Executive Summary](docs/EXP01_SUMMARY.md)** - High-level overview and conclusions
+
+### Running EXP-01
+
+```bash
+# Run all experiments (includes EXP-01)
+python -m fractalstat.stat7_experiments
+
+# Archive results with metadata
+python scripts/archive_exp01_results.py
+
+# Generate figures (requires matplotlib)
+python scripts/generate_exp01_figures.py
+```
+
+### Citation
+
+If you use EXP-01 results in your research, please cite:
+
+```bibtex
+@software{fractalstat_exp01,
+  title = {FractalStat EXP-01: Address Uniqueness Test},
+  author = {[Authors]},
+  year = {2024},
+  version = {1.0.0},
+  url = {https://gitlab.com/tiny-walnut-games/fractalstat}
+}
+```
+
 ## Quick Start
 
 ```bash
