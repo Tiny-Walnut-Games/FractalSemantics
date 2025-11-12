@@ -240,12 +240,13 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         lineage = float(np.mean(seg0**2))
 
         if len(seg1) > 1 and len(seg2) > 1 and len(seg3) > 1:
+
             def safe_corrcoef(a, b):
                 if np.std(a) > 1e-10 and np.std(b) > 1e-10:
                     corr = np.corrcoef(a, b)[0, 1]
                     return corr if not np.isnan(corr) else 0.0
                 return 0.0
-            
+
             corr_12 = safe_corrcoef(seg1, seg2)
             corr_23 = safe_corrcoef(seg2, seg3)
             corr_34 = safe_corrcoef(seg3, seg4) if len(seg4) > 1 else 0.0

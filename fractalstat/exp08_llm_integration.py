@@ -215,7 +215,7 @@ class LLMIntegrationDemo:
         # - Fractal dimensions (lineage, dimensionality): unbounded, preserve scale
         # - Relational dimensions (adjacency, polarity): symmetric [-1, 1]
         # - Intensity dimensions (luminosity): asymmetric [0, 1]
-        
+
         adjacency = max(-1.0, min(1.0, adjacency * 2.0 - 1.0))
         luminosity = max(0.0, min(1.0, luminosity))
         polarity = max(-1.0, min(1.0, polarity * 2.0 - 1.0))
