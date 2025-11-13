@@ -95,11 +95,11 @@ def main():
     print("=" * 70)
     print()
     
-    # Import experiment
+    # Import experiment (specific import for clarity and maintainability)
     try:
         from fractalstat.stat7_experiments import run_all_experiments
     except ImportError:
-        print("❌ Error: Cannot import fractalstat")
+        print("❌ Error: Cannot import fractalstat.stat7_experiments.run_all_experiments")
         print("Make sure you're in the project root directory")
         return 1
     

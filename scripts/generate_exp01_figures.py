@@ -394,13 +394,20 @@ def generate_theoretical_comparison_figure(output_dir: Path):
         label="Theoretical (Birthday Paradox)",
     )
 
-    # Mark observed point
+    # Mark observed point (use theoretical value for zero observations as upper bound)
+    theoretical_at_observed = 1 - np.exp(-(observed_n**2) / (2 * d))
+    plot_prob = observed_prob if observed_prob > 0 else theoretical_at_observed
+    
+    # Use different marker style to indicate this is an upper bound estimate
+    marker_style = "ro" if observed_prob > 0 else "r^"
+    marker_label = f"Observed (n={observed_n:,})" if observed_prob > 0 else f"Upper Bound (n={observed_n:,})"
+    
     ax.plot(
         observed_n,
-        observed_prob if observed_prob > 0 else 1e-80,
-        "ro",
+        plot_prob,
+        marker_style,
         markersize=12,
-        label=f"Observed (n={observed_n:,})",
+        label=marker_label,
         zorder=5,
     )
 
