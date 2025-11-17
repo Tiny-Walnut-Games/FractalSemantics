@@ -1,18 +1,24 @@
 # FractalStat Quick Start
 
+## Prerequisites
+
+- Python 3.9+
+- pip (Python package installer)
+
 ## Build and Install
 
 ```bash
-cd fractalstat-package
-make build
-sudo make install
+# Install dependencies
+pip install -r requirements.txt
+
+# Install the package in development mode
 pip install -e .
 ```
 
 ## Run Experiments
 
 ```bash
-# Phase 1
+# Phase 1 validation experiments
 python -m fractalstat.stat7_experiments
 
 # Individual experiments
@@ -25,6 +31,43 @@ python -m fractalstat.exp06_entanglement_detection
 ```python
 from fractalstat import BitChain, Coordinates
 
-bc = BitChain(...)
+# Create a bit-chain
+bc = BitChain(
+    id="example",
+    entity_type="concept",
+    realm="data",
+    coordinates=Coordinates(
+        realm="data",
+        lineage=1,
+        adjacency=[],
+        horizon="genesis",
+        resonance=0.5,
+        velocity=0.0,
+        density=0.5
+    ),
+    created_at="2024-01-01T00:00:00.000Z",
+    state={"value": 42}
+)
+
+# Compute STAT7 address
 address = bc.compute_address()
+print(f"STAT7 Address: {address}")
+```
+
+## Configuration
+
+FractalStat uses environment-specific configurations:
+
+```bash
+# Development mode (fast iteration)
+export FRACTALSTAT_ENV=dev
+python -m fractalstat.stat7_experiments
+
+# CI mode (balanced testing)
+export FRACTALSTAT_ENV=ci
+python -m fractalstat.stat7_experiments
+
+# Production mode (full validation)
+export FRACTALSTAT_ENV=production
+python -m fractalstat.stat7_experiments
 ```
