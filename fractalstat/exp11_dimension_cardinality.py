@@ -602,6 +602,7 @@ def save_results(
 
     with open(output_path, "w") as f:
         json.dump(results.to_dict(), f, indent=2)
+        f.write("\n")
 
     print(f"Results saved to: {output_path}")
     return output_path
