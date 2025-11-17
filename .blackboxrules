@@ -1,0 +1,14 @@
+# instructions
+
+This is a windows environment but it has Bash and WSL available.
+Once you have learned which commands work, make note of this for yourself.
+Make sure to follow your notes.
+
+We strengthen code over removing it whenever possible.
+
+Always use the TDD approach and implement features in full.
+
+Always run linting checks and verify no loose ends before declaring victory.
+
+Todos and future facing features require issues be made.
+We do not use comments for planning features.

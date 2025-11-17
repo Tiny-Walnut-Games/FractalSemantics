@@ -109,6 +109,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
 
         if texts_to_embed:
             self.cache_stats["misses"] += len(texts_to_embed)
+            assert self.model is not None
             batch_embeddings: Any = self.model.encode(
                 texts_to_embed,
                 batch_size=self.batch_size,

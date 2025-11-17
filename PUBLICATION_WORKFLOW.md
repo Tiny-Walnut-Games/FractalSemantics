@@ -69,6 +69,30 @@ This triggers:
 4. Get peer review
 5. Merge to main
 
+#### EXP-01 Status: 🟡 70% Complete (Publication Ready)
+
+- [x] Issue created (#1)
+- [x] Experiment implemented (fractalstat/stat7_experiments.py)
+- [x] Validation complete (10,000 bit-chains, 0 collisions, 99.9% confidence)
+- [x] Merge request created (!4)
+- [x] Documentation complete:
+  - [x] Methodology (docs/EXP01_METHODOLOGY.md)
+  - [x] Results tables (docs/EXP01_RESULTS_TABLES.md)
+  - [x] Reproducibility guide (docs/EXP01_REPRODUCIBILITY.md)
+  - [x] Peer review guide (docs/EXP01_PEER_REVIEW_GUIDE.md)
+  - [x] Publication checklist (docs/EXP01_PUBLICATION_CHECKLIST.md)
+  - [x] Executive summary (docs/EXP01_SUMMARY.md)
+- [x] Code documentation enhanced
+- [x] Figure generation script created (scripts/generate_exp01_figures.py)
+- [x] Results archival script created (scripts/archive_exp01_results.py)
+- [x] Figures generated (docs/figures/ - 5 publication-quality figures at 300 DPI)
+- [x] Results archived (VALIDATION_RESULTS_PHASE1.json with metadata, checksums, git info)
+- [x] README updated with EXP-01 section
+- [ ] Peer review pending
+- [ ] Results tagged with version number
+- [ ] DOI reserved on Zenodo
+- [ ] Merge to main pending
+
 ### Phase 2: Documentation
 
 1. Write paper sections

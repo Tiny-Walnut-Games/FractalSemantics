@@ -73,6 +73,8 @@ validate_experiments:
     - python -m fractalstat.exp07_luca_bootstrap
     - python -m fractalstat.exp08_llm_integration
     - python -m fractalstat.exp09_concurrency
+    - python -m fractalstat.exp11_dimension_cardinality
+    - python -m fractalstat.exp12_benchmark_comparison
   artifacts:
     paths:
       - experiment_reports/
