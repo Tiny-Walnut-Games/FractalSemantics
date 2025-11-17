@@ -5,6 +5,25 @@
 - Python 3.9+
 - pip (Python package installer)
 
+### ARM/Raspberry Pi Notes
+
+FractalStat works on ARM architectures (like Raspberry Pi), but some dependencies may require additional setup:
+
+- **PyTorch**: Use ARM-compatible wheels or install from source
+- **Transformers/SentenceTransformers**: Generally work on ARM, but may be slower without GPU acceleration
+- **Memory**: Some experiments may require significant RAM (4GB+ recommended)
+
+For Raspberry Pi, you may need to install PyTorch specifically for ARM:
+
+```bash
+# For Raspberry Pi (ARM64)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# Then install other dependencies
+pip install -r requirements.txt
+pip install -e .
+```
+
 ## Build and Install
 
 ```bash

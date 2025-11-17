@@ -102,6 +102,27 @@ pip install -e .
 python -m fractalstat.stat7_experiments
 ```
 
+### ARM/Raspberry Pi Setup
+
+FractalStat works on ARM architectures, but PyTorch installation may require special handling:
+
+```bash
+# For Raspberry Pi (ARM64) - Install PyTorch first
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# Then install other dependencies
+pip install -r requirements.txt
+pip install -e .
+
+# Run experiments (may be slower on ARM without GPU)
+python -m fractalstat.stat7_experiments
+```
+
+**ARM Considerations:**
+- Some experiments (EXP-08 LLM integration) may be slower without GPU acceleration
+- Memory usage can be high - 4GB+ RAM recommended
+- All core STAT7 functionality works identically across architectures
+
 ## Experiment Configuration
 
 FractalStat uses **feature flags** to configure experiments. This allows you to:
