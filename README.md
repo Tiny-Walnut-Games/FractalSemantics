@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
+> 🔬 **Recent Discovery (Nov 2025):** EXP-11 testing suggests **8 dimensions may be more optimal** than the original 7-dimension design. See [!5](https://gitlab.com/tiny-walnut-games/fractalstat/-/merge_requests/5) for details. EXP-01 validation results remain valid as they are dimension-count agnostic. STAT8 exploration underway.
+
 ## What is FractalStat?
 
 FractalStat is a research package containing **12 validation experiments** that prove the STAT7 addressing system works at scale. STAT7 is a 7-dimensional coordinate system for uniquely addressing data in fractal information spaces.

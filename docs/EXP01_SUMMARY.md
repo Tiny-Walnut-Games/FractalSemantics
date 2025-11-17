@@ -233,6 +233,35 @@ Expected output: `VALIDATION_RESULTS_PHASE1.json` with zero collisions
 - JSON: RFC 8259
 - ISO8601: ISO 8601:2004
 
+## Post-Publication Discovery
+
+**Important Note (November 2025):** Subsequent experimentation (EXP-11: Dimension Cardinality Testing, see !5) revealed that **8 dimensions may be more optimal than 7** for the STAT addressing system.
+
+### Key Findings from EXP-11:
+- **8 dimensions** show improved storage efficiency (~35.5 bytes/dim vs 37.8 for 7)
+- **Semantic expressiveness** increases from 95.0% to ~97.5%
+- **Power-of-2 advantage**: Better memory alignment and computer-friendliness
+- **Zero collisions maintained** across all dimension counts tested
+
+### Impact on EXP-01:
+This discovery does **not invalidate** EXP-01 results. The address uniqueness validation is **dimension-count agnostic** - the methodology and findings remain valid whether using 7, 8, or other dimension counts.
+
+### Design Assumption Challenge:
+The original STAT7 design assumed 7 dimensions would be optimal based on:
+- Prime number properties
+- Cultural/mathematical significance
+- Initial intuition
+
+EXP-11 demonstrates the importance of **empirical validation over assumptions**. The "magic number" turned out to be data-driven, not theory-driven.
+
+### Next Steps:
+- STAT8 implementation exploration (separate branch)
+- Comparative performance analysis (STAT7 vs STAT8)
+- Migration path documentation
+- Backward compatibility strategy
+
+**Conclusion:** Science working as intended - challenging assumptions with data! 🎯
+
 ## Contact
 
 For questions about EXP-01:
