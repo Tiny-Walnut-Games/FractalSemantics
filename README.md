@@ -92,10 +92,10 @@ If you use EXP-01 results in your research, please cite:
 ## Quick Start
 
 ```bash
-# Build the package
-python copy_and_transform.py
+# Install dependencies
+pip install -r requirements.txt
 
-# Install
+# Install the package in development mode
 pip install -e .
 
 # Run experiments
