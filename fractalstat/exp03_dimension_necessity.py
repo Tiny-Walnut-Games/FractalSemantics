@@ -225,7 +225,7 @@ if __name__ == "__main__":
             sample_size = 5000
 
     try:
-        experiment = EXP03_DimensionNecessity(sample_size=sample_size)
+        experiment = EXP03_CoordinateSpaceEntropy(sample_size=sample_size)
         results_list, success = experiment.run()
         summary = experiment.get_summary()
 
