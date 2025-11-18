@@ -575,6 +575,9 @@ class DimensionCardinalityExperiment:
         # Success if optimal is 7-9 dimensions (research shows 8 may be better)
         # OR if collision rate is negligible at any tested dimension count
         success = (
+            7 <= optimal_result.dimension_count <= 9
+            or optimal_result.collision_rate < 0.001
+        )
             optimal_result.dimension_count >= 7 and optimal_result.dimension_count <= 9
         ) or optimal_result.collision_rate < 0.001
 
