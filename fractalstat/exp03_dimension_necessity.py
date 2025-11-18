@@ -1,23 +1,22 @@
 """
-EXP-03: Coordinate Space Entropy Test
+EXP-03: Dimension Necessity Test
 
-Demonstrates what happens when dimensions are removed.
+Validates that all 7 STAT7 dimensions are necessary to avoid collisions.
 
 Hypothesis:
-Removing enough dimensions from the STAT7 addressing scheme will cause
+Removing any single dimension from the STAT7 addressing scheme will cause
 significant collision rate increases (> 0.1%).
 
 Methodology:
 1. Baseline: Generate N bit-chains with all 7 dimensions, measure collisions
 2. Ablation: Remove each dimension one at a time, retest
 3. Compare collision rates to determine which dimensions are necessary
-4. Verify the point where removing any dimension causes > 0.1% collision rate
+4. Verify that removing any dimension causes > 0.1% collision rate
 
-Success Criteria
-- Baseline (all 7 dims): Entropy score approaches maximum (normalized to 1.0).
-- Each dimension removal: Entropy score decreases measurably (>5% reduction).
-- Semantic disambiguation power confirmed for all dimensions.
-- Minimal necessary set identified (≥7 dims for full expressiveness).
+Success Criteria:
+- Baseline (all 7 dimensions): < 0.1% collision rate
+- Each ablation test: > 0.1% collision rate (proves necessity)
+- All 7 dimensions shown to be necessary
 """
 
 import json
