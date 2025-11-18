@@ -21,7 +21,7 @@ Success Criteria:
 
 import json
 import sys
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from datetime import datetime, timezone

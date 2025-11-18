@@ -23,7 +23,7 @@ Success Criteria:
 
 import json
 import sys
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional
 from dataclasses import dataclass, asdict
 from collections import defaultdict
 from pathlib import Path

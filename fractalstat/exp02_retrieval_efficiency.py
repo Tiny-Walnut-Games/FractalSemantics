@@ -23,7 +23,7 @@ import json
 import sys
 import time
 import random
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from datetime import datetime, timezone
