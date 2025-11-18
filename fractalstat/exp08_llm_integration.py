@@ -10,7 +10,7 @@ Features:
 - Academic integration proof for research papers
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 from dataclasses import dataclass
 import numpy as np
 
@@ -21,9 +21,9 @@ class LLMIntegrationDemo:
 
     def __init__(self):
         """Initialize LLM and embedding models."""
-        self.embedder = None
-        self.generator = None
-        self.device = None
+        self.embedder: Optional[Any] = None
+        self.generator: Optional[Any] = None
+        self.device: Optional[str] = None
         self.embedding_dimension = 384
         self.model_name = "all-MiniLM-L6-v2"
         self.generator_model = "gpt2"
@@ -73,7 +73,12 @@ class LLMIntegrationDemo:
         # Build semantic representation incorporating STAT7 properties
         description = f"{bit_chain.realm} realm entity: {bit_chain.content}"
 
-        embedding = self.embedder.encode(description, convert_to_tensor=False)
+        if self.embedder is not None:
+            embedding = self.embedder.encode(description, convert_to_tensor=False)
+        else:
+            raise RuntimeError(
+                "Embedder not initialized. Call _initialize_models() first or check for import errors."
+            )
 
         if isinstance(embedding, np.ndarray):
             return embedding

@@ -21,7 +21,7 @@ Success Criteria:
 
 import json
 import sys
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from datetime import datetime, timezone
@@ -191,7 +191,7 @@ class EXP03_DimensionNecessity:
         }
 
 
-def save_results(results: Dict[str, Any], output_file: str = None) -> str:
+def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
