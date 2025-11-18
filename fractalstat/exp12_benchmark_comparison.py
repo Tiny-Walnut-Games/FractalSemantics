@@ -700,7 +700,7 @@ class BenchmarkComparisonExperiment:
             )
             stat7_rank_semantic = sorted_by_semantic.index(stat7_result) + 1
             stat7_score = overall_score(stat7_result)
-            
+
             success = stat7_rank_semantic <= 2 or stat7_score >= 0.6
         else:
             success = False

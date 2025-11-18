@@ -76,7 +76,9 @@ class LLMIntegrationDemo:
         if self.embedder is not None:
             embedding = self.embedder.encode(description, convert_to_tensor=False)
         else:
-            raise RuntimeError("Embedder not initialized. Call _initialize_models() first or check for import errors.")
+            raise RuntimeError(
+                "Embedder not initialized. Call _initialize_models() first or check for import errors."
+            )
 
         if isinstance(embedding, np.ndarray):
             return embedding
