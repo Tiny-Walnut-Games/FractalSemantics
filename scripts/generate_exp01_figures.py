@@ -19,10 +19,9 @@ Output:
 """
 
 import json
-import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
 
 try:
     import matplotlib.pyplot as plt
@@ -30,7 +29,7 @@ try:
 
     matplotlib.use("Agg")  # Non-interactive backend
     import numpy as np
-    from matplotlib.patches import Rectangle
+
 
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
@@ -150,7 +149,7 @@ def generate_uniqueness_distribution_figure(results: Dict[str, Any], output_dir:
     width = 0.35
 
     # Stacked bar chart
-    bars1 = ax.bar(
+    ax.bar(
         x,
         unique_addresses,
         width,
@@ -159,7 +158,7 @@ def generate_uniqueness_distribution_figure(results: Dict[str, Any], output_dir:
         edgecolor="black",
         linewidth=1.5,
     )
-    bars2 = ax.bar(
+    ax.bar(
         x,
         [total - unique for total, unique in zip(total_bitchains, unique_addresses)],
         width,
@@ -186,7 +185,7 @@ def generate_uniqueness_distribution_figure(results: Dict[str, Any], output_dir:
     # Add 100% uniqueness annotation
     total_tested = sum(total_bitchains)
     total_unique = sum(unique_addresses)
-    uniqueness_rate = (total_unique / total_tested) * 100
+    (total_unique / total_tested) * 100
 
     ax.text(
         0.5,

@@ -3,7 +3,6 @@ OpenAI Embedding Provider - Cloud-based Semantic Grounding
 """
 
 from typing import List, Dict, Any, Optional
-import time
 from warbler_cda.embeddings.base_provider import EmbeddingProvider
 
 

@@ -13,7 +13,6 @@ Output:
 """
 
 import json
-import sys
 import platform
 import hashlib
 from datetime import datetime, timezone
@@ -151,7 +150,7 @@ def main():
     with open(output_file, 'w') as f:
         json.dump(results, f, indent=2)
     
-    print(f"✅ Results saved successfully")
+    print("✅ Results saved successfully")
     print()
     
     # Print summary
