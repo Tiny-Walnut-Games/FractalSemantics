@@ -692,16 +692,21 @@ class BenchmarkComparisonExperiment:
 
         # Success if STAT7 shows good semantic expressiveness (its primary strength)
         # OR if it's competitive overall (score >= 0.6)
-        success = (
-            stat7_result is not None
-            and (stat7_rank_semantic <= 2 or stat7_score >= 0.6)
+        success = stat7_result is not None and (
+            stat7_rank_semantic <= 2 or stat7_score >= 0.6
         )
 
         print("=" * 80)
         if success:
-            print(f"RESULT: [OK] STAT7 DEMONSTRATES SEMANTIC STRENGTHS (score: {stat7_score:.3f})")
+            print(
+                f"RESULT: [OK] STAT7 DEMONSTRATES SEMANTIC STRENGTHS "
+                f"(score: {stat7_score:.3f})"
+            )
         else:
-            print(f"RESULT: [INFO] BENCHMARK ANALYSIS COMPLETE (score: {stat7_score:.3f})")
+            print(
+                f"RESULT: [INFO] BENCHMARK ANALYSIS COMPLETE "
+                f"(score: {stat7_score:.3f})"
+            )
         print("=" * 80)
 
         return result, success

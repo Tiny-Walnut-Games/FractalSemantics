@@ -580,9 +580,15 @@ class DimensionCardinalityExperiment:
 
         print("=" * 80)
         if success:
-            print(f"RESULT: [OK] DIMENSION ANALYSIS COMPLETE (optimal: {optimal_result.dimension_count} dimensions)")
+            print(
+                f"RESULT: [OK] DIMENSION ANALYSIS COMPLETE "
+                f"(optimal: {optimal_result.dimension_count} dimensions)"
+            )
         else:
-            print(f"RESULT: [INFO] DIMENSION ANALYSIS COMPLETE (optimal: {optimal_result.dimension_count} dimensions)")
+            print(
+                f"RESULT: [INFO] DIMENSION ANALYSIS COMPLETE "
+                f"(optimal: {optimal_result.dimension_count} dimensions)"
+            )
         print("=" * 80)
 
         return result, success
