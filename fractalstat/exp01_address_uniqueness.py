@@ -199,7 +199,7 @@ if __name__ == "__main__":
             iterations = 20
 
     try:
-        experiment = EXP01_AddressUniqueness(
+        experiment = EXP01_AddressDeterminism(
             sample_size=sample_size, iterations=iterations
         )
         results_list, success = experiment.run()
