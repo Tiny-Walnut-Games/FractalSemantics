@@ -107,6 +107,7 @@ The following table contains all raw latency measurements from the experiment:
 ### Outlier Investigation
 
 **100K Scale P99 Outlier (1.8ms)**:
+
 - **Cause**: Likely system scheduling or memory access pattern
 - **Frequency**: 1 in 100 queries (1%)
 - **Impact**: P99 affected, but P95 remains excellent

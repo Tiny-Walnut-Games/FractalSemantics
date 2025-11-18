@@ -28,6 +28,7 @@ Hash-based retrieval should provide O(1) average-case performance:
 4. **Predictable Performance**: Independent of dataset size (in theory)
 
 The experiment validates that:
+
 - Absolute latency is acceptable (< 1ms for most queries)
 - Performance degrades gracefully with scale
 - Tail latencies (P95, P99) remain reasonable
@@ -38,14 +39,17 @@ The experiment validates that:
 ### Variables
 
 **Independent Variables**:
+
 - Dataset size (N): Number of bit-chains indexed (1K, 10K, 100K)
 - Query count (M): Number of random address lookups per scale
 
 **Dependent Variables**:
+
 - Retrieval latency (milliseconds)
 - Latency percentiles (mean, median, P95, P99, min, max)
 
 **Controlled Variables**:
+
 - Hashing algorithm: SHA-256 (fixed)
 - Data structure: Python dict (hash table)
 - Query distribution: Uniform random from indexed addresses
@@ -106,6 +110,7 @@ Across all scales:
 ### Parameters
 
 **Default Configuration** (experiments.toml):
+
 ```toml
 [experiments.EXP-02]
 query_count = 100    # Queries per scale
@@ -113,6 +118,7 @@ scales = [1000, 10000, 100000]  # Dataset sizes to test
 ```
 
 **Success Criteria** (by scale):
+
 ```python
 thresholds = {
     1_000: 0.1,   # 0.1ms at 1K bit-chains
@@ -122,6 +128,7 @@ thresholds = {
 ```
 
 **Total Test Coverage**:
+
 - 3 dataset scales (1K, 10K, 100K bit-chains)
 - 100 queries per scale (300 total queries)
 - High-precision timing (nanosecond resolution)
@@ -135,6 +142,7 @@ With M = 100 queries per scale and S = 3 scales:
 **Total measurements**: 300 latency samples
 
 **Statistical Power**: Sufficient to detect:
+
 - Performance regressions (>10% latency increase)
 - Outlier behavior (P99 spikes)
 - Scaling anomalies (non-linear growth)
@@ -146,11 +154,13 @@ The large sample size per scale ensures reliable percentile estimates, particula
 ### Performance Metrics
 
 **Latency Thresholds**: Conservative targets based on:
+
 - Real-time requirements (< 1ms for interactive systems)
 - Database benchmarks (typical hash table performance)
 - Production constraints (sub-millisecond response times)
 
 **Scaling Expectations**:
+
 - O(1) theoretical performance
 - Logarithmic growth acceptable
 - Linear growth would indicate algorithmic issues
@@ -160,6 +170,7 @@ The large sample size per scale ensures reliable percentile estimates, particula
 ### Deterministic Execution
 
 **Command**:
+
 ```bash
 python fractalstat/exp02_retrieval_efficiency.py
 ```
@@ -171,11 +182,13 @@ python fractalstat/exp02_retrieval_efficiency.py
 ### Environment Documentation
 
 **Required**:
+
 - Python version: 3.9+
 - Hardware: Any modern CPU (timing uses CPU cycles)
 - Memory: ~50-500 MB (depending on scale)
 
 **Locked Dependencies**:
+
 ```
 python = "^3.9"
 ```
@@ -183,6 +196,7 @@ python = "^3.9"
 ### Random Seed Control
 
 While queries are random, the experiment is deterministic because:
+
 - Bit-chain generation uses fixed seeds
 - Address computation is deterministic
 - Results are reproducible across runs
@@ -192,6 +206,7 @@ While queries are random, the experiment is deterministic because:
 ### Success Criteria
 
 An experiment passes if:
+
 1. Mean latency < threshold for ALL scales
 2. No systematic performance degradation
 3. Latency scales logarithmically or better
@@ -200,6 +215,7 @@ An experiment passes if:
 ### Failure Modes
 
 The experiment would fail if:
+
 1. Any scale exceeds its latency threshold
 2. Performance degrades worse than logarithmically
 3. Memory usage becomes prohibitive
@@ -224,16 +240,19 @@ The experiment would fail if:
 ### Threats to Validity
 
 **Internal Validity**:
+
 - Controlled through isolated execution
 - Mitigated by high-precision timing
 - Validated through multiple runs
 
 **External Validity**:
+
 - Hash table performance generalizes to production systems
 - Results apply to content-addressable storage patterns
 - Scaling behavior holds for larger datasets
 
 **Construct Validity**:
+
 - Latency measurement directly assesses retrieval speed
 - Success criteria align with production requirements
 - No confounding variables
@@ -268,7 +287,7 @@ This is a computational performance experiment with no human subjects, personal 
 
 2. Cormen, T. H., Leiserson, C. E., Rivest, R. L., & Stein, C. (2009). *Introduction to Algorithms* (3rd ed.). MIT Press.
 
-3. Python Software Foundation. (2023). *time — Time access and conversions*. https://docs.python.org/3/library/time.html
+3. Python Software Foundation. (2023). *time — Time access and conversions*. <https://docs.python.org/3/library/time.html>
 
 ## Appendix A: Hash Table Implementation
 
@@ -286,6 +305,7 @@ result = address_to_bc[target_address]  # O(1) average case
 ```
 
 **Implementation Details**:
+
 - Open addressing with quadratic probing
 - 64-bit hash values
 - Dynamic resizing (load factor ~2/3)
@@ -309,6 +329,7 @@ def measure_latency(address_to_bc, target_addr):
 ```
 
 **Timing Considerations**:
+
 - `time.perf_counter()`: CPU cycle counter (most precise)
 - Monotonic clock: Not affected by system time changes
 - Resolution: ~1 nanosecond on modern systems
@@ -321,11 +342,13 @@ def measure_latency(address_to_bc, target_addr):
 For hash table lookup in a table of size N:
 
 **Average Case**: O(1)
+
 - Constant time independent of N
 - Assumes good hash distribution
 - No collisions or minimal probing
 
 **Worst Case**: O(N)
+
 - All keys hash to same bucket
 - Linear search through collision chain
 - Extremely unlikely with good hash function
@@ -333,11 +356,13 @@ For hash table lookup in a table of size N:
 ### Observed Scaling
 
 **EXP-02 Results**:
+
 - 1K → 10K: 3x latency increase (sub-linear)
 - 10K → 100K: 2.7x latency increase (sub-linear)
 - Overall: Better than logarithmic growth
 
 **Interpretation**:
+
 - Performance consistent with O(1) expectations
 - Memory access patterns may cause slight degradation
 - No algorithmic bottlenecks identified
@@ -361,6 +386,7 @@ For hash table lookup in a table of size N:
 ### Performance Targets
 
 **Acceptable Latencies** (by use case):
+
 - Real-time: < 1ms
 - Interactive: < 10ms
 - Batch processing: < 100ms

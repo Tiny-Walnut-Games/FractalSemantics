@@ -89,6 +89,7 @@ elapsed = (time.perf_counter() - start) * 1000  # Convert to ms
 ### Scaling Analysis
 
 **Latency Growth Rate**: ~2.1x per 10x scale increase
+
 - 1K → 10K: 2.2x increase (0.00013ms → 0.00028ms)
 - 10K → 100K: 2.1x increase (0.00028ms → 0.00060ms)
 
@@ -133,6 +134,7 @@ python fractalstat/exp02_retrieval_efficiency.py
 ### Cross-Platform Validation
 
 Results verified on:
+
 - ✅ Linux (Ubuntu 22.04)
 - ✅ Windows (Windows 11)
 
@@ -226,9 +228,9 @@ Results verified on:
 
 For questions about EXP-02:
 
-- **Repository**: https://gitlab.com/tiny-walnut-games/fractalstat
-- **Issues**: https://gitlab.com/tiny-walnut-games/fractalstat/-/issues
-- **Documentation**: https://gitlab.com/tiny-walnut-games/fractalstat/-/tree/main/docs
+- **Repository**: <https://gitlab.com/tiny-walnut-games/fractalstat>
+- **Issues**: <https://gitlab.com/tiny-walnut-games/fractalstat/-/issues>
+- **Documentation**: <https://gitlab.com/tiny-walnut-games/fractalstat/-/tree/main/docs>
 
 ## Citation
 
