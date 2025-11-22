@@ -333,16 +333,17 @@ def compute_stat8_address_hash(data: Dict[str, Any]) -> str:
 
 
 @dataclass
-class Coordinates:
-    """STAT7 7-dimensional coordinates."""
+class FractalStatCoordinates:
+    """STAT8 8-dimensional coordinates with enhanced expressivity."""
 
-    realm: str  # Domain: data, narrative, system, faculty, event, pattern, void
+    realm: str  # Domain: data, narrative, system, faculty, event, pattern, void, temporal
     lineage: int  # Generation from LUCA
     adjacency: List[str]  # Relational neighbors (append-only)
     horizon: str  # Lifecycle stage
     resonance: float  # Charge/alignment (-1.0 to 1.0)
     velocity: float  # Rate of change
     density: float  # Compression distance (0.0 to 1.0)
+    temperature: float  # Thermal activity level (0.0 to abs(velocity) * density)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to canonical dict with normalized floats."""
@@ -354,6 +355,7 @@ class Coordinates:
             "lineage": self.lineage,
             "realm": self.realm,
             "resonance": float(normalize_float(self.resonance)),
+            "temperature": float(normalize_float(self.temperature)),
             "velocity": float(normalize_float(self.velocity)),
         }
 
@@ -404,7 +406,7 @@ class BitChain:
     id: str  # Unique entity ID
     entity_type: str  # Type: concept, artifact, agent, etc.
     realm: str  # Domain classification
-    coordinates: Coordinates  # STAT7 7D position
+    coordinates: FractalStatCoordinates  # STAT8 8D position
     created_at: str  # ISO8601 UTC timestamp
     state: Dict[str, Any]  # Mutable state data
 
@@ -434,18 +436,19 @@ class BitChain:
         return compute_address_hash(self.to_canonical_dict())
 
     def get_stat7_uri(self) -> str:
-        """Generate STAT7 URI address format."""
+        """Generate STAT8 URI address format."""
         coords = self.coordinates
         adjacency_hash = compute_address_hash({"adjacency": sorted(coords.adjacency)})[
             :8
         ]
 
         uri = (
-            f"stat7://{coords.realm}/{coords.lineage}/{adjacency_hash}/{coords.horizon}"
+            f"stat8://{coords.realm}/{coords.lineage}/{adjacency_hash}/{coords.horizon}"
         )
         uri += f"?r={normalize_float(coords.resonance)}"
         uri += f"&v={normalize_float(coords.velocity)}"
         uri += f"&d={normalize_float(coords.density)}"
+        uri += f"&t={normalize_float(coords.temperature)}"
 
         return uri
 
@@ -552,18 +555,24 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
             for uuid_hex in adjacency_ids
         ]
 
+    # Generate coordinates with derived temperature
+    velocity_val = random.uniform(-1.0, 1.0)
+    density_val = random.uniform(0.0, 1.0)
+    temperature_val = abs(velocity_val) * density_val
+
     return BitChain(
         id=id_str,
         entity_type=random.choice(ENTITY_TYPES),
         realm=random.choice(REALMS),
-        coordinates=Coordinates(
+        coordinates=FractalStatCoordinates(
             realm=random.choice(REALMS),
             lineage=random.randint(1, 100),
             adjacency=adjacency_ids,
             horizon=random.choice(HORIZONS),
             resonance=random.uniform(-1.0, 1.0),
-            velocity=random.uniform(-1.0, 1.0),
-            density=random.uniform(0.0, 1.0),
+            velocity=velocity_val,
+            density=density_val,
+            temperature=temperature_val,
         ),
         created_at=created_at_str,
         state={"value": random.randint(0, 1000)},
@@ -890,16 +899,16 @@ class EXP03_DimensionNecessity:
     """
     EXP-03: Dimension Necessity Test
 
-    Hypothesis: All 7 STAT7 dimensions are necessary to avoid collisions.
+    Hypothesis: All 8 STAT8 dimensions are necessary to avoid collisions.
 
     Method:
-    1. Baseline: Generate N bit-chains with all 7 dimensions, measure collisions
+    1. Baseline: Generate N bit-chains with all 8 dimensions, measure collisions
     2. Ablation: Remove each dimension one at a time, retest
     3. Determine which dimensions are truly necessary
     4. Results should show > 0.1% collisions when any dimension is missing
     """
 
-    STAT7_DIMENSIONS = [
+    STAT8_DIMENSIONS = [
         "realm",
         "lineage",
         "adjacency",
@@ -907,6 +916,7 @@ class EXP03_DimensionNecessity:
         "resonance",
         "velocity",
         "density",
+        "temperature",
     ]
 
     def __init__(self, sample_size: int = 1000):
@@ -926,8 +936,8 @@ class EXP03_DimensionNecessity:
         print(f"Sample size: {self.sample_size} bit-chains")
         print()
 
-        # Baseline: all 7 dimensions
-        print("Baseline: All 7 dimensions")
+        # Baseline: all 8 dimensions
+        print("Baseline: All 8 dimensions")
         bitchains = [generate_random_bitchain(seed=i) for i in range(self.sample_size)]
         addresses = set()
         collisions = 0
@@ -941,7 +951,7 @@ class EXP03_DimensionNecessity:
         baseline_collision_rate = collisions / self.sample_size
 
         result = EXP03_Result(
-            dimensions_used=self.STAT7_DIMENSIONS.copy(),
+            dimensions_used=self.STAT8_DIMENSIONS.copy(),
             sample_size=self.sample_size,
             collisions=collisions,
             collision_rate=baseline_collision_rate,
@@ -959,7 +969,7 @@ class EXP03_DimensionNecessity:
         # Ablation: remove each dimension
         all_success = result.acceptable
 
-        for removed_dim in self.STAT7_DIMENSIONS:
+        for removed_dim in self.STAT8_DIMENSIONS:
             print(f"Ablation: Remove '{removed_dim}'")
 
             # Generate modified bit-chains (without the removed dimension in
@@ -985,7 +995,7 @@ class EXP03_DimensionNecessity:
             )  # Should be unacceptable without each dim
 
             result = EXP03_Result(
-                dimensions_used=[d for d in self.STAT7_DIMENSIONS if d != removed_dim],
+                dimensions_used=[d for d in self.STAT8_DIMENSIONS if d != removed_dim],
                 sample_size=self.sample_size,
                 collisions=collisions,
                 collision_rate=collision_rate,
@@ -1004,7 +1014,7 @@ class EXP03_DimensionNecessity:
 
         print()
         print(
-            "OVERALL RESULT: All 7 dimensions are necessary (all show > 0.1% collisions when removed)"
+            "OVERALL RESULT: All 8 dimensions are necessary (all show > 0.1% collisions when removed)"
         )
 
         return self.results, all_success

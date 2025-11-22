@@ -1,20 +1,21 @@
-# FractalStat - STAT7 Validation Experiments
+# FractalStat - STAT8 Validation Experiments
 
-**A complete validation suite for the STAT7 7-dimensional addressing system**
+**A complete validation suite for the STAT8 8-dimensional addressing system**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
-> 🔬 **Recent Discovery (Nov 2025):** EXP-11 testing suggests **8 dimensions may be more optimal** than the original 7-dimension design. See [!5](https://gitlab.com/tiny-walnut-games/fractalstat/-/merge_requests/5) for details. EXP-01 validation results remain valid as they are dimension-count agnostic. STAT8 exploration underway.
+> 🔬 **Recent Discovery (Nov 2025):** EXP-11 testing confirms **8 dimensions are optimal** and superior to the original 7-dimension design. See [!5](https://gitlab.com/tiny-walnut-games/fractalstat/-/merge_requests/5) for details. EXP-01 validation results remain valid as they are dimension-count agnostic. STAT8 implementation complete.
 
 ## What is FractalStat?
 
-FractalStat is a research package containing **12 validation experiments** that prove the STAT7 addressing system works at scale. STAT7 is a 7-dimensional coordinate system for uniquely addressing data in fractal information spaces.
+FractalStat is a research package containing **12 validation experiments** that prove the STAT7 addressing system works at scale. STAT8 is an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
 
 **The 7 Dimensions:**
 
 - **Realm** - Domain classification (data, narrative, system, etc.)
 - **Lineage** - Generation from LUCA (Last Universal Common Ancestor)
+- **Temperature** - Thermal activity level (0.0 to abs(velocity) * density)
 - **Adjacency** - Relational neighbors (graph connections)
 - **Horizon** - Lifecycle stage (genesis, emergence, peak, decay, crystallization)
 - **Resonance** - Charge/alignment (-1.0 to 1.0)
@@ -36,7 +37,7 @@ FractalStat is a research package containing **12 validation experiments** that 
 | **EXP-09** | Concurrency | Thread-safe queries | ✅ PASS |
 | **EXP-10** | Bob the Skeptic | Anti-hallucination | ✅ PASS |
 | **EXP-11** | Dimension Cardinality | Optimal dimension count analysis | ✅ PASS |
-| **EXP-12** | Benchmark Comparison | STAT7 vs. common systems | ✅ PASS |
+| **EXP-12** | Benchmark Comparison | STAT8 vs. common systems | ✅ PASS |
 
 ## EXP-01: Address Uniqueness Test
 

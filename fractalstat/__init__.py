@@ -9,14 +9,15 @@ and robustness of the FractalStat multi-dimensional addressing system.
 __version__ = "0.1.0"
 __author__ = "Tiny Walnut Games"
 
-from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
-from fractalstat.stat7_experiments import BitChain, Coordinates
+from fractalstat.fractalstat_entity import Realm, Horizon, Polarity, Alignment, FractalStatCoordinates, FractalStatEntity
+from fractalstat.fractalstat_experiments import BitChain
 
 __all__ = [
-    "STAT7Coordinates",
     "Realm",
     "Horizon",
     "Polarity",
+    "Alignment",
+    "FractalStatCoordinates",
+    "FractalStatEntity",
     "BitChain",
-    "Coordinates",
 ]
