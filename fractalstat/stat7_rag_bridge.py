@@ -55,19 +55,19 @@ class STAT7Address:
 
     def __post_init__(self):
         """Validate STAT7 constraints."""
-        assert (
-            0.0 <= self.adjacency <= 1.0
-        ), f"adjacency must be [0,1], got {self.adjacency}"
-        assert (
-            0.0 <= self.luminosity <= 1.0
-        ), f"luminosity must be [0,1], got {self.luminosity}"
-        assert (
-            0.0 <= self.polarity <= 1.0
-        ), f"polarity must be [0,1], got {self.polarity}"
+        assert 0.0 <= self.adjacency <= 1.0, (
+            f"adjacency must be [0,1], got {self.adjacency}"
+        )
+        assert 0.0 <= self.luminosity <= 1.0, (
+            f"luminosity must be [0,1], got {self.luminosity}"
+        )
+        assert 0.0 <= self.polarity <= 1.0, (
+            f"polarity must be [0,1], got {self.polarity}"
+        )
         assert self.lineage >= 0, f"lineage must be >= 0, got {self.lineage}"
-        assert (
-            1 <= self.dimensionality <= 7
-        ), f"dimensionality must be [1,7], got {self.dimensionality}"
+        assert 1 <= self.dimensionality <= 7, (
+            f"dimensionality must be [1,7], got {self.dimensionality}"
+        )
 
     def to_dict(self) -> Dict[str, Any]:
         """Export as dictionary for serialization."""
@@ -167,9 +167,11 @@ def stat7_resonance(query_stat7: STAT7Address, doc_stat7: STAT7Address) -> float
     dim_bonus = min(1.0, doc_stat7.dimensionality / 7.0)  # Normalize to [0,1]
     adj_dim_score = 0.5 * adj_bonus + 0.5 * dim_bonus
 
-    # Combine all scores (multiplicative for strict alignment, additive bonus for complexity)
+    # Combine all scores (multiplicative for strict alignment, additive bonus
+    # for complexity)
     resonance = realm_score * horizon_score * lineage_score * signal_score
-    resonance *= 0.8 + 0.2 * adj_dim_score  # 20% bonus from connectivity/complexity
+    # 20% bonus from connectivity/complexity
+    resonance *= 0.8 + 0.2 * adj_dim_score
 
     return max(0.0, min(resonance, 1.0))  # Clamp to [0,1]
 
@@ -494,5 +496,10 @@ class STAT7RAGBridge:
         Returns: List of (doc_id, hybrid_score) tuples, sorted by score (descending)
         """
         return retrieve(
-            documents, query_embedding, query_stat7, k, weight_semantic, weight_stat7
+            documents,
+            query_embedding,
+            query_stat7,
+            k,
+            weight_semantic,
+            weight_stat7,
         )

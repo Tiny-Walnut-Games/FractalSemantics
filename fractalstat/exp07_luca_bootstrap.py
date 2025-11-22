@@ -71,7 +71,9 @@ class TestBitChain:
         """Generate STAT7-like address."""
         return (
             f"STAT7-{self.realm[0].upper()}-{self.lineage:03d}-"
-            f"50-{self.horizon[0].upper()}-50-{self.polarity[0].upper()}-{self.dimensionality}"
+            f"50-{self.horizon[0].upper()}-50-{self.polarity[0].upper()}-{
+                self.dimensionality
+            }"
         )
 
 
@@ -316,7 +318,10 @@ class LUCABootstrapTester:
             else:
                 comparison["information_loss_detected"] = True
                 details.append(
-                    {"entity_id": entity_id, "error": "Entity missing after bootstrap"}
+                    {
+                        "entity_id": entity_id,
+                        "error": "Entity missing after bootstrap",
+                    }
                 )
 
         # Calculate recovery rates
@@ -446,7 +451,9 @@ class LUCABootstrapTester:
         print(f"      ✓ Created {len(original_entities)} test entities")
         for i, e in enumerate(original_entities[:3]):
             print(
-                f"        - Entity {i}: lineage={e.lineage}, realm={e.realm}, address={e.get_stat7_address()}"
+                f"        - Entity {i}: lineage={e.lineage}, realm={e.realm}, address={
+                    e.get_stat7_address()
+                }"
             )
 
         # Phase 2: Compress to LUCA
@@ -463,7 +470,9 @@ class LUCABootstrapTester:
             sum(expansion_success) / len(expansion_success) if expansion_success else 0
         )
         print(
-            f"      ✓ Bootstrapped {len(bootstrapped_entities)}/{len(original_entities)} entities"
+            f"      ✓ Bootstrapped {len(bootstrapped_entities)}/{
+                len(original_entities)
+            } entities"
         )
         print(f"      ✓ Success rate: {success_rate:.1%}")
 
@@ -476,7 +485,8 @@ class LUCABootstrapTester:
         )
         print(f"      ✓ Realm recovery rate: {comparison['realm_recovery_rate']:.1%}")
         print(
-            f"      ✓ Dimensionality recovery rate: {comparison['dimensionality_recovery_rate']:.1%}"
+            f"      ✓ Dimensionality recovery rate: {
+                comparison['dimensionality_recovery_rate']:.1%}"
         )
         if comparison["information_loss_detected"]:
             print("      ⚠ Information loss detected!")
@@ -489,7 +499,9 @@ class LUCABootstrapTester:
         print(f"      ✓ Recursive structure: {fractal_tests['recursive_structure']}")
         print(f"      ✓ LUCA traceability: {fractal_tests['luca_traceability']}")
         print(
-            f"      ✓ Lineage depth: {fractal_tests['details'].get('lineage_depth', 'unknown')}"
+            f"      ✓ Lineage depth: {
+                fractal_tests['details'].get('lineage_depth', 'unknown')
+            }"
         )
 
         # Phase 6: Test LUCA continuity

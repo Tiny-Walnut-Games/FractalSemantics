@@ -457,7 +457,11 @@ class TestEdgeCases:
 
     def test_bitchain_security_fields(self):
         """BitChain should support all security fields."""
-        from fractalstat.stat7_experiments import BitChain, Coordinates, DataClass
+        from fractalstat.stat7_experiments import (
+            BitChain,
+            Coordinates,
+            DataClass,
+        )
 
         coords = Coordinates(
             realm="data",

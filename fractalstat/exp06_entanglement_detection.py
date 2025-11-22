@@ -152,7 +152,14 @@ def polarity_resonance(bc1: Dict, bc2: Dict) -> float:
 # Realm adjacency graph (symmetric)
 REALM_ADJACENCY = {
     "data": {"data", "narrative", "system", "event", "pattern"},
-    "narrative": {"data", "narrative", "system", "faculty", "event", "pattern"},
+    "narrative": {
+        "data",
+        "narrative",
+        "system",
+        "faculty",
+        "event",
+        "pattern",
+    },
     "system": {"data", "system", "faculty", "pattern"},
     "faculty": {"narrative", "system", "faculty", "event"},
     "event": {"data", "narrative", "faculty", "event", "pattern"},
@@ -460,7 +467,11 @@ class EntanglementDetector:
 
                 if score.total_score >= self.threshold:
                     entangled_pairs.append(
-                        (score.bitchain1_id, score.bitchain2_id, score.total_score)
+                        (
+                            score.bitchain1_id,
+                            score.bitchain2_id,
+                            score.total_score,
+                        )
                     )
 
         return entangled_pairs
@@ -475,8 +486,7 @@ class EntanglementDetector:
         if not self.scores:
             return {}
 
-        scores = [s.total_score for s in self.scores]
-        scores.sort()
+        scores = sorted([s.total_score for s in self.scores])
 
         mean = sum(scores) / len(scores)
         variance = sum((x - mean) ** 2 for x in scores) / len(scores)

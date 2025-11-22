@@ -1,0 +1,83 @@
+{
+  "sample_size": 100,
+  "dimensions_tested": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "geometric_validation": {
+    "low_dimensions_collisions": 0,
+    "low_dimensions_avg_collision_rate": 0.0,
+    "high_dimensions_collisions": 1,
+    "high_dimensions_avg_collision_rate": 0.0025,
+    "geometric_transition_confirmed": false
+  },
+  "coordinate_spaces": {
+    "2": 40401,
+    "3": 42875,
+    "4": 38416,
+    "5": 59049,
+    "6": 117649,
+    "7": 279936
+  },
+  "all_passed": false,
+  "results": [
+    {
+      "dimension": 2,
+      "coordinate_space_size": 40401,
+      "sample_size": 100,
+      "unique_coordinates": 100,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "geometric_limit_hit": false
+    },
+    {
+      "dimension": 3,
+      "coordinate_space_size": 42875,
+      "sample_size": 100,
+      "unique_coordinates": 100,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "geometric_limit_hit": false
+    },
+    {
+      "dimension": 4,
+      "coordinate_space_size": 38416,
+      "sample_size": 100,
+      "unique_coordinates": 99,
+      "collisions": 1,
+      "collision_rate": 0.01,
+      "geometric_limit_hit": false
+    },
+    {
+      "dimension": 5,
+      "coordinate_space_size": 59049,
+      "sample_size": 100,
+      "unique_coordinates": 100,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "geometric_limit_hit": false
+    },
+    {
+      "dimension": 6,
+      "coordinate_space_size": 117649,
+      "sample_size": 100,
+      "unique_coordinates": 100,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "geometric_limit_hit": false
+    },
+    {
+      "dimension": 7,
+      "coordinate_space_size": 279936,
+      "sample_size": 100,
+      "unique_coordinates": 100,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "geometric_limit_hit": false
+    }
+  ]
+}

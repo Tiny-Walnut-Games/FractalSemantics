@@ -44,7 +44,7 @@ class TestExperimentConfig:
 
         config = ExperimentConfig()
         enabled_experiments = config.get_enabled_experiments()
-        
+
         if enabled_experiments:
             assert config.is_enabled(enabled_experiments[0]) is True
 
@@ -53,7 +53,7 @@ class TestExperimentConfig:
         from fractalstat.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
-        
+
         assert config.is_enabled("NONEXISTENT-EXP") is False
 
     def test_config_get_value_exists(self):
@@ -62,7 +62,7 @@ class TestExperimentConfig:
 
         config = ExperimentConfig()
         enabled = config.get_enabled_experiments()
-        
+
         if enabled:
             exp_id = enabled[0]
             value = config.get(exp_id, "sample_size")
@@ -73,7 +73,7 @@ class TestExperimentConfig:
         from fractalstat.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
-        
+
         value = config.get("NONEXISTENT-EXP", "nonexistent_key", 999)
         assert value == 999
 
@@ -82,7 +82,7 @@ class TestExperimentConfig:
         from fractalstat.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
-        
+
         value = config.get("NONEXISTENT-EXP", "nonexistent_key")
         assert value is None
 
@@ -92,7 +92,7 @@ class TestExperimentConfig:
 
         config = ExperimentConfig()
         enabled = config.get_enabled_experiments()
-        
+
         if enabled:
             exp_id = enabled[0]
             all_config = config.get_all(exp_id)
@@ -103,7 +103,7 @@ class TestExperimentConfig:
         from fractalstat.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
-        
+
         all_config = config.get_all("NONEXISTENT-EXP")
         assert all_config == {}
 
@@ -113,7 +113,7 @@ class TestExperimentConfig:
 
         config = ExperimentConfig()
         enabled = config.get_enabled_experiments()
-        
+
         assert isinstance(enabled, list)
 
     def test_config_get_environment(self):
@@ -130,7 +130,7 @@ class TestExperimentConfig:
 
         config = ExperimentConfig()
         repr_str = repr(config)
-        
+
         assert "ExperimentConfig" in repr_str
         assert "env=" in repr_str
         assert "enabled=" in repr_str
@@ -139,7 +139,9 @@ class TestExperimentConfig:
         """_load_base_config should raise FileNotFoundError for missing file."""
         from fractalstat.config.feature_flags import ExperimentConfig
 
-        with pytest.raises(FileNotFoundError, match="Base configuration file not found"):
+        with pytest.raises(
+            FileNotFoundError, match="Base configuration file not found"
+        ):
             ExperimentConfig(config_file="nonexistent.toml")
 
     def test_config_merge_configs_enabled_list(self):
@@ -148,15 +150,11 @@ class TestExperimentConfig:
 
         config = ExperimentConfig()
         config.get_enabled_experiments().copy()
-        
-        override = {
-            "experiments": {
-                "enabled": ["TEST-EXP-1", "TEST-EXP-2"]
-            }
-        }
-        
+
+        override = {"experiments": {"enabled": ["TEST-EXP-1", "TEST-EXP-2"]}}
+
         config._merge_configs(override)
-        
+
         assert config.get_enabled_experiments() == ["TEST-EXP-1", "TEST-EXP-2"]
 
     def test_config_merge_configs_experiment_settings(self):
@@ -164,18 +162,13 @@ class TestExperimentConfig:
         from fractalstat.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
-        
+
         override = {
-            "experiments": {
-                "TEST-EXP": {
-                    "sample_size": 5000,
-                    "custom_param": "value"
-                }
-            }
+            "experiments": {"TEST-EXP": {"sample_size": 5000, "custom_param": "value"}}
         }
-        
+
         config._merge_configs(override)
-        
+
         assert config.get("TEST-EXP", "sample_size") == 5000
         assert config.get("TEST-EXP", "custom_param") == "value"
 
@@ -185,17 +178,11 @@ class TestExperimentConfig:
 
         config = ExperimentConfig()
         config.get_enabled_experiments()
-        
-        override = {
-            "experiments": {
-                "NEW-EXP": {
-                    "param": "value"
-                }
-            }
-        }
-        
+
+        override = {"experiments": {"NEW-EXP": {"param": "value"}}}
+
         config._merge_configs(override)
-        
+
         assert config.get("NEW-EXP", "param") == "value"
 
 
@@ -204,10 +191,13 @@ class TestGetConfigFunction:
 
     def test_get_config_returns_instance(self):
         """get_config should return ExperimentConfig instance."""
-        from fractalstat.config.feature_flags import get_config, ExperimentConfig
+        from fractalstat.config.feature_flags import (
+            get_config,
+            ExperimentConfig,
+        )
 
         config = get_config()
-        
+
         assert isinstance(config, ExperimentConfig)
 
     def test_get_config_singleton(self):
@@ -216,10 +206,10 @@ class TestGetConfigFunction:
 
         if hasattr(get_config, "_instance"):
             delattr(get_config, "_instance")
-        
+
         config1 = get_config()
         config2 = get_config()
-        
+
         assert config1 is config2
 
     def test_get_config_has_methods(self):
@@ -227,7 +217,7 @@ class TestGetConfigFunction:
         from fractalstat.config.feature_flags import get_config
 
         config = get_config()
-        
+
         assert hasattr(config, "is_enabled")
         assert hasattr(config, "get")
         assert hasattr(config, "get_all")
@@ -243,7 +233,7 @@ class TestConfigIntegration:
         from fractalstat.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
-        
+
         assert "experiments" in config.config
         assert isinstance(config.config["experiments"], dict)
 
@@ -253,7 +243,7 @@ class TestConfigIntegration:
 
         config = ExperimentConfig()
         enabled = config.get_enabled_experiments()
-        
+
         for exp_id in enabled:
             assert isinstance(exp_id, str)
             assert len(exp_id) > 0
@@ -264,7 +254,7 @@ class TestConfigIntegration:
 
         config = ExperimentConfig()
         enabled = config.get_enabled_experiments()
-        
+
         if enabled:
             exp_id = enabled[0]
             exp_config = config.get_all(exp_id)
@@ -296,7 +286,7 @@ class TestConfigEdgeCases:
 
         config = ExperimentConfig()
         config.config["experiments"]["enabled"] = []
-        
+
         enabled = config.get_enabled_experiments()
         assert enabled == []
         assert config.is_enabled("ANY-EXP") is False
@@ -307,7 +297,7 @@ class TestConfigEdgeCases:
 
         config = ExperimentConfig()
         config.config = {}
-        
+
         enabled = config.get_enabled_experiments()
         assert enabled == []
 
@@ -316,10 +306,8 @@ class TestConfigEdgeCases:
         from fractalstat.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
-        config.config["experiments"]["TEST-EXP"] = {
-            "nested": {"key": "value"}
-        }
-        
+        config.config["experiments"]["TEST-EXP"] = {"nested": {"key": "value"}}
+
         value = config.get("TEST-EXP", "nested")
         assert isinstance(value, dict)
         assert value["key"] == "value"

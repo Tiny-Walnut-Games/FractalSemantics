@@ -459,7 +459,11 @@ async def main():
         help="Test duration in minutes",
     )
     parser.add_argument(
-        "--qps", "-q", type=int, default=default_qps, help="Target queries per second"
+        "--qps",
+        "-q",
+        type=int,
+        default=default_qps,
+        help="Target queries per second",
     )
     parser.add_argument(
         "--concurrent",
@@ -497,17 +501,20 @@ async def main():
 
         print("\n⚡ Performance Metrics:")
         print(
-            f"   Avg Query Time: {report['performance_metrics']['avg_query_time_ms']:.2f}ms"
+            f"   Avg Query Time: {
+                report['performance_metrics']['avg_query_time_ms']:.2f}ms"
         )
         print(
-            f"   P95 Query Time: {report['performance_metrics']['p95_query_time_ms']:.2f}ms"
+            f"   P95 Query Time: {
+                report['performance_metrics']['p95_query_time_ms']:.2f}ms"
         )
         print(
-            f"   P99 Query Time: {report['performance_metrics']['p99_query_time_ms']:.2f}ms"
+            f"   P99 Query Time: {
+                report['performance_metrics']['p99_query_time_ms']:.2f}ms"
         )
 
         print("\n🔍 Bob Analysis:")
-        print(f"   Total Decisions: {report['bob_analysis']['total_decisions']:,}")
+        print(f"   Total Decisions: {report['bob_analysis']['total_decisions']:,    }")
         print(f"   Passed: {report['bob_analysis']['passed']:,}")
         print(f"   Verified: {report['bob_analysis']['verified']:,}")
         print(f"   Quarantined: {report['bob_analysis']['quarantined']:,}")

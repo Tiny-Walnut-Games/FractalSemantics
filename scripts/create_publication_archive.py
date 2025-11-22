@@ -36,13 +36,17 @@ def create_archive(version: str) -> None:
         dest.parent.mkdir(exist_ok=True)
         shutil.copy2(json_file, dest)
         print(f"✓ Archived {json_file.name}")
-    
+
     # Copy experiment configuration files for reproducibility
     config_dir = Path("fractalstat") / "config"
     if config_dir.exists():
         dest = archive_dir / "config"
         dest.mkdir(exist_ok=True)
-        for config_file in ["experiments.toml", "experiments.dev.toml", "experiments.ci.toml"]:
+        for config_file in [
+            "experiments.toml",
+            "experiments.dev.toml",
+            "experiments.ci.toml",
+        ]:
             config_path = config_dir / config_file
             if config_path.exists():
                 shutil.copy2(config_path, dest / config_file)
@@ -57,8 +61,10 @@ def create_archive(version: str) -> None:
     manifest = {
         "version": version,
         "archived_at": datetime.now().isoformat(),
-
-        "repository": os.environ.get("CI_PROJECT_URL", "https://gitlab.com/tiny-walnut-games/fractalstat"),
+        "repository": os.environ.get(
+            "CI_PROJECT_URL",
+            "https://gitlab.com/tiny-walnut-games/fractalstat",
+        ),
         "experiments": [
             {"id": "EXP-01", "name": "Address Uniqueness"},
             {"id": "EXP-02", "name": "Retrieval Efficiency"},

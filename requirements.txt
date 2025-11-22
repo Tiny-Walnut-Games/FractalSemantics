@@ -8,6 +8,6 @@ uvicorn>=0.24.0
 click>=8.1.0
 tomli>=2.0.0; python_version < '3.11'
 
-# Optional: For figure generation (EXP-01 and other experiments)
+# Optional: For figure generation (EXP-01, EXP-03 and other experiments)
 # Uncomment to install:
-# matplotlib>=3.5.0
+matplotlib>=3.5.0

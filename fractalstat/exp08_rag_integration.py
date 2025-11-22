@@ -267,21 +267,29 @@ class RAGIntegrationTester:
         print("\n2. Testing semantic retrieval...")
         semantic_results = self.test_semantic_retrieval()
         print(
-            f"   Semantic queries: {semantic_results['successful_queries']}/{semantic_results['total_queries']} successful"
+            f"   Semantic queries: {semantic_results['successful_queries']}/{
+                semantic_results['total_queries']
+            } successful"
         )
 
         # Test hybrid retrieval
         print("\n3. Testing hybrid STAT7 + semantic retrieval...")
         hybrid_results = self.test_hybrid_retrieval()
         print(
-            f"   Hybrid queries: {hybrid_results['successful_queries']}/{hybrid_results['total_queries']} successful"
+            f"   Hybrid queries: {hybrid_results['successful_queries']}/{
+                hybrid_results['total_queries']
+            } successful"
         )
 
         # Check RAG data integration
         print("\n4. Checking RAG data integration...")
         rag_integration = self.check_rag_data_integration()
         print(
-            f"   RAG integration: {'✅ Success' if rag_integration['data_integration_success'] else '❌ Failed'}"
+            f"   RAG integration: {
+                '✅ Success'
+                if rag_integration['data_integration_success']
+                else '❌ Failed'
+            }"
         )
 
         # Compile results

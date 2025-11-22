@@ -95,9 +95,9 @@ class EXP03_DimensionNecessity:
         Returns:
             Tuple of (results list, overall success boolean)
         """
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("EXP-03: DIMENSION NECESSITY TEST")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
         print(f"Sample size: {self.sample_size} bit-chains")
         print()
 
@@ -126,7 +126,8 @@ class EXP03_DimensionNecessity:
 
         status = "[PASS]" if result.acceptable else "[FAIL]"
         print(
-            f"  {status} | Collisions: {collisions} | Rate: {baseline_collision_rate*100:.4f}%"
+            f"  {status} | Collisions: {collisions} | Rate: {
+                baseline_collision_rate * 100:.4f}%"
         )
         print()
 
@@ -136,7 +137,8 @@ class EXP03_DimensionNecessity:
         for removed_dim in self.STAT7_DIMENSIONS:
             print(f"Ablation: Remove '{removed_dim}'")
 
-            # Generate modified bit-chains (without the removed dimension in addressing)
+            # Generate modified bit-chains (without the removed dimension in
+            # addressing)
             addresses = set()
             collisions = 0
 
@@ -166,11 +168,13 @@ class EXP03_DimensionNecessity:
             )
             self.results.append(result)
 
-            # For dimension necessity, we EXPECT failures (high collisions) when removing dims
+            # For dimension necessity, we EXPECT failures (high collisions)
+            # when removing dims
             necessity = not acceptable  # Should show collisions
             status = "[NECESSARY]" if necessity else "[OPTIONAL]"
             print(
-                f"  {status} | Collisions: {collisions} | Rate: {collision_rate*100:.4f}%"
+                f"  {status} | Collisions: {collisions} | Rate: {
+                    collision_rate * 100:.4f}%"
             )
 
         print()

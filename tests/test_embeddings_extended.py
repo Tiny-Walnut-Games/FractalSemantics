@@ -17,15 +17,18 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             texts = ["test1", "test2", "test1"]  # test1 repeated
-            
+
             embeddings = provider.embed_batch(texts)
-            
+
             assert len(embeddings) == 3
-            assert embeddings[0] == embeddings[2]  # Same text should have same embedding
-            assert provider.cache_stats["hits"] > 0 or provider.cache_stats["misses"] > 0
+            # Same text should have same embedding
+            assert embeddings[0] == embeddings[2]
+            assert (
+                provider.cache_stats["hits"] > 0 or provider.cache_stats["misses"] > 0
+            )
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 
@@ -35,19 +38,19 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             with tempfile.TemporaryDirectory() as tmpdir:
                 config = {"cache_dir": tmpdir}
                 provider1 = SentenceTransformerEmbeddingProvider(config)
-                
+
                 # Generate and cache an embedding
                 text = "test persistence"
                 emb1 = provider1.embed_text(text)
                 provider1._save_cache()
-                
+
                 # Create new provider with same cache dir
                 provider2 = SentenceTransformerEmbeddingProvider(config)
-                
+
                 # Should load from cache
                 cache_key = provider2._get_cache_key(text)
                 assert cache_key in provider2.cache
@@ -61,13 +64,13 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             # Test with small batch size
             provider = SentenceTransformerEmbeddingProvider({"batch_size": 2})
             texts = ["text1", "text2", "text3", "text4", "text5"]
-            
+
             embeddings = provider.embed_batch(texts, show_progress=False)
-            
+
             assert len(embeddings) == 5
             assert all(len(emb) > 0 for emb in embeddings)
         except ImportError:
@@ -79,9 +82,9 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
-            
+
             assert provider.device in ["cpu", "cuda"]
             assert provider.model is not None
         except ImportError:
@@ -93,14 +96,14 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
-            
+
             # First embedding - should be a miss
             initial_misses = provider.cache_stats["misses"]
             provider.embed_text("unique text 1")
             assert provider.cache_stats["misses"] == initial_misses + 1
-            
+
             # Second embedding of same text - should be a hit
             initial_hits = provider.cache_stats["hits"]
             provider.embed_text("unique text 1")
@@ -114,10 +117,10 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             dim = provider.get_dimension()
-            
+
             assert isinstance(dim, int)
             assert dim > 0
             assert dim == provider.dimension
@@ -130,18 +133,20 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
-            
+
             # Create embeddings for similar and dissimilar texts
             texts = ["cat", "dog", "automobile", "vehicle"]
             embeddings = [provider.embed_text(t) for t in texts]
-            
+
             # Search for "animal" - should rank cat/dog higher
             results = provider.semantic_search("animal", embeddings, top_k=2)
-            
+
             assert len(results) == 2
-            assert all(isinstance(r[0], int) and isinstance(r[1], float) for r in results)
+            assert all(
+                isinstance(r[0], int) and isinstance(r[1], float) for r in results
+            )
             # Results should be sorted by similarity (descending)
             assert results[0][1] >= results[1][1]
         except ImportError:
@@ -153,10 +158,10 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             embeddings = provider.embed_batch([])
-            
+
             assert embeddings == []
         except ImportError:
             pytest.skip("sentence-transformers not installed")
@@ -167,12 +172,12 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             embedding = provider.embed_text("test text for stat7")
-            
+
             stat7 = provider.compute_stat7_from_embedding(embedding)
-            
+
             assert "lineage" in stat7
             assert "adjacency" in stat7
             assert "luminosity" in stat7
@@ -180,8 +185,9 @@ class TestSentenceTransformerExtended:
             assert "dimensionality" in stat7
             assert "horizon" in stat7
             assert "realm" in stat7
-            
-            # Hybrid bounds: fractal dimensions unbounded, relational symmetric, intensity asymmetric
+
+            # Hybrid bounds: fractal dimensions unbounded, relational
+            # symmetric, intensity asymmetric
             assert isinstance(stat7["lineage"], (int, float))
             assert -1.0 <= stat7["adjacency"] <= 1.0
             assert 0.0 <= stat7["luminosity"] <= 1.0
@@ -196,10 +202,10 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             stat7 = provider.compute_stat7_from_embedding([])
-            
+
             # Should return default values
             assert stat7["lineage"] == 0.5
             assert stat7["adjacency"] == 0.5
@@ -213,10 +219,10 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             provider.embed_text("test")
-            
+
             # Mock open to raise an exception
             with patch("builtins.open", mock_open()) as mock_file:
                 mock_file.side_effect = IOError("Disk full")
@@ -231,12 +237,12 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             with tempfile.TemporaryDirectory() as tmpdir:
                 # Create corrupted cache file
                 cache_file = Path(tmpdir) / "all-MiniLM-L6-v2_cache.json"
                 cache_file.write_text("corrupted json {{{")
-                
+
                 config = {"cache_dir": tmpdir}
                 # Should not raise, just skip loading
                 provider = SentenceTransformerEmbeddingProvider(config)
@@ -250,10 +256,10 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             provider.model = None  # Simulate uninitialized model
-            
+
             with pytest.raises(RuntimeError, match="Model not initialized"):
                 provider.embed_text("test")
         except ImportError:
@@ -265,10 +271,10 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             provider.model = None  # Simulate uninitialized model
-            
+
             with pytest.raises(RuntimeError, match="Model not initialized"):
                 provider.embed_batch(["test1", "test2"])
         except ImportError:
@@ -280,10 +286,10 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             provider.dimension = None  # Simulate uninitialized dimension
-            
+
             with pytest.raises(RuntimeError, match="Dimension not initialized"):
                 provider.get_dimension()
         except ImportError:
@@ -295,10 +301,10 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             texts = ["text1", "text2", "text3"]
-            
+
             # Should work with show_progress=True
             embeddings = provider.embed_batch(texts, show_progress=True)
             assert len(embeddings) == 3
@@ -311,16 +317,16 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             with tempfile.TemporaryDirectory() as tmpdir:
                 cache_dir = Path(tmpdir) / "new_cache_dir"
                 assert not cache_dir.exists()
-                
+
                 config = {"cache_dir": str(cache_dir)}
                 provider = SentenceTransformerEmbeddingProvider(config)
                 provider.embed_text("test")
                 provider._save_cache()
-                
+
                 # Cache directory should now exist
                 assert cache_dir.exists()
         except ImportError:
@@ -332,10 +338,10 @@ class TestSentenceTransformerExtended:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
-            
+
             provider = SentenceTransformerEmbeddingProvider()
             info = provider.get_provider_info()
-            
+
             assert "cache_dir" in info
             assert info["cache_dir"] == ".embedding_cache"
         except ImportError:

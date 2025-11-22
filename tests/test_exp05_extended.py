@@ -68,12 +68,15 @@ class TestExp05Extended:
         path = pipeline.compress_bitchain(bc)
 
         luminosities = [s.luminosity for s in path.stages]
-        # Luminosity should generally decrease (with epsilon tolerance for floating-point precision)
+        # Luminosity should generally decrease (with epsilon tolerance for
+        # floating-point precision)
         assert luminosities[-1] <= luminosities[0] + 1e-6
 
     def test_save_results_with_file_io(self):
         """save_results should write to file."""
-        from fractalstat.exp05_compression_expansion import CompressionExperimentResults
+        from fractalstat.exp05_compression_expansion import (
+            CompressionExperimentResults,
+        )
 
         results = CompressionExperimentResults(
             start_time="2024-01-01T00:00:00Z",
@@ -171,7 +174,9 @@ class TestExp05Extended:
 
     def test_main_entry_point_with_config(self):
         """Main entry point should load config."""
-        from fractalstat.exp05_compression_expansion import CompressionExperimentResults
+        from fractalstat.exp05_compression_expansion import (
+            CompressionExperimentResults,
+        )
 
         # Test that results structure is correct
         results = CompressionExperimentResults(
@@ -379,7 +384,9 @@ class TestExp05BoundaryCases:
 
     def test_losslessness_boundary_cases(self):
         """Test edge cases with boundary values for losslessness."""
-        from fractalstat.exp05_compression_expansion import CompressionExperimentResults
+        from fractalstat.exp05_compression_expansion import (
+            CompressionExperimentResults,
+        )
 
         # Test with 0% provenance intact
         results_zero_provenance = CompressionExperimentResults(
@@ -438,7 +445,9 @@ class TestExp05BoundaryCases:
 
     def test_findings_generation_edge_cases(self):
         """Test results aggregation with compression ratio < 2.0."""
-        from fractalstat.exp05_compression_expansion import CompressionExperimentResults
+        from fractalstat.exp05_compression_expansion import (
+            CompressionExperimentResults,
+        )
 
         # Test with compression ratio < 2.0
         results_low_compression = CompressionExperimentResults(

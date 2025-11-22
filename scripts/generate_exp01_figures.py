@@ -30,7 +30,6 @@ try:
     matplotlib.use("Agg")  # Non-interactive backend
     import numpy as np
 
-
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
@@ -82,7 +81,11 @@ def generate_collision_rate_figure(results: Dict[str, Any], output_dir: Path):
 
     # Bar chart of collision rates
     bars = ax.bar(
-        iterations, collision_rates, color="#2ecc71", edgecolor="black", linewidth=1.5
+        iterations,
+        collision_rates,
+        color="#2ecc71",
+        edgecolor="black",
+        linewidth=1.5,
     )
 
     # Highlight any non-zero collision rates (should be none)
@@ -114,7 +117,10 @@ def generate_collision_rate_figure(results: Dict[str, Any], output_dir: Path):
         va="top",
         color="#27ae60",
         bbox=dict(
-            boxstyle="round", facecolor="#d5f4e6", edgecolor="#27ae60", linewidth=2
+            boxstyle="round",
+            facecolor="#d5f4e6",
+            edgecolor="#27ae60",
+            linewidth=2,
         ),
     )
 
@@ -190,7 +196,8 @@ def generate_uniqueness_distribution_figure(results: Dict[str, Any], output_dir:
     ax.text(
         0.5,
         0.95,
-        f"100% Uniqueness Rate ({total_unique:,}/{total_tested:,} addresses unique)",
+        f"100% Uniqueness Rate ({total_unique:,                                 }/{
+            total_tested:,                                                                                   } addresses unique)",
         transform=ax.transAxes,
         fontsize=11,
         fontweight="bold",
@@ -198,7 +205,10 @@ def generate_uniqueness_distribution_figure(results: Dict[str, Any], output_dir:
         va="top",
         color="#2c3e50",
         bbox=dict(
-            boxstyle="round", facecolor="#ecf0f1", edgecolor="#34495e", linewidth=2
+            boxstyle="round",
+            facecolor="#ecf0f1",
+            edgecolor="#34495e",
+            linewidth=2,
         ),
     )
 
@@ -393,14 +403,19 @@ def generate_theoretical_comparison_figure(output_dir: Path):
         label="Theoretical (Birthday Paradox)",
     )
 
-    # Mark observed point (use theoretical value for zero observations as upper bound)
+    # Mark observed point (use theoretical value for zero observations as
+    # upper bound)
     theoretical_at_observed = 1 - np.exp(-(observed_n**2) / (2 * d))
     plot_prob = observed_prob if observed_prob > 0 else theoretical_at_observed
-    
+
     # Use different marker style to indicate this is an upper bound estimate
     marker_style = "ro" if observed_prob > 0 else "r^"
-    marker_label = f"Observed (n={observed_n:,})" if observed_prob > 0 else f"Upper Bound (n={observed_n:,})"
-    
+    marker_label = (
+        f"Observed (n={observed_n:,    })"
+        if observed_prob > 0
+        else f"Upper Bound (n={observed_n:,    })"
+    )
+
     ax.plot(
         observed_n,
         plot_prob,
@@ -495,10 +510,14 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
             f"{exp01_summary.get('total_bitchains_tested', 10000):,}",
             "#3498db",
         ),
-        ("Total Collisions", f"{exp01_summary.get('total_collisions', 0)}", "#e74c3c"),
+        (
+            "Total Collisions",
+            f"{exp01_summary.get('total_collisions', 0)}",
+            "#e74c3c",
+        ),
         (
             "Overall Collision Rate",
-            f"{exp01_summary.get('overall_collision_rate', 0.0)*100:.1f}%",
+            f"{exp01_summary.get('overall_collision_rate', 0.0) * 100:.1f}%",
             "#f39c12",
         ),
         ("Uniqueness Rate", "100.0%", "#2ecc71"),
@@ -531,7 +550,10 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
             color=color,
             verticalalignment="center",
             bbox=dict(
-                boxstyle="round", facecolor="white", edgecolor=color, linewidth=2
+                boxstyle="round",
+                facecolor="white",
+                edgecolor=color,
+                linewidth=2,
             ),
         )
         y_pos -= 0.1
@@ -551,7 +573,10 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
         va="bottom",
         style="italic",
         bbox=dict(
-            boxstyle="round", facecolor="#ecf0f1", edgecolor="#34495e", linewidth=2
+            boxstyle="round",
+            facecolor="#ecf0f1",
+            edgecolor="#34495e",
+            linewidth=2,
         ),
     )
 

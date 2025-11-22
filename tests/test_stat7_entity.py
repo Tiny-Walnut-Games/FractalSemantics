@@ -97,7 +97,12 @@ class TestSTAT7Coordinates:
 
     def test_coordinates_initialization(self):
         """STAT7Coordinates should initialize with all dimensions."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         coords = STAT7Coordinates(
             realm=Realm.COMPANION,
@@ -106,7 +111,7 @@ class TestSTAT7Coordinates:
             horizon=Horizon.PEAK,
             luminosity=90.0,
             polarity=Polarity.LOGIC,
-            dimensionality=3
+            dimensionality=3,
         )
 
         assert coords.realm == Realm.COMPANION
@@ -119,7 +124,12 @@ class TestSTAT7Coordinates:
 
     def test_coordinates_address_generation(self):
         """address property should generate canonical STAT7 address."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         coords = STAT7Coordinates(
             realm=Realm.COMPANION,
@@ -128,7 +138,7 @@ class TestSTAT7Coordinates:
             horizon=Horizon.PEAK,
             luminosity=90.0,
             polarity=Polarity.LOGIC,
-            dimensionality=3
+            dimensionality=3,
         )
 
         address = coords.address
@@ -136,7 +146,12 @@ class TestSTAT7Coordinates:
 
     def test_coordinates_address_format(self):
         """address should follow STAT7-R-LLL-AA-H-LL-P-D format."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         coords = STAT7Coordinates(
             realm=Realm.BADGE,
@@ -145,12 +160,12 @@ class TestSTAT7Coordinates:
             horizon=Horizon.GENESIS,
             luminosity=0.0,
             polarity=Polarity.ACHIEVEMENT,
-            dimensionality=0
+            dimensionality=0,
         )
 
         address = coords.address
         parts = address.split("-")
-        
+
         assert len(parts) == 8
         assert parts[0] == "STAT7"
         assert parts[1] == "B"
@@ -163,7 +178,12 @@ class TestSTAT7Coordinates:
 
     def test_coordinates_from_address_valid(self):
         """from_address should parse valid STAT7 address."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         address = "STAT7-C-005-75-P-90-L-3"
         coords = STAT7Coordinates.from_address(address)
@@ -192,7 +212,12 @@ class TestSTAT7Coordinates:
 
     def test_coordinates_roundtrip(self):
         """Coordinates should survive address roundtrip."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         original = STAT7Coordinates(
             realm=Realm.SPONSOR_RING,
@@ -201,7 +226,7 @@ class TestSTAT7Coordinates:
             horizon=Horizon.CRYSTALLIZATION,
             luminosity=100.0,
             polarity=Polarity.UNITY,
-            dimensionality=7
+            dimensionality=7,
         )
 
         address = original.address
@@ -217,7 +242,12 @@ class TestSTAT7Coordinates:
 
     def test_coordinates_to_dict(self):
         """to_dict should convert coordinates to dictionary."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         coords = STAT7Coordinates(
             realm=Realm.PATTERN,
@@ -226,7 +256,7 @@ class TestSTAT7Coordinates:
             horizon=Horizon.EMERGENCE,
             luminosity=66.6,
             polarity=Polarity.CHAOS,
-            dimensionality=1
+            dimensionality=1,
         )
 
         data = coords.to_dict()
@@ -252,7 +282,7 @@ class TestLifecycleEvent:
         event = LifecycleEvent(
             timestamp=timestamp,
             event_type="birth",
-            description="Entity created"
+            description="Entity created",
         )
 
         assert event.timestamp == timestamp
@@ -269,7 +299,7 @@ class TestLifecycleEvent:
             timestamp=datetime.now(),
             event_type="evolution",
             description="Entity evolved",
-            metadata=metadata
+            metadata=metadata,
         )
 
         assert event.metadata == metadata
@@ -283,7 +313,7 @@ class TestLifecycleEvent:
             timestamp=timestamp,
             event_type="mint",
             description="NFT minted",
-            metadata={"token_id": 123}
+            metadata={"token_id": 123},
         )
 
         data = event.to_dict()
@@ -299,7 +329,13 @@ class TestSTAT7EntityBase:
 
     def create_concrete_entity(self):
         """Helper to create a concrete STAT7Entity subclass."""
-        from fractalstat.stat7_entity import STAT7Entity, STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Entity,
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         class ConcreteEntity(STAT7Entity):
             def _compute_stat7_coordinates(self):
@@ -310,7 +346,7 @@ class TestSTAT7EntityBase:
                     horizon=Horizon.GENESIS,
                     luminosity=0.0,
                     polarity=Polarity.BALANCE,
-                    dimensionality=0
+                    dimensionality=0,
                 )
 
             def to_collectible_card_data(self):
@@ -321,7 +357,7 @@ class TestSTAT7EntityBase:
                     "artwork_url": "http://example.com/art.png",
                     "rarity": "common",
                     "key_stats": {"stat1": 10},
-                    "properties": {"prop1": "value1"}
+                    "properties": {"prop1": "value1"},
                 }
 
             def validate_hybrid_encoding(self):
@@ -383,6 +419,7 @@ class TestSTAT7EntityBase:
     def test_entity_last_activity_tracking(self):
         """Entity should track last_activity timestamp."""
         from datetime import timezone
+
         ConcreteEntity = self.create_concrete_entity()
         entity = ConcreteEntity()
 
@@ -472,7 +509,12 @@ class TestSTAT7EntityBase:
 
     def test_entity_to_dict(self):
         """to_dict should convert entity to dictionary."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         ConcreteEntity = self.create_concrete_entity()
         entity = ConcreteEntity()
@@ -484,7 +526,7 @@ class TestSTAT7EntityBase:
             horizon=Horizon.PEAK,
             luminosity=90.0,
             polarity=Polarity.LOGIC,
-            dimensionality=3
+            dimensionality=3,
         )
         entity.owner_id = "user-123"
 
@@ -508,10 +550,10 @@ class TestSTAT7EntityBase:
             entity.save_to_file(file_path)
 
             assert file_path.exists()
-            
+
             with open(file_path, "r") as f:
                 data = json.load(f)
-            
+
             assert data["entity_id"] == entity.entity_id
             assert data["entity_type"] == "TestEntity"
 
@@ -540,7 +582,12 @@ class TestSTAT7EntityBase:
 
     def test_entity_render_zoom_level_1_badge(self):
         """render_zoom_level(1) should return badge view."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         ConcreteEntity = self.create_concrete_entity()
         entity = ConcreteEntity()
@@ -551,7 +598,7 @@ class TestSTAT7EntityBase:
             horizon=Horizon.GENESIS,
             luminosity=0.0,
             polarity=Polarity.ACHIEVEMENT,
-            dimensionality=0
+            dimensionality=0,
         )
 
         view = entity.render_zoom_level(1)
@@ -563,7 +610,12 @@ class TestSTAT7EntityBase:
 
     def test_entity_render_zoom_level_2_dog_tag(self):
         """render_zoom_level(2) should return dog-tag view."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         ConcreteEntity = self.create_concrete_entity()
         entity = ConcreteEntity()
@@ -574,7 +626,7 @@ class TestSTAT7EntityBase:
             horizon=Horizon.EMERGENCE,
             luminosity=50.0,
             polarity=Polarity.BALANCE,
-            dimensionality=1
+            dimensionality=1,
         )
 
         view = entity.render_zoom_level(2)
@@ -587,7 +639,12 @@ class TestSTAT7EntityBase:
 
     def test_entity_render_zoom_level_3_card(self):
         """render_zoom_level(3) should return collectible card view."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         ConcreteEntity = self.create_concrete_entity()
         entity = ConcreteEntity()
@@ -598,7 +655,7 @@ class TestSTAT7EntityBase:
             horizon=Horizon.PEAK,
             luminosity=90.0,
             polarity=Polarity.LOGIC,
-            dimensionality=2
+            dimensionality=2,
         )
 
         view = entity.render_zoom_level(3)
@@ -608,7 +665,12 @@ class TestSTAT7EntityBase:
 
     def test_entity_render_zoom_level_4_profile_panel(self):
         """render_zoom_level(4) should return profile panel view."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         ConcreteEntity = self.create_concrete_entity()
         entity = ConcreteEntity()
@@ -619,7 +681,7 @@ class TestSTAT7EntityBase:
             horizon=Horizon.PEAK,
             luminosity=95.0,
             polarity=Polarity.CREATIVITY,
-            dimensionality=3
+            dimensionality=3,
         )
         entity.owner_id = "user-123"
         entity.add_entanglement("entity-1", 0.5)
@@ -633,7 +695,12 @@ class TestSTAT7EntityBase:
 
     def test_entity_render_zoom_level_5_full_profile(self):
         """render_zoom_level(5) should return full entity profile."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         ConcreteEntity = self.create_concrete_entity()
         entity = ConcreteEntity()
@@ -644,7 +711,7 @@ class TestSTAT7EntityBase:
             horizon=Horizon.CRYSTALLIZATION,
             luminosity=100.0,
             polarity=Polarity.ORDER,
-            dimensionality=4
+            dimensionality=4,
         )
         entity._record_event("test", "Test event")
 
@@ -658,7 +725,12 @@ class TestSTAT7EntityBase:
 
     def test_entity_render_zoom_level_6_fractal_descent(self):
         """render_zoom_level(6+) should return fractal descent view."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         ConcreteEntity = self.create_concrete_entity()
         entity = ConcreteEntity()
@@ -669,7 +741,7 @@ class TestSTAT7EntityBase:
             horizon=Horizon.PEAK,
             luminosity=100.0,
             polarity=Polarity.CHAOS,
-            dimensionality=5
+            dimensionality=5,
         )
 
         view = entity.render_zoom_level(6)
@@ -683,7 +755,12 @@ class TestSTAT7EntityBase:
 
     def test_entity_render_zoom_level_invalid_low(self):
         """render_zoom_level should raise ValueError for level < 1."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         ConcreteEntity = self.create_concrete_entity()
         entity = ConcreteEntity()
@@ -694,7 +771,7 @@ class TestSTAT7EntityBase:
             horizon=Horizon.GENESIS,
             luminosity=0.0,
             polarity=Polarity.BALANCE,
-            dimensionality=0
+            dimensionality=0,
         )
 
         with pytest.raises(ValueError, match="Invalid zoom level"):
@@ -702,7 +779,12 @@ class TestSTAT7EntityBase:
 
     def test_entity_render_zoom_level_invalid_high(self):
         """render_zoom_level should raise ValueError for level > 7."""
-        from fractalstat.stat7_entity import STAT7Coordinates, Realm, Horizon, Polarity
+        from fractalstat.stat7_entity import (
+            STAT7Coordinates,
+            Realm,
+            Horizon,
+            Polarity,
+        )
 
         ConcreteEntity = self.create_concrete_entity()
         entity = ConcreteEntity()
@@ -713,7 +795,7 @@ class TestSTAT7EntityBase:
             horizon=Horizon.GENESIS,
             luminosity=0.0,
             polarity=Polarity.BALANCE,
-            dimensionality=0
+            dimensionality=0,
         )
 
         with pytest.raises(ValueError, match="Invalid zoom level"):
@@ -739,7 +821,7 @@ class TestHelperFunctions:
 
         data1 = {"key": "value1"}
         data2 = {"key": "value2"}
-        
+
         hash1 = hash_for_coordinates(data1)
         hash2 = hash_for_coordinates(data2)
 
@@ -751,7 +833,7 @@ class TestHelperFunctions:
 
         data1 = {"a": 1, "b": 2, "c": 3}
         data2 = {"c": 3, "a": 1, "b": 2}
-        
+
         hash1 = hash_for_coordinates(data1)
         hash2 = hash_for_coordinates(data2)
 

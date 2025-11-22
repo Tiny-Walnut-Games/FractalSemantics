@@ -1,5 +1,9 @@
-"""
-FractalStat - Complete validation suite for STAT7 7-dimensional addressing system
+"""FractalStat.
+
+A Complete validation suite for multi-dimensional addressing-systems.
+===============
+A comprehensive suite of tests to ensure reliability, performance,
+and robustness of the FractalStat multi-dimensional addressing system.
 """
 
 __version__ = "0.1.0"

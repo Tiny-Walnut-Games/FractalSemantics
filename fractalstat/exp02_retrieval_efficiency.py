@@ -79,9 +79,9 @@ class EXP02_RetrievalEfficiency:
         Returns:
             Tuple of (results list, overall success boolean)
         """
-        print(f"\n{'='*70}")
+        print(f"\n{'=' * 70}")
         print("EXP-02: RETRIEVAL EFFICIENCY TEST")
-        print(f"{'='*70}")
+        print(f"{'=' * 70}")
         print(f"Query count per scale: {self.query_count}")
         print(f"Scales: {self.scales}")
         print()

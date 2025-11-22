@@ -477,10 +477,14 @@ class DimensionStressTest:
         max_collision_test = max(self.results, key=lambda r: r.collision_rate)
         if max_collision_test.collision_rate > 0:
             key_findings.append(
-                f"Highest collision rate: {max_collision_test.collision_rate:.4%} in {max_collision_test.test_name}"
+                f"Highest collision rate: {max_collision_test.collision_rate:.4%} in {
+                    max_collision_test.test_name
+                }"
             )
             key_findings.append(
-                f"  Max collisions per address: {max_collision_test.max_collisions_per_address}"
+                f"  Max collisions per address: {
+                    max_collision_test.max_collisions_per_address
+                }"
             )
 
         # Dimension count analysis

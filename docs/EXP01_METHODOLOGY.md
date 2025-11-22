@@ -32,11 +32,13 @@ P(collision) = 1 / 2^256 ≈ 8.64 × 10^-78
 ```
 
 For comparison:
+
 - Estimated atoms in observable universe: ~10^80
 - Estimated grains of sand on Earth: ~10^23
 - SHA-256 address space: ~10^77
 
 While theoretically sound, empirical validation is essential to ensure:
+
 - Implementation correctness
 - Canonical serialization determinism
 - Cross-platform consistency
@@ -47,16 +49,19 @@ While theoretically sound, empirical validation is essential to ensure:
 ### Variables
 
 **Independent Variables**:
+
 - Sample size (N): Number of bit-chains generated per iteration
 - Iterations (M): Number of test runs with different random seeds
 - Random seed: Deterministic seed for reproducibility
 
 **Dependent Variables**:
+
 - Number of unique addresses
 - Number of collisions
 - Collision rate (collisions / total bit-chains)
 
 **Controlled Variables**:
+
 - Hashing algorithm: SHA-256 (fixed)
 - Canonical serialization rules (fixed)
 - Coordinate ranges (STAT7 specification)
@@ -83,6 +88,7 @@ For each iteration i ∈ [1, M]:
 For each bit-chain bc:
 
 1. Convert to canonical dictionary representation:
+
    ```python
    canonical_dict = {
        "created_at": normalize_timestamp(bc.created_at),
@@ -145,6 +151,7 @@ Across all M iterations:
 ### Parameters
 
 **Default Configuration** (experiments.toml):
+
 ```toml
 [experiments.EXP-01]
 sample_size = 1000    # Bit-chains per iteration
@@ -153,6 +160,7 @@ quick_mode = false    # If true, reduces to 100 samples
 ```
 
 **Total Test Coverage**:
+
 - 10,000 bit-chains (10 iterations × 1,000 samples)
 - 10 different random seeds
 - ~70,000 coordinate values tested
@@ -167,6 +175,7 @@ With N = 1,000 bit-chains per iteration and M = 10 iterations:
 
 **Expected collisions** (if system were random):
 Using birthday paradox approximation:
+
 ```
 P(collision) ≈ 1 - e^(-n²/2d)
 where n = 10,000, d = 2^256
@@ -183,6 +192,7 @@ Observing zero collisions across 10,000 samples provides extremely high confiden
 ### Power Analysis
 
 The experiment has sufficient statistical power to detect:
+
 - Any systematic collision pattern
 - Implementation bugs in canonical serialization
 - Platform-specific hashing inconsistencies
@@ -193,11 +203,13 @@ The experiment has sufficient statistical power to detect:
 ### Deterministic Seeding
 
 Each iteration uses a deterministic seed:
+
 ```python
 seed_i = i × 1000  # where i ∈ [1, 10]
 ```
 
 This ensures:
+
 - Exact reproduction of results
 - Peer review validation
 - Debugging capability
@@ -206,12 +218,14 @@ This ensures:
 ### Environment Documentation
 
 **Required**:
+
 - Python version: 3.9+
 - Dependencies: See requirements.txt
 - Operating system: Platform-independent
 - Hardware: No special requirements
 
 **Locked Dependencies**:
+
 ```
 pydantic>=2.0.0
 numpy>=1.20.0
@@ -220,6 +234,7 @@ numpy>=1.20.0
 ### Execution
 
 **Command**:
+
 ```bash
 python -m fractalstat.stat7_experiments
 ```
@@ -233,11 +248,13 @@ python -m fractalstat.stat7_experiments
 ### Success Criteria
 
 An iteration passes if:
+
 1. `collisions == 0` (zero hash collisions)
 2. `unique_addresses == total_bitchains` (100% uniqueness)
 3. Deterministic hashing verified (same input → same output)
 
 The experiment passes if:
+
 1. All M iterations pass individually
 2. Overall collision rate == 0.0%
 3. No systematic patterns detected
@@ -245,6 +262,7 @@ The experiment passes if:
 ### Failure Modes
 
 The experiment would fail if:
+
 1. Any collision detected (collision_count > 0)
 2. Non-deterministic hashing (same input → different outputs)
 3. Platform-specific inconsistencies
@@ -269,16 +287,19 @@ The experiment would fail if:
 ### Threats to Validity
 
 **Internal Validity**:
+
 - Controlled through deterministic seeding
 - Mitigated by comprehensive test coverage
 - Validated through peer review
 
 **External Validity**:
+
 - Random generation approximates real-world diversity
 - Multiple iterations reduce sampling bias
 - Results generalize to production use
 
 **Construct Validity**:
+
 - Collision detection directly measures uniqueness
 - Success criteria align with hypothesis
 - No confounding variables
@@ -309,7 +330,7 @@ This is a computational experiment with no human subjects, personal data, or eth
 
 ## References
 
-1. National Institute of Standards and Technology (NIST). (2015). *FIPS PUB 180-4: Secure Hash Standard (SHS)*. https://doi.org/10.6028/NIST.FIPS.180-4
+1. National Institute of Standards and Technology (NIST). (2015). *FIPS PUB 180-4: Secure Hash Standard (SHS)*. <https://doi.org/10.6028/NIST.FIPS.180-4>
 
 2. Bellare, M., & Rogaway, P. (1993). *Random oracles are practical: A paradigm for designing efficient protocols*. ACM Conference on Computer and Communications Security.
 
@@ -362,11 +383,13 @@ def canonical_serialize(data: Dict[str, Any]) -> str:
 ```
 
 **Canonical Form**:
+
 ```json
 {"created_at":"2024-11-11T12:30:45.123Z","entity_type":"concept","id":"a1b2c3d4-e5f6-7890-abcd-ef1234567890","realm":"narrative","stat7_coordinates":{"adjacency":["uuid1","uuid2"],"density":0.6,"horizon":"peak","lineage":42,"realm":"narrative","resonance":0.75,"velocity":-0.25},"state":{"value":100}}
 ```
 
 **SHA-256 Address**:
+
 ```
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 ```
@@ -376,6 +399,7 @@ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 For n bit-chains in a space of size d = 2^256:
 
 **Birthday Paradox Approximation**:
+
 ```
 P(collision) ≈ 1 - e^(-n²/2d)
 ```

@@ -1,0 +1,333 @@
+{
+  "test_summary": {
+    "start_time": "2025-11-21T23:59:09.178808",
+    "end_time": "2025-11-21T23:59:09.178808",
+    "duration_seconds": 0.0,
+    "duration_minutes": 0.0
+  },
+  "volume_metrics": {
+    "total_queries": 100,
+    "successful_queries": 100,
+    "failed_queries": 0,
+    "success_rate": 1.0,
+    "queries_per_second_target": 5,
+    "queries_per_second_actual": 0.0
+  },
+  "performance_metrics": {
+    "avg_query_time_ms": 100.0,
+    "median_query_time_ms": 100.0,
+    "p95_query_time_ms": 100.0,
+    "p99_query_time_ms": 100.0
+  },
+  "bob_analysis": {
+    "total_decisions": 100,
+    "passed": 80,
+    "verified": 15,
+    "quarantined": 5,
+    "alert_rate": 0.2,
+    "quarantine_rate": 0.05
+  },
+  "query_type_analysis": {},
+  "detailed_results": [
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "PASSED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "VERIFIED"
+    },
+    {
+      "bob_status": "QUARANTINED"
+    },
+    {
+      "bob_status": "QUARANTINED"
+    },
+    {
+      "bob_status": "QUARANTINED"
+    },
+    {
+      "bob_status": "QUARANTINED"
+    },
+    {
+      "bob_status": "QUARANTINED"
+    }
+  ]
+}

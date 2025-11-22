@@ -79,7 +79,10 @@ class TestRAGIntegrationTester:
 
         mock_response = Mock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"results_count": 1, "execution_time_ms": 10}
+        mock_response.json.return_value = {
+            "results_count": 1,
+            "execution_time_ms": 10,
+        }
         mock_post.return_value = mock_response
 
         tester = RAGIntegrationTester()
@@ -130,8 +133,12 @@ class TestRAGIntegrationTester:
         assert integration["api_healthy"] is True
 
     @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.check_api_health")
-    @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.test_semantic_retrieval")
-    @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.test_hybrid_retrieval")
+    @patch(
+        "fractalstat.exp08_rag_integration.RAGIntegrationTester.test_semantic_retrieval"
+    )
+    @patch(
+        "fractalstat.exp08_rag_integration.RAGIntegrationTester.test_hybrid_retrieval"
+    )
     @patch(
         "fractalstat.exp08_rag_integration.RAGIntegrationTester.check_rag_data_integration"
     )
@@ -150,8 +157,12 @@ class TestRAGIntegrationTester:
         assert "error" in results.results
 
     @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.check_api_health")
-    @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.test_semantic_retrieval")
-    @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.test_hybrid_retrieval")
+    @patch(
+        "fractalstat.exp08_rag_integration.RAGIntegrationTester.test_semantic_retrieval"
+    )
+    @patch(
+        "fractalstat.exp08_rag_integration.RAGIntegrationTester.test_hybrid_retrieval"
+    )
     @patch(
         "fractalstat.exp08_rag_integration.RAGIntegrationTester.check_rag_data_integration"
     )
@@ -225,10 +236,15 @@ class TestRAGQueryStructure:
 class TestRAGResultSerialization:
     """Test RAG test result serialization."""
 
-    @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.run_comprehensive_test")
+    @patch(
+        "fractalstat.exp08_rag_integration.RAGIntegrationTester.run_comprehensive_test"
+    )
     def test_save_results_creates_file(self, mock_test):
         """save_results should create JSON file."""
-        from fractalstat.exp08_rag_integration import RAGIntegrationTester, RAGTestResult
+        from fractalstat.exp08_rag_integration import (
+            RAGIntegrationTester,
+            RAGTestResult,
+        )
         import tempfile
         import os
 
@@ -250,8 +266,12 @@ class TestRAGIntegrationMetrics:
     """Test metrics calculation for RAG integration."""
 
     @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.check_api_health")
-    @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.test_semantic_retrieval")
-    @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.test_hybrid_retrieval")
+    @patch(
+        "fractalstat.exp08_rag_integration.RAGIntegrationTester.test_semantic_retrieval"
+    )
+    @patch(
+        "fractalstat.exp08_rag_integration.RAGIntegrationTester.test_hybrid_retrieval"
+    )
     @patch(
         "fractalstat.exp08_rag_integration.RAGIntegrationTester.check_rag_data_integration"
     )

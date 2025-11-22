@@ -172,7 +172,9 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
     collision_count = sum(count - 1 for count in address_map.values() if count > 1)
     collision_rate = collision_count / config.scale if config.scale > 0 else 0.0
     print(
-        f" ✓ ({unique_addresses} unique, {collision_groups} collision groups, {collision_count} total collisions)"
+        f" ✓ ({unique_addresses} unique, {collision_groups} collision groups, {
+            collision_count
+        } total collisions)"
     )
 
     # Step 3: Build retrieval index
@@ -182,7 +184,9 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
 
     # Step 4: Test retrieval performance (EXP-02)
     print(
-        f"  Testing retrieval ({config.num_retrievals} queries)...", end="", flush=True
+        f"  Testing retrieval ({config.num_retrievals} queries)...",
+        end="",
+        flush=True,
     )
     retrieval_times = []
 
@@ -254,7 +258,7 @@ def analyze_degradation(
 
     if max_collision_rate > 0.0:
         is_fractal = False
-        collision_msg = f"COLLISION DETECTED: Max rate {max_collision_rate*100:.2f}%"
+        collision_msg = f"COLLISION DETECTED: Max rate {max_collision_rate * 100:.2f}%"
     else:
         collision_msg = "✓ Zero collisions at all scales"
 
@@ -262,23 +266,28 @@ def analyze_degradation(
     retrieval_msg = ""
     retrieval_means = [r.retrieval_mean_ms for r in results]
 
-    # Check if retrieval time is increasing linearly with scale (bad) vs logarithmically (good)
+    # Check if retrieval time is increasing linearly with scale (bad) vs
+    # logarithmically (good)
     scales = [r.scale for r in results]
     if len(results) > 1:
-        # Simple degradation check: is the retrieval time growing faster than O(log n)?
+        # Simple degradation check: is the retrieval time growing faster than
+        # O(log n)?
         worst_case_ratio = max(retrieval_means) / min(retrieval_means)
         scale_ratio = max(scales) / min(scales)
 
-        # If retrieval grows faster than log scale ratio, it's degrading too fast
+        # If retrieval grows faster than log scale ratio, it's degrading too
+        # fast
         import math
 
         expected_log_ratio = math.log(scale_ratio)
 
         if worst_case_ratio > expected_log_ratio * 2:
             is_fractal = False
-            retrieval_msg = f"DEGRADATION WARNING: Latency ratio {worst_case_ratio:.2f}x > expected {expected_log_ratio:.2f}x"
+            retrieval_msg = f"DEGRADATION WARNING: Latency ratio {
+                worst_case_ratio:.2f}x > expected {expected_log_ratio:.2f}x"
         else:
-            retrieval_msg = f"✓ Retrieval latency scales logarithmically ({worst_case_ratio:.2f}x for {scale_ratio:.0f}x scale)"
+            retrieval_msg = f"✓ Retrieval latency scales logarithmically ({
+                worst_case_ratio:.2f}x for {scale_ratio:.0f}x scale)"
 
     return collision_msg, retrieval_msg, is_fractal
 
@@ -336,10 +345,12 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
             # Print summary for this scale
             print(f"  RESULT: {result.num_addresses} unique addresses")
             print(
-                f"          Collisions: {result.collision_count} ({result.collision_rate*100:.2f}%)"
+                f"          Collisions: {result.collision_count} ({
+                    result.collision_rate * 100:.2f}%)"
             )
             print(
-                f"          Retrieval: mean={result.retrieval_mean_ms:.6f}ms, p95={result.retrieval_p95_ms:.6f}ms"
+                f"          Retrieval: mean={result.retrieval_mean_ms:.6f}ms, p95={
+                    result.retrieval_p95_ms:.6f}ms"
             )
             print(f"          Throughput: {result.addresses_per_second:,.0f} addr/sec")
             print(f"          Valid: {'✓ YES' if result.is_valid() else '✗ NO'}")
@@ -417,7 +428,11 @@ if __name__ == "__main__":
         print("EXP-04 COMPLETE")
         print("=" * 70)
         print(
-            f"Status: {'✓ PASSED' if all(r.is_valid() for r in results.scale_results) else '✗ FAILED'}"
+            f"Status: {
+                '✓ PASSED'
+                if all(r.is_valid() for r in results.scale_results)
+                else '✗ FAILED'
+            }"
         )
         print(f"Fractal: {'✓ YES' if results.is_fractal else '✗ NO'}")
         print(f"Output: {output_file}")
