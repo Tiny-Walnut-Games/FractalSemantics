@@ -108,7 +108,11 @@ class STAT7Coordinates:
     @property
     def address(self) -> str:
         """Generate canonical STAT7 address string"""
-        return f"STAT7-{self.realm.value[0].upper()}-{self.lineage:03d}-{int(self.adjacency):02d}-{self.horizon.value[0].upper()}-{int(self.luminosity):02d}-{self.polarity.value[0].upper()}-{self.dimensionality}"
+        return f"STAT7-{self.realm.value[0].upper()}-{self.lineage:03d}-{
+            int(self.adjacency):02d}-{self.horizon.value[0].upper()}-{
+            int(self.luminosity):02d}-{self.polarity.value[0].upper()}-{
+            self.dimensionality
+        }"
 
     @staticmethod
     def from_address(address: str) -> "STAT7Coordinates":
@@ -317,7 +321,8 @@ class STAT7Entity(ABC):
             self.entanglement_strength[idx] = new_strength
             self._record_event(
                 "entanglement_updated",
-                f"Entanglement strength changed {old_strength:.2f} → {new_strength:.2f}",
+                f"Entanglement strength changed {old_strength:.2f} → {
+                    new_strength:.2f}",
             )
 
     # ========================================================================
@@ -371,9 +376,15 @@ class STAT7Entity(ABC):
                 {"trait_type": "Realm", "value": self.stat7.realm.value},
                 {"trait_type": "Lineage", "value": self.stat7.lineage},
                 {"trait_type": "Horizon", "value": self.stat7.horizon.value},
-                {"trait_type": "Luminosity", "value": int(self.stat7.luminosity)},
+                {
+                    "trait_type": "Luminosity",
+                    "value": int(self.stat7.luminosity),
+                },
                 {"trait_type": "Polarity", "value": self.stat7.polarity.value},
-                {"trait_type": "Dimensionality", "value": self.stat7.dimensionality},
+                {
+                    "trait_type": "Dimensionality",
+                    "value": self.stat7.dimensionality,
+                },
                 {"trait_type": "STAT7 Address", "value": self.stat7.address},
             ],
             "properties": card_data.get("properties", {}),

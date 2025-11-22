@@ -689,7 +689,11 @@ class TestBitChainEdgeCases:
 
     def test_bitchain_security_defaults(self):
         """BitChain should have default security settings."""
-        from fractalstat.stat7_experiments import BitChain, Coordinates, DataClass
+        from fractalstat.stat7_experiments import (
+            BitChain,
+            Coordinates,
+            DataClass,
+        )
 
         coords = Coordinates(
             realm="data",
@@ -1102,7 +1106,10 @@ class TestRunAllExperiments:
         from fractalstat.stat7_experiments import run_all_experiments
 
         results = run_all_experiments(
-            exp01_samples=10, exp01_iterations=1, exp02_queries=5, exp03_samples=10
+            exp01_samples=10,
+            exp01_iterations=1,
+            exp02_queries=5,
+            exp03_samples=10,
         )
         assert isinstance(results, dict)
 
@@ -1111,7 +1118,10 @@ class TestRunAllExperiments:
         from fractalstat.stat7_experiments import run_all_experiments
 
         results = run_all_experiments(
-            exp01_samples=10, exp01_iterations=1, exp02_queries=5, exp03_samples=10
+            exp01_samples=10,
+            exp01_iterations=1,
+            exp02_queries=5,
+            exp03_samples=10,
         )
         assert "EXP-01" in results or len(results) > 0
 
@@ -1120,7 +1130,10 @@ class TestRunAllExperiments:
         from fractalstat.stat7_experiments import run_all_experiments
 
         results = run_all_experiments(
-            exp01_samples=10, exp01_iterations=1, exp02_queries=5, exp03_samples=10
+            exp01_samples=10,
+            exp01_iterations=1,
+            exp02_queries=5,
+            exp03_samples=10,
         )
         for exp_name, exp_result in results.items():
             if isinstance(exp_result, dict):

@@ -48,7 +48,9 @@ class TestConcurrentEmbedding:
         tester = ConcurrencyTester()
         bit_chains = [
             MockBitChain(
-                bit_chain_id=f"test-{i}", content=f"Test entity {i}", realm="companion"
+                bit_chain_id=f"test-{i}",
+                content=f"Test entity {i}",
+                realm="companion",
             )
             for i in range(5)
         ]
@@ -86,7 +88,9 @@ class TestConcurrentNarrativeEnhancement:
         tester = ConcurrencyTester()
         bit_chains = [
             MockBitChain(
-                bit_chain_id=f"test-{i}", content=f"Test {i}", realm="companion"
+                bit_chain_id=f"test-{i}",
+                content=f"Test {i}",
+                realm="companion",
             )
             for i in range(2)
         ]
@@ -160,7 +164,9 @@ class TestNoRaceConditions:
 
         bit_chains = [
             MockBitChain(
-                bit_chain_id=f"test-{i}", content="same content", realm="companion"
+                bit_chain_id=f"test-{i}",
+                content="same content",
+                realm="companion",
             )
             for i in range(2)
         ]
@@ -182,7 +188,9 @@ class TestNoRaceConditions:
         # Create few entities
         bit_chains = [
             MockBitChain(
-                bit_chain_id=f"load-{i}", content=f"Load test {i}", realm="companion"
+                bit_chain_id=f"load-{i}",
+                content=f"Load test {i}",
+                realm="companion",
             )
             for i in range(2)
         ]
@@ -207,7 +215,9 @@ class TestThroughputMetrics:
 
         bit_chains = [
             MockBitChain(
-                bit_chain_id=f"test-{i}", content=f"Test {i}", realm="companion"
+                bit_chain_id=f"test-{i}",
+                content=f"Test {i}",
+                realm="companion",
             )
             for i in range(2)
         ]
@@ -285,7 +295,9 @@ class TestStressScenarios:
 
         bit_chains = [
             MockBitChain(
-                bit_chain_id=f"stress-{i}", content=f"Stress {i}", realm="companion"
+                bit_chain_id=f"stress-{i}",
+                content=f"Stress {i}",
+                realm="companion",
             )
             for i in range(2)
         ]
@@ -524,7 +536,9 @@ class TestBranchCoverageExp09:
         tester = ConcurrencyTester()
         bit_chains = [
             MockBitChain(
-                bit_chain_id=f"test-{i}", content=f"Test {i}", realm="companion"
+                bit_chain_id=f"test-{i}",
+                content=f"Test {i}",
+                realm="companion",
             )
             for i in range(3)
         ]
@@ -539,7 +553,9 @@ class TestBranchCoverageExp09:
         tester = ConcurrencyTester()
         bit_chains = [
             MockBitChain(
-                bit_chain_id=f"test-{i}", content=f"Test {i}", realm="companion"
+                bit_chain_id=f"test-{i}",
+                content=f"Test {i}",
+                realm="companion",
             )
             for i in range(3)
         ]

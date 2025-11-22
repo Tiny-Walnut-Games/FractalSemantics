@@ -484,7 +484,9 @@ def run_compression_expansion_test(
         for path in compression_paths[:3]:
             print(f"\nBit-Chain: {path.original_bitchain.id[:12]}...")
             print(
-                f"  Original STAT7: {path.original_stat7_dict['realm']} gen={path.original_stat7_dict['lineage']}"
+                f"  Original STAT7: {path.original_stat7_dict['realm']} gen={
+                    path.original_stat7_dict['lineage']
+                }"
             )
             print(f"  Original Address: {path.original_address[:32]}...")
             print(f"  Original Size: {path.original_serialized_size} bytes")
@@ -492,7 +494,8 @@ def run_compression_expansion_test(
             print()
             for stage in path.stages:
                 print(
-                    f"  Stage: {stage.stage_name:12} | Size: {stage.size_bytes:6} bytes | Luminosity: {stage.luminosity:.4f}"
+                    f"  Stage: {stage.stage_name:12} | Size: {
+                        stage.size_bytes:6} bytes | Luminosity: {stage.luminosity:.4f}"
                 )
             print(f"  Final Compression Ratio: {path.final_compression_ratio:.2f}x")
             print(f"  Coordinate Accuracy: {path.coordinate_match_accuracy:.1%}")
@@ -556,7 +559,8 @@ def run_compression_expansion_test(
         )
     else:
         major_findings.append(
-            f"[WARN] Provenance loss detected ({100-percent_provenance:.1f}% affected)"
+            f"[WARN] Provenance loss detected ({
+                100 - percent_provenance:.1f}% affected)"
         )
 
     if percent_narrative >= 90.0:
@@ -565,16 +569,19 @@ def run_compression_expansion_test(
         )
     else:
         major_findings.append(
-            f"[WARN] Narrative degradation observed ({100-percent_narrative:.1f}% affected)"
+            f"[WARN] Narrative degradation observed ({
+                100 - percent_narrative:.1f}% affected)"
         )
 
     if avg_coordinate_accuracy >= 0.4:
         major_findings.append(
-            f"[OK] STAT7 coordinates partially recoverable ({avg_coordinate_accuracy:.1%})"
+            f"[OK] STAT7 coordinates partially recoverable ({
+                avg_coordinate_accuracy:.1%})"
         )
     else:
         major_findings.append(
-            f"[FAIL] STAT7 coordinate recovery insufficient ({avg_coordinate_accuracy:.1%})"
+            f"[FAIL] STAT7 coordinate recovery insufficient ({
+                avg_coordinate_accuracy:.1%})"
         )
 
     if avg_compression_ratio >= 2.0:
@@ -589,11 +596,13 @@ def run_compression_expansion_test(
     luminosity_retention = (1.0 - avg_luminosity_decay) * 100
     if luminosity_retention >= 70.0:
         major_findings.append(
-            f"[OK] Luminosity retained through compression ({luminosity_retention:.1f}%)"
+            f"[OK] Luminosity retained through compression ({
+                luminosity_retention:.1f}%)"
         )
     else:
         major_findings.append(
-            f"[WARN] Luminosity decay significant ({100-luminosity_retention:.1f}% loss)"
+            f"[WARN] Luminosity decay significant ({
+                100 - luminosity_retention:.1f}% loss)"
         )
 
     overall_end = time.time()

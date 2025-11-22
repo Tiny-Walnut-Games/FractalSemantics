@@ -134,3 +134,4 @@ dmypy.json
 # OS
 Thumbs.db
 .DS_Store
+task_progress.txt

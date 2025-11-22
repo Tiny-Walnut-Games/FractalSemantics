@@ -55,7 +55,7 @@ class LLMIntegrationDemo:
             )
         except ImportError:
             raise ImportError(
-                "transformers not installed. " "Install with: pip install transformers"
+                "transformers not installed. Install with: pip install transformers"
             )
 
     def embed_stat7_address(self, bit_chain: Any) -> np.ndarray:
@@ -115,7 +115,10 @@ class LLMIntegrationDemo:
         if self.generator is not None:
             try:
                 generated = self.generator(
-                    prompt, max_length=80, num_return_sequences=1, temperature=0.7
+                    prompt,
+                    max_length=80,
+                    num_return_sequences=1,
+                    temperature=0.7,
                 )
                 enhanced_text = generated[0]["generated_text"] if generated else prompt
             except Exception:

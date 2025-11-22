@@ -356,17 +356,23 @@ def main():
     print("\nThroughput Metrics:")
     emb_tp = report["results"]["embedding_throughput"]
     print(
-        f"  Embedding: {emb_tp['throughput_qps']} qps ({emb_tp['completed_queries']} queries)"
+        f"  Embedding: {emb_tp['throughput_qps']} qps ({
+            emb_tp['completed_queries']
+        } queries)"
     )
 
     enh_tp = report["results"]["enhancement_throughput"]
     print(
-        f"  Enhancement: {enh_tp['throughput_qps']} qps ({enh_tp['completed_queries']} queries)"
+        f"  Enhancement: {enh_tp['throughput_qps']} qps ({
+            enh_tp['completed_queries']
+        } queries)"
     )
 
     stat7_tp = report["results"]["stat7_extraction_throughput"]
     print(
-        f"  STAT7 Extraction: {stat7_tp['throughput_qps']} qps ({stat7_tp['completed_queries']} queries)"
+        f"  STAT7 Extraction: {stat7_tp['throughput_qps']} qps ({
+            stat7_tp['completed_queries']
+        } queries)"
     )
 
     # Save results

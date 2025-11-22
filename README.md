@@ -12,6 +12,7 @@
 FractalStat is a research package containing **12 validation experiments** that prove the STAT7 addressing system works at scale. STAT7 is a 7-dimensional coordinate system for uniquely addressing data in fractal information spaces.
 
 **The 7 Dimensions:**
+
 - **Realm** - Domain classification (data, narrative, system, etc.)
 - **Lineage** - Generation from LUCA (Last Universal Common Ancestor)
 - **Adjacency** - Relational neighbors (graph connections)
@@ -26,7 +27,7 @@ FractalStat is a research package containing **12 validation experiments** that 
 |-----|------|-------|--------|
 | **EXP-01** | Address Uniqueness | Zero hash collisions | ✅ PASS |
 | **EXP-02** | Retrieval Efficiency | Sub-millisecond retrieval | ✅ PASS |
-| **EXP-03** | Dimension Necessity | All 7 dimensions required | ✅ PASS |
+| **EXP-03** | Coordinate Space Entropy | Entropy contribution per dimension | ✅ PASS |
 | **EXP-04** | Fractal Scaling | Consistency at 1M+ scale | ✅ PASS |
 | **EXP-05** | Compression/Expansion | Lossless encoding | ✅ PASS |
 | **EXP-06** | Entanglement Detection | Semantic relationships | ✅ PASS |
@@ -121,6 +122,7 @@ python -m fractalstat.stat7_experiments
 ```
 
 **ARM Considerations:**
+
 - Some experiments (EXP-08 LLM integration) may be slower without GPU acceleration
 - Memory usage can be high - 4GB+ RAM recommended
 - All core STAT7 functionality works identically across architectures
@@ -128,6 +130,7 @@ python -m fractalstat.stat7_experiments
 ## Experiment Configuration
 
 FractalStat uses **feature flags** to configure experiments. This allows you to:
+
 - Run experiments with different parameters without code changes
 - Use environment-specific configurations (dev, ci, production)
 - Ensure reproducibility by locking configuration for publication

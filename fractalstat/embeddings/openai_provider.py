@@ -33,21 +33,21 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
                 if self.api_key:
                     openai.api_key = self.api_key
                 self._client = openai
-            except ImportError:
+            except ImportError as exc:
                 raise ImportError(
                     "OpenAI package not installed. Run: pip install openai"
-                )
+                ) from exc
         return self._client
 
     def embed_text(self, text: str) -> List[float]:
         """Generate OpenAI embedding for text."""
         try:
             client = self._get_client()
-            response: Dict[str, Any] = client.Embedding.create(
+            response: Dict[str, Any] = client.Embedding.create(  # pylint: disable=no-member
                 model=self.model, input=text
             )
             return response["data"][0]["embedding"]
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"Warning: OpenAI API failed ({e}), using mock embedding")
             return self._create_mock_embedding(text)
 
@@ -55,11 +55,11 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         """Generate OpenAI embeddings for multiple texts."""
         try:
             client = self._get_client()
-            response: Dict[str, Any] = client.Embedding.create(
+            response: Dict[str, Any] = client.Embedding.create(  # pylint: disable=no-member
                 model=self.model, input=texts
             )
             return [item["embedding"] for item in response["data"]]
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"Warning: OpenAI API failed ({e}), using mock embeddings")
             return [self._create_mock_embedding(text) for text in texts]
 
@@ -69,7 +69,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
 
     def _create_mock_embedding(self, text: str) -> List[float]:
         """Create a mock embedding for development/testing."""
-        hash_obj = hashlib.md5(text.encode())
+        hash_obj = hashlib.sha256(text.encode())
         hash_bytes = hash_obj.digest()
 
         vector = []

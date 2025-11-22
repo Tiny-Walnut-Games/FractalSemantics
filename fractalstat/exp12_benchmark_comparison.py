@@ -528,7 +528,8 @@ class BenchmarkComparisonExperiment:
 
         # Calculate overall score (weighted average)
         def overall_score(r: SystemBenchmarkResult) -> float:
-            # Normalize metrics to 0-1 range (lower is better for collision/latency/storage)
+            # Normalize metrics to 0-1 range (lower is better for
+            # collision/latency/storage)
             max_collision = max(res.collision_rate for res in self.results)
             max_latency = max(res.mean_retrieval_latency_ms for res in self.results)
             max_storage = max(res.avg_storage_bytes_per_entity for res in self.results)
@@ -582,7 +583,9 @@ class BenchmarkComparisonExperiment:
 
             # Rank by semantic expressiveness
             sorted_by_semantic = sorted(
-                self.results, key=lambda r: r.semantic_expressiveness, reverse=True
+                self.results,
+                key=lambda r: r.semantic_expressiveness,
+                reverse=True,
             )
             stat7_rank_semantic = sorted_by_semantic.index(stat7_result) + 1
 
@@ -696,7 +699,9 @@ class BenchmarkComparisonExperiment:
         if stat7_result:
             # Rank by semantic expressiveness
             sorted_by_semantic = sorted(
-                self.results, key=lambda r: r.semantic_expressiveness, reverse=True
+                self.results,
+                key=lambda r: r.semantic_expressiveness,
+                reverse=True,
             )
             stat7_rank_semantic = sorted_by_semantic.index(stat7_result) + 1
             stat7_score = overall_score(stat7_result)
@@ -713,8 +718,7 @@ class BenchmarkComparisonExperiment:
             )
         else:
             print(
-                f"RESULT: [INFO] BENCHMARK ANALYSIS COMPLETE "
-                f"(score: {stat7_score:.3f})"
+                f"RESULT: [INFO] BENCHMARK ANALYSIS COMPLETE (score: {stat7_score:.3f})"
             )
         print("=" * 80)
 

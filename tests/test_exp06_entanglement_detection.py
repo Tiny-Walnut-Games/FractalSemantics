@@ -11,7 +11,9 @@ class TestPolarityVector:
 
     def test_compute_polarity_vector_returns_list(self):
         """compute_polarity_vector should return 7-element list."""
-        from fractalstat.exp06_entanglement_detection import compute_polarity_vector
+        from fractalstat.exp06_entanglement_detection import (
+            compute_polarity_vector,
+        )
 
         bitchain = {
             "coordinates": {
@@ -31,7 +33,9 @@ class TestPolarityVector:
 
     def test_polarity_vector_normalization(self):
         """Polarity vector components should be normalized."""
-        from fractalstat.exp06_entanglement_detection import compute_polarity_vector
+        from fractalstat.exp06_entanglement_detection import (
+            compute_polarity_vector,
+        )
 
         bitchain = {
             "coordinates": {
@@ -222,7 +226,9 @@ class TestLuminosityProximity:
 
     def test_luminosity_proximity_identical_density(self):
         """Luminosity proximity of same density should be 1.0."""
-        from fractalstat.exp06_entanglement_detection import luminosity_proximity
+        from fractalstat.exp06_entanglement_detection import (
+            luminosity_proximity,
+        )
 
         bc1 = {"coordinates": {"density": 0.5}}
         bc2 = {"coordinates": {"density": 0.5}}
@@ -232,7 +238,9 @@ class TestLuminosityProximity:
 
     def test_luminosity_proximity_opposite_density(self):
         """Luminosity proximity of opposite density should be 0.0."""
-        from fractalstat.exp06_entanglement_detection import luminosity_proximity
+        from fractalstat.exp06_entanglement_detection import (
+            luminosity_proximity,
+        )
 
         bc1 = {"coordinates": {"density": 0.0}}
         bc2 = {"coordinates": {"density": 1.0}}
@@ -242,7 +250,9 @@ class TestLuminosityProximity:
 
     def test_luminosity_proximity_partial_difference(self):
         """Luminosity proximity with 0.25 difference should be 0.75."""
-        from fractalstat.exp06_entanglement_detection import luminosity_proximity
+        from fractalstat.exp06_entanglement_detection import (
+            luminosity_proximity,
+        )
 
         bc1 = {"coordinates": {"density": 0.5}}
         bc2 = {"coordinates": {"density": 0.75}}
@@ -329,7 +339,9 @@ class TestEntanglementScore:
 
     def test_compute_entanglement_score_returns_valid_score(self):
         """compute_entanglement_score should return EntanglementScore with valid range."""
-        from fractalstat.exp06_entanglement_detection import compute_entanglement_score
+        from fractalstat.exp06_entanglement_detection import (
+            compute_entanglement_score,
+        )
 
         bc1 = {
             "id": "bc1",
@@ -363,7 +375,9 @@ class TestEntanglementScore:
 
     def test_entanglement_score_symmetry(self):
         """Entanglement score should be symmetric: E(B1,B2) = E(B2,B1)."""
-        from fractalstat.exp06_entanglement_detection import compute_entanglement_score
+        from fractalstat.exp06_entanglement_detection import (
+            compute_entanglement_score,
+        )
 
         bc1 = {
             "id": "bc1",

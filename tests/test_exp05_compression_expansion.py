@@ -4,7 +4,6 @@ Tests compression pipeline and coordinate reconstruction.
 """
 
 
-
 class TestCompressionStage:
     """Test CompressionStage data structure."""
 
@@ -47,7 +46,9 @@ class TestBitChainCompressionPath:
 
     def test_path_initialization(self):
         """BitChainCompressionPath should initialize with bitchain reference."""
-        from fractalstat.exp05_compression_expansion import BitChainCompressionPath
+        from fractalstat.exp05_compression_expansion import (
+            BitChainCompressionPath,
+        )
         from fractalstat.stat7_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
@@ -83,7 +84,9 @@ class TestBitChainCompressionPath:
 
     def test_calculate_stats(self):
         """calculate_stats should return summary dict."""
-        from fractalstat.exp05_compression_expansion import BitChainCompressionPath
+        from fractalstat.exp05_compression_expansion import (
+            BitChainCompressionPath,
+        )
         from fractalstat.stat7_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
@@ -124,7 +127,9 @@ class TestCompressionExperimentResults:
 
     def test_results_initialization(self):
         """CompressionExperimentResults should initialize with metrics."""
-        from fractalstat.exp05_compression_expansion import CompressionExperimentResults
+        from fractalstat.exp05_compression_expansion import (
+            CompressionExperimentResults,
+        )
 
         results = CompressionExperimentResults(
             start_time="2024-01-01T00:00:00Z",
@@ -146,7 +151,9 @@ class TestCompressionExperimentResults:
 
     def test_results_to_dict(self):
         """Results should serialize to dict."""
-        from fractalstat.exp05_compression_expansion import CompressionExperimentResults
+        from fractalstat.exp05_compression_expansion import (
+            CompressionExperimentResults,
+        )
 
         results = CompressionExperimentResults(
             start_time="2024-01-01T00:00:00Z",
@@ -281,7 +288,10 @@ class TestCompressionPipeline:
 
         path = pipeline.compress_bitchain(bc)
 
-        assert path.reconstructed_address is not None or path.coordinate_match_accuracy >= 0
+        assert (
+            path.reconstructed_address is not None
+            or path.coordinate_match_accuracy >= 0
+        )
 
 
 class TestLuminosityDecay:
@@ -326,7 +336,9 @@ class TestRunCompressionExpansionTest:
 
     def test_run_compression_expansion_test_basic(self):
         """run_compression_expansion_test should execute and return results."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
 
@@ -336,7 +348,9 @@ class TestRunCompressionExpansionTest:
 
     def test_run_compression_expansion_test_with_samples(self):
         """run_compression_expansion_test should work with show_samples=True."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=3, show_samples=True)
 
@@ -345,7 +359,9 @@ class TestRunCompressionExpansionTest:
 
     def test_results_has_aggregate_metrics(self):
         """Results should contain aggregate metrics."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=10, show_samples=False)
 
@@ -355,7 +371,9 @@ class TestRunCompressionExpansionTest:
 
     def test_losslessness_determination(self):
         """Results should determine if system is lossless."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
 
@@ -364,7 +382,9 @@ class TestRunCompressionExpansionTest:
 
     def test_major_findings_generation(self):
         """Major findings should be generated based on metrics."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
 
@@ -491,7 +511,9 @@ class TestReconstructionEdgeCases:
 
     def test_calculate_stats_with_empty_stages(self):
         """calculate_stats should handle empty stages list."""
-        from fractalstat.exp05_compression_expansion import BitChainCompressionPath
+        from fractalstat.exp05_compression_expansion import (
+            BitChainCompressionPath,
+        )
         from fractalstat.stat7_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
@@ -527,7 +549,9 @@ class TestReconstructionEdgeCases:
 
     def test_to_dict_with_empty_paths(self):
         """to_dict should handle empty compression_paths."""
-        from fractalstat.exp05_compression_expansion import CompressionExperimentResults
+        from fractalstat.exp05_compression_expansion import (
+            CompressionExperimentResults,
+        )
 
         results = CompressionExperimentResults(
             start_time="2024-01-01T00:00:00Z",
@@ -750,14 +774,18 @@ class TestBranchCoverageExp05:
 
     def test_run_with_show_samples_true(self):
         """run_compression_expansion_test should handle show_samples=True."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=3, show_samples=True)
         assert results.num_bitchains_tested == 3
 
     def test_run_with_show_samples_false_and_paths(self):
         """run_compression_expansion_test should handle show_samples=False with paths."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=2, show_samples=False)
         assert results.num_bitchains_tested == 2
@@ -765,7 +793,9 @@ class TestBranchCoverageExp05:
 
     def test_major_findings_provenance_loss(self):
         """Major findings should detect provenance loss."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         findings_text = " ".join(results.major_findings)
@@ -773,28 +803,36 @@ class TestBranchCoverageExp05:
 
     def test_major_findings_narrative_degradation(self):
         """Major findings should detect narrative degradation if it occurs."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         assert len(results.major_findings) > 0
 
     def test_major_findings_coordinate_recovery_fail(self):
         """Major findings should detect coordinate recovery failures."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         assert results.avg_coordinate_accuracy >= 0
 
     def test_major_findings_compression_ratio_modest(self):
         """Major findings should detect modest compression ratios."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         assert results.avg_compression_ratio >= 0
 
     def test_major_findings_luminosity_decay(self):
         """Major findings should detect luminosity decay."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         assert results.avg_luminosity_decay >= 0
@@ -831,49 +869,63 @@ class TestBranchCoverageExp05:
 
     def test_progress_reporting_every_25_bitchains(self):
         """Progress should be reported every 25 bitchains."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=26, show_samples=False)
         assert results.num_bitchains_tested == 26
 
     def test_lossless_determination_all_conditions_met(self):
         """Losslessness should be True when all conditions are met."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         assert isinstance(results.is_lossless, bool)
 
     def test_percent_provenance_not_100(self):
         """Test handling when provenance is not 100%."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         assert 0 <= results.percent_provenance_intact <= 100
 
     def test_percent_narrative_below_90(self):
         """Test handling when narrative preservation is below 90%."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         assert 0 <= results.percent_narrative_preserved <= 100
 
     def test_avg_coordinate_accuracy_below_threshold(self):
         """Test handling when coordinate accuracy is below 0.4."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         assert 0 <= results.avg_coordinate_accuracy <= 1
 
     def test_compression_ratio_below_2(self):
         """Test handling when compression ratio is below 2.0."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         assert results.avg_compression_ratio >= 0
 
     def test_luminosity_retention_below_70(self):
         """Test handling when luminosity retention is below 70%."""
-        from fractalstat.exp05_compression_expansion import run_compression_expansion_test
+        from fractalstat.exp05_compression_expansion import (
+            run_compression_expansion_test,
+        )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
         luminosity_retention = (1.0 - results.avg_luminosity_decay) * 100

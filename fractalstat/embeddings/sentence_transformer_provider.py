@@ -1,5 +1,5 @@
-"""
-SentenceTransformer Embedding Provider - GPU-Accelerated Semantic Grounding
+"""SentenceTransformer Embedding Provider - GPU-Accelerated Semantic Grounding.
+
 High-quality embeddings using pre-trained transformer models with CUDA support
 """
 
@@ -11,7 +11,14 @@ from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 from fractalstat.embeddings.base_provider import EmbeddingProvider
 
 if TYPE_CHECKING:
-    from sentence_transformers import SentenceTransformer as SentenceTransformerType
+    from sentence_transformers import (
+        SentenceTransformer as SentenceTransformerType,
+    )
+
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:
+    SentenceTransformer = None
 
 
 class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
@@ -109,7 +116,14 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
 
         if texts_to_embed:
             self.cache_stats["misses"] += len(texts_to_embed)
-            assert self.model is not None
+            if self.model is not None:
+                # Generate embeddings for batch with caching
+                if SentenceTransformer is not None and not isinstance(
+                    self.model, SentenceTransformer
+                ):
+                    raise ValueError("Model is not an instance of SentenceTransformer")
+                elif SentenceTransformer is None:
+                    raise RuntimeError("SentenceTransformer not available but model is set")
             batch_embeddings: Any = self.model.encode(
                 texts_to_embed,
                 batch_size=self.batch_size,
@@ -207,8 +221,8 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         """
         Compute STAT7 coordinates from embedding vector.
 
-        Maps 384D embedding to 7D STAT7 addressing space using robust statistical
-        features.
+        Maps 384D embedding to 7D STAT7 addressing space using robust
+        statistical features.
         """
         import numpy as np
 
@@ -282,7 +296,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         dimensionality = (high_magnitude + min(1.0, chunk_entropy * 0.2)) / 2.0
 
         # Hybrid normalization preserving fractal structure:
-        # - Fractal dimensions (lineage, dimensionality): unbounded, preserve scale
+        # - Fractal dimensions (lineage, dimensionality): unbounded, keep scale
         # - Relational dimensions (adjacency, polarity): symmetric [-1, 1]
         # - Intensity dimensions (luminosity): asymmetric [0, 1]
         adjacency = float(np.clip(adjacency * 2.0 - 1.0, -1.0, 1.0))

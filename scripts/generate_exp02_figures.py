@@ -29,7 +29,6 @@ try:
     matplotlib.use("Agg")  # Non-interactive backend
     import numpy as np
 
-
     MATPLOTLIB_AVAILABLE = True
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
@@ -344,7 +343,10 @@ def generate_performance_targets_figure(results: Dict[str, Any], output_dir: Pat
         va="top",
         color="#27ae60",
         bbox=dict(
-            boxstyle="round", facecolor="#d5f4e6", edgecolor="#27ae60", linewidth=2
+            boxstyle="round",
+            facecolor="#d5f4e6",
+            edgecolor="#27ae60",
+            linewidth=2,
         ),
     )
 
@@ -531,7 +533,10 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
             color=color,
             verticalalignment="center",
             bbox=dict(
-                boxstyle="round", facecolor="white", edgecolor=color, linewidth=2
+                boxstyle="round",
+                facecolor="white",
+                edgecolor=color,
+                linewidth=2,
             ),
         )
         y_pos -= 0.08
@@ -566,7 +571,10 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
             color=color,
             verticalalignment="center",
             bbox=dict(
-                boxstyle="round", facecolor="white", edgecolor=color, linewidth=2
+                boxstyle="round",
+                facecolor="white",
+                edgecolor=color,
+                linewidth=2,
             ),
         )
         y_pos -= 0.08
@@ -586,7 +594,10 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
         ha="center",
         va="center",
         bbox=dict(
-            boxstyle="round", facecolor="#ecf0f1", edgecolor="#34495e", linewidth=2
+            boxstyle="round",
+            facecolor="#ecf0f1",
+            edgecolor="#34495e",
+            linewidth=2,
         ),
     )
 
@@ -605,7 +616,10 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
         ha="center",
         va="center",
         bbox=dict(
-            boxstyle="round", facecolor="#d5f4e6", edgecolor="#27ae60", linewidth=2
+            boxstyle="round",
+            facecolor="#d5f4e6",
+            edgecolor="#27ae60",
+            linewidth=2,
         ),
     )
 
@@ -623,7 +637,10 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
         va="center",
         style="italic",
         bbox=dict(
-            boxstyle="round", facecolor="#fff3cd", edgecolor="#856404", linewidth=2
+            boxstyle="round",
+            facecolor="#fff3cd",
+            edgecolor="#856404",
+            linewidth=2,
         ),
     )
 

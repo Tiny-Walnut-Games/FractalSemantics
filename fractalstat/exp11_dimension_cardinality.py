@@ -447,7 +447,8 @@ class DimensionCardinalityExperiment:
             print("=" * 80)
             return empty_result, False
 
-        # Find optimal dimension count (lowest collision rate + good expressiveness)
+        # Find optimal dimension count (lowest collision rate + good
+        # expressiveness)
         optimal_result = min(
             self.results,
             key=lambda r: r.collision_rate
@@ -461,7 +462,8 @@ class DimensionCardinalityExperiment:
             current = self.results[i]
             next_result = self.results[i + 1]
 
-            # If collision rate improvement is < 10%, we've hit diminishing returns
+            # If collision rate improvement is < 10%, we've hit diminishing
+            # returns
             if current.collision_rate > 0:
                 improvement = (
                     current.collision_rate - next_result.collision_rate
@@ -506,7 +508,9 @@ class DimensionCardinalityExperiment:
             )
         else:
             major_findings.append(
-                f"[WARN] 7 dimensions may not be optimal (best: {optimal_result.dimension_count})"
+                f"[WARN] 7 dimensions may not be optimal (best: {
+                    optimal_result.dimension_count
+                })"
             )
 
         # Collision rate analysis
@@ -544,7 +548,8 @@ class DimensionCardinalityExperiment:
         # Semantic expressiveness
         if seven_dim:
             major_findings.append(
-                f"Semantic expressiveness at 7 dims: {seven_dim.semantic_expressiveness_score:.1%}"
+                f"Semantic expressiveness at 7 dims: {
+                    seven_dim.semantic_expressiveness_score:.1%}"
             )
 
         print()

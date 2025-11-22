@@ -64,7 +64,13 @@ class TestNPCQueryGenerator:
         gen = NPCQueryGenerator()
         query = gen.generate_query("npc_character_development")
 
-        required_fields = ["query_id", "semantic", "query_type", "npc", "location"]
+        required_fields = [
+            "query_id",
+            "semantic",
+            "query_type",
+            "npc",
+            "location",
+        ]
         for field in required_fields:
             assert field in query, f"Missing field: {field}"
 
@@ -111,7 +117,10 @@ class TestBobStressTester:
 
     def test_single_query_structure(self):
         """single_query should return result dict with expected fields."""
-        from fractalstat.bob_stress_test import BobStressTester, NPCQueryGenerator
+        from fractalstat.bob_stress_test import (
+            BobStressTester,
+            NPCQueryGenerator,
+        )
 
         BobStressTester()
         gen = NPCQueryGenerator()
@@ -178,7 +187,10 @@ class TestStressTestIntegration:
 
     def test_config_supports_multiple_query_types(self):
         """Config should support all query types."""
-        from fractalstat.bob_stress_test import BobStressTestConfig, NPCQueryGenerator
+        from fractalstat.bob_stress_test import (
+            BobStressTestConfig,
+            NPCQueryGenerator,
+        )
 
         config = BobStressTestConfig()
         gen = NPCQueryGenerator()
@@ -222,7 +234,10 @@ class TestNPCQueryGeneratorEdgeCases:
 
     def test_generate_all_query_types(self):
         """Generator should handle all query types."""
-        from fractalstat.bob_stress_test import NPCQueryGenerator, BobStressTestConfig
+        from fractalstat.bob_stress_test import (
+            NPCQueryGenerator,
+            BobStressTestConfig,
+        )
 
         gen = NPCQueryGenerator()
         config = BobStressTestConfig()
@@ -289,7 +304,11 @@ class TestBobStressTesterReportGeneration:
         tester.start_time = datetime.now()
         tester.end_time = datetime.now()
         tester.results = [
-            {"query_id": "test-1", "error": "Connection failed", "query_time": 0.1}
+            {
+                "query_id": "test-1",
+                "error": "Connection failed",
+                "query_time": 0.1,
+            }
         ]
         tester.error_count = 1
 
@@ -426,7 +445,10 @@ class TestSingleQueryExecution:
 
     def test_single_query_structure(self):
         """single_query should return properly structured result."""
-        from fractalstat.bob_stress_test import BobStressTester, NPCQueryGenerator
+        from fractalstat.bob_stress_test import (
+            BobStressTester,
+            NPCQueryGenerator,
+        )
 
         BobStressTester()
         gen = NPCQueryGenerator()
@@ -472,7 +494,11 @@ class TestQueryTypeGeneration:
         query = gen.generate_query("world_building")
 
         assert query["query_type"] == "world_building"
-        assert "influence" in query["semantic"].lower() or "world" in query["semantic"].lower() or query["semantic"]
+        assert (
+            "influence" in query["semantic"].lower()
+            or "world" in query["semantic"].lower()
+            or query["semantic"]
+        )
 
     def test_plot_progression_query(self):
         """Should generate plot_progression query."""
@@ -663,7 +689,10 @@ class TestBranchCoverageBobStressTest:
 
     def test_single_query_with_hybrid_params(self):
         """single_query should handle hybrid query parameters."""
-        from fractalstat.bob_stress_test import BobStressTester, NPCQueryGenerator
+        from fractalstat.bob_stress_test import (
+            BobStressTester,
+            NPCQueryGenerator,
+        )
 
         BobStressTester()
         gen = NPCQueryGenerator()
@@ -674,7 +703,10 @@ class TestBranchCoverageBobStressTest:
 
     def test_single_query_without_hybrid_params(self):
         """single_query should handle non-hybrid query parameters."""
-        from fractalstat.bob_stress_test import BobStressTester, NPCQueryGenerator
+        from fractalstat.bob_stress_test import (
+            BobStressTester,
+            NPCQueryGenerator,
+        )
 
         BobStressTester()
         gen = NPCQueryGenerator()
@@ -713,7 +745,10 @@ class TestBranchCoverageBobStressTest:
 
     def test_all_query_types_generate_successfully(self):
         """All query types should generate successfully."""
-        from fractalstat.bob_stress_test import BobStressTestConfig, NPCQueryGenerator
+        from fractalstat.bob_stress_test import (
+            BobStressTestConfig,
+            NPCQueryGenerator,
+        )
 
         config = BobStressTestConfig()
         gen = NPCQueryGenerator()

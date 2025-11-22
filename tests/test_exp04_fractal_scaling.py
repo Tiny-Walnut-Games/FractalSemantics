@@ -4,7 +4,6 @@ Tests address collision detection and retrieval performance at scale.
 """
 
 
-
 class TestScaleTestConfig:
     """Test ScaleTestConfig for fractal scaling."""
 
