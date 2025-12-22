@@ -1,7 +1,7 @@
 """
-EXP-04: Bit-Chain STAT7 Fractal Scaling Test
+EXP-04: Bit-Chain FractalStat Fractal Scaling Test
 
-Tests whether STAT7 addressing maintains consistency and zero collisions
+Tests whether FractalStat addressing maintains consistency and zero collisions
 when scaled from 1K → 10K → 100K → 1M data points.
 
 Verifies the "fractal" property: self-similar behavior at all scales.
@@ -11,20 +11,22 @@ Status: Phase 2 validation experiment
 
 import json
 import time
-import random
+import secrets
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
 from dataclasses import dataclass
 from collections import defaultdict
 import statistics
 
 # Reuse canonical serialization from Phase 1
-from fractalstat.stat7_experiments import (
+from fractalstat.fractalstat_experiments import (
     BitChain,
     generate_random_bitchain,
 )
 
+secure_random = secrets.SystemRandom()
 
 # ============================================================================
 # EXP-04 DATA STRUCTURES
@@ -155,7 +157,7 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
     bitchains: List[BitChain] = []
     for i in range(config.scale):
         bitchains.append(generate_random_bitchain())
-    print(" ✓")
+    print(" OK")
 
     # Step 2: Compute addresses and check for collisions (EXP-01)
     print("  Computing addresses (EXP-01)...", end="", flush=True)
@@ -172,7 +174,7 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
     collision_count = sum(count - 1 for count in address_map.values() if count > 1)
     collision_rate = collision_count / config.scale if config.scale > 0 else 0.0
     print(
-        f" ✓ ({unique_addresses} unique, {collision_groups} collision groups, {
+        f" OK ({unique_addresses} unique, {collision_groups} collision groups, {
             collision_count
         } total collisions)"
     )
@@ -180,7 +182,7 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
     # Step 3: Build retrieval index
     print("  Building retrieval index...", end="", flush=True)
     address_to_bitchain = {addr: bc for bc, addr in zip(bitchains, addresses)}
-    print(" ✓")
+    print(" OK")
 
     # Step 4: Test retrieval performance (EXP-02)
     print(
@@ -191,7 +193,7 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
     retrieval_times = []
 
     for _ in range(config.num_retrievals):
-        idx = random.randint(0, len(addresses) - 1)
+        idx = secure_random.randint(0, len(addresses) - 1)
         target_addr = addresses[idx]
 
         # Measure lookup time
@@ -204,7 +206,7 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
 
         retrieval_times.append((end_lookup - start_lookup) * 1000)  # Convert to ms
 
-    print(" ✓")
+    print(" OK")
 
     # Step 5: Calculate statistics
     end_time = time.time()
@@ -260,7 +262,7 @@ def analyze_degradation(
         is_fractal = False
         collision_msg = f"COLLISION DETECTED: Max rate {max_collision_rate * 100:.2f}%"
     else:
-        collision_msg = "✓ Zero collisions at all scales"
+        collision_msg = "OK Zero collisions at all scales"
 
     # Check retrieval degradation
     retrieval_msg = ""
@@ -286,7 +288,7 @@ def analyze_degradation(
             retrieval_msg = f"DEGRADATION WARNING: Latency ratio {
                 worst_case_ratio:.2f}x > expected {expected_log_ratio:.2f}x"
         else:
-            retrieval_msg = f"✓ Retrieval latency scales logarithmically ({
+            retrieval_msg = f"OK Retrieval latency scales logarithmically ({
                 worst_case_ratio:.2f}x for {scale_ratio:.0f}x scale)"
 
     return collision_msg, retrieval_msg, is_fractal
@@ -321,7 +323,7 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
     overall_start = time.time()
 
     print("\n" + "=" * 70)
-    print("EXP-04: STAT7 FRACTAL SCALING TEST")
+    print("EXP-04: FractalStat FRACTAL SCALING TEST")
     print("=" * 70)
     print(f"Mode: {'Quick' if quick_mode else 'Full'} (scales: {scales})")
     print()
@@ -353,11 +355,11 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
                     result.retrieval_p95_ms:.6f}ms"
             )
             print(f"          Throughput: {result.addresses_per_second:,.0f} addr/sec")
-            print(f"          Valid: {'✓ YES' if result.is_valid() else '✗ NO'}")
+            print(f"          Valid: {'YES' if result.is_valid() else 'NO'}")
             print()
 
         except Exception as e:
-            print(f"  ✗ FAILED: {e}")
+            print(f"  FAILED: {e}")
             print()
             raise
 
@@ -374,13 +376,13 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
     print("=" * 70)
     print(f"Collision: {collision_analysis}")
     print(f"Retrieval: {retrieval_analysis}")
-    print(f"Is Fractal: {'✓ YES' if is_fractal else '✗ NO'}")
+    print(f"Is Fractal: {'YES' if is_fractal else 'NO'}")
     print()
 
     results = FractalScalingResults(
         start_time=start_time,
         end_time=end_time,
-        total_duration_seconds=overall_end - overall_start,
+        total_duration_seconds=(overall_end - overall_start),
         scale_results=scale_results,
         collision_degradation=collision_analysis,
         retrieval_degradation=retrieval_analysis,
@@ -403,11 +405,15 @@ def save_results(
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         output_file = f"exp04_fractal_scaling_{timestamp}.json"
 
-    with open(output_file, "w") as f:
+    results_dir = Path(__file__).resolve().parent.parent / "results"
+    results_dir.mkdir(exist_ok=True)
+    output_path = str(results_dir / output_file)
+
+    with open(output_path, "w", encoding="UTF-8") as f:
         json.dump(results.to_dict(), f, indent=2)
 
-    print(f"Results saved to: {output_file}")
-    return output_file
+    print(f"Results saved to: {output_path}")
+    return output_path
 
 
 if __name__ == "__main__":
@@ -429,17 +435,17 @@ if __name__ == "__main__":
         print("=" * 70)
         print(
             f"Status: {
-                '✓ PASSED'
+                'PASSED'
                 if all(r.is_valid() for r in results.scale_results)
-                else '✗ FAILED'
+                else 'FAILED'
             }"
         )
-        print(f"Fractal: {'✓ YES' if results.is_fractal else '✗ NO'}")
+        print(f"Fractal: {'YES' if results.is_fractal else 'NO'}")
         print(f"Output: {output_file}")
         print()
 
     except Exception as e:
-        print(f"\n✗ TEST FAILED: {e}")
+        print(f"\nTEST FAILED: {e}")
         import traceback
 
         traceback.print_exc()

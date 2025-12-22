@@ -1,5 +1,5 @@
 """
-Test suite for EXP-04: Bit-Chain STAT7 Fractal Scaling Test
+Test suite for EXP-04: Bit-Chain FractalStat Fractal Scaling Test
 Tests address collision detection and retrieval performance at scale.
 """
 

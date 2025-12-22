@@ -124,7 +124,7 @@ max_concurrent_queries = 20
 ```bash
 # Development (fast iteration)
 export FRACTALSTAT_ENV=dev
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # CI/CD (balanced testing)
 export FRACTALSTAT_ENV=ci
@@ -136,7 +136,7 @@ python -m fractalstat.exp05_compression_expansion
 
 # Or unset for default (dev)
 unset FRACTALSTAT_ENV
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 ```
 
 ### GitLab CI/CD
@@ -149,7 +149,7 @@ validate_experiments:
     FRACTALSTAT_ENV: "ci"
   script:
     - pip install -e .
-    - python -m fractalstat.stat7_experiments
+    - python -m fractalstat.fractalstat_experiments
 ```
 
 ## Programmatic Access
@@ -244,7 +244,7 @@ pip install -e .
 
 # Configuration is already locked at v1.0.0
 # Run experiments (uses archived config)
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 ```
 
 ## Configuration Parameters by Experiment

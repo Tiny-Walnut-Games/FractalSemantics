@@ -27,10 +27,10 @@ cd fractalstat
 pip install -r requirements.txt
 
 # Run experiment
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Run tests
-pytest tests/test_stat7_experiments.py -v
+pytest tests/test_fractalstat_experiments.py -v
 
 # Review results
 cat VALIDATION_RESULTS_PHASE1.json
@@ -42,7 +42,7 @@ cat VALIDATION_RESULTS_PHASE1.json
 
 #### 1.1 Hypothesis
 
-- [ ] **Hypothesis clearly stated**: "The STAT7 addressing system using SHA-256 hashing of canonical serialization produces unique addresses for all bit-chains with zero collisions."
+- [ ] **Hypothesis clearly stated**: "The FractalStat addressing system using SHA-256 hashing of canonical serialization produces unique addresses for all bit-chains with zero collisions."
 - [ ] **Hypothesis is testable**: Can be validated through empirical testing
 - [ ] **Hypothesis is falsifiable**: Clear failure criteria defined
 - [ ] **Null hypothesis defined**: Implicit (collisions would occur)
@@ -79,7 +79,7 @@ cat VALIDATION_RESULTS_PHASE1.json
 - [ ] **Type hints present**: All functions have type annotations
 - [ ] **No obvious bugs**: Logic appears correct
 
-**Review**: fractalstat/stat7_experiments.py
+**Review**: fractalstat/fractalstat_experiments.py
 
 **Comments**: _____________________
 
@@ -110,7 +110,7 @@ cat VALIDATION_RESULTS_PHASE1.json
 #### 2.4 Random Generation
 
 - [ ] **Deterministic seeding**: Seed formula documented and correct
-- [ ] **Valid coordinate ranges**: All values within STAT7 specification
+- [ ] **Valid coordinate ranges**: All values within FractalStat specification
 - [ ] **Uniform distribution**: Random selection from valid options
 - [ ] **Seed independence**: Different seeds produce different bit-chains
 - [ ] **Reproducibility**: Same seed → same bit-chain
@@ -129,7 +129,7 @@ cat VALIDATION_RESULTS_PHASE1.json
 - [ ] **Address computation tested**: Determinism verified
 - [ ] **Random generation tested**: Seeding verified
 
-**Review**: tests/test_stat7_experiments.py
+**Review**: tests/test_fractalstat_experiments.py
 
 **Comments**: _____________________
 
@@ -309,7 +309,7 @@ List any questions or clarifications needed:
 ### Code Review Notes
 
 ```
-File: fractalstat/stat7_experiments.py
+File: fractalstat/fractalstat_experiments.py
 Lines: _____________________
 Issue: _____________________
 Suggestion: _____________________
@@ -343,7 +343,7 @@ Suggestion: _____________________
 
 ```bash
 # Command executed
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Output
 Total collisions: _____________________
@@ -387,7 +387,7 @@ Success: _____________________
 ### Test Execution Log
 
 ```
-pytest tests/test_stat7_experiments.py -v
+pytest tests/test_fractalstat_experiments.py -v
 
 [Paste test output here]
 ```
@@ -395,7 +395,7 @@ pytest tests/test_stat7_experiments.py -v
 ### Experiment Execution Log
 
 ```
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 [Paste experiment output here]
 ```

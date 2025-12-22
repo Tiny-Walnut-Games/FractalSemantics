@@ -6,13 +6,13 @@ alwaysApply: true
 # FractalStat Information
 
 ## Summary
-FractalStat is a complete validation suite for the STAT7 7-dimensional addressing system. It provides experimental frameworks for testing address uniqueness, retrieval efficiency, dimension necessity, compression/expansion, entanglement detection, and RAG (Retrieval-Augmented Generation) integration. The project implements Phase 1 Doctrine validation with security enums, canonical serialization, and recovery capabilities.
+FractalStat is a complete validation suite for the FractalStat 7-dimensional addressing system. It provides experimental frameworks for testing address uniqueness, retrieval efficiency, dimension necessity, compression/expansion, entanglement detection, and RAG (Retrieval-Augmented Generation) integration. The project implements Phase 1 Doctrine validation with security enums, canonical serialization, and recovery capabilities.
 
 ## Structure
-- **fractalstat/**: Main package directory containing core STAT7 implementation and experiments
-  - **stat7_entity.py**: Core entity definitions for the STAT7 addressing system
-  - **stat7_experiments.py**: Phase 1 validation experiments (EXP-01, EXP-02, EXP-03)
-  - **stat7_rag_bridge.py**: RAG integration bridge implementation
+- **fractalstat/**: Main package directory containing core FractalStat implementation and experiments
+  - **fractalstat_entity.py**: Core entity definitions for the FractalStat addressing system
+  - **fractalstat_experiments.py**: Phase 1 validation experiments (EXP-01, EXP-02, EXP-03)
+  - **fractalstat_rag_bridge.py**: RAG integration bridge implementation
   - **exp04_fractal_scaling.py**: Fractal address scaling experiments
   - **exp05_compression_expansion.py**: Address compression/expansion testing
   - **exp06_entanglement_detection.py**: Entanglement detection algorithms
@@ -62,7 +62,7 @@ pip install -e .
 ## Main Entry Points
 **Phase 1 Validation**:
 ```bash
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 ```
 
 **Individual Experiments**:

@@ -17,10 +17,10 @@ from fractalstat.exp12_benchmark_comparison import (
     VectorDBSystem,
     GraphDBSystem,
     RDBMSSystem,
-    STAT7System,
+    FractalStatSystem,
     save_results,
 )
-from fractalstat.stat7_experiments import generate_random_bitchain
+from fractalstat.fractalstat_experiments import generate_random_bitchain
 
 
 class TestSystemBenchmarkResult:
@@ -29,7 +29,7 @@ class TestSystemBenchmarkResult:
     def test_initialization(self):
         """SystemBenchmarkResult should initialize with all fields."""
         result = SystemBenchmarkResult(
-            system_name="STAT7",
+            system_name="FractalStat",
             scale=10000,
             num_queries=1000,
             unique_addresses=10000,
@@ -46,7 +46,7 @@ class TestSystemBenchmarkResult:
             query_flexibility=0.9,
         )
 
-        assert result.system_name == "STAT7"
+        assert result.system_name == "FractalStat"
         assert result.scale == 10000
         assert result.collisions == 0
         assert result.semantic_expressiveness == 0.95
@@ -89,25 +89,25 @@ class TestBenchmarkComparisonResult:
             sample_size=10000,
             scales_tested=[10000],
             num_queries=1000,
-            systems_tested=["uuid", "stat7"],
+            systems_tested=["uuid", "fractalstat"],
             system_results=[],
-            best_collision_rate_system="STAT7",
+            best_collision_rate_system="FractalStat",
             best_retrieval_latency_system="UUID",
             best_storage_efficiency_system="UUID",
-            best_semantic_expressiveness_system="STAT7",
-            best_overall_system="STAT7",
-            stat7_rank_collision=1,
-            stat7_rank_retrieval=2,
-            stat7_rank_storage=3,
-            stat7_rank_semantic=1,
-            stat7_overall_score=0.85,
-            major_findings=["STAT7 competitive"],
-            stat7_competitive=True,
+            best_semantic_expressiveness_system="FractalStat",
+            best_overall_system="FractalStat",
+            fractalstat_rank_collision=1,
+            fractalstat_rank_retrieval=2,
+            fractalstat_rank_storage=3,
+            fractalstat_rank_semantic=1,
+            fractalstat_overall_score=0.85,
+            major_findings=["FractalStat competitive"],
+            fractalstat_competitive=True,
         )
 
         assert result.sample_size == 10000
-        assert result.stat7_competitive
-        assert result.best_overall_system == "STAT7"
+        assert result.fractalstat_competitive
+        assert result.best_overall_system == "FractalStat"
 
     def test_to_dict(self):
         """BenchmarkComparisonResult should serialize to dict."""
@@ -118,27 +118,27 @@ class TestBenchmarkComparisonResult:
             sample_size=10000,
             scales_tested=[10000],
             num_queries=1000,
-            systems_tested=["uuid", "stat7"],
+            systems_tested=["uuid", "fractalstat"],
             system_results=[],
-            best_collision_rate_system="STAT7",
+            best_collision_rate_system="FractalStat",
             best_retrieval_latency_system="UUID",
             best_storage_efficiency_system="UUID",
-            best_semantic_expressiveness_system="STAT7",
-            best_overall_system="STAT7",
-            stat7_rank_collision=1,
-            stat7_rank_retrieval=2,
-            stat7_rank_storage=3,
-            stat7_rank_semantic=1,
-            stat7_overall_score=0.85,
+            best_semantic_expressiveness_system="FractalStat",
+            best_overall_system="FractalStat",
+            fractalstat_rank_collision=1,
+            fractalstat_rank_retrieval=2,
+            fractalstat_rank_storage=3,
+            fractalstat_rank_semantic=1,
+            fractalstat_overall_score=0.85,
             major_findings=[],
-            stat7_competitive=True,
+            fractalstat_competitive=True,
         )
 
         result_dict = result.to_dict()
         assert isinstance(result_dict, dict)
         assert result_dict["experiment"] == "EXP-12"
         assert result_dict["test_type"] == "Benchmark Comparison"
-        assert result_dict["stat7_positioning"]["competitive"]
+        assert result_dict["fractalstat_positioning"]["competitive"]
 
 
 class TestBenchmarkSystems:
@@ -244,11 +244,11 @@ class TestBenchmarkSystems:
         assert system.get_relationship_support() == 0.6
         assert system.get_query_flexibility() == 0.8
 
-    def test_stat7_system(self):
-        """STAT7System should use STAT7 addressing."""
-        system = STAT7System()
+    def test_fractalstat_system(self):
+        """FractalStatSystem should use FractalStat addressing."""
+        system = FractalStatSystem()
 
-        assert system.name == "STAT7"
+        assert system.name == "FractalStat"
 
         # Generate address
         bc = generate_random_bitchain(seed=1)
@@ -273,7 +273,7 @@ class TestBenchmarkSystems:
             VectorDBSystem(),
             GraphDBSystem(),
             RDBMSSystem(),
-            STAT7System(),
+            FractalStatSystem(),
         ]
 
         for system in systems:
@@ -295,13 +295,13 @@ class TestBenchmarkComparisonExperiment:
         """BenchmarkComparisonExperiment should initialize with parameters."""
         exp = BenchmarkComparisonExperiment(
             sample_size=1000,
-            benchmark_systems=["uuid", "stat7"],
+            benchmark_systems=["uuid", "fractalstat"],
             scales=[1000],
             num_queries=100,
         )
 
         assert exp.sample_size == 1000
-        assert exp.benchmark_systems == ["uuid", "stat7"]
+        assert exp.benchmark_systems == ["uuid", "fractalstat"]
         assert exp.scales == [1000]
         assert exp.num_queries == 100
         assert exp.results == []
@@ -312,7 +312,7 @@ class TestBenchmarkComparisonExperiment:
 
         assert exp.sample_size == 100000
         assert "uuid" in exp.benchmark_systems
-        assert "stat7" in exp.benchmark_systems
+        assert "fractalstat" in exp.benchmark_systems
         assert exp.num_queries == 1000
 
     def test_create_system(self):
@@ -334,8 +334,8 @@ class TestBenchmarkComparisonExperiment:
         rdbms_sys = exp._create_system("rdbms")
         assert isinstance(rdbms_sys, RDBMSSystem)
 
-        stat7_sys = exp._create_system("stat7")
-        assert isinstance(stat7_sys, STAT7System)
+        fractalstat_sys = exp._create_system("fractalstat")
+        assert isinstance(fractalstat_sys, FractalStatSystem)
 
     def test_create_system_invalid(self):
         """_create_system should raise error for unknown system."""
@@ -362,7 +362,7 @@ class TestBenchmarkComparisonExperiment:
         """run() should execute with small sample for testing."""
         exp = BenchmarkComparisonExperiment(
             sample_size=100,
-            benchmark_systems=["uuid", "stat7"],
+            benchmark_systems=["uuid", "fractalstat"],
             scales=[100],
             num_queries=10,
         )
@@ -378,7 +378,7 @@ class TestBenchmarkComparisonExperiment:
         """run() should perform comparative analysis."""
         exp = BenchmarkComparisonExperiment(
             sample_size=100,
-            benchmark_systems=["uuid", "sha256", "stat7"],
+            benchmark_systems=["uuid", "sha256", "fractalstat"],
             scales=[100],
             num_queries=10,
         )
@@ -386,63 +386,64 @@ class TestBenchmarkComparisonExperiment:
         result, success = exp.run()
 
         # Check that best systems are identified
-        assert result.best_collision_rate_system in ["UUID", "SHA256", "STAT7"]
+        assert result.best_collision_rate_system in ["UUID", "SHA256", "FractalStat"]
         assert result.best_retrieval_latency_system in [
             "UUID",
             "SHA256",
-            "STAT7",
+            "FractalStat",
         ]
         assert result.best_storage_efficiency_system in [
             "UUID",
             "SHA256",
-            "STAT7",
+            "FractalStat",
         ]
         assert result.best_semantic_expressiveness_system in [
             "UUID",
             "SHA256",
-            "STAT7",
+            "FractalStat",
         ]
-        assert result.best_overall_system in ["UUID", "SHA256", "STAT7"]
+        assert result.best_overall_system in ["UUID", "SHA256", "FractalStat"]
 
-    def test_run_stat7_rankings(self):
-        """run() should calculate STAT7 rankings."""
+    def test_run_fractalstat_rankings(self):
+        """run() should calculate FractalStat rankings."""
         exp = BenchmarkComparisonExperiment(
             sample_size=100,
-            benchmark_systems=["uuid", "sha256", "stat7"],
+            benchmark_systems=["uuid", "sha256", "fractalstat"],
             scales=[100],
             num_queries=10,
         )
 
         result, success = exp.run()
 
-        # STAT7 should be ranked
-        assert 1 <= result.stat7_rank_collision <= 3
-        assert 1 <= result.stat7_rank_retrieval <= 3
-        assert 1 <= result.stat7_rank_storage <= 3
-        assert 1 <= result.stat7_rank_semantic <= 3
-        assert 0.0 <= result.stat7_overall_score <= 1.0
+        # FractalStat should be ranked
+        assert 1 <= result.fractalstat_rank_collision <= 3
+        assert 1 <= result.fractalstat_rank_retrieval <= 3
+        assert 1 <= result.fractalstat_rank_storage <= 3
+        assert 1 <= result.fractalstat_rank_semantic <= 3
+        assert 0.0 <= result.fractalstat_overall_score <= 1.0
 
-    def test_run_stat7_competitive(self):
-        """run() should evaluate if STAT7 is competitive."""
+    def test_run_fractalstat_competitive(self):
+        """run() should evaluate if FractalStat is competitive."""
         exp = BenchmarkComparisonExperiment(
             sample_size=100,
-            benchmark_systems=["uuid", "stat7"],
+            benchmark_systems=["uuid", "fractalstat"],
             scales=[100],
             num_queries=10,
         )
 
         result, success = exp.run()
 
-        assert isinstance(result.stat7_competitive, bool)
-        # stat7_competitive may differ from overall success
-        # success means experiment ran successfully, stat7_competitive means STAT7 met strict criteria
+        assert isinstance(result.fractalstat_competitive, bool)
+        # fractalstat_competitive may differ from overall success
+        # success means experiment ran successfully,
+        # fractalstat_competitive means FractalStat met strict criteria
         assert isinstance(success, bool)
 
     def test_run_major_findings(self):
         """run() should generate major findings."""
         exp = BenchmarkComparisonExperiment(
             sample_size=100,
-            benchmark_systems=["uuid", "stat7"],
+            benchmark_systems=["uuid", "fractalstat"],
             scales=[100],
             num_queries=10,
         )
@@ -451,7 +452,7 @@ class TestBenchmarkComparisonExperiment:
 
         assert len(result.major_findings) > 0
         assert any("Best collision rate" in f for f in result.major_findings)
-        assert any("STAT7" in f for f in result.major_findings)
+        assert any("FractalStat" in f for f in result.major_findings)
 
 
 class TestSaveResults:
@@ -466,20 +467,20 @@ class TestSaveResults:
             sample_size=100,
             scales_tested=[100],
             num_queries=10,
-            systems_tested=["uuid", "stat7"],
+            systems_tested=["uuid", "fractalstat"],
             system_results=[],
-            best_collision_rate_system="STAT7",
+            best_collision_rate_system="FractalStat",
             best_retrieval_latency_system="UUID",
             best_storage_efficiency_system="UUID",
-            best_semantic_expressiveness_system="STAT7",
-            best_overall_system="STAT7",
-            stat7_rank_collision=1,
-            stat7_rank_retrieval=2,
-            stat7_rank_storage=2,
-            stat7_rank_semantic=1,
-            stat7_overall_score=0.85,
+            best_semantic_expressiveness_system="FractalStat",
+            best_overall_system="FractalStat",
+            fractalstat_rank_collision=1,
+            fractalstat_rank_retrieval=2,
+            fractalstat_rank_storage=2,
+            fractalstat_rank_semantic=1,
+            fractalstat_overall_score=0.85,
             major_findings=[],
-            stat7_competitive=True,
+            fractalstat_competitive=True,
         )
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -507,7 +508,7 @@ class TestMainEntryPoint:
             if exp == "EXP-12" and param == "sample_size":
                 return 100
             elif exp == "EXP-12" and param == "benchmark_systems":
-                return ["uuid", "stat7"]
+                return ["uuid", "fractalstat"]
             elif exp == "EXP-12" and param == "scales":
                 return [100]
             elif exp == "EXP-12" and param == "num_queries":
@@ -528,7 +529,7 @@ class TestMainEntryPoint:
                         "vector_db",
                         "graph_db",
                         "rdbms",
-                        "stat7",
+                        "fractalstat",
                     ],
                 ),
                 scales=mock_config.get("EXP-12", "scales", [10000, 100000, 1000000]),
@@ -536,7 +537,7 @@ class TestMainEntryPoint:
             )
 
             assert exp.sample_size == 100
-            assert exp.benchmark_systems == ["uuid", "stat7"]
+            assert exp.benchmark_systems == ["uuid", "fractalstat"]
             assert exp.scales == [100]
             assert exp.num_queries == 10
 
@@ -549,7 +550,7 @@ class TestMainEntryPoint:
             exp = BenchmarkComparisonExperiment()
 
             assert exp.sample_size == 100000
-            assert "stat7" in exp.benchmark_systems
+            assert "fractalstat" in exp.benchmark_systems
             assert exp.num_queries == 1000
 
 
@@ -575,14 +576,14 @@ class TestEdgeCases:
         """Experiment should handle single system."""
         exp = BenchmarkComparisonExperiment(
             sample_size=50,
-            benchmark_systems=["stat7"],
+            benchmark_systems=["fractalstat"],
             scales=[50],
             num_queries=5,
         )
 
         result, success = exp.run()
         assert len(result.system_results) == 1
-        assert result.system_results[0].system_name == "STAT7"
+        assert result.system_results[0].system_name == "FractalStat"
 
     def test_collision_detection(self):
         """Systems should detect collisions correctly."""
@@ -598,7 +599,7 @@ class TestEdgeCases:
     def test_retrieval_latency_measurement(self):
         """Retrieval latency should be measured correctly."""
         exp = BenchmarkComparisonExperiment(sample_size=100, num_queries=10)
-        system = STAT7System()
+        system = FractalStatSystem()
 
         result = exp._benchmark_system(system, 100)
 
@@ -611,7 +612,7 @@ class TestEdgeCases:
     def test_storage_calculation(self):
         """Storage metrics should be calculated correctly."""
         exp = BenchmarkComparisonExperiment(sample_size=100, num_queries=10)
-        system = STAT7System()
+        system = FractalStatSystem()
 
         result = exp._benchmark_system(system, 100)
 

@@ -17,9 +17,9 @@ enabled = [
     "EXP-12"
 ]
 
-# EXP-01: Reduced for quick iteration
+# EXP-01: Adequate sample size for geometric collision resistance test
 [experiments.EXP-01]
-sample_size = 100           # Reduced from 1000
+sample_size = 10000         # Increased for reliable geometric validation (needs collisions in low D)
 iterations = 3              # Reduced from 10
 quick_mode = true
 
@@ -79,6 +79,6 @@ test_iterations = 10        # Increased for statistical significance
 # EXP-12: Quick benchmark comparison
 [experiments.EXP-12]
 sample_size = 1000          # Reduced from 100000
-benchmark_systems = ["uuid", "sha256", "stat7"]  # Subset for dev
+benchmark_systems = ["uuid", "sha256", "fractalstat"]  # Subset for dev
 scales = [1000, 10000]      # Reduced from [10000, 100000, 1000000]
 num_queries = 100           # Reduced from 1000

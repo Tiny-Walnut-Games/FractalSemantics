@@ -84,6 +84,6 @@ test_iterations = 2         # Reduced from 5
 # EXP-12: CI benchmark comparison
 [experiments.EXP-12]
 sample_size = 500           # Balanced for CI
-benchmark_systems = ["uuid", "sha256", "stat7"]  # Subset for CI
+benchmark_systems = ["uuid", "sha256", "fractalstat"]  # Subset for CI
 scales = [500, 5000]        # Reduced for CI
 num_queries = 100           # Reduced from 1000

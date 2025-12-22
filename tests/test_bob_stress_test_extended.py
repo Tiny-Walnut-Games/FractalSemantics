@@ -2,11 +2,11 @@
 Extended tests for Bob Stress Test to achieve 95%+ coverage
 """
 
-import pytest
 import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 from datetime import datetime
+import pytest
 
 
 class TestBobStressTestExtended:

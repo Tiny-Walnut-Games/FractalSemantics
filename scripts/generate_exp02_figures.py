@@ -147,7 +147,7 @@ def generate_latency_distribution_figure(results: Dict[str, Any], output_dir: Pa
     for i, (scale, mean_lat) in enumerate(zip(scales, mean_latencies)):
         thresholds = {1000: 0.1, 10000: 0.5, 100000: 2.0}
         threshold = thresholds.get(scale, 2.0)
-        status = "✅" if mean_lat < threshold else "❌"
+        status = "[OKAY]" if mean_lat < threshold else "[FAIL]"
         ax.text(
             x[i],
             mean_lat * 1.5,
@@ -161,7 +161,7 @@ def generate_latency_distribution_figure(results: Dict[str, Any], output_dir: Pa
     plt.tight_layout()
     output_file = output_dir / "exp02_latency_distribution.png"
     plt.savefig(output_file, dpi=300, bbox_inches="tight")
-    print(f"✅ Generated: {output_file}")
+    print(f"[OKAY] Generated: {output_file}")
     plt.close()
 
 
@@ -253,7 +253,7 @@ def generate_scaling_behavior_figure(results: Dict[str, Any], output_dir: Path):
     plt.tight_layout()
     output_file = output_dir / "exp02_scaling_behavior.png"
     plt.savefig(output_file, dpi=300, bbox_inches="tight")
-    print(f"✅ Generated: {output_file}")
+    print(f"[OKAY] Generated: {output_file}")
     plt.close()
 
 
@@ -319,7 +319,7 @@ def generate_performance_targets_figure(results: Dict[str, Any], output_dir: Pat
     # Add performance margin annotations
     for i, (obs, target) in enumerate(zip(observed_latencies, target_latencies)):
         margin = (target - obs) / target * 100
-        status = "✅ PASS" if obs < target else "❌ FAIL"
+        status = "[OKAY] PASS" if obs < target else "[FAIL] FAIL"
         ax.text(
             x[i],
             max(obs, target) * 1.2,
@@ -335,7 +335,7 @@ def generate_performance_targets_figure(results: Dict[str, Any], output_dir: Pat
     ax.text(
         0.5,
         0.95,
-        "✅ ALL SCALES PASS: Sub-microsecond retrieval validated",
+        "[OKAY] ALL SCALES PASS: Sub-microsecond retrieval validated",
         transform=ax.transAxes,
         fontsize=11,
         fontweight="bold",
@@ -353,7 +353,7 @@ def generate_performance_targets_figure(results: Dict[str, Any], output_dir: Pat
     plt.tight_layout()
     output_file = output_dir / "exp02_performance_targets.png"
     plt.savefig(output_file, dpi=300, bbox_inches="tight")
-    print(f"✅ Generated: {output_file}")
+    print(f"[OKAY] Generated: {output_file}")
     plt.close()
 
 
@@ -477,7 +477,7 @@ def generate_percentiles_figure(results: Dict[str, Any], output_dir: Path):
     plt.tight_layout()
     output_file = output_dir / "exp02_percentiles.png"
     plt.savefig(output_file, dpi=300, bbox_inches="tight")
-    print(f"✅ Generated: {output_file}")
+    print(f"[OKAY] Generated: {output_file}")
     plt.close()
 
 
@@ -505,7 +505,7 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
 
     # Key metrics - Left column
     left_metrics = [
-        ("Status", "✅ PASS", "#27ae60"),
+        ("Status", "[OKAY] PASS", "#27ae60"),
         ("Scales Tested", "3 (1K, 10K, 100K)", "#3498db"),
         ("Total Queries", "300", "#3498db"),
         ("Best Performance", "0.00013ms (1K scale)", "#2ecc71"),
@@ -604,9 +604,9 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
     # Performance targets - Bottom right
     targets_text = (
         "Performance Targets Met:\n"
-        "• 1K scale: 0.00013ms < 0.1ms ✅\n"
-        "• 10K scale: 0.00028ms < 0.5ms ✅\n"
-        "• 100K scale: 0.00060ms < 2.0ms ✅"
+        "• 1K scale: 0.00013ms < 0.1ms [OKAY]\n"
+        "• 10K scale: 0.00028ms < 0.5ms [OKAY]\n"
+        "• 100K scale: 0.00060ms < 2.0ms [OKAY]"
     )
     ax.text(
         0.75,
@@ -625,7 +625,7 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
 
     # Conclusion - Bottom center
     conclusion_text = (
-        "Conclusion: STAT7 enables sub-microsecond retrieval with excellent scaling characteristics,\n"
+        "Conclusion: FractalStat enables sub-microsecond retrieval with excellent scaling characteristics,\n"
         "validating production readiness for content-addressable storage systems."
     )
     ax.text(
@@ -647,7 +647,7 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
     plt.tight_layout()
     output_file = output_dir / "exp02_summary.png"
     plt.savefig(output_file, dpi=300, bbox_inches="tight")
-    print(f"✅ Generated: {output_file}")
+    print(f"[OKAY] Generated: {output_file}")
     plt.close()
 
 
@@ -659,7 +659,7 @@ def main():
     print()
 
     if not MATPLOTLIB_AVAILABLE:
-        print("❌ Error: matplotlib is required to generate figures")
+        print("[FAIL] Error: matplotlib is required to generate figures")
         print("Install with: pip install matplotlib")
         return 1
 
@@ -672,9 +672,9 @@ def main():
     results = load_exp02_results()
 
     if results is None:
-        print("⚠️  Warning: No EXP-02 results found")
-        print("Run the experiment first:")
-        print("  python fractalstat/exp02_retrieval_efficiency.py")
+        print(" Warning: No EXP-02 results found")
+        print(" Run the experiment first:")
+        print(" Python fractalstat/exp02_retrieval_efficiency.py")
         return 1
 
     print("Generating figures...")
@@ -688,7 +688,7 @@ def main():
 
     print()
     print("=" * 70)
-    print("✅ Figure generation complete!")
+    print("[OKAY] Figure generation complete!")
     print("=" * 70)
     print()
     print(f"Figures saved to: {output_dir}")

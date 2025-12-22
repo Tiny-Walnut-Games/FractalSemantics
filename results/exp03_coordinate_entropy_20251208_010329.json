@@ -1,0 +1,209 @@
+{
+  "sample_size": 100000,
+  "random_seed": 42,
+  "baseline_entropy": 16.60944047441802,
+  "total_tests": 9,
+  "total_dimension_combos_tested": 9,
+  "all_critical": true,
+  "results": [
+    {
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 100000,
+      "shannon_entropy": 16.60944047441802,
+      "normalized_entropy": 0.999987958799042,
+      "expressiveness_contribution": 0.0,
+      "individual_contribution": 0.0,
+      "relative_contribution": 0.0,
+      "complementary_contribution": 0.0,
+      "entropy_reduction_pct": 0.0,
+      "unique_coordinates": 99990,
+      "semantic_disambiguation_score": 0.9999289935281584,
+      "meets_threshold": true
+    },
+    {
+      "dimensions_used": [
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 100000,
+      "shannon_entropy": 16.608400474418026,
+      "normalized_entropy": 0.9999253445599443,
+      "expressiveness_contribution": 32.754940312653474,
+      "individual_contribution": 93.57749325133113,
+      "relative_contribution": 0.00626149930573771,
+      "complementary_contribution": 0.0,
+      "entropy_reduction_pct": 0.00626149930573771,
+      "unique_coordinates": 99938,
+      "semantic_disambiguation_score": 0.9995597637971259,
+      "meets_threshold": true
+    },
+    {
+      "dimensions_used": [
+        "realm",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 100000,
+      "shannon_entropy": 16.591704203667458,
+      "normalized_entropy": 0.9989201288976146,
+      "expressiveness_contribution": 35.044150848407774,
+      "individual_contribution": 99.98885121208178,
+      "relative_contribution": 0.10678427595365639,
+      "complementary_contribution": 0.0,
+      "entropy_reduction_pct": 0.10678427595365639,
+      "unique_coordinates": 99114,
+      "semantic_disambiguation_score": 0.9937058672371195,
+      "meets_threshold": true
+    },
+    {
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 100000,
+      "shannon_entropy": 16.603500474418006,
+      "normalized_entropy": 0.9996303351641924,
+      "expressiveness_contribution": 35.01609325735037,
+      "individual_contribution": 100.0,
+      "relative_contribution": 0.0357627941119509,
+      "complementary_contribution": 0.0,
+      "entropy_reduction_pct": 0.0357627941119509,
+      "unique_coordinates": 99693,
+      "semantic_disambiguation_score": 0.9978202124178414,
+      "meets_threshold": true
+    },
+    {
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 100000,
+      "shannon_entropy": 16.608740474418017,
+      "normalized_entropy": 0.9999458145996489,
+      "expressiveness_contribution": 31.440177196049525,
+      "individual_contribution": 89.82365909783016,
+      "relative_contribution": 0.004214470686595773,
+      "complementary_contribution": 0.0,
+      "entropy_reduction_pct": 0.004214470686595773,
+      "unique_coordinates": 99955,
+      "semantic_disambiguation_score": 0.9996804727930443,
+      "meets_threshold": true
+    },
+    {
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 100000,
+      "shannon_entropy": 16.608860474418016,
+      "normalized_entropy": 0.9999530393195448,
+      "expressiveness_contribution": 12.23337809328043,
+      "individual_contribution": 34.948019136518774,
+      "relative_contribution": 0.003491989997473014,
+      "complementary_contribution": 0.0,
+      "entropy_reduction_pct": 0.003491989997473014,
+      "unique_coordinates": 99961,
+      "semantic_disambiguation_score": 0.9997230761359943,
+      "meets_threshold": true
+    },
+    {
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 100000,
+      "shannon_entropy": 16.60716047441802,
+      "normalized_entropy": 0.9998506891210193,
+      "expressiveness_contribution": 35.00510345202025,
+      "individual_contribution": 99.99693212036628,
+      "relative_contribution": 0.013727133093439375,
+      "complementary_contribution": 0.0,
+      "entropy_reduction_pct": 0.013727133093439375,
+      "unique_coordinates": 99876,
+      "semantic_disambiguation_score": 0.9991195369523055,
+      "meets_threshold": true
+    },
+    {
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "alignment"
+      ],
+      "sample_size": 100000,
+      "shannon_entropy": 16.60838047441802,
+      "normalized_entropy": 0.9999241404399613,
+      "expressiveness_contribution": 35.00257285052428,
+      "individual_contribution": 99.9991456851,
+      "relative_contribution": 0.00638191275396405,
+      "complementary_contribution": 0.0,
+      "entropy_reduction_pct": 0.00638191275396405,
+      "unique_coordinates": 99937,
+      "semantic_disambiguation_score": 0.9995526632898605,
+      "meets_threshold": true
+    },
+    {
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality"
+      ],
+      "sample_size": 100000,
+      "shannon_entropy": 16.60742047441804,
+      "normalized_entropy": 0.9998663426807949,
+      "expressiveness_contribution": 35.00452096488343,
+      "individual_contribution": 99.99728049618096,
+      "relative_contribution": 0.012161758266881956,
+      "complementary_contribution": 0.0,
+      "entropy_reduction_pct": 0.012161758266881956,
+      "unique_coordinates": 99889,
+      "semantic_disambiguation_score": 0.9992118418050524,
+      "meets_threshold": true
+    }
+  ]
+}

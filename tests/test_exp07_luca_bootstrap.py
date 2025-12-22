@@ -58,15 +58,15 @@ class TestTestBitChain:
         parsed = json.loads(json_str)
         assert parsed["content"] == "json test"
 
-    def test_test_bitchain_stat7_address(self):
-        """TestBitChain should generate STAT7 address."""
+    def test_test_bitchain_fractalstat_address(self):
+        """TestBitChain should generate FractalStat address."""
         from fractalstat.exp07_luca_bootstrap import TestBitChain
 
         bc = TestBitChain(lineage=3, realm="data", horizon="emergence")
-        address = bc.get_stat7_address()
+        address = bc.get_fractalstat_address()
 
         assert isinstance(address, str)
-        assert address.startswith("STAT7-")
+        assert address.startswith("FractalStat-")
         assert "003" in address
 
 
@@ -296,3 +296,82 @@ class TestLUCABootstrapIntegration:
 
         assert all(all_success)
         assert len(reconstructed) == len(original_entities)
+
+
+class TestErrorHandling:
+    """Test error handling and robustness."""
+
+    def test_bootstrap_with_corrupt_encoding(self):
+        """Test bootstrap resilience with corrupted LUCA encoding."""
+        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester, TestBitChain
+
+        tester = LUCABootstrapTester()
+        entity = TestBitChain(content="test", lineage=1)
+        original_encoding = tester.compute_luca_encoding(entity)
+
+        # Corrupt the encoding
+        corrupt_encoding = original_encoding.copy()
+        corrupt_encoding["realm_sig"] = "X"  # Invalid signature
+
+        luca_state = {"encodings": [corrupt_encoding]}
+
+        # Bootstrap should handle corruption gracefully
+        bootstrapped, success_flags = tester.bootstrap_from_luca(luca_state)
+
+        assert len(bootstrapped) == 1
+        assert len(success_flags) == 1
+        # Should still succeed but with "unknown" realm
+        assert bootstrapped[0].realm == "unknown"
+
+    def test_empty_entity_list(self):
+        """Test behavior with empty entity lists."""
+        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+
+        tester = LUCABootstrapTester()
+
+        # Empty compression
+        luca_state = tester.compress_to_luca([])
+        assert luca_state["entity_count"] == 0
+        assert len(luca_state["encodings"]) == 0
+
+        # Empty bootstrap
+        bootstrapped, success = tester.bootstrap_from_luca(luca_state)
+        assert len(bootstrapped) == 0
+        assert len(success) == 0
+
+    def test_large_scale_bootstrap(self):
+        """Test bootstrap with larger entity sets."""
+        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+
+        tester = LUCABootstrapTester()
+
+        # Test with larger set
+        original = tester.create_test_entities(num_entities=50)
+        luca_state = tester.compress_to_luca(original)
+        bootstrapped, success = tester.bootstrap_from_luca(luca_state)
+
+        assert len(bootstrapped) == 50
+        assert all(success)
+
+        # Verify compression is effective
+        assert luca_state["compression_ratio"] > 0
+        assert luca_state["compression_ratio"] < 1.0
+
+    def test_lineage_preservation_under_stress(self):
+        """Test lineage integrity under repeated bootstrap cycles."""
+        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+
+        tester = LUCABootstrapTester()
+        original = tester.create_test_entities(num_entities=20)
+
+        # Multiple bootstrap cycles
+        current = original
+        for cycle in range(5):
+            luca_state = tester.compress_to_luca(current)
+            current, success = tester.bootstrap_from_luca(luca_state)
+            assert all(success), f"Failed at cycle {cycle}"
+
+        # Verify final lineage matches original
+        original_lineages = sorted([e.lineage for e in original])
+        final_lineages = sorted([e.lineage for e in current])
+        assert original_lineages == final_lineages

@@ -1,6 +1,6 @@
 """
 Comprehensive test suite for EXP-08: LLM Integration
-Tests LLM capabilities, embedding generation, narrative enhancement, and STAT7 extraction.
+Tests LLM capabilities, embedding generation, narrative enhancement, and FractalStat extraction.
 """
 
 import pytest
@@ -36,8 +36,8 @@ class TestLLMIntegrationDemo:
         except ImportError:
             pytest.skip("sentence-transformers or transformers not installed")
 
-    def test_embed_stat7_address(self):
-        """embed_stat7_address should generate embeddings."""
+    def test_embed_fractalstat_address(self):
+        """embed_fractalstat_address should generate embeddings."""
         try:
             from fractalstat.exp08_llm_integration import LLMIntegrationDemo
 
@@ -49,7 +49,7 @@ class TestLLMIntegrationDemo:
                 luminosity=0.8,
             )
 
-            embedding = demo.embed_stat7_address(bit_chain)
+            embedding = demo.embed_fractalstat_address(bit_chain)
 
             assert isinstance(embedding, np.ndarray)
             assert len(embedding) > 0
@@ -105,8 +105,8 @@ class TestLLMIntegrationDemo:
         except ImportError:
             pytest.skip("sentence-transformers or transformers not installed")
 
-    def test_extract_stat7_from_embedding(self):
-        """extract_stat7_from_embedding should extract STAT7 coordinates."""
+    def test_extract_fractalstat_from_embedding(self):
+        """extract_fractalstat_from_embedding should extract FractalStat coordinates."""
         try:
             from fractalstat.exp08_llm_integration import LLMIntegrationDemo
 
@@ -115,39 +115,39 @@ class TestLLMIntegrationDemo:
             # Create test embedding
             embedding = np.random.randn(384)
 
-            stat7 = demo.extract_stat7_from_embedding(embedding)
+            fractalstat = demo.extract_fractalstat_from_embedding(embedding)
 
-            assert "lineage" in stat7
-            assert "adjacency" in stat7
-            assert "luminosity" in stat7
-            assert "polarity" in stat7
-            assert "dimensionality" in stat7
-            assert "horizon" in stat7
-            assert "realm" in stat7
+            assert "lineage" in fractalstat
+            assert "adjacency" in fractalstat
+            assert "luminosity" in fractalstat
+            assert "polarity" in fractalstat
+            assert "dimensionality" in fractalstat
+            assert "horizon" in fractalstat
+            assert "realm" in fractalstat
 
             # Hybrid bounds: fractal dimensions unbounded, relational
             # symmetric, intensity asymmetric
-            assert isinstance(stat7["lineage"], (int, float))
-            assert -1.0 <= stat7["adjacency"] <= 1.0
-            assert 0.0 <= stat7["luminosity"] <= 1.0
-            assert -1.0 <= stat7["polarity"] <= 1.0
-            assert isinstance(stat7["dimensionality"], (int, float))
+            assert isinstance(fractalstat["lineage"], (int, float))
+            assert -1.0 <= fractalstat["adjacency"] <= 1.0
+            assert 0.0 <= fractalstat["luminosity"] <= 1.0
+            assert -1.0 <= fractalstat["polarity"] <= 1.0
+            assert isinstance(fractalstat["dimensionality"], (int, float))
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 
-    def test_extract_stat7_empty_embedding(self):
-        """extract_stat7_from_embedding should handle empty embedding."""
+    def test_extract_fractalstat_empty_embedding(self):
+        """extract_fractalstat_from_embedding should handle empty embedding."""
         try:
             from fractalstat.exp08_llm_integration import LLMIntegrationDemo
 
             demo = LLMIntegrationDemo()
 
-            stat7 = demo.extract_stat7_from_embedding(np.array([]))
+            fractalstat = demo.extract_fractalstat_from_embedding(np.array([]))
 
             # Should return default values
-            assert stat7["lineage"] == 0.5
-            assert stat7["adjacency"] == 0.5
-            assert stat7["luminosity"] == 0.7
+            assert fractalstat["lineage"] == 0.5
+            assert fractalstat["adjacency"] == 0.5
+            assert fractalstat["luminosity"] == 0.7
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 
@@ -263,8 +263,8 @@ class TestLLMIntegrationDemo:
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 
-    def test_extract_stat7_with_list_input(self):
-        """extract_stat7_from_embedding should handle list input."""
+    def test_extract_fractalstat_with_list_input(self):
+        """extract_fractalstat_from_embedding should handle list input."""
         try:
             from fractalstat.exp08_llm_integration import LLMIntegrationDemo
 
@@ -273,15 +273,15 @@ class TestLLMIntegrationDemo:
             # Pass list instead of numpy array
             embedding_list = [0.1] * 384
 
-            stat7 = demo.extract_stat7_from_embedding(embedding_list)
+            fractalstat = demo.extract_fractalstat_from_embedding(embedding_list)
 
-            assert "lineage" in stat7
-            assert 0.0 <= stat7["lineage"] <= 1.0
+            assert "lineage" in fractalstat
+            assert 0.0 <= fractalstat["lineage"] <= 1.0
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 
-    def test_extract_stat7_coordinate_normalization(self):
-        """extract_stat7_from_embedding should use hybrid normalization bounds."""
+    def test_extract_fractalstat_coordinate_normalization(self):
+        """extract_fractalstat_from_embedding should use hybrid normalization bounds."""
         try:
             from fractalstat.exp08_llm_integration import LLMIntegrationDemo
 
@@ -290,15 +290,15 @@ class TestLLMIntegrationDemo:
             # Create embedding with varied values to test normalization
             embedding = np.random.randn(384) * 10.0
 
-            stat7 = demo.extract_stat7_from_embedding(embedding)
+            fractalstat = demo.extract_fractalstat_from_embedding(embedding)
 
             # Hybrid bounds: fractal dimensions unbounded, relational
             # symmetric, intensity asymmetric
-            assert isinstance(stat7["lineage"], (int, float))
-            assert -1.0 <= stat7["adjacency"] <= 1.0
-            assert 0.0 <= stat7["luminosity"] <= 1.0
-            assert -1.0 <= stat7["polarity"] <= 1.0
-            assert isinstance(stat7["dimensionality"], (int, float))
+            assert isinstance(fractalstat["lineage"], (int, float))
+            assert -1.0 <= fractalstat["adjacency"] <= 1.0
+            assert 0.0 <= fractalstat["luminosity"] <= 1.0
+            assert -1.0 <= fractalstat["polarity"] <= 1.0
+            assert isinstance(fractalstat["dimensionality"], (int, float))
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 
@@ -325,8 +325,8 @@ class TestLLMIntegrationDemo:
             bit_chain1 = MockBitChain("id1", "content1", "data")
             bit_chain2 = MockBitChain("id2", "content2", "narrative")
 
-            emb1 = demo.embed_stat7_address(bit_chain1)
-            emb2 = demo.embed_stat7_address(bit_chain2)
+            emb1 = demo.embed_fractalstat_address(bit_chain1)
+            emb2 = demo.embed_fractalstat_address(bit_chain2)
 
             assert len(emb1) == len(emb2)
             assert len(emb1) == demo.embedding_dimension
@@ -381,7 +381,7 @@ class TestMainEntryPoint:
                     "enhanced_narrative": "Test narrative",
                     "integration_proof": "Test proof",
                 }
-                mock_demo.extract_stat7_from_embedding.return_value = {
+                mock_demo.extract_fractalstat_from_embedding.return_value = {
                     "lineage": 0.5,
                     "adjacency": 0.5,
                     "luminosity": 0.7,
@@ -389,6 +389,7 @@ class TestMainEntryPoint:
                     "dimensionality": 0.5,
                     "horizon": "scene",
                     "realm": {"type": "semantic"},
+                    "alignment": 0.5,
                 }
                 mock_demo.generate_integration_report.return_value = {
                     "technical_stack": {},

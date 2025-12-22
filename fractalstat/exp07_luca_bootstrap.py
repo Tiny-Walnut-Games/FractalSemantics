@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
+# pylint: disable=W0621,W0212,W0718,
 """
 EXP-07: LUCA Bootstrap Test
 Goal: Prove we can reconstruct entire system from LUCA (Last Universal Common Ancestor)
@@ -21,10 +22,11 @@ import time
 import uuid
 import hashlib
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Tuple, Optional
 from dataclasses import dataclass, field
+from pathlib import Path
 
-# Import STAT7 components
+# Import FractalStat components
 
 
 # ============================================================================
@@ -67,10 +69,10 @@ class TestBitChain:
         """Convert to JSON string."""
         return json.dumps(self.to_dict())
 
-    def get_stat7_address(self) -> str:
-        """Generate STAT7-like address."""
+    def get_fractalstat_address(self) -> str:
+        """Generate FractalStat-like address."""
         return (
-            f"STAT7-{self.realm[0].upper()}-{self.lineage:03d}-"
+            f"FractalStat-{self.realm[0].upper()}-{self.lineage:03d}-"
             f"50-{self.horizon[0].upper()}-50-{self.polarity[0].upper()}-{
                 self.dimensionality
             }"
@@ -137,7 +139,7 @@ class LUCABootstrapTester:
                 metadata={
                     "index": i,
                     "sequence": i,
-                    "checksum": hashlib.md5(f"entity-{i}".encode()).hexdigest()[:8],
+                    "checksum": hashlib.sha256(f"entity-{i}".encode()).hexdigest()[:8],
                 },
             )
             entities.append(entity)
@@ -351,6 +353,7 @@ class LUCABootstrapTester:
             "scale_invariance": True,
             "recursive_structure": True,
             "luca_traceability": True,
+            "information_entropy": True,
             "details": details,
         }
 
@@ -379,6 +382,19 @@ class LUCABootstrapTester:
             if entity.dimensionality != entity.lineage:
                 fractal_tests["recursive_structure"] = False
                 break
+
+        # Test information entropy: measure information preservation through encoding
+        try:
+            total_content_info = sum(len(str(e.content)) for e in entities)
+            total_address_info = sum(len(str(e.bit_chain_id) + str(e.realm) + str(e.horizon)) for e in entities)
+
+            #Fractal systems should have higher information density in structure than content
+            entropy_ratio = total_address_info / total_content_info if total_content_info > 0 else 0
+            fractal_tests["information_entropy"] = 0.5 <= entropy_ratio <= 2.0  # Reasonable range
+            details["entropy_ratio"] = entropy_ratio
+        except Exception:
+            fractal_tests["information_entropy"] = False
+            details["entropy_ratio"] = 0
 
         return fractal_tests
 
@@ -439,29 +455,29 @@ class LUCABootstrapTester:
     def run_comprehensive_test(self) -> LUCABootstrapResult:
         """Run comprehensive LUCA bootstrap test."""
         print("\n" + "=" * 70)
-        print("🌱 EXP-07: LUCA Bootstrap Test")
+        print("EXP-07: LUCA Bootstrap Test")
         print("Testing: Can we reliably reconstruct system from LUCA?")
         print("=" * 70)
 
         start_time = time.time()
 
         # Phase 1: Create test entities
-        print("\n[1/6] Creating test entities...")
-        original_entities = self.create_test_entities(10)
-        print(f"      ✓ Created {len(original_entities)} test entities")
+        print("\n [1/6] Creating test entities...")
+        original_entities = self.create_test_entities(50)
+        print(f"      Created {len(original_entities)} test entities")
         for i, e in enumerate(original_entities[:3]):
             print(
                 f"        - Entity {i}: lineage={e.lineage}, realm={e.realm}, address={
-                    e.get_stat7_address()
+                    e.get_fractalstat_address()
                 }"
             )
 
         # Phase 2: Compress to LUCA
-        print("\n[2/6] Compressing to LUCA state...")
+        print("\n [2/6] Compressing to LUCA state...")
         luca_state = self.compress_to_luca(original_entities)
-        print(f"      ✓ Compression ratio: {luca_state['compression_ratio']:.2f}x")
-        print(f"      ✓ Original size: {luca_state['total_original_size']} bytes")
-        print(f"      ✓ LUCA size: {luca_state['total_compressed_size']} bytes")
+        print(f"      OK Compression ratio: {luca_state['compression_ratio']:.2f}x")
+        print(f"      OK Original size: {luca_state['total_original_size']} bytes")
+        print(f"      OK LUCA size: {luca_state['total_compressed_size']} bytes")
 
         # Phase 3: Bootstrap from LUCA
         print("\n[3/6] Bootstrapping from LUCA state...")
@@ -470,36 +486,36 @@ class LUCABootstrapTester:
             sum(expansion_success) / len(expansion_success) if expansion_success else 0
         )
         print(
-            f"      ✓ Bootstrapped {len(bootstrapped_entities)}/{
+            f"      OK Bootstrapped {len(bootstrapped_entities)}/{
                 len(original_entities)
             } entities"
         )
-        print(f"      ✓ Success rate: {success_rate:.1%}")
+        print(f"      OK Success rate: {success_rate:.1%}")
 
         # Phase 4: Compare entities
         print("\n[4/6] Comparing original and bootstrapped entities...")
         comparison = self.compare_entities(original_entities, bootstrapped_entities)
-        print(f"      ✓ Entity recovery rate: {comparison['entity_recovery_rate']:.1%}")
+        print(f"      OK Entity recovery rate: {comparison['entity_recovery_rate']:.1%}")
         print(
-            f"      ✓ Lineage recovery rate: {comparison['lineage_recovery_rate']:.1%}"
+            f"      OK Lineage recovery rate: {comparison['lineage_recovery_rate']:.1%}"
         )
-        print(f"      ✓ Realm recovery rate: {comparison['realm_recovery_rate']:.1%}")
+        print(f"      OK Realm recovery rate: {comparison['realm_recovery_rate']:.1%}")
         print(
-            f"      ✓ Dimensionality recovery rate: {
+            f"      OK Dimensionality recovery rate: {
                 comparison['dimensionality_recovery_rate']:.1%}"
         )
         if comparison["information_loss_detected"]:
-            print("      ⚠ Information loss detected!")
+            print("      WARN Information loss detected!")
 
         # Phase 5: Test fractal properties
         print("\n[5/6] Testing fractal properties...")
         fractal_tests = self.test_fractal_properties(original_entities)
-        print(f"      ✓ Self-similarity: {fractal_tests['self_similarity']}")
-        print(f"      ✓ Scale invariance: {fractal_tests['scale_invariance']}")
-        print(f"      ✓ Recursive structure: {fractal_tests['recursive_structure']}")
-        print(f"      ✓ LUCA traceability: {fractal_tests['luca_traceability']}")
+        print(f"      OK Self-similarity: {fractal_tests['self_similarity']}")
+        print(f"      OK Scale invariance: {fractal_tests['scale_invariance']}")
+        print(f"      OK Recursive structure: {fractal_tests['recursive_structure']}")
+        print(f"      OK LUCA traceability: {fractal_tests['luca_traceability']}")
         print(
-            f"      ✓ Lineage depth: {
+            f"      OK Lineage depth: {
                 fractal_tests['details'].get('lineage_depth', 'unknown')
             }"
         )
@@ -507,22 +523,37 @@ class LUCABootstrapTester:
         # Phase 6: Test LUCA continuity
         print("\n[6/6] Testing LUCA continuity and entity health...")
         continuity = self.test_luca_continuity(original_entities)
-        print(f"      ✓ Bootstrap cycles: {continuity['bootstraps_performed']}")
-        print(f"      ✓ Bootstrap failures: {continuity['bootstrap_failures']}")
-        print(f"      ✓ Lineage continuity: {continuity['lineage_continuity']}")
+        print(f"      OK Bootstrap cycles: {continuity['bootstraps_performed']}")
+        print(f"      OK Bootstrap failures: {continuity['bootstrap_failures']}")
+        print(f"      OK Lineage continuity: {continuity['lineage_continuity']}")
         if continuity["reconstruction_errors"]:
             for err in continuity["reconstruction_errors"][:3]:
-                print(f"      ⚠ {err}")
+                print(f"      WARN {err}")
 
-        # Determine test result
+        # Determine test result with stricter validation
         elapsed = time.time() - start_time
-        all_pass = (
-            comparison["entity_recovery_rate"] >= 0.95
-            and comparison["lineage_recovery_rate"] >= 0.95
-            and fractal_tests["luca_traceability"]
-            and continuity["lineage_continuity"]
-            and continuity["bootstrap_failures"] == 0
+
+        # Comprehensive pass criteria
+        recovery_perfect = (
+            comparison["entity_recovery_rate"] >= 1.0
+            and comparison["lineage_recovery_rate"] >= 1.0
+            and comparison["realm_recovery_rate"] >= 1.0
+            and comparison["dimensionality_recovery_rate"] >= 1.0
         )
+        fractal_valid = (
+            fractal_tests["self_similarity"]
+            and fractal_tests["scale_invariance"]
+            and fractal_tests["recursive_structure"]
+            and fractal_tests["luca_traceability"]
+        )
+        continuity_valid = (
+            continuity["lineage_continuity"]
+            and continuity["bootstrap_failures"] == 0
+            and continuity["bootstraps_performed"] == 3  # All cycles completed
+        )
+        compression_valid = luca_state["compression_ratio"] > 0 and luca_state["compression_ratio"] < 1.0
+
+        all_pass = recovery_perfect and fractal_valid and continuity_valid and compression_valid
 
         status = "PASS" if all_pass else "FAIL"
 
@@ -564,6 +595,24 @@ class LUCABootstrapTester:
         return self.results
 
 
+def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> str:
+    """Save results to JSON file."""
+    if output_file is None:
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        output_file = f"exp07_luca_bootstrap_{timestamp}.json"
+
+    results_dir = Path(__file__).resolve().parent.parent / "results"
+    results_dir.mkdir(exist_ok=True)
+    output_path = str(results_dir / output_file)
+
+    with open(output_path, "w") as f:
+        json.dump(results, f, indent=2)
+        f.write("\n")
+
+    print(f"Results saved to: {output_path}")
+    return output_path
+
+
 # ============================================================================
 # Main Execution
 # ============================================================================
@@ -571,15 +620,32 @@ class LUCABootstrapTester:
 
 def main():
     """Run EXP-07 LUCA Bootstrap Test."""
+    import sys
+
     tester = LUCABootstrapTester()
     results = tester.run_comprehensive_test()
 
-    # Print summary
-    print("\n📊 SUMMARY")
+    # Save complete results to JSON file
+    saved_file = save_results(results.to_dict())
+
+    # Set exit code based on test status for orchestrator
+    success = results.status == "PASS"
+    exit_code = 0 if success else 1
+
+    # Print summary with celebration at the end
+    print("\n[SUMMARY]")
     print("-" * 70)
     print(json.dumps(results.results, indent=2))
 
-    return results
+    # Celebration at the end
+    if success:
+        print("\n[Success] EXP-07 LUCA Bootstrap: PERFECT RECONSTRUCTION ACHIEVED!")
+        print(f"  - 100% All {results.results['bootstrap']['bootstrapped_count']} entities recovered")
+        print("   - Lineage continuity: VERIFIED")
+        print("   - Fractal properties: CONFIRMED")
+        print("   - Bootstrap stability: COMPLETED")
+
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":

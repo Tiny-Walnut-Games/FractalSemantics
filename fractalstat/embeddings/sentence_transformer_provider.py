@@ -217,11 +217,11 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         except Exception as e:
             print(f"Warning: Could not save cache to {cache_file}: {e}")
 
-    def compute_stat7_from_embedding(self, embedding: List[float]) -> Dict[str, Any]:
+    def compute_fractalstat_from_embedding(self, embedding: List[float]) -> Dict[str, Any]:
         """
-        Compute STAT7 coordinates from embedding vector.
+        Compute FractalStat coordinates from embedding vector.
 
-        Maps 384D embedding to 7D STAT7 addressing space using robust
+        Maps 384D embedding to 7D FractalStat addressing space using robust
         statistical features.
         """
         import numpy as np

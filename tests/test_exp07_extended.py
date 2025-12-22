@@ -1,6 +1,7 @@
 """
 Extended tests for EXP-07 LUCA Bootstrap to achieve 95%+ coverage
 """
+# pylint: disable=protected-access
 
 import tempfile
 import json
