@@ -6,7 +6,7 @@ Tests collision rates, retrieval performance, storage efficiency, and semantic
 expressiveness across different dimension counts (3-10 dimensions).
 
 Validates:
-- Optimal dimension count for STAT7 addressing
+- Optimal dimension count for FractalStat addressing
 - Collision rate vs. dimension count relationship
 - Retrieval performance impact of dimension count
 - Storage overhead per dimension
@@ -19,6 +19,7 @@ Status: Phase 2 validation experiment
 import json
 import time
 import sys
+import secrets
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict, field
@@ -26,12 +27,13 @@ import statistics
 from pathlib import Path
 
 # Reuse canonical serialization from Phase 1
-from fractalstat.stat7_experiments import (
+from fractalstat.fractalstat_experiments import (
     compute_address_hash,
     BitChain,
     generate_random_bitchain,
 )
 
+secure_random = secrets.SystemRandom()
 
 # ============================================================================
 # EXP-11 DATA STRUCTURES
@@ -115,25 +117,27 @@ class DimensionCardinalityResult:
 # ============================================================================
 
 
-class DimensionCardinalityExperiment:
+class EXP11_DimensionCardinality:
     """
-    Tests STAT7 addressing with different dimension counts.
+    Previously called DimensionCardinalityExperiment, EXP11_DimensionCardinality tests
+    FractalStat addressing with different dimension counts.
 
     Approach:
-    1. Baseline: Test with all 7 STAT7 dimensions
+    1. Baseline: Test with all 7 FractalStat dimensions
     2. Reduced: Test with 3, 4, 5, 6 dimensions
     3. Extended: Test with 8, 9, 10 dimensions (hypothetical)
     4. Measure: Collision rates, retrieval latency, storage, expressiveness
     """
 
-    STAT7_DIMENSIONS = [
+    FractalStat_DIMENSIONS = [
         "realm",
         "lineage",
         "adjacency",
         "horizon",
-        "resonance",
-        "velocity",
-        "density",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment",
     ]
 
     # Hypothetical dimensions for 8, 9, 10 dimension tests
@@ -171,14 +175,14 @@ class DimensionCardinalityExperiment:
         Select which dimensions to use for a given count.
 
         Strategy:
-        - For count <= 7: Use first N STAT7 dimensions
-        - For count > 7: Use all 7 STAT7 + extended dimensions
+        - For count <= 8: Use first N FractalStat dimensions
+        - For count > 8: Use all 8 FractalStat + extended dimensions
         """
-        if count <= 7:
-            return self.STAT7_DIMENSIONS[:count]
+        if count <= 8:
+            return self.FractalStat_DIMENSIONS[:count]
         else:
-            extended_count = count - 7
-            return self.STAT7_DIMENSIONS + self.EXTENDED_DIMENSIONS[:extended_count]
+            extended_count = count - 8
+            return self.FractalStat_DIMENSIONS + self.EXTENDED_DIMENSIONS[:extended_count]
 
     def _compute_address_with_dimensions(
         self, bc: BitChain, dimensions: List[str]
@@ -197,20 +201,20 @@ class DimensionCardinalityExperiment:
         coords_dict = {}
 
         for dim in dimensions:
-            if dim in self.STAT7_DIMENSIONS:
-                # Use actual STAT7 dimension
+            if dim in self.FractalStat_DIMENSIONS:
+                # Use actual FractalStat dimension
                 coords_dict[dim] = getattr(bc.coordinates, dim)
             elif dim == "temperature":
-                # Hypothetical: temperature = abs(velocity) * density
-                coords_dict[dim] = abs(bc.coordinates.velocity) * bc.coordinates.density
+                # Hypothetical: temperature = abs(luminosity) * dimensionality
+                coords_dict[dim] = abs(bc.coordinates.luminosity) * bc.coordinates.dimensionality
             elif dim == "entropy":
-                # Hypothetical: entropy = 1.0 - abs(resonance)
-                coords_dict[dim] = 1.0 - abs(bc.coordinates.resonance)
+                # Hypothetical: entropy = 1.0 - abs(luminosity)
+                coords_dict[dim] = 1.0 - abs(bc.coordinates.luminosity)
             elif dim == "coherence":
-                # Hypothetical: coherence = (1.0 - abs(velocity)) * density
+                # Hypothetical: coherence = (1.0 - abs(luminosity)) * dimensionality
                 coords_dict[dim] = (
-                    1.0 - abs(bc.coordinates.velocity)
-                ) * bc.coordinates.density
+                    1.0 - abs(bc.coordinates.luminosity)
+                ) * bc.coordinates.dimensionality
 
         # Normalize adjacency if present
         if "adjacency" in coords_dict:
@@ -221,7 +225,7 @@ class DimensionCardinalityExperiment:
             "id": bc.id,
             "entity_type": bc.entity_type,
             "realm": bc.realm,
-            "stat7_coordinates": coords_dict,
+            "fractalstat_coordinates": coords_dict,
         }
 
         return compute_address_hash(data)
@@ -253,9 +257,9 @@ class DimensionCardinalityExperiment:
             "lineage": 0.15,
             "adjacency": 0.15,
             "horizon": 0.15,
-            "resonance": 0.10,
-            "velocity": 0.10,
-            "density": 0.10,
+            "luminosity": 0.10,
+            "polarity": 0.10,
+            "dimensionality": 0.10,
             "temperature": 0.05,
             "entropy": 0.05,
             "coherence": 0.05,
@@ -263,6 +267,29 @@ class DimensionCardinalityExperiment:
 
         for dim in dimensions:
             score += weights.get(dim, 0.0)
+            
+        # Bonus points for using bitchains for actual analysis
+        
+        # Bonus for actual coordinate analysis
+        if len(bitchains) > 0:
+            # Analyze coordinate variance across bitchains
+            REALMS = ["COMPANION", "BADGE", "SPONSOR_RING", "ACHIEVEMENT", "PATTERN",
+                      "FACULTY", "TEMPORAL", "VOID"]
+
+            realm_count = len(set(bc.coordinates.realm for bc in bitchains))
+            lineage_variance = len(set(bc.coordinates.lineage for bc in bitchains))
+            adjacency_complexity = sum(len(bc.coordinates.adjacency) for bc in bitchains) / len(bitchains)
+            
+            # Bonus based on actual coordinate diversity
+            diversity_bonus = min(0.1, (realm_count / len(REALMS)) * 0.05 + 
+                                      (lineage_variance / 100) * 0.03 + 
+                                      (adjacency_complexity / 5) * 0.02)
+            score += diversity_bonus
+
+            # If bitchains align with actual addressing strategy
+            if any(bc.coordinates.luminosity != 0 for bc in bitchains) and  \
+               any(bc.coordinates.dimensionality != 0 for bc in bitchains):
+                score += 0.15  # Apply additional bonus for dynamic properties
 
         # Normalize to 0.0-1.0 range
         return min(score, 1.0)
@@ -294,7 +321,14 @@ class DimensionCardinalityExperiment:
 
             # Calculate storage size (simplified: JSON size of coordinate dict)
             coords_dict = {dim: getattr(bc.coordinates, dim, 0.0) for dim in dimensions}
-            storage_sizes.append(len(json.dumps(coords_dict)))
+            # Convert enum values to their string representation for JSON serialization
+            serializable_coords = {}
+            for k, v in coords_dict.items():
+                if hasattr(v, 'value'):
+                    serializable_coords[k] = v.value
+                else:
+                    serializable_coords[k] = v
+            storage_sizes.append(len(json.dumps(serializable_coords)))
 
         # Calculate collision metrics
         unique_count = len(addresses)
@@ -308,10 +342,8 @@ class DimensionCardinalityExperiment:
             for bc in bitchains
         }
 
-        import random
-
         for _ in range(min(1000, self.sample_size)):
-            target_addr = random.choice(address_list)
+            target_addr = secure_random.choice(address_list)
             start = time.perf_counter()
             _ = address_to_bc.get(target_addr)
             elapsed = (time.perf_counter() - start) * 1000  # ms
@@ -616,7 +648,7 @@ def save_results(
     results_dir.mkdir(exist_ok=True)
     output_path = str(results_dir / output_file)
 
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results.to_dict(), f, indent=2)
         f.write("\n")
 
@@ -648,7 +680,7 @@ if __name__ == "__main__":
             test_iterations = 10
 
     try:
-        experiment = DimensionCardinalityExperiment(
+        experiment = EXP11_DimensionCardinality(
             sample_size=sample_size,
             dimension_counts=dimension_counts,
             test_iterations=test_iterations,

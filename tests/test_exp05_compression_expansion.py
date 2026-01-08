@@ -3,6 +3,8 @@ Test suite for EXP-05: Bit-Chain Compression/Expansion Losslessness Validation
 Tests compression pipeline and coordinate reconstruction.
 """
 
+from fractalstat.dynamic_enum import Polarity, Alignment
+
 
 class TestCompressionStage:
     """Test CompressionStage data structure."""
@@ -49,7 +51,8 @@ class TestBitChainCompressionPath:
         from fractalstat.exp05_compression_expansion import (
             BitChainCompressionPath,
         )
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain
+        from fractalstat.fractalstat_experiments import Coordinates as Coordinates
         from datetime import datetime, timezone
 
         coords = Coordinates(
@@ -57,9 +60,10 @@ class TestBitChainCompressionPath:
             lineage=1,
             adjacency=[],
             horizon="genesis",
-            resonance=0.5,
-            velocity=0.5,
-            density=0.5,
+            luminosity=50.0,
+            polarity=Polarity.BALANCE,
+            dimensionality=1,
+            alignment=Alignment.TRUE_NEUTRAL,
         )
 
         bc = BitChain(
@@ -74,7 +78,7 @@ class TestBitChainCompressionPath:
         path = BitChainCompressionPath(
             original_bitchain=bc,
             original_address="addr_123",
-            original_stat7_dict={},
+            original_fractalstat_dict={},
             original_serialized_size=100,
             original_luminosity=0.8,
         )
@@ -87,7 +91,8 @@ class TestBitChainCompressionPath:
         from fractalstat.exp05_compression_expansion import (
             BitChainCompressionPath,
         )
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain
+        from fractalstat.fractalstat_experiments import Coordinates as Coordinates
         from datetime import datetime, timezone
 
         coords = Coordinates(
@@ -95,9 +100,10 @@ class TestBitChainCompressionPath:
             lineage=1,
             adjacency=[],
             horizon="genesis",
-            resonance=0.5,
-            velocity=0.5,
-            density=0.5,
+            luminosity=50.0,
+            polarity=Polarity.BALANCE,
+            dimensionality=1,
+            alignment=Alignment.TRUE_NEUTRAL,
         )
 
         bc = BitChain(
@@ -112,7 +118,7 @@ class TestBitChainCompressionPath:
         path = BitChainCompressionPath(
             original_bitchain=bc,
             original_address="addr_123" * 10,
-            original_stat7_dict={"realm": "data"},
+            original_fractalstat_dict={"realm": "data"},
             original_serialized_size=100,
             original_luminosity=0.8,
         )
@@ -138,7 +144,7 @@ class TestCompressionExperimentResults:
             num_bitchains_tested=10,
             compression_paths=[],
             avg_compression_ratio=5.0,
-            avg_luminosity_decay=0.1,
+            avg_luminosity_decay_ratio=0.1,
             avg_coordinate_accuracy=0.95,
             percent_provenance_intact=100.0,
             percent_narrative_preserved=100.0,
@@ -162,7 +168,7 @@ class TestCompressionExperimentResults:
             num_bitchains_tested=10,
             compression_paths=[],
             avg_compression_ratio=5.0,
-            avg_luminosity_decay=0.1,
+            avg_luminosity_decay_ratio=0.1,
             avg_coordinate_accuracy=0.95,
             percent_provenance_intact=100.0,
             percent_narrative_preserved=100.0,
@@ -193,19 +199,21 @@ class TestCompressionPipeline:
     def test_compress_bitchain_creates_path(self):
         """compress_bitchain should create compression path with stages."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain
+        from fractalstat.fractalstat_experiments import Coordinates
         from datetime import datetime, timezone
 
         pipeline = CompressionPipeline()
 
         coords = Coordinates(
-            realm="data",
+            realm="companion",
             lineage=1,
             adjacency=[],
             horizon="genesis",
-            resonance=0.5,
-            velocity=0.5,
-            density=0.5,
+            luminosity=50.0,
+            polarity=Polarity.BALANCE,
+            dimensionality=1,
+            alignment=Alignment.TRUE_NEUTRAL,
         )
 
         bc = BitChain(
@@ -225,20 +233,22 @@ class TestCompressionPipeline:
 
     def test_compression_produces_multiple_stages(self):
         """Compression should progress through multiple stages."""
-        from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
+        from fractalstat.exp05_compression_expansion import CompressionPipeline
+        from fractalstat.fractalstat_experiments import BitChain
+        from fractalstat.fractalstat_experiments import Coordinates
 
         pipeline = CompressionPipeline()
 
         coords = Coordinates(
-            realm="narrative",
+            realm="badge",
             lineage=5,
-            adjacency=["neighbor1"],
+            adjacency=[],
             horizon="emergence",
-            resonance=0.7,
-            velocity=0.3,
-            density=0.6,
+            luminosity=65.0,
+            polarity=Polarity.CREATIVITY,
+            dimensionality=2,
+            alignment=Alignment.NEUTRAL_GOOD,
         )
 
         bc = BitChain(
@@ -262,19 +272,20 @@ class TestCompressionPipeline:
     def test_reconstruction_from_mist(self):
         """Reconstruction should recover coordinates from compressed form."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         pipeline = CompressionPipeline()
 
         coords = Coordinates(
-            realm="system",
+            realm="faculty",
             lineage=3,
             adjacency=[],
             horizon="peak",
-            resonance=0.2,
-            velocity=0.8,
-            density=0.4,
+            luminosity=70.0,
+            polarity=Polarity.CHAOS,
+            dimensionality=8,
+            alignment=Alignment.CHAOTIC_GOOD,
         )
 
         bc = BitChain(
@@ -300,7 +311,7 @@ class TestLuminosityDecay:
     def test_luminosity_decreases_through_stages(self):
         """Luminosity should decrease as data is compressed."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         pipeline = CompressionPipeline()
@@ -310,9 +321,10 @@ class TestLuminosityDecay:
             lineage=2,
             adjacency=[],
             horizon="decay",
-            resonance=0.5,
-            velocity=0.5,
-            density=0.5,
+            luminosity=55.0,
+            polarity=Polarity.CHAOS,
+            dimensionality=6,
+            alignment=Alignment.CHAOTIC_EVIL,
         )
 
         bc = BitChain(
@@ -433,7 +445,7 @@ class TestReconstructionEdgeCases:
         from fractalstat.exp05_compression_expansion import (
             CompressionPipeline,
         )
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         pipeline = CompressionPipeline()
@@ -443,9 +455,10 @@ class TestReconstructionEdgeCases:
             lineage=0,
             adjacency=[],
             horizon="genesis",
-            resonance=0.0,
-            velocity=0.0,
-            density=0.0,
+            luminosity=10.0,
+            polarity=Polarity.BALANCE,
+            dimensionality=1,
+            alignment=Alignment.NEUTRAL_GOOD,
         )
 
         bc = BitChain(
@@ -464,7 +477,7 @@ class TestReconstructionEdgeCases:
     def test_reconstruction_with_negative_velocity(self):
         """Reconstruction should handle negative velocity correctly."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         pipeline = CompressionPipeline()
@@ -474,9 +487,10 @@ class TestReconstructionEdgeCases:
             lineage=5,
             adjacency=[],
             horizon="peak",
-            resonance=-0.3,
-            velocity=-0.8,
-            density=0.5,
+            luminosity=45.0,
+            polarity=Polarity.ORDER,
+            dimensionality=7,
+            alignment=Alignment.LAWFUL_NEUTRAL,
         )
 
         bc = BitChain(
@@ -514,7 +528,7 @@ class TestReconstructionEdgeCases:
         from fractalstat.exp05_compression_expansion import (
             BitChainCompressionPath,
         )
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         coords = Coordinates(
@@ -522,9 +536,10 @@ class TestReconstructionEdgeCases:
             lineage=1,
             adjacency=[],
             horizon="genesis",
-            resonance=0.5,
-            velocity=0.5,
-            density=0.5,
+            luminosity=55.0,
+            polarity=Polarity.CHAOS,
+            dimensionality=6,
+            alignment=Alignment.CHAOTIC_EVIL,
         )
 
         bc = BitChain(
@@ -539,7 +554,7 @@ class TestReconstructionEdgeCases:
         path = BitChainCompressionPath(
             original_bitchain=bc,
             original_address="test_addr",
-            original_stat7_dict={"realm": "test"},
+            original_fractalstat_dict={"realm": "test"},
             original_serialized_size=100,
             original_luminosity=0.8,
         )
@@ -560,7 +575,7 @@ class TestReconstructionEdgeCases:
             num_bitchains_tested=0,
             compression_paths=[],
             avg_compression_ratio=0.0,
-            avg_luminosity_decay=0.0,
+            avg_luminosity_decay_ratio=0.0,
             avg_coordinate_accuracy=0.0,
             percent_provenance_intact=0.0,
             percent_narrative_preserved=0.0,
@@ -582,7 +597,7 @@ class TestBranchCoverageExp05:
             BitChainCompressionPath,
             CompressionStage,
         )
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         coords = Coordinates(
@@ -590,9 +605,10 @@ class TestBranchCoverageExp05:
             lineage=1,
             adjacency=[],
             horizon="genesis",
-            resonance=0.5,
-            velocity=0.5,
-            density=0.5,
+            luminosity=55.0,
+            polarity=Polarity.CHAOS,
+            dimensionality=6,
+            alignment=Alignment.CHAOTIC_EVIL,
         )
 
         bc = BitChain(
@@ -607,7 +623,7 @@ class TestBranchCoverageExp05:
         path = BitChainCompressionPath(
             original_bitchain=bc,
             original_address="test_addr",
-            original_stat7_dict={"realm": "test"},
+            original_fractalstat_dict={"realm": "test"},
             original_serialized_size=100,
             original_luminosity=0.8,
         )
@@ -632,7 +648,7 @@ class TestBranchCoverageExp05:
             CompressionExperimentResults,
             BitChainCompressionPath,
         )
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         coords = Coordinates(
@@ -640,9 +656,10 @@ class TestBranchCoverageExp05:
             lineage=1,
             adjacency=[],
             horizon="genesis",
-            resonance=0.5,
-            velocity=0.5,
-            density=0.5,
+            luminosity=55.0,
+            polarity=Polarity.CHAOS,
+            dimensionality=6,
+            alignment=Alignment.CHAOTIC_EVIL,
         )
 
         bc = BitChain(
@@ -657,7 +674,7 @@ class TestBranchCoverageExp05:
         path = BitChainCompressionPath(
             original_bitchain=bc,
             original_address="test_addr",
-            original_stat7_dict={"realm": "test"},
+            original_fractalstat_dict={"realm": "test"},
             original_serialized_size=100,
             original_luminosity=0.8,
         )
@@ -671,7 +688,7 @@ class TestBranchCoverageExp05:
             num_bitchains_tested=1,
             compression_paths=[path],
             avg_compression_ratio=5.0,
-            avg_luminosity_decay=0.1,
+            avg_luminosity_decay_ratio=0.1,
             avg_coordinate_accuracy=0.95,
             percent_provenance_intact=100.0,
             percent_narrative_preserved=100.0,
@@ -685,7 +702,7 @@ class TestBranchCoverageExp05:
     def test_reconstruction_realm_match(self):
         """Reconstruction should detect realm matches."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         pipeline = CompressionPipeline()
@@ -695,9 +712,10 @@ class TestBranchCoverageExp05:
             lineage=5,
             adjacency=[],
             horizon="peak",
-            resonance=0.7,
-            velocity=0.6,
-            density=0.8,
+            luminosity=75.0,
+            polarity=Polarity.CHAOS,
+            dimensionality=3,
+            alignment=Alignment.CHAOTIC_NEUTRAL,
         )
 
         bc = BitChain(
@@ -715,7 +733,7 @@ class TestBranchCoverageExp05:
     def test_reconstruction_lineage_match(self):
         """Reconstruction should detect lineage matches."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         pipeline = CompressionPipeline()
@@ -725,9 +743,10 @@ class TestBranchCoverageExp05:
             lineage=10,
             adjacency=[],
             horizon="genesis",
-            resonance=0.5,
-            velocity=0.5,
-            density=0.5,
+            luminosity=85.0,
+            polarity=Polarity.ORDER,
+            dimensionality=4,
+            alignment=Alignment.LAWFUL_GOOD,
         )
 
         bc = BitChain(
@@ -745,7 +764,7 @@ class TestBranchCoverageExp05:
     def test_reconstruction_narrative_preserved(self):
         """Reconstruction should detect narrative preservation."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         pipeline = CompressionPipeline()
@@ -755,9 +774,10 @@ class TestBranchCoverageExp05:
             lineage=3,
             adjacency=[],
             horizon="peak",
-            resonance=0.8,
-            velocity=0.7,
-            density=0.9,
+            luminosity=90.0,
+            polarity=Polarity.CREATIVITY,
+            dimensionality=5,
+            alignment=Alignment.CHAOTIC_GOOD,
         )
 
         bc = BitChain(
@@ -835,12 +855,12 @@ class TestBranchCoverageExp05:
         )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
-        assert results.avg_luminosity_decay >= 0
+        assert results.avg_luminosity_decay_ratio >= 0
 
     def test_reconstruction_exception_handling(self):
         """Reconstruction should handle exceptions gracefully."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain, Coordinates
         from datetime import datetime, timezone
 
         pipeline = CompressionPipeline()
@@ -850,9 +870,10 @@ class TestBranchCoverageExp05:
             lineage=1,
             adjacency=[],
             horizon="genesis",
-            resonance=0.5,
-            velocity=0.5,
-            density=0.5,
+            luminosity=55.0,
+            polarity=Polarity.CHAOS,
+            dimensionality=6,
+            alignment=Alignment.CHAOTIC_EVIL,
         )
 
         bc = BitChain(
@@ -928,5 +949,5 @@ class TestBranchCoverageExp05:
         )
 
         results = run_compression_expansion_test(num_bitchains=5, show_samples=False)
-        luminosity_retention = (1.0 - results.avg_luminosity_decay) * 100
+        luminosity_retention = (1.0 - results.avg_luminosity_decay_ratio) * 100
         assert 0 <= luminosity_retention <= 100

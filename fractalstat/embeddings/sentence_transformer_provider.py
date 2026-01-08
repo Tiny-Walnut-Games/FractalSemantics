@@ -3,6 +3,8 @@
 High-quality embeddings using pre-trained transformer models with CUDA support
 """
 
+# type: ignore  # Complex conditional imports that mypy cannot properly analyze
+
 import hashlib
 import json
 from pathlib import Path
@@ -17,8 +19,10 @@ if TYPE_CHECKING:
 
 try:
     from sentence_transformers import SentenceTransformer
+    _sentence_transformer_available = True
 except ImportError:
-    SentenceTransformer = None
+    SentenceTransformer = None  # type: ignore[assignment,misc]
+    _sentence_transformer_available = False
 
 
 class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
@@ -69,7 +73,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
                 "Install with: pip install sentence-transformers"
             )
 
-    def embed_text(self, text: str) -> List[float]:
+    def embed_text(self, text: str) -> List[float]:  # type: ignore
         """Generate embedding for a single text."""
         cache_key = self._get_cache_key(text)
 
@@ -80,7 +84,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         self.cache_stats["misses"] += 1
         if self.model is None:
             raise RuntimeError("Model not initialized. Call _initialize_model first.")
-        embedding: Any = self.model.encode(text, convert_to_tensor=False)
+        embedding: Any = self.model.encode(text, convert_to_tensor=False)  # type: ignore
 
         embedding_list: List[float] = (
             embedding.tolist() if hasattr(embedding, "tolist") else list(embedding)
@@ -217,11 +221,11 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         except Exception as e:
             print(f"Warning: Could not save cache to {cache_file}: {e}")
 
-    def compute_stat7_from_embedding(self, embedding: List[float]) -> Dict[str, Any]:
+    def compute_fractalstat_from_embedding(self, embedding: List[float]) -> Dict[str, Any]:
         """
-        Compute STAT7 coordinates from embedding vector.
+        Compute FractalStat coordinates from embedding vector.
 
-        Maps 384D embedding to 7D STAT7 addressing space using robust
+        Maps 384D embedding to 7D FractalStat addressing space using robust
         statistical features.
         """
         import numpy as np

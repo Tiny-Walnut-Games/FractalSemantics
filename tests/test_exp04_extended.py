@@ -37,7 +37,7 @@ class TestExp04Extended:
 
         result = run_scale_test(config)
 
-        # Should have zero collisions for STAT7
+        # Should have zero collisions for FractalStat
         assert result.collision_count == 0
         assert result.collision_rate == 0.0
 
@@ -101,6 +101,8 @@ class TestExp04Extended:
         )
 
         assert "COLLISION DETECTED" in collision_msg
+        # With collisions detected, retrieval analysis should still be present
+        assert isinstance(retrieval_msg, str)
         assert not is_fractal
 
     def test_analyze_degradation_retrieval_scaling(self):
@@ -148,6 +150,10 @@ class TestExp04Extended:
         collision_msg, retrieval_msg, is_fractal = analyze_degradation(results)
 
         assert "Zero collisions" in collision_msg
+        # Should have successful retrieval scaling analysis
+        assert isinstance(retrieval_msg, str)
+        # With good scaling data, should indicate healthy retrieval performance
+        assert "OK" in retrieval_msg or "scaling" in retrieval_msg.lower() or "scales" in retrieval_msg.lower()
         assert is_fractal
 
     def test_save_results_with_file_io(self):
@@ -236,8 +242,9 @@ class TestExp04Extended:
         collision_msg, retrieval_msg, is_fractal = analyze_degradation(single_result)
 
         assert "Zero collisions" in collision_msg
-        # With single result, retrieval analysis may be empty
-        assert is_fractal
+        # With single result, retrieval analysis should still be present (even if limited)
+        assert isinstance(retrieval_msg, str)
+        assert is_fractal  # Single result with zero collisions is considered fractal
 
     def test_results_persistence_with_actual_file_io(self):
         """Results should persist correctly with actual file I/O."""

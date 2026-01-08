@@ -24,12 +24,7 @@ from typing import Any, Dict, List, Optional
 if sys.version_info >= (3, 11):
     import tomllib
 else:
-    try:
-        import tomli as tomllib
-    except ImportError:
-        raise ImportError(
-            "tomli is required for Python < 3.11. Install with: pip install tomli"
-        )
+    import tomli as tomllib
 
 
 class ExperimentConfig:

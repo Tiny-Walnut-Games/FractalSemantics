@@ -54,7 +54,7 @@ mypy fractalstat/ --ignore-missing-imports
 - **Duration**: Up to 2 hours
 - **Action**: Runs 9 nested and standalone experiments sequentially:
 
-  **Phase 1 Doctrine (nested in `stat7_experiments.py`)**:
+  **Phase 1 Doctrine (nested in `fractalstat_experiments.py`)**:
   - **EXP-01**: Address Uniqueness Test
   - **EXP-02**: Retrieval Efficiency Test
   - **EXP-03**: Dimension Necessity Test
@@ -138,9 +138,9 @@ Set these in **GitLab → Project → Settings → CI/CD → Variables**:
 1. Push to a feature branch: `git push origin feature/new-experiment`
 2. Open merge request on GitLab
 3. Pipeline automatically runs:
-   - ✅ Quality checks (black, ruff, mypy)
-   - ✅ Validation experiments (all exp*_*.py modules)
-   - ✅ Stress tests
+   - [Success] Quality checks (black, ruff, mypy)
+   - [Success] Validation experiments (all exp*_*.py modules)
+   - [Success] Stress tests
 4. If all pass → MR can be merged; if fail → fix issues and re-push
 
 ### Create a Release
@@ -177,7 +177,7 @@ mypy fractalstat/ --ignore-missing-imports
 
 # Run all 9 Phase 1-2+ experiments (EXP-01 through EXP-09)
 # Phase 1 Doctrine (nested: EXP-01, EXP-02, EXP-03)
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Phase 2+ experiments (separate files)
 python -m fractalstat.exp04_fractal_scaling
@@ -196,7 +196,7 @@ python -m build
 ```
 
 **Total: 10 Experiments**
-- 3 Phase 1 Doctrine experiments nested in `stat7_experiments.py` (EXP-01, EXP-02, EXP-03)
+- 3 Phase 1 Doctrine experiments nested in `fractalstat_experiments.py` (EXP-01, EXP-02, EXP-03)
 - 6 Phase 2+ experiments in separate files (EXP-04 through EXP-09)
 - 1 Stress testing framework (EXP-10: Bob Stress Test)
 

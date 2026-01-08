@@ -7,9 +7,16 @@ from typing import Dict, Any, Optional, List
 from fractalstat.embeddings.base_provider import EmbeddingProvider
 from fractalstat.embeddings.local_provider import LocalEmbeddingProvider
 from fractalstat.embeddings.openai_provider import OpenAIEmbeddingProvider
-from fractalstat.embeddings.sentence_transformer_provider import (
-    SentenceTransformerEmbeddingProvider,
-)
+
+# Import sentence transformer provider conditionally
+try:
+    from fractalstat.embeddings.sentence_transformer_provider import (
+        SentenceTransformerEmbeddingProvider,
+    )
+    _SENTENCE_TRANSFORMER_AVAILABLE = True
+except (ImportError, OSError, RuntimeError):
+    SentenceTransformerEmbeddingProvider = None  # type: ignore[assignment,misc]
+    _SENTENCE_TRANSFORMER_AVAILABLE = False
 
 
 class EmbeddingProviderFactory:
@@ -18,8 +25,11 @@ class EmbeddingProviderFactory:
     PROVIDERS = {
         "local": LocalEmbeddingProvider,
         "openai": OpenAIEmbeddingProvider,
-        "sentence_transformer": SentenceTransformerEmbeddingProvider,
     }
+
+    # Add sentence transformer provider if available
+    if _SENTENCE_TRANSFORMER_AVAILABLE:
+        PROVIDERS["sentence_transformer"] = SentenceTransformerEmbeddingProvider
 
     @classmethod
     def create_provider(
@@ -42,12 +52,19 @@ class EmbeddingProviderFactory:
         cls, config: Optional[Dict[str, Any]] = None
     ) -> EmbeddingProvider:
         """Get the default embedding provider (SentenceTransformer with fallback)."""
-        try:
-            return cls.create_provider("sentence_transformer", config)
-        except ImportError:
+        if "sentence_transformer" in cls.PROVIDERS:
+            try:
+                return cls.create_provider("sentence_transformer", config)
+            except Exception:
+                print(
+                    "Warning: SentenceTransformer failed to initialize, "
+                    "falling back to LocalEmbeddingProvider"
+                )
+                return cls.create_provider("local", config)
+        else:
             print(
                 "Warning: SentenceTransformer not available, "
-                "falling back to LocalEmbeddingProvider"
+                "using LocalEmbeddingProvider"
             )
             return cls.create_provider("local", config)
 

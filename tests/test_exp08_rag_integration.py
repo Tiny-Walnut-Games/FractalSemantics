@@ -1,9 +1,10 @@
 """
 Test suite for EXP-08: RAG Integration Test
-Tests RAG document integration with STAT7 addressing system.
+Tests RAG document integration with FractalStat addressing system.
 """
 
 from unittest.mock import Mock, patch
+from fractalstat.exp08_rag_integration import RAGIntegrationTester
 
 
 class TestRAGTestResult:
@@ -133,22 +134,12 @@ class TestRAGIntegrationTester:
         assert integration["api_healthy"] is True
 
     @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.check_api_health")
-    @patch(
-        "fractalstat.exp08_rag_integration.RAGIntegrationTester.test_semantic_retrieval"
-    )
-    @patch(
-        "fractalstat.exp08_rag_integration.RAGIntegrationTester.test_hybrid_retrieval"
-    )
-    @patch(
-        "fractalstat.exp08_rag_integration.RAGIntegrationTester.check_rag_data_integration"
-    )
-    def test_run_comprehensive_test_api_down(
-        self, mock_rag, mock_hybrid, mock_semantic, mock_health
-    ):
+    @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.check_warbler_cda_availability")
+    def test_run_comprehensive_test_api_down(self, mock_warbler, mock_health):
         """run_comprehensive_test should fail gracefully if API is down."""
-        from fractalstat.exp08_rag_integration import RAGIntegrationTester
 
-        mock_health.return_value = False
+        mock_warbler.return_value = True  # Mock that Warbler CDA is available
+        mock_health.return_value = False  # Mock that API is down
 
         tester = RAGIntegrationTester()
         results = tester.run_comprehensive_test()
@@ -225,12 +216,12 @@ class TestRAGQueryStructure:
                 "query_id": "hybrid_test_1",
                 "semantic": "test query",
                 "weight_semantic": 0.6,
-                "weight_stat7": 0.4,
+                "weight_fractalstat": 0.4,
             },
         ]
 
         assert all("weight_semantic" in q for q in queries)
-        assert all("weight_stat7" in q for q in queries)
+        assert all("weight_fractalstat" in q for q in queries)
 
 
 class TestRAGResultSerialization:
@@ -265,6 +256,7 @@ class TestRAGResultSerialization:
 class TestRAGIntegrationMetrics:
     """Test metrics calculation for RAG integration."""
 
+    @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.check_warbler_cda_availability")
     @patch("fractalstat.exp08_rag_integration.RAGIntegrationTester.check_api_health")
     @patch(
         "fractalstat.exp08_rag_integration.RAGIntegrationTester.test_semantic_retrieval"
@@ -276,11 +268,12 @@ class TestRAGIntegrationMetrics:
         "fractalstat.exp08_rag_integration.RAGIntegrationTester.check_rag_data_integration"
     )
     def test_overall_metrics_calculation(
-        self, mock_rag, mock_hybrid, mock_semantic, mock_health
+        self, mock_rag, mock_hybrid, mock_semantic, mock_health, mock_warbler
     ):
         """Overall metrics should aggregate test results."""
         from fractalstat.exp08_rag_integration import RAGIntegrationTester
 
+        mock_warbler.return_value = True  # Mock that Warbler CDA is available
         mock_health.return_value = True
         mock_semantic.return_value = {
             "total_queries": 3,

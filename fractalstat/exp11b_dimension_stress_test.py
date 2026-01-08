@@ -29,18 +29,146 @@ from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
-import random
+import secrets
 
-# Reuse canonical serialization from Phase 1
-from fractalstat.stat7_experiments import (
+# Import core components
+from fractalstat.fractalstat_entity import (
     compute_address_hash,
     BitChain,
     Coordinates,
     REALMS,
     HORIZONS,
     ENTITY_TYPES,
+    POLARITY_LIST,
+    ALIGNMENT_LIST,
 )
+from fractalstat.dynamic_enum import Polarity, Alignment
 
+secure_random = secrets.SystemRandom()
+
+# ============================================================================
+# CONSTANTS AND CONFIGURATION
+# ============================================================================
+
+# Dimension constants
+FRACTALSTAT_DIMENSIONS = [
+    "realm", "lineage", "adjacency", "horizon", "luminosity",
+    "polarity", "dimensionality", "alignment"
+]
+
+# Test configuration constants
+DEFAULT_SAMPLE_SIZE = 10_000
+MAX_DIVERSITY_SAMPLE_SIZE = 1_000
+
+# Coordinate range limits for stress testing
+COORDINATE_RANGE_LIMITS = {
+    "limited": 0.1,  # ±10%
+    "very_limited": 0.01,  # ±1%
+}
+
+# Common dimension subsets for testing
+DIMENSION_SUBSETS = {
+    "minimal_3d": ["realm", "lineage", "horizon"],
+    "minimal_2d": ["realm", "lineage"],
+    "single_dimension": ["realm"],
+    "continuous_only": ["luminosity", "dimensionality", "adjacency"],
+    "categorical_only": ["realm", "horizon"],
+    "all_dimensions": FRACTALSTAT_DIMENSIONS
+}
+
+# Test scenario configurations
+@dataclass
+class TestScenario:
+    """Configuration for a single test scenario."""
+    name: str
+    description: str
+    use_unique_id: bool
+    use_unique_state: bool
+    coordinate_range_limit: Optional[float]
+    dimensions: List[str]
+
+TEST_SCENARIOS = [
+    TestScenario(
+        name="Test 1: Baseline (Full System)",
+        description="Unique IDs, unique state, full coordinate ranges, all 8 dimensions",
+        use_unique_id=True,
+        use_unique_state=True,
+        coordinate_range_limit=None,
+        dimensions=DIMENSION_SUBSETS["all_dimensions"]
+    ),
+    TestScenario(
+        name="Test 2: Fixed ID",
+        description="Same ID for all, unique state, full ranges, all 8 dimensions",
+        use_unique_id=False,
+        use_unique_state=True,
+        coordinate_range_limit=None,
+        dimensions=DIMENSION_SUBSETS["all_dimensions"]
+    ),
+    TestScenario(
+        name="Test 3: Fixed ID + Fixed State",
+        description="Same ID, same state, full ranges, all 8 dimensions",
+        use_unique_id=False,
+        use_unique_state=False,
+        coordinate_range_limit=None,
+        dimensions=DIMENSION_SUBSETS["all_dimensions"]
+    ),
+    TestScenario(
+        name="Test 4: Limited Coordinate Range",
+        description="Fixed ID, fixed state, ±10% coordinate range, all 8 dimensions",
+        use_unique_id=False,
+        use_unique_state=False,
+        coordinate_range_limit=COORDINATE_RANGE_LIMITS["limited"],
+        dimensions=DIMENSION_SUBSETS["all_dimensions"]
+    ),
+    TestScenario(
+        name="Test 5: Only 3 Dimensions",
+        description="Fixed ID, fixed state, full ranges, only 3 dimensions",
+        use_unique_id=False,
+        use_unique_state=False,
+        coordinate_range_limit=None,
+        dimensions=DIMENSION_SUBSETS["minimal_3d"]
+    ),
+    TestScenario(
+        name="Test 6: Only 2 Dimensions",
+        description="Fixed ID, fixed state, full ranges, only 2 dimensions",
+        use_unique_id=False,
+        use_unique_state=False,
+        coordinate_range_limit=None,
+        dimensions=DIMENSION_SUBSETS["minimal_2d"]
+    ),
+    TestScenario(
+        name="Test 7: Only 1 Dimension (Realm)",
+        description="Fixed ID, fixed state, full range, only realm dimension",
+        use_unique_id=False,
+        use_unique_state=False,
+        coordinate_range_limit=None,
+        dimensions=DIMENSION_SUBSETS["single_dimension"]
+    ),
+    TestScenario(
+        name="Test 8: Extreme Stress",
+        description="Fixed ID, fixed state, ±10% range, only 3 dimensions",
+        use_unique_id=False,
+        use_unique_state=False,
+        coordinate_range_limit=COORDINATE_RANGE_LIMITS["limited"],
+        dimensions=DIMENSION_SUBSETS["minimal_3d"]
+    ),
+    TestScenario(
+        name="Test 9: Continuous Dimensions Only",
+        description="Fixed ID, fixed state, full ranges, only continuous dimensions",
+        use_unique_id=False,
+        use_unique_state=False,
+        coordinate_range_limit=None,
+        dimensions=DIMENSION_SUBSETS["continuous_only"]
+    ),
+    TestScenario(
+        name="Test 10: Categorical Dimensions Only",
+        description="Fixed ID, fixed state, full ranges, only categorical dimensions",
+        use_unique_id=False,
+        use_unique_state=False,
+        coordinate_range_limit=None,
+        dimensions=DIMENSION_SUBSETS["categorical_only"]
+    ),
+]
 
 # ============================================================================
 # STRESS TEST DATA STRUCTURES
@@ -106,17 +234,15 @@ class DimensionStressTest:
     6. Extreme Stress: Fixed ID, fixed state, limited ranges, few dimensions
     """
 
-    STAT7_DIMENSIONS = [
-        "realm",
-        "lineage",
-        "adjacency",
-        "horizon",
-        "resonance",
-        "velocity",
-        "density",
-    ]
+    def __init__(self, sample_size: int = DEFAULT_SAMPLE_SIZE):
+        """
+        Initialize the stress test runner.
 
-    def __init__(self, sample_size: int = 10000):
+        Args:
+            sample_size: Number of bit-chains to generate per test scenario
+        """
+        if sample_size <= 0:
+            raise ValueError(f"Sample size must be positive, got {sample_size}")
         self.sample_size = sample_size
         self.results: List[StressTestResult] = []
 
@@ -153,41 +279,44 @@ class DimensionStressTest:
         # Coordinates: constrained or full range
         if coordinate_range_limit is not None:
             # Limited range around center values
-            realm = random.choice(REALMS[:3])  # Only first 3 realms
-            lineage = random.randint(1, 10)  # Only 1-10 instead of 1-100
+            realm = secure_random.choice(REALMS[:3])  # Only first 3 realms
+            lineage = secure_random.randint(1, 10)  # Only 1-10 instead of 1-100
             adjacency = []  # No adjacency relationships
-            horizon = random.choice(HORIZONS[:2])  # Only first 2 horizons
-            resonance = random.uniform(
+            horizon = secure_random.choice(HORIZONS[:2])  # Only first 2 horizons
+            luminosity = secure_random.uniform(
                 -coordinate_range_limit, coordinate_range_limit
             )  # Limited range
-            velocity = random.uniform(-coordinate_range_limit, coordinate_range_limit)
-            density = random.uniform(
+            polarity = Polarity(secure_random.choice(POLARITY_LIST[-2:]))  # Limited polarity values
+            dimensionality = int(secure_random.uniform(
                 0.5 - coordinate_range_limit, 0.5 + coordinate_range_limit
-            )
+            ))
+            alignment = Alignment(secure_random.choice(ALIGNMENT_LIST[:2]))  # Limited alignment values
         else:
             # Full range
-            realm = random.choice(REALMS)
-            lineage = random.randint(1, 100)
-            adjacency_count = random.randint(0, 5)
+            realm = secure_random.choice(REALMS)
+            lineage = secure_random.randint(1, 100)
+            adjacency_count = secure_random.randint(0, 5)
             adjacency = [f"adj-{index}-{i}" for i in range(adjacency_count)]
-            horizon = random.choice(HORIZONS)
-            resonance = random.uniform(-1.0, 1.0)
-            velocity = random.uniform(-1.0, 1.0)
-            density = random.uniform(0.0, 1.0)
+            horizon = secure_random.choice(HORIZONS)
+            luminosity = secure_random.uniform(0.0, 1.0)
+            polarity = Polarity(secure_random.choice(POLARITY_LIST))
+            dimensionality = secure_random.randint(0, 5)
+            alignment = Alignment(secure_random.choice(ALIGNMENT_LIST))
 
         coords = Coordinates(
             realm=realm,
             lineage=lineage,
             adjacency=adjacency,
             horizon=horizon,
-            resonance=resonance,
-            velocity=velocity,
-            density=density,
+            luminosity=luminosity,
+            polarity=polarity,
+            dimensionality=dimensionality,
+            alignment=alignment
         )
 
         return BitChain(
             id=id_str,
-            entity_type=random.choice(ENTITY_TYPES),
+            entity_type=secure_random.choice(ENTITY_TYPES),
             realm=realm,
             coordinates=coords,
             created_at="2024-01-01T00:00:00.000Z",  # Fixed timestamp
@@ -212,19 +341,21 @@ class DimensionStressTest:
                 coords_dict[dim] = sorted(bc.coordinates.adjacency)
             elif dim == "horizon":
                 coords_dict[dim] = bc.coordinates.horizon
-            elif dim == "resonance":
-                coords_dict[dim] = bc.coordinates.resonance
-            elif dim == "velocity":
-                coords_dict[dim] = bc.coordinates.velocity
-            elif dim == "density":
-                coords_dict[dim] = bc.coordinates.density
+            elif dim == "luminosity":
+                coords_dict[dim] = bc.coordinates.luminosity
+            elif dim == "polarity":
+                coords_dict[dim] = bc.coordinates.polarity
+            elif dim == "dimensionality":
+                coords_dict[dim] = bc.coordinates.dimensionality
+            elif dim == "alignment":
+                coords_dict[dim] = bc.coordinates.alignment
 
         # Create data dict for hashing
         data = {
             "id": bc.id,
             "entity_type": bc.entity_type,
             "realm": bc.realm,
-            "stat7_coordinates": coords_dict,
+            "fractalstat_coordinates": coords_dict,
             "state": bc.state,
         }
 
@@ -325,7 +456,10 @@ class DimensionStressTest:
 
     def run(self) -> Tuple[DimensionStressTestResult, bool]:
         """
-        Run all stress tests to find the breaking point.
+        Run all stress tests defined in TEST_SCENARIOS.
+
+        Returns:
+            Tuple of (results, success)
         """
         start_time = datetime.now(timezone.utc).isoformat()
         overall_start = time.time()
@@ -337,115 +471,17 @@ class DimensionStressTest:
         print(f"Sample size: {self.sample_size:,} bit-chains per test")
         print()
 
-        # Test 1: Baseline (should have zero collisions)
-        result1 = self._run_stress_test(
-            test_name="Test 1: Baseline (Full System)",
-            description="Unique IDs, unique state, full coordinate ranges, all 7 dimensions",
-            use_unique_id=True,
-            use_unique_state=True,
-            coordinate_range_limit=None,
-            dimensions_to_use=self.STAT7_DIMENSIONS,
-        )
-        self.results.append(result1)
-
-        # Test 2: Fixed ID (coordinates must provide uniqueness)
-        result2 = self._run_stress_test(
-            test_name="Test 2: Fixed ID",
-            description="Same ID for all, unique state, full ranges, all 7 dimensions",
-            use_unique_id=False,
-            use_unique_state=True,
-            coordinate_range_limit=None,
-            dimensions_to_use=self.STAT7_DIMENSIONS,
-        )
-        self.results.append(result2)
-
-        # Test 3: Fixed ID + Fixed State (only coordinates differ)
-        result3 = self._run_stress_test(
-            test_name="Test 3: Fixed ID + Fixed State",
-            description="Same ID, same state, full ranges, all 7 dimensions",
-            use_unique_id=False,
-            use_unique_state=False,
-            coordinate_range_limit=None,
-            dimensions_to_use=self.STAT7_DIMENSIONS,
-        )
-        self.results.append(result3)
-
-        # Test 4: Limited Coordinate Range (7 dimensions)
-        result4 = self._run_stress_test(
-            test_name="Test 4: Limited Coordinate Range",
-            description="Fixed ID, fixed state, ±10% coordinate range, all 7 dimensions",
-            use_unique_id=False,
-            use_unique_state=False,
-            coordinate_range_limit=0.1,
-            dimensions_to_use=self.STAT7_DIMENSIONS,
-        )
-        self.results.append(result4)
-
-        # Test 5: Only 3 Dimensions (full range)
-        result5 = self._run_stress_test(
-            test_name="Test 5: Only 3 Dimensions",
-            description="Fixed ID, fixed state, full ranges, only 3 dimensions",
-            use_unique_id=False,
-            use_unique_state=False,
-            coordinate_range_limit=None,
-            dimensions_to_use=["realm", "lineage", "horizon"],
-        )
-        self.results.append(result5)
-
-        # Test 6: Only 2 Dimensions (full range)
-        result6 = self._run_stress_test(
-            test_name="Test 6: Only 2 Dimensions",
-            description="Fixed ID, fixed state, full ranges, only 2 dimensions",
-            use_unique_id=False,
-            use_unique_state=False,
-            coordinate_range_limit=None,
-            dimensions_to_use=["realm", "lineage"],
-        )
-        self.results.append(result6)
-
-        # Test 7: Only 1 Dimension (realm only)
-        result7 = self._run_stress_test(
-            test_name="Test 7: Only 1 Dimension (Realm)",
-            description="Fixed ID, fixed state, full range, only realm dimension",
-            use_unique_id=False,
-            use_unique_state=False,
-            coordinate_range_limit=None,
-            dimensions_to_use=["realm"],
-        )
-        self.results.append(result7)
-
-        # Test 8: Extreme Stress (3 dims + limited range)
-        result8 = self._run_stress_test(
-            test_name="Test 8: Extreme Stress",
-            description="Fixed ID, fixed state, ±10% range, only 3 dimensions",
-            use_unique_id=False,
-            use_unique_state=False,
-            coordinate_range_limit=0.1,
-            dimensions_to_use=["realm", "lineage", "horizon"],
-        )
-        self.results.append(result8)
-
-        # Test 9: Continuous dimensions only (no categorical)
-        result9 = self._run_stress_test(
-            test_name="Test 9: Continuous Dimensions Only",
-            description="Fixed ID, fixed state, full ranges, only continuous dimensions",
-            use_unique_id=False,
-            use_unique_state=False,
-            coordinate_range_limit=None,
-            dimensions_to_use=["resonance", "velocity", "density"],
-        )
-        self.results.append(result9)
-
-        # Test 10: Categorical dimensions only
-        result10 = self._run_stress_test(
-            test_name="Test 10: Categorical Dimensions Only",
-            description="Fixed ID, fixed state, full ranges, only categorical dimensions",
-            use_unique_id=False,
-            use_unique_state=False,
-            coordinate_range_limit=None,
-            dimensions_to_use=["realm", "horizon"],
-        )
-        self.results.append(result10)
+        # Run all test scenarios
+        for scenario in TEST_SCENARIOS:
+            result = self._run_stress_test(
+                test_name=scenario.name,
+                description=scenario.description,
+                use_unique_id=scenario.use_unique_id,
+                use_unique_state=scenario.use_unique_state,
+                coordinate_range_limit=scenario.coordinate_range_limit,
+                dimensions_to_use=scenario.dimensions,
+            )
+            self.results.append(result)
 
         # Analyze results
         print()
@@ -520,7 +556,7 @@ class DimensionStressTest:
         overall_end = time.time()
         end_time = datetime.now(timezone.utc).isoformat()
 
-        result = DimensionStressTestResult(
+        final_result: DimensionStressTestResult = DimensionStressTestResult(
             start_time=start_time,
             end_time=end_time,
             total_duration_seconds=overall_end - overall_start,
@@ -532,7 +568,7 @@ class DimensionStressTest:
         print("[OK] EXP-11b COMPLETE")
         print("=" * 80)
 
-        return result, True
+        return final_result, True
 
 
 # ============================================================================
@@ -552,7 +588,7 @@ def save_results(
     results_dir.mkdir(exist_ok=True)
     output_path = str(results_dir / output_file)
 
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results.to_dict(), f, indent=2)
 
     print(f"Results saved to: {output_path}")
@@ -560,9 +596,17 @@ def save_results(
 
 
 if __name__ == "__main__":
-    # Parse command-line arguments
+    # Load from config or use defaults
     sample_size = 10000
+    try:
+        from fractalstat.config import ExperimentConfig
 
+        config = ExperimentConfig()
+        sample_size = config.get("EXP-11b", "sample_size", 10000)
+    except Exception:
+        pass  # Use default value set above
+
+    # Check CLI args regardless of config success (these override config)
     if "--quick" in sys.argv:
         sample_size = 1000
     elif "--full" in sys.argv:
@@ -572,8 +616,8 @@ if __name__ == "__main__":
 
     try:
         experiment = DimensionStressTest(sample_size=sample_size)
-        results, success = experiment.run()
-        output_file = save_results(results)
+        test_results, success = experiment.run()
+        output_file = save_results(test_results)
 
         print("\n" + "=" * 80)
         print("[OK] EXP-11b COMPLETE")

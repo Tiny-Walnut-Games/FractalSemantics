@@ -1,0 +1,69 @@
+runtime:
+  type: python
+  requirements: requirements_hf.txt
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+    - name: GRADIO_SERVER_NAME
+      value: "0.0.0.0"
+    - name: GRADIO_SERVER_PORT
+      value: "7860"
+
+storage:
+  - mount: /tmp
+    type: tmpfs
+    size: 1Gi
+
+resources:
+  cpu: 2
+  memory: 4Gi
+  gpu: false
+
+network:
+  public: true
+  ports:
+    - port: 7860
+      protocol: http
+      external: true
+
+scaling:
+  min_replicas: 1
+  max_replicas: 3
+  target_cpu_utilization: 70
+  target_memory_utilization: 70
+
+health:
+  readiness_probe:
+    http_get:
+      path: /health
+      port: 7860
+    initial_delay_seconds: 30
+    period_seconds: 10
+  liveness_probe:
+    http_get:
+      path: /health
+      port: 7860
+    initial_delay_seconds: 60
+    period_seconds: 30
+
+monitoring:
+  metrics:
+    enabled: true
+    path: /metrics
+    port: 7860
+  logs:
+    level: info
+    format: json
+
+security:
+  allow_unauthenticated: true
+  cors:
+    enabled: true
+    origins: ["*"]
+    methods: ["GET", "POST", "OPTIONS"]
+    headers: ["Content-Type", "Authorization"]
+
+backups:
+  enabled: false
+  schedule: "0 2 * * *"
+  retention: 7d

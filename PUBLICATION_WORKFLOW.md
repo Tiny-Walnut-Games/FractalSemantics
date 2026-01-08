@@ -53,6 +53,7 @@ git push origin v1.0.0
 ```
 
 This triggers:
+
 1. Full experiment validation
 2. Artifact archival
 3. DOI metadata generation
@@ -72,7 +73,7 @@ This triggers:
 #### EXP-01 Status: 🟡 70% Complete (Publication Ready)
 
 - [x] Issue created (#1)
-- [x] Experiment implemented (fractalstat/stat7_experiments.py)
+- [x] Experiment implemented (fractalstat/fractalstat_experiments.py)
 - [x] Validation complete (10,000 bit-chains, 0 collisions, 99.9% confidence)
 - [x] Merge request created (!4)
 - [x] Documentation complete:
@@ -128,7 +129,7 @@ For each experiment:
 
 Each release generates:
 
-```
+```none
 publication/
 ├── VERSION
 ├── CITATION.cff

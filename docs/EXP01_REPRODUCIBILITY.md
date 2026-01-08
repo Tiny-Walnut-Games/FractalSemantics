@@ -17,7 +17,7 @@ cd fractalstat
 pip install -r requirements.txt
 
 # Run experiment
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Verify results
 cat VALIDATION_RESULTS_PHASE1.json
@@ -47,9 +47,9 @@ cat VALIDATION_RESULTS_PHASE1.json
 
 | Platform | Python Version | OS Version | Status |
 |----------|---------------|------------|--------|
-| Linux | 3.9, 3.10, 3.11 | Ubuntu 20.04, 22.04 | ✅ Verified |
-| macOS | 3.9, 3.10, 3.11 | macOS 12, 13, 14 | ✅ Verified |
-| Windows | 3.9, 3.10, 3.11 | Windows 10, 11 | ✅ Verified |
+| Linux | 3.9, 3.10, 3.11 | Ubuntu 20.04, 22.04 | [Success] Verified |
+| macOS | 3.9, 3.10, 3.11 | macOS 12, 13, 14 | [Success] Verified |
+| Windows | 3.9, 3.10, 3.11 | Windows 10, 11 | [Success] Verified |
 
 ## Dependencies
 
@@ -127,17 +127,17 @@ git checkout v1.0.0  # Replace with published version tag
 pip install -r requirements.txt
 
 # Verify installation
-python -c "import fractalstat; print('✅ Installation successful')"
+python -c "import fractalstat; print('[Success] Installation successful')"
 ```
 
 ### Step 4: Run Experiment
 
 ```bash
 # Run EXP-01 (part of full validation suite)
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Or run EXP-01 only
-python -c "from fractalstat.stat7_experiments import EXP01_AddressUniqueness; \
+python -c "from fractalstat.fractalstat_experiments import EXP01_AddressUniqueness; \
            exp = EXP01_AddressUniqueness(sample_size=1000, iterations=10); \
            results, success = exp.run(); \
            print(f'Success: {success}')"
@@ -161,10 +161,10 @@ python -c "import json; \
 
 ```bash
 # Run full test suite
-pytest tests/test_stat7_experiments.py -v
+pytest tests/test_fractalstat_experiments.py -v
 
 # Run EXP-01 specific tests
-pytest tests/test_stat7_experiments.py::TestEXP01AddressUniqueness -v
+pytest tests/test_fractalstat_experiments.py::TestEXP01AddressUniqueness -v
 ```
 
 ## Random Seed Documentation
@@ -190,7 +190,7 @@ seed_i = (i - 1) * 1000
 To verify seeds are used correctly:
 
 ```python
-from fractalstat.stat7_experiments import generate_random_bitchain
+from fractalstat.fractalstat_experiments import generate_random_bitchain
 
 # Generate bit-chain with seed 0
 bc1 = generate_random_bitchain(seed=0)
@@ -200,7 +200,7 @@ bc2 = generate_random_bitchain(seed=0)
 assert bc1.id == bc2.id, "Seeds not deterministic!"
 assert bc1.compute_address() == bc2.compute_address(), "Addresses differ!"
 
-print("✅ Deterministic seeding verified")
+print("[Success] Deterministic seeding verified")
 ```
 
 ### Seed Independence
@@ -270,10 +270,10 @@ To profile execution:
 
 ```bash
 # Time the experiment
-time python -m fractalstat.stat7_experiments
+time python -m fractalstat.fractalstat_experiments
 
 # Detailed profiling
-python -m cProfile -o exp01.prof -m fractalstat.stat7_experiments
+python -m cProfile -o exp01.prof -m fractalstat.fractalstat_experiments
 python -m pstats exp01.prof
 ```
 
@@ -294,21 +294,21 @@ quick_mode = false    # Reduced sample size for testing
 ```bash
 # Use development config (quick mode)
 export FRACTALSTAT_ENV=dev
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Use CI config (balanced)
 export FRACTALSTAT_ENV=ci
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Use production config (full validation)
 export FRACTALSTAT_ENV=production
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 ```
 
 ### Programmatic Configuration
 
 ```python
-from fractalstat.stat7_experiments import EXP01_AddressUniqueness
+from fractalstat.fractalstat_experiments import EXP01_AddressUniqueness
 
 # Custom parameters
 exp = EXP01_AddressUniqueness(
@@ -519,7 +519,7 @@ pip install -r requirements.txt
 
 # Step 4: Run experiment
 echo "Step 4: Running EXP-01..."
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Step 5: Verify results
 echo "Step 5: Verifying results..."
@@ -532,16 +532,16 @@ print(f'Total collisions: {collisions}')
 print(f'Success: {success}')
 assert collisions == 0, 'Collision detected!'
 assert success == True, 'Experiment failed!'
-print('✅ Verification complete - results match published findings')
+print('[Success] Verification complete - results match published findings')
 "
 
 # Step 6: Run tests
 echo "Step 6: Running test suite..."
-pytest tests/test_stat7_experiments.py -v
+pytest tests/test_fractalstat_experiments.py -v
 
 echo ""
 echo "==================================================================="
-echo "✅ Reproduction complete!"
+echo "[Success] Reproduction complete!"
 echo "==================================================================="
 echo ""
 echo "Results saved to: VALIDATION_RESULTS_PHASE1.json"
@@ -569,7 +569,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run experiment
-CMD ["python", "-m", "fractalstat.stat7_experiments"]
+CMD ["python", "-m", "fractalstat.fractalstat_experiments"]
 ```
 
 ```bash
@@ -591,7 +591,7 @@ exp01_reproduction:
   image: python:3.11
   script:
     - pip install -r requirements.txt
-    - python -m fractalstat.stat7_experiments
+    - python -m fractalstat.fractalstat_experiments
     - python -c "import json; assert json.load(open('VALIDATION_RESULTS_PHASE1.json'))['EXP-01']['success']"
   artifacts:
     paths:

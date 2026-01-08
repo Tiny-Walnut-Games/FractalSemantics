@@ -1,6 +1,6 @@
 """
 Test suite for EXP-09: Concurrency & Thread Safety (LLM Integration)
-Tests concurrent embedding generation, narrative enhancement, and STAT7 extraction.
+Tests concurrent embedding generation, narrative enhancement, and FractalStat extraction.
 """
 
 import time
@@ -118,11 +118,11 @@ class TestConcurrentNarrativeEnhancement:
             assert "enhanced_narrative" in result
 
 
-class TestConcurrentSTAT7Extraction:
-    """Test concurrent STAT7 coordinate extraction."""
+class TestConcurrentFRACTALSTATExtraction:
+    """Test concurrent FractalStat coordinate extraction."""
 
-    def test_concurrent_stat7_extraction(self):
-        """Should extract STAT7 coordinates concurrently."""
+    def test_concurrent_fractalstat_extraction(self):
+        """Should extract FractalStat coordinates concurrently."""
         from fractalstat.exp09_concurrency import ConcurrencyTester
         import numpy as np
 
@@ -131,7 +131,7 @@ class TestConcurrentSTAT7Extraction:
         # Generate embeddings
         embeddings = [np.random.rand(384) for _ in range(5)]
 
-        results = tester.run_concurrent_stat7_extraction(embeddings, num_workers=2)
+        results = tester.run_concurrent_fractalstat_extraction(embeddings, num_workers=2)
 
         assert isinstance(results, list)
         assert len(results) == 5
@@ -144,7 +144,7 @@ class TestConcurrentSTAT7Extraction:
         tester = ConcurrencyTester()
         embeddings = [np.random.rand(384) for _ in range(3)]
 
-        results = tester.run_concurrent_stat7_extraction(embeddings, num_workers=2)
+        results = tester.run_concurrent_fractalstat_extraction(embeddings, num_workers=2)
 
         for result in results:
             assert isinstance(result, dict)
@@ -280,7 +280,7 @@ class TestConcurrencyResults:
 
         assert "embedding_throughput" in results
         assert "enhancement_throughput" in results
-        assert "stat7_extraction_throughput" in results
+        assert "fractalstat_extraction_throughput" in results
         assert "no_race_conditions" in results
 
 
@@ -381,15 +381,15 @@ class TestBranchCoverageExp09:
         results = tester.run_concurrent_enhancements(bit_chains, num_workers=None)
         assert len(results) == 1
 
-    def test_concurrent_stat7_extraction_with_default_workers(self):
-        """run_concurrent_stat7_extraction should use default workers when None."""
+    def test_concurrent_fractalstat_extraction_with_default_workers(self):
+        """run_concurrent_fractalstat_extraction should use default workers when None."""
         from fractalstat.exp09_concurrency import ConcurrencyTester
         import numpy as np
 
         tester = ConcurrencyTester()
         embeddings = [np.random.rand(384)]
 
-        results = tester.run_concurrent_stat7_extraction(embeddings, num_workers=None)
+        results = tester.run_concurrent_fractalstat_extraction(embeddings, num_workers=None)
         assert len(results) == 1
 
     def test_throughput_test_with_default_workers(self):
@@ -440,15 +440,15 @@ class TestBranchCoverageExp09:
         results = tester.run_concurrent_enhancements(bit_chains, num_workers=1)
         assert isinstance(results, list)
 
-    def test_stat7_extraction_exception_handling(self):
-        """Should handle exceptions during STAT7 extraction."""
+    def test_fractalstat_extraction_exception_handling(self):
+        """Should handle exceptions during FractalStat extraction."""
         from fractalstat.exp09_concurrency import ConcurrencyTester
         import numpy as np
 
         tester = ConcurrencyTester()
         embeddings = [np.random.rand(384)]
 
-        results = tester.run_concurrent_stat7_extraction(embeddings, num_workers=1)
+        results = tester.run_concurrent_fractalstat_extraction(embeddings, num_workers=1)
         assert isinstance(results, list)
 
     def test_race_condition_test_consistent_results(self):
@@ -563,13 +563,13 @@ class TestBranchCoverageExp09:
         results = tester.run_concurrent_enhancements(bit_chains, num_workers=2)
         assert len(results) == 3
 
-    def test_concurrent_stat7_extraction_multiple_embeddings(self):
-        """Should extract STAT7 from multiple embeddings concurrently."""
+    def test_concurrent_fractalstat_extraction_multiple_embeddings(self):
+        """Should extract FractalStat from multiple embeddings concurrently."""
         from fractalstat.exp09_concurrency import ConcurrencyTester
         import numpy as np
 
         tester = ConcurrencyTester()
         embeddings = [np.random.rand(384) for _ in range(3)]
 
-        results = tester.run_concurrent_stat7_extraction(embeddings, num_workers=2)
+        results = tester.run_concurrent_fractalstat_extraction(embeddings, num_workers=2)
         assert len(results) == 3

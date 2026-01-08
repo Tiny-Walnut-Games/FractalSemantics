@@ -4,13 +4,13 @@
 
 **Experiment ID**: EXP-02
 **Experiment Name**: Retrieval Efficiency Test
-**Status**: ✅ PASS
+**Status**: [Success] PASS
 **Phase**: Phase 1 - Core Validation
 **Date**: November 18, 2025
 
 ## Hypothesis
 
-The STAT7 addressing system enables fast retrieval of bit-chains by address, with latency scaling logarithmically or better with dataset size.
+The FractalStat 8D addressing system enables fast retrieval of bit-chains by address, with latency scaling logarithmically or better with dataset size.
 
 ## Scientific Rationale
 
@@ -61,7 +61,7 @@ The experiment validates that:
 
 For each scale S ∈ {1,000, 10,000, 100,000}:
 
-1. Generate S random bit-chains with valid STAT7 coordinates
+1. Generate S random bit-chains with valid FractalStat coordinates
 2. Compute addresses for all bit-chains
 3. Build hash table: `address_to_bc = {addr: bc for addr, bc in bit_chains}`
 

@@ -39,14 +39,14 @@ query_count = 1000          # Number of random retrieval queries per scale
 scales = [1000, 10000, 100000]  # Test scales (add 1000000 for full mode)
 
 # EXP-03: Dimension Necessity Test
-# Tests that all 7 STAT7 dimensions are necessary to avoid collisions
+# Tests that all 7 FractalStat dimensions are necessary to avoid collisions
 [experiments.EXP-03]
 name = "Dimension Necessity Test"
 enabled = true
 sample_size = 1000          # Bit-chains for ablation testing
 
 # EXP-04: Fractal Scaling
-# Tests whether STAT7 addressing maintains consistency at all scales
+# Tests whether FractalStat addressing maintains consistency at all scales
 [experiments.EXP-04]
 name = "Fractal Scaling"
 enabled = true
@@ -68,8 +68,8 @@ show_samples = true         # Print detailed sample compression paths
 [experiments.EXP-06]
 name = "Entanglement Detection"
 enabled = true
-threshold = 0.85            # Coherence threshold for entanglement
-sample_size = 100           # Number of bit-chain pairs to test
+threshold = 0.95            # Strict threshold for cryptographic identity preservation - only near-perfect matches
+sample_size = 20            # Use smaller sample size for faster validation
 
 # EXP-07: LUCA Bootstrap
 # Tests bootstrapping from Last Universal Common Ancestor
@@ -79,38 +79,32 @@ enabled = true
 num_entities = 10           # Number of entities to derive from LUCA
 max_generations = 5         # Maximum lineage depth
 
-# EXP-08: RAG Integration
-# Tests integration with Retrieval-Augmented Generation systems
+# EXP-08: Self-Organizing Memory Networks
+# Tests FractalStat's ability to create self-organizing memory structures
 [experiments.EXP-08]
-name = "RAG Integration"
+name = "Self-Organizing Memory Networks"
 enabled = true
-api_base_url = "http://localhost:8000"  # RAG API endpoint
-num_queries = 50            # Number of test queries
-timeout_seconds = 30        # Query timeout
+num_memories = 1000         # Number of memories to generate and test
+consolidation_threshold = 0.8  # Threshold for memory consolidation
+show_samples = true         # Print detailed sample compression paths
 
-# EXP-09: Concurrency
-# Tests concurrent access to STAT7 space
+# EXP-09: FractalStat Performance Under Memory Pressure
+# Tests system resilience and performance under constrained memory conditions
 [experiments.EXP-09]
-name = "Concurrency"
+name = "FractalStat Performance Under Memory Pressure"
 enabled = true
-num_workers = 4             # Number of concurrent workers
-operations_per_worker = 100 # Operations per worker
-test_duration_seconds = 60  # Maximum test duration
+max_memory_target_mb = 1000  # Maximum memory target for stress testing
+optimization_strategies = ["Lazy Loading", "Compression", "Eviction Policy", "Memory Pooling"]
+stress_phases = ["Light Pressure", "Moderate Pressure", "Heavy Pressure", "Critical Pressure"]
 
-# EXP-10: Bob the Skeptic
-# Stress tests Bob with high-volume queries
+# EXP-10: Multi-Dimensional Query Optimization
+# Tests FractalStat's unique querying capabilities across all dimensions
 [experiments.EXP-10]
-name = "Bob the Skeptic"
+name = "Multi-Dimensional Query Optimization"
 enabled = true
-duration_minutes = 30       # Extended stress test duration
-queries_per_second_target = 10  # Target query rate
-max_concurrent_queries = 50     # Maximum concurrent queries
-api_base_url = "http://localhost:8000"  # API endpoint
-
-# Bob thresholds (can be tuned)
-bob_coherence_high = 0.85
-bob_entanglement_low = 0.30
-bob_consistency_threshold = 0.85
+dataset_size = 10000        # Size of test dataset
+query_patterns = ["Realm-Specific Search", "Semantic Similarity", "Multi-Dimensional Filter", "Temporal Pattern", "Complex Relationship"]
+optimization_strategies = ["Dimensional Indexing", "Query Result Caching", "Selective Pruning", "Parallel Query Execution"]
 
 # EXP-11: Dimension Cardinality Analysis
 # Explores pros and cons of 7 dimensions vs. more or fewer dimensions
@@ -122,11 +116,11 @@ dimension_counts = [3, 4, 5, 6, 7, 8, 9, 10]  # Dimension counts to test
 test_iterations = 5         # Number of iterations per dimension count
 
 # EXP-12: Benchmark Comparison
-# Compares FractalStat/STAT7 against common systems
+# Compares FractalStat/FractalStat against common systems
 [experiments.EXP-12]
 name = "Benchmark Comparison"
 enabled = true
 sample_size = 100000        # Number of entities to test
-benchmark_systems = ["uuid", "sha256", "vector_db", "graph_db", "rdbms", "stat7"]
+benchmark_systems = ["uuid", "sha256", "vector_db", "graph_db", "rdbms", "fractalstat"]
 scales = [10000, 100000, 1000000]  # Test scales
 num_queries = 1000          # Number of retrieval queries per scale

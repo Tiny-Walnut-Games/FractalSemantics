@@ -8,6 +8,17 @@ from pathlib import Path
 from unittest.mock import patch, mock_open
 
 
+def _check_pytorch_available():
+    """Check if PyTorch is available and can be imported without DLL issues."""
+    try:
+        import torch
+        # Try to use torch to ensure it's not just importable but actually functional
+        torch.tensor([1.0, 2.0])
+        return True
+    except (ImportError, OSError, RuntimeError):
+        return False
+
+
 class TestSentenceTransformerExtended:
     """Extended tests for SentenceTransformerEmbeddingProvider."""
 
@@ -166,50 +177,50 @@ class TestSentenceTransformerExtended:
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 
-    def test_sentence_transformer_compute_stat7_from_embedding(self):
-        """compute_stat7_from_embedding should return valid STAT7 coordinates."""
+    def test_sentence_transformer_compute_fractalstat_from_embedding(self):
+        """compute_fractalstat_from_embedding should return valid FractalStat coordinates."""
         try:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
 
             provider = SentenceTransformerEmbeddingProvider()
-            embedding = provider.embed_text("test text for stat7")
+            embedding = provider.embed_text("test text for fractalstat")
 
-            stat7 = provider.compute_stat7_from_embedding(embedding)
+            fractalstat = provider.compute_fractalstat_from_embedding(embedding)
 
-            assert "lineage" in stat7
-            assert "adjacency" in stat7
-            assert "luminosity" in stat7
-            assert "polarity" in stat7
-            assert "dimensionality" in stat7
-            assert "horizon" in stat7
-            assert "realm" in stat7
+            assert "lineage" in fractalstat
+            assert "adjacency" in fractalstat
+            assert "luminosity" in fractalstat
+            assert "polarity" in fractalstat
+            assert "dimensionality" in fractalstat
+            assert "horizon" in fractalstat
+            assert "realm" in fractalstat
 
             # Hybrid bounds: fractal dimensions unbounded, relational
             # symmetric, intensity asymmetric
-            assert isinstance(stat7["lineage"], (int, float))
-            assert -1.0 <= stat7["adjacency"] <= 1.0
-            assert 0.0 <= stat7["luminosity"] <= 1.0
-            assert -1.0 <= stat7["polarity"] <= 1.0
-            assert isinstance(stat7["dimensionality"], (int, float))
+            assert isinstance(fractalstat["lineage"], (int, float))
+            assert -1.0 <= fractalstat["adjacency"] <= 1.0
+            assert 0.0 <= fractalstat["luminosity"] <= 1.0
+            assert -1.0 <= fractalstat["polarity"] <= 1.0
+            assert isinstance(fractalstat["dimensionality"], (int, float))
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 
-    def test_sentence_transformer_compute_stat7_empty_embedding(self):
-        """compute_stat7_from_embedding should handle empty embedding."""
+    def test_sentence_transformer_compute_fractalstat_empty_embedding(self):
+        """compute_fractalstat_from_embedding should handle empty embedding."""
         try:
             from fractalstat.embeddings.sentence_transformer_provider import (
                 SentenceTransformerEmbeddingProvider,
             )
 
             provider = SentenceTransformerEmbeddingProvider()
-            stat7 = provider.compute_stat7_from_embedding([])
+            fractalstat = provider.compute_fractalstat_from_embedding([])
 
             # Should return default values
-            assert stat7["lineage"] == 0.5
-            assert stat7["adjacency"] == 0.5
-            assert stat7["luminosity"] == 0.7
+            assert fractalstat["lineage"] == 0.5
+            assert fractalstat["adjacency"] == 0.5
+            assert fractalstat["luminosity"] == 0.7
         except ImportError:
             pytest.skip("sentence-transformers not installed")
 

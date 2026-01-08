@@ -1,0 +1,106 @@
+{
+  "test_summary": {
+    "start_time": "2025-12-07T21:11:18.933070",
+    "end_time": "2025-12-07T21:12:22.194906",
+    "duration_seconds": 63.261836,
+    "duration_minutes": 1.0543639333333334
+  },
+  "volume_metrics": {
+    "total_queries": 7,
+    "successful_queries": 2,
+    "failed_queries": 5,
+    "success_rate": 0.2857142857142857,
+    "queries_per_second_target": 0.1,
+    "queries_per_second_actual": 0.11065123054601197
+  },
+  "performance_metrics": {
+    "avg_query_time_ms": 6957.603812217712,
+    "median_query_time_ms": 6957.603812217712,
+    "p95_query_time_ms": 7360.65388917923,
+    "p99_query_time_ms": 7396.48056268692
+  },
+  "bob_analysis": {
+    "total_decisions": 2,
+    "passed": 2,
+    "verified": 0,
+    "quarantined": 0,
+    "alert_rate": 0.0,
+    "quarantine_rate": 0.0
+  },
+  "query_type_analysis": {
+    "memory_consolidation": {
+      "total": 1,
+      "errors": 0,
+      "quarantined": 0
+    },
+    "behavioral_patterns": {
+      "total": 1,
+      "errors": 0,
+      "quarantined": 0
+    }
+  },
+  "detailed_results": [
+    {
+      "timestamp": "2025-12-07T21:11:25.442840",
+      "query_id": "stress_1765159878933_6651",
+      "query_type": "memory_consolidation",
+      "query_time": 6.509770393371582,
+      "bob_status": "PASSED",
+      "result_count": 10,
+      "npc": "Nova",
+      "location": "Time Keepers",
+      "emotion": "determined",
+      "activity": "mourning",
+      "hybrid": false,
+      "coherence": 0.0,
+      "entanglement": 0.0,
+      "bob_verification_log": null
+    },
+    {
+      "timestamp": "2025-12-07T21:11:35.778220",
+      "query_id": "stress_1765159888949_1669",
+      "error": "HTTP 500: {\"detail\":\"'type'\"}",
+      "query_time": 6.828317880630493
+    },
+    {
+      "timestamp": "2025-12-07T21:11:45.087634",
+      "query_id": "stress_1765159898950_4130",
+      "error": "HTTP 500: {\"detail\":\"'type'\"}",
+      "query_time": 6.1371986865997314
+    },
+    {
+      "timestamp": "2025-12-07T21:11:55.852309",
+      "query_id": "stress_1765159908964_6384",
+      "error": "HTTP 500: {\"detail\":\"'type'\"}",
+      "query_time": 6.887849569320679
+    },
+    {
+      "timestamp": "2025-12-07T21:12:06.387515",
+      "query_id": "stress_1765159918982_8843",
+      "query_type": "behavioral_patterns",
+      "query_time": 7.405437231063843,
+      "bob_status": "PASSED",
+      "result_count": 10,
+      "npc": "Finn",
+      "location": "Shadow Market",
+      "emotion": "peaceful",
+      "activity": "healing",
+      "hybrid": false,
+      "coherence": 0.0,
+      "entanglement": 0.0,
+      "bob_verification_log": null
+    },
+    {
+      "timestamp": "2025-12-07T21:12:15.160018",
+      "query_id": "stress_1765159928948_1869",
+      "error": "HTTP 500: {\"detail\":\"'type'\"}",
+      "query_time": 6.211925506591797
+    },
+    {
+      "timestamp": "2025-12-07T21:12:22.194390",
+      "query_id": "stress_1765159935160_8994",
+      "error": "HTTP 500: {\"detail\":\"'type'\"}",
+      "query_time": 7.034372329711914
+    }
+  ]
+}

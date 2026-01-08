@@ -23,7 +23,7 @@ def generate_doi_metadata(version: str) -> dict:
         ],
         "description": (
             "FractalStat is a research package containing 10 validation experiments "
-            "that prove the STAT7 addressing system works at scale. STAT7 is a "
+            "that prove the FractalStat addressing system works at scale. FractalStat is a "
             "7-dimensional coordinate system for uniquely addressing data in fractal "
             "information spaces. The 7 dimensions are: Realm, Lineage, Adjacency, "
             "Horizon, Resonance, Velocity, and Density."
@@ -36,7 +36,7 @@ def generate_doi_metadata(version: str) -> dict:
             "7-dimensional",
             "information-retrieval",
             "semantic-search",
-            "STAT7",
+            "FractalStat",
             "RAG",
             "vector-database",
         ],
@@ -51,7 +51,7 @@ def generate_doi_metadata(version: str) -> dict:
         "references": [],
         "notes": (
             "This software package includes 10 comprehensive validation experiments "
-            "demonstrating the effectiveness of the STAT7 7-dimensional addressing system."
+            "demonstrating the effectiveness of the FractalStat 7-dimensional addressing system."
         ),
     }
     return metadata
@@ -77,7 +77,7 @@ keywords:
   - 7-dimensional
   - information-retrieval
   - semantic-search
-  - STAT7
+  - FractalStat
 """
     return cff
 

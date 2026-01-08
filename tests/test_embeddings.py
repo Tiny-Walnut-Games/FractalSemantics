@@ -6,6 +6,30 @@ import pytest
 import math
 
 
+def pytest_configure(config):
+    """Configure pytest with custom markers."""
+    config.addinivalue_line("markers", "requires_pytorch: mark test as requiring PyTorch")
+
+
+def _check_pytorch_available():
+    """Check if PyTorch is available and can be imported without DLL issues."""
+    try:
+        import torch
+        # Try to use torch to ensure it's not just importable but actually functional
+        torch.tensor([1.0, 2.0])
+        return True
+    except (ImportError, OSError, RuntimeError):
+        return False
+
+
+@pytest.fixture(autouse=True)
+def skip_if_pytorch_unavailable(request):
+    """Automatically skip tests that require PyTorch if it's not available."""
+    if request.node.get_closest_marker("requires_pytorch"):
+        if not _check_pytorch_available():
+            pytest.skip("PyTorch not available or not functional")
+
+
 class TestEmbeddingProviderBase:
     """Test EmbeddingProvider abstract base class directly."""
 
@@ -338,8 +362,8 @@ class TestSentenceTransformerEmbeddingProvider:
             assert provider.model_name == "all-MiniLM-L6-v2"
             assert provider.cache_dir == ".embedding_cache"
             assert isinstance(provider.cache, dict)
-        except ImportError:
-            pytest.skip("sentence-transformers not installed")
+        except (ImportError, OSError, RuntimeError):
+            pytest.skip("sentence-transformers or PyTorch not available")
 
     def test_sentence_transformer_custom_config(self):
         """SentenceTransformerEmbeddingProvider should accept custom config."""
@@ -357,8 +381,8 @@ class TestSentenceTransformerEmbeddingProvider:
 
             assert provider.batch_size == 64
             assert provider.cache_dir == ".test_cache"
-        except ImportError:
-            pytest.skip("sentence-transformers not installed")
+        except (ImportError, OSError, RuntimeError):
+            pytest.skip("sentence-transformers or PyTorch not available")
 
     def test_sentence_transformer_embed_text_returns_list(self):
         """embed_text should return list of floats."""
@@ -373,8 +397,8 @@ class TestSentenceTransformerEmbeddingProvider:
             assert isinstance(embedding, list)
             assert len(embedding) > 0
             assert all(isinstance(x, float) for x in embedding)
-        except ImportError:
-            pytest.skip("sentence-transformers not installed")
+        except (ImportError, OSError, RuntimeError):
+            pytest.skip("sentence-transformers or PyTorch not available")
 
     def test_sentence_transformer_cache_key_deterministic(self):
         """Cache keys should be deterministic for same text."""
@@ -388,8 +412,8 @@ class TestSentenceTransformerEmbeddingProvider:
             key2 = provider._get_cache_key("test")
 
             assert key1 == key2
-        except ImportError:
-            pytest.skip("sentence-transformers not installed")
+        except (ImportError, OSError, RuntimeError):
+            pytest.skip("sentence-transformers or PyTorch not available")
 
     def test_sentence_transformer_semantic_search_structure(self):
         """semantic_search should return list of tuples."""
@@ -406,8 +430,8 @@ class TestSentenceTransformerEmbeddingProvider:
             assert isinstance(results, list)
             assert len(results) <= 2
             assert all(isinstance(r, tuple) and len(r) == 2 for r in results)
-        except ImportError:
-            pytest.skip("sentence-transformers not installed")
+        except (ImportError, OSError, RuntimeError):
+            pytest.skip("sentence-transformers or PyTorch not available")
 
     def test_sentence_transformer_provider_info(self):
         """get_provider_info should return complete information."""
@@ -424,8 +448,8 @@ class TestSentenceTransformerEmbeddingProvider:
             assert "batch_size" in info
             assert "cache_stats" in info
             assert "cache_size" in info
-        except ImportError:
-            pytest.skip("sentence-transformers not installed")
+        except (ImportError, OSError, RuntimeError):
+            pytest.skip("sentence-transformers or PyTorch not available")
 
 
 class TestEmbeddingProviderFactory:
@@ -457,8 +481,8 @@ class TestEmbeddingProviderFactory:
             provider = EmbeddingProviderFactory.create_provider("sentence_transformer")
             assert provider is not None
             assert provider.__class__.__name__ == "SentenceTransformerEmbeddingProvider"
-        except ImportError:
-            pytest.skip("sentence-transformers not installed")
+        except (ImportError, OSError, RuntimeError):
+            pytest.skip("sentence-transformers or PyTorch not available")
 
     def test_factory_unknown_provider_raises(self):
         """Factory should raise ValueError for unknown provider."""
