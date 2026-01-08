@@ -927,11 +927,12 @@ def compute_validation_metrics(
     """
 
     # Normalize pairs (always smaller ID first)
-    def normalize(pair):
-        return tuple(sorted(pair))
+    def normalize(pair: Tuple[str, str]) -> Tuple[str, str]:
+        sorted_pair: List[str] = sorted(pair)
+        return (sorted_pair[0], sorted_pair[1])
 
-    true_set = set(normalize(p) for p in true_pairs)
-    detected_set = set(normalize(p) for p in detected_pairs)
+    true_set: Set[Tuple[str, str]] = set(normalize(p) for p in true_pairs)
+    detected_set: Set[Tuple[str, str]] = set(normalize(p) for p in detected_pairs)
 
     # Confusion matrix
     true_positives = len(true_set & detected_set)

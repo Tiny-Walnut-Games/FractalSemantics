@@ -1,0 +1,56 @@
+{
+  "experiment": "EXP-04",
+  "test_type": "Fractal Scaling",
+  "start_time": "2026-01-08T23:09:48.889584+00:00",
+  "end_time": "2026-01-08T23:09:48.972078+00:00",
+  "total_duration_seconds": 0.082,
+  "scales_tested": 2,
+  "scale_results": [
+    {
+      "scale": 100,
+      "num_bitchains": 100,
+      "num_addresses": 100,
+      "unique_addresses": 100,
+      "collision_count": 0,
+      "collision_rate_percent": 0.0,
+      "retrieval": {
+        "num_queries": 100,
+        "mean_ms": 0.000427,
+        "median_ms": 0.0002,
+        "p95_ms": 0.0005,
+        "p99_ms": 0.0158
+      },
+      "performance": {
+        "total_time_seconds": 0.008,
+        "addresses_per_second": 12233
+      },
+      "valid": true
+    },
+    {
+      "scale": 1000,
+      "num_bitchains": 1000,
+      "num_addresses": 1000,
+      "unique_addresses": 1000,
+      "collision_count": 0,
+      "collision_rate_percent": 0.0,
+      "retrieval": {
+        "num_queries": 100,
+        "mean_ms": 0.000374,
+        "median_ms": 0.0002,
+        "p95_ms": 0.0003,
+        "p99_ms": 0.0174
+      },
+      "performance": {
+        "total_time_seconds": 0.071,
+        "addresses_per_second": 14065
+      },
+      "valid": true
+    }
+  ],
+  "degradation_analysis": {
+    "collision_degradation": "OK Zero collisions at all scales",
+    "retrieval_degradation": "OK Retrieval latency scales logarithmically (1.14x for 10x scale)"
+  },
+  "is_fractal": true,
+  "all_valid": true
+}

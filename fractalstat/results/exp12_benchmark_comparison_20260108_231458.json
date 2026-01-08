@@ -1,0 +1,98 @@
+{
+  "experiment": "EXP-12",
+  "test_type": "Benchmark Comparison",
+  "start_time": "2026-01-08T23:14:57.888029+00:00",
+  "end_time": "2026-01-08T23:14:58.086611+00:00",
+  "total_duration_seconds": 0.199,
+  "sample_size": 1000,
+  "scales_tested": [
+    1000
+  ],
+  "num_queries": 100,
+  "systems_tested": [
+    "uuid",
+    "sha256",
+    "fractalstat"
+  ],
+  "comparative_analysis": {
+    "best_collision_rate": "UUID",
+    "best_retrieval_latency": "FractalStat",
+    "best_storage_efficiency": "UUID",
+    "best_semantic_expressiveness": "FractalStat",
+    "best_overall": "FractalStat"
+  },
+  "fractalstat_positioning": {
+    "rank_collision": 3,
+    "rank_retrieval": 1,
+    "rank_storage": 2,
+    "rank_semantic": 1,
+    "overall_score": 0.56,
+    "competitive": false
+  },
+  "major_findings": [
+    "Best collision rate: UUID (0.000000%)",
+    "Best retrieval latency: FractalStat (0.0003ms)",
+    "Best storage efficiency: UUID (634 bytes/entity)",
+    "Best semantic expressiveness: FractalStat (0.95)",
+    "Best overall: FractalStat",
+    "FractalStat rankings: Collision #3, Retrieval #1, Storage #2, Semantic #1",
+    "FractalStat overall score: 0.560",
+    "[OK] FractalStat excels at semantic expressiveness (multi-dimensional addressing)",
+    "[OK] FractalStat competitive on collision rates (deterministic addressing)",
+    "[TRADE-OFF] FractalStat has higher storage overhead (7 dimensions)",
+    "[OK] FractalStat competitive on retrieval latency (hash-based lookup)"
+  ],
+  "system_results": [
+    {
+      "system_name": "UUID",
+      "scale": 1000,
+      "num_queries": 100,
+      "unique_addresses": 1000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.0002890010364353657,
+      "median_retrieval_latency_ms": 0.000200001522898674,
+      "p95_retrieval_latency_ms": 0.000400003045797348,
+      "p99_retrieval_latency_ms": 0.002800021320581436,
+      "avg_storage_bytes_per_entity": 634,
+      "total_storage_bytes": 634196,
+      "semantic_expressiveness": 0.0,
+      "relationship_support": 0.0,
+      "query_flexibility": 0.1
+    },
+    {
+      "system_name": "SHA256",
+      "scale": 1000,
+      "num_queries": 100,
+      "unique_addresses": 1000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.000293985940515995,
+      "median_retrieval_latency_ms": 0.0002998858690261841,
+      "p95_retrieval_latency_ms": 0.000500120222568512,
+      "p99_retrieval_latency_ms": 0.001800013706088066,
+      "avg_storage_bytes_per_entity": 635,
+      "total_storage_bytes": 635117,
+      "semantic_expressiveness": 0.1,
+      "relationship_support": 0.0,
+      "query_flexibility": 0.2
+    },
+    {
+      "system_name": "FractalStat",
+      "scale": 1000,
+      "num_queries": 100,
+      "unique_addresses": 1000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.0002650008536875248,
+      "median_retrieval_latency_ms": 0.00024994369596242905,
+      "p95_retrieval_latency_ms": 0.000400003045797348,
+      "p99_retrieval_latency_ms": 0.001400010660290718,
+      "avg_storage_bytes_per_entity": 634,
+      "total_storage_bytes": 634375,
+      "semantic_expressiveness": 0.95,
+      "relationship_support": 0.8,
+      "query_flexibility": 0.9
+    }
+  ]
+}

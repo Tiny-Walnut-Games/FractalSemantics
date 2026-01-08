@@ -220,7 +220,7 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
         adjacency=adjacency_score,
         horizon=horizon_enum,
         luminosity=luminosity_val,
-        polarity=Polarity(polarity_val.upper()),
+        polarity=Polarity(polarity_val),
         dimensionality=dimensionality_val,
         alignment=alignment_val,
     )
@@ -235,7 +235,7 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
             adjacency=adjacency_ids,  # Keep as list for BitChain
             horizon=horizon_str,
             luminosity=luminosity_val,
-            polarity=Polarity(polarity_val.upper()),
+            polarity=Polarity(polarity_val),
             dimensionality=dimensionality_val,
             alignment=alignment_val,
         ),

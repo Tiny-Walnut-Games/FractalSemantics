@@ -882,7 +882,7 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
             adjacency=adjacency_ids,
             horizon=secure_random.choice(HORIZONS),
             luminosity=luminosity_val,
-            polarity=Polarity(polarity_val.upper()),  # Use constructor instead of indexing
+            polarity=Polarity(polarity_val),  # Use constructor with correct case
             dimensionality=dimensionality_val,
             alignment=alignment_val,
         ),
