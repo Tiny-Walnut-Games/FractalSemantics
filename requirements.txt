@@ -1,13 +1,21 @@
+# Core dependencies for FractalStat
 pydantic>=2.0.0
 numpy>=1.20.0
+click>=8.1.0
+tomli>=2.0.0; python_version < "3.11"
+
+# ML dependencies (optional but recommended)
 torch>=2.0.0
 transformers>=4.30.0
 sentence-transformers>=2.2.0
 fastapi>=0.104.0
 uvicorn>=0.24.0
-click>=8.1.0
-tomli>=2.0.0; python_version < '3.11'
 
-# Optional: For figure generation (EXP-01, EXP-03 and other experiments)
-# Uncomment to install:
-matplotlib>=3.5.0
+# Development dependencies
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+black>=22.0.0
+ruff>=0.1.0
+mypy>=1.0.0
+types-click>=8.1.0
+types-requests>=2.28.0

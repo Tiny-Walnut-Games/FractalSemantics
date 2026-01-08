@@ -1,0 +1,87 @@
+{
+  "experiment": "EXP-07",
+  "title": "LUCA Bootstrap Test",
+  "timestamp": "2025-12-08T01:06:14.081870+00:00",
+  "status": "PASS",
+  "results": {
+    "compression": {
+      "ratio": 0.8740418854487295,
+      "original_size": 16569,
+      "luca_size": 14482
+    },
+    "bootstrap": {
+      "bootstrapped_count": 50,
+      "success_rate": 1.0
+    },
+    "comparison": {
+      "entity_recovery_rate": 1.0,
+      "lineage_recovery_rate": 1.0,
+      "realm_recovery_rate": 1.0,
+      "dimensionality_recovery_rate": 1.0,
+      "information_loss": false
+    },
+    "fractal": {
+      "lineages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "structural_consistency": true,
+      "lineage_depth": 50,
+      "entropy_ratio": 1.2705882352941176
+    },
+    "continuity": {
+      "cycles_performed": 3,
+      "failures": 0,
+      "lineage_preserved": true
+    },
+    "elapsed_time": "0.01s"
+  }
+}
