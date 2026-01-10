@@ -1,0 +1,48 @@
+{
+  "total_scales_tested": 3,
+  "all_passed": true,
+  "results": [
+    {
+      "scale": 1000,
+      "queries": 5000,
+      "mean_latency_ms": 0.0005516984965652227,
+      "median_latency_ms": 0.0004998873919248581,
+      "p95_latency_ms": 0.00090012326836586,
+      "p99_latency_ms": 0.001200009137392044,
+      "min_latency_ms": 0.0002998858690261841,
+      "max_latency_ms": 0.022799940779805183,
+      "cache_hit_rate": 1.0,
+      "memory_pressure": 0.08505349259721373,
+      "warmup_time_ms": 0.2413999754935503,
+      "success": true
+    },
+    {
+      "scale": 10000,
+      "queries": 5000,
+      "mean_latency_ms": 0.0008214982692152262,
+      "median_latency_ms": 0.0006998889148235321,
+      "p95_latency_ms": 0.0010998919606208801,
+      "p99_latency_ms": 0.001400010660290718,
+      "min_latency_ms": 0.0002998858690261841,
+      "max_latency_ms": 0.04169996827840805,
+      "cache_hit_rate": 1.0,
+      "memory_pressure": 0.19594344815514983,
+      "warmup_time_ms": 1.9548998679965734,
+      "success": true
+    },
+    {
+      "scale": 100000,
+      "queries": 5000,
+      "mean_latency_ms": 0.0008289599325507879,
+      "median_latency_ms": 0.000800006091594696,
+      "p95_latency_ms": 0.001100124791264534,
+      "p99_latency_ms": 0.0012998934835195541,
+      "min_latency_ms": 0.0002998858690261841,
+      "max_latency_ms": 0.02359994687139988,
+      "cache_hit_rate": 1.0,
+      "memory_pressure": 1.3232429650933961,
+      "warmup_time_ms": 1.9092001020908356,
+      "success": true
+    }
+  ]
+}

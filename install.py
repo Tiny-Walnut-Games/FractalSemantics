@@ -71,7 +71,8 @@ class FractalStatInstaller:
                     cpuinfo = f.read()
                     if 'Raspberry Pi' in cpuinfo:
                         is_raspberry_pi = True
-            except:
+            except (FileNotFoundError, PermissionError, OSError) as e:
+                print(f"Warning: Could not detect Raspberry Pi: {e}")
                 pass
 
         platform_info = {

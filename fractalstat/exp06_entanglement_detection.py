@@ -18,8 +18,9 @@ Status: Phase 1 Mathematical Validation COMPLETE; proceeding with Phase 2 robust
 """
 
 import math
-from typing import Dict, List, Tuple, Set, Any
+from typing import Dict, List, Tuple, Set, Any, Optional
 from dataclasses import dataclass
+from datetime import datetime, timezone
 
 
 # ============================================================================
@@ -542,6 +543,27 @@ class EntanglementDetector:
 # ============================================================================
 
 
+def save_results(results: Dict, output_file: Optional[str] = None) -> str:
+    """Save results to JSON file."""
+    import json
+    from pathlib import Path
+    from datetime import datetime, timezone
+
+    if output_file is None:
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        output_file = f"exp06_entanglement_detection_{timestamp}.json"
+
+    results_dir = Path(__file__).resolve().parent.parent / "results"
+    results_dir.mkdir(exist_ok=True)
+    output_path = str(results_dir / output_file)
+
+    with open(output_path, "w") as f:
+        json.dump(results, f, indent=2)
+
+    print(f"Results saved to: {output_path}")
+    return output_path
+
+
 def main() -> bool:
     """
     Main entry point for EXP-06 execution.
@@ -555,6 +577,7 @@ def main() -> bool:
     successful_runs = 0
     all_precisions = []
     all_recalls = []
+    all_results = []
 
     # Run 10 iterations
     for i in range(10):
@@ -563,6 +586,7 @@ def main() -> bool:
         try:
             # Run single iteration
             results, success = run_experiment(20, 0.95)
+            all_results.append(results)
 
             if success:
                 successful_runs += 1
@@ -591,6 +615,22 @@ def main() -> bool:
 
         # More lenient success criteria for statistical test
         overall_success = successful_runs >= 8 and avg_precision >= 0.9 and avg_recall >= 0.9
+
+        # Save comprehensive results
+        summary_results = {
+            "experiment": "EXP-06",
+            "test_type": "Entanglement Detection - 10 Iteration Statistical Validation",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "successful_runs": successful_runs,
+            "total_runs": 10,
+            "average_precision": round(avg_precision, 4),
+            "average_recall": round(avg_recall, 4),
+            "overall_success": overall_success,
+            "status": "PASS" if overall_success else "FAIL",
+            "iterations": all_results
+        }
+
+        save_results(summary_results)
 
         if overall_success:
             print("[PASS] STATISTICAL VALIDATION: PASSED")

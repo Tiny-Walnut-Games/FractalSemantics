@@ -1,0 +1,85 @@
+# FractalStat Development Environment Overrides
+# 
+# This file overrides experiments.toml for faster development iteration.
+# Use quick modes and smaller sample sizes for rapid testing.
+#
+# To use: export FRACTALSTAT_ENV=dev
+
+[experiments]
+# Enable only a subset for quick development testing
+enabled = [
+    "EXP-01",
+    "EXP-02",
+    "EXP-03",
+    "EXP-04",
+    "EXP-05",
+    "EXP-11",
+    "EXP-12"
+]
+
+# EXP-01: Adequate sample size for geometric collision resistance test
+[experiments.EXP-01]
+sample_size = 10000         # Increased for reliable geometric validation (needs collisions in low D)
+iterations = 3              # Reduced from 10
+quick_mode = true
+
+# EXP-02: Smaller scales for dev
+[experiments.EXP-02]
+query_count = 100           # Reduced from 1000
+scales = [100, 1000]        # Smaller scales
+
+# EXP-03: Quick ablation test
+[experiments.EXP-03]
+sample_size = 100           # Reduced from 1000
+
+# EXP-04: Quick mode only
+[experiments.EXP-04]
+quick_mode = true
+scales = [100, 1000]        # Smaller scales
+num_retrievals = 100        # Reduced from 1000
+timeout_seconds = 60        # Shorter timeout
+
+# EXP-05: Minimal compression test
+[experiments.EXP-05]
+num_bitchains = 20          # Reduced from 100
+show_samples = true
+
+# EXP-06: Quick entanglement check
+[experiments.EXP-06]
+sample_size = 20            # Reduced from 100
+
+# EXP-07: Minimal LUCA test
+[experiments.EXP-07]
+num_entities = 3            # Reduced from 10
+max_generations = 3         # Reduced from 5
+
+# EXP-08: Quick Self-Organizing Memory test
+[experiments.EXP-08]
+num_memories = 100          # Reduced from 1000
+consolidation_threshold = 0.8
+show_samples = true
+
+# EXP-09: Quick Memory Pressure test
+[experiments.EXP-09]
+max_memory_target_mb = 200  # Reduced from 1000
+optimization_strategies = ["Lazy Loading", "Compression"]
+stress_phases = ["Light Pressure", "Moderate Pressure"]
+
+# EXP-10: Quick Multi-Dimensional Query test
+[experiments.EXP-10]
+dataset_size = 1000         # Reduced from 10000
+query_patterns = ["Realm-Specific Search", "Semantic Similarity", "Multi-Dimensional Filter"]
+optimization_strategies = ["Dimensional Indexing", "Query Result Caching"]
+
+# EXP-11: Quick dimension cardinality test
+[experiments.EXP-11]
+sample_size = 10000         # Increased for better testing
+dimension_counts = [3, 4, 5, 6, 7, 8, 9, 10]  # Full range for syncopation
+test_iterations = 10        # Increased for statistical significance
+
+# EXP-12: Quick benchmark comparison
+[experiments.EXP-12]
+sample_size = 1000          # Reduced from 100000
+benchmark_systems = ["uuid", "sha256", "fractalstat"]  # Subset for dev
+scales = [1000, 10000]      # Reduced from [10000, 100000, 1000000]
+num_queries = 100           # Reduced from 1000

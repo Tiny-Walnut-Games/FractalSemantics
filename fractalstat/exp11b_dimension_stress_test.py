@@ -584,7 +584,7 @@ def save_results(
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         output_file = f"exp11b_dimension_stress_test_{timestamp}.json"
 
-    results_dir = Path(__file__).resolve().parent / "results"
+    results_dir = Path(__file__).resolve().parent.parent / "results"
     results_dir.mkdir(exist_ok=True)
     output_path = str(results_dir / output_file)
 

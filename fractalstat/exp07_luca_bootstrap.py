@@ -626,6 +626,7 @@ def main():
     results = tester.run_comprehensive_test()
 
     # Save complete results to JSON file
+    save_results(results.to_dict())
 
     # Set exit code based on test status for orchestrator
     success = results.status == "PASS"

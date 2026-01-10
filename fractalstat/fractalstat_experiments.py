@@ -121,6 +121,7 @@ EXPERIMENTS = [
     ("exp11_dimension_cardinality", "EXP-11 (Dimension Cardinality)"),
     ("exp11b_dimension_stress_test", "EXP-11b (Dimension Stress Test)"),
     ("exp12_benchmark_comparison", "EXP-12 (Benchmark Comparison)"),
+    ("exp13_fractal_gravity", "EXP-13 (Fractal Gravity Without Falloff)"),
 ]
 
 
@@ -153,7 +154,7 @@ def run_single_experiment(module_name: str, display_name: str) -> Dict[str, Any]
             stderr_text = result.stderr.strip() if result.stderr else ""
             
             # Look for status indicators in the output
-            success_indicators = ["[OK]", "[Success]", "EXP-01 COMPLETE", "EXP-02 COMPLETE", "EXP-03 COMPLETE", "EXP-04 COMPLETE", "EXP-05 COMPLETE", "EXP-06 COMPLETE", "EXP-07 COMPLETE", "EXP-08 COMPLETE", "EXP-09 COMPLETE", "EXP-10 COMPLETE", "EXP-11 COMPLETE", "EXP-11b COMPLETE", "EXP-12 COMPLETE"]
+            success_indicators = ["[OK]", "[Success]", "EXP-01 COMPLETE", "EXP-02 COMPLETE", "EXP-03 COMPLETE", "EXP-04 COMPLETE", "EXP-05 COMPLETE", "EXP-06 COMPLETE", "EXP-07 COMPLETE", "EXP-08 COMPLETE", "EXP-09 COMPLETE", "EXP-10 COMPLETE", "EXP-11 COMPLETE", "EXP-11b COMPLETE", "EXP-12 COMPLETE", "EXP-13 COMPLETE"]
             failure_indicators = ["[FAIL] EXPERIMENT FAILED", "[Error]", "EXPERIMENT FAILED"]
             
             has_success_indicator = any(indicator in stdout_text for indicator in success_indicators)

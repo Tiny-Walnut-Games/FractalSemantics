@@ -5,10 +5,10 @@
 # For development or CI/CD, use experiments.dev.toml or experiments.ci.toml overrides.
 
 [experiments]
-# List of enabled experiments (EXP-01 through EXP-12)
+# List of enabled experiments (EXP-01 through EXP-13)
 enabled = [
     "EXP-01",
-    "EXP-02", 
+    "EXP-02",
     "EXP-03",
     "EXP-04",
     "EXP-05",
@@ -18,7 +18,8 @@ enabled = [
     "EXP-09",
     "EXP-10",
     "EXP-11",
-    "EXP-12"
+    "EXP-12",
+    "EXP-13"
 ]
 
 # EXP-01: Address Uniqueness Test
@@ -124,3 +125,12 @@ sample_size = 100000        # Number of entities to test
 benchmark_systems = ["uuid", "sha256", "vector_db", "graph_db", "rdbms", "fractalstat"]
 scales = [10000, 100000, 1000000]  # Test scales
 num_queries = 1000          # Number of retrieval queries per scale
+
+# EXP-13: Fractal Gravity Without Falloff
+# Tests whether fractal entities naturally create gravitational cohesion without falloff
+[experiments.EXP-13]
+name = "Fractal Gravity Without Falloff"
+enabled = true
+elements_to_test = ["gold", "nickel", "copper", "iron", "silver"]  # Elements to test
+population_size = 5          # Max hierarchy depth (NOT number of entities - this creates 3^depth nodes)
+interaction_samples = 1000   # Number of interaction pairs to test per element

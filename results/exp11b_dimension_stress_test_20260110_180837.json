@@ -1,0 +1,194 @@
+{
+  "experiment": "EXP-11b",
+  "test_type": "Dimensional Collision Stress Test",
+  "start_time": "2026-01-10T18:08:34.229238+00:00",
+  "end_time": "2026-01-10T18:08:37.098274+00:00",
+  "total_duration_seconds": 2.869,
+  "key_findings": [
+    "First collisions appeared in: Test 5: Only 3 Dimensions",
+    "  Collision rate: 17.8600%",
+    "  Configuration: Fixed ID, fixed state, full ranges, only 3 dimensions",
+    "Highest collision rate: 99.5100% in Test 7: Only 1 Dimension (Realm)",
+    "  Max collisions per address: 233",
+    "Collision rates by dimension count: {8: 0.0, 3: 0.0, 2: 0.5725, 1: 0.9951}",
+    "CRITICAL INSIGHT: Collisions only appear when we severely constrain the coordinate space. The dimensions provide meaningful differentiation, but SHA-256 is the primary collision resistance mechanism."
+  ],
+  "test_results": [
+    {
+      "test_name": "Test 1: Baseline (Full System)",
+      "dimension_count": 8,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "max_collisions_per_address": 0,
+      "coordinate_diversity": 1.0,
+      "description": "Unique IDs, unique state, full coordinate ranges, all 8 dimensions"
+    },
+    {
+      "test_name": "Test 2: Fixed ID",
+      "dimension_count": 8,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "max_collisions_per_address": 0,
+      "coordinate_diversity": 1.0,
+      "description": "Same ID for all, unique state, full ranges, all 8 dimensions"
+    },
+    {
+      "test_name": "Test 3: Fixed ID + Fixed State",
+      "dimension_count": 8,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "max_collisions_per_address": 0,
+      "coordinate_diversity": 1.0,
+      "description": "Same ID, same state, full ranges, all 8 dimensions"
+    },
+    {
+      "test_name": "Test 4: Limited Coordinate Range",
+      "dimension_count": 8,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "max_collisions_per_address": 0,
+      "coordinate_diversity": 0.30952380952380953,
+      "description": "Fixed ID, fixed state, \u00b110% coordinate range, all 8 dimensions"
+    },
+    {
+      "test_name": "Test 5: Only 3 Dimensions",
+      "dimension_count": 3,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "horizon"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 8214,
+      "collisions": 1786,
+      "collision_rate": 0.1786,
+      "max_collisions_per_address": 4,
+      "coordinate_diversity": 1.0,
+      "description": "Fixed ID, fixed state, full ranges, only 3 dimensions"
+    },
+    {
+      "test_name": "Test 6: Only 2 Dimensions",
+      "dimension_count": 2,
+      "dimensions_used": [
+        "realm",
+        "lineage"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 4275,
+      "collisions": 5725,
+      "collision_rate": 0.5725,
+      "max_collisions_per_address": 8,
+      "coordinate_diversity": 1.0,
+      "description": "Fixed ID, fixed state, full ranges, only 2 dimensions"
+    },
+    {
+      "test_name": "Test 7: Only 1 Dimension (Realm)",
+      "dimension_count": 1,
+      "dimensions_used": [
+        "realm"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 49,
+      "collisions": 9951,
+      "collision_rate": 0.9951,
+      "max_collisions_per_address": 233,
+      "coordinate_diversity": 1.0,
+      "description": "Fixed ID, fixed state, full range, only realm dimension"
+    },
+    {
+      "test_name": "Test 8: Extreme Stress",
+      "dimension_count": 3,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "horizon"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 420,
+      "collisions": 9580,
+      "collision_rate": 0.958,
+      "max_collisions_per_address": 36,
+      "coordinate_diversity": 0.30952380952380953,
+      "description": "Fixed ID, fixed state, \u00b110% range, only 3 dimensions"
+    },
+    {
+      "test_name": "Test 9: Continuous Dimensions Only",
+      "dimension_count": 3,
+      "dimensions_used": [
+        "luminosity",
+        "dimensionality",
+        "adjacency"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "max_collisions_per_address": 0,
+      "coordinate_diversity": 1.0,
+      "description": "Fixed ID, fixed state, full ranges, only continuous dimensions"
+    },
+    {
+      "test_name": "Test 10: Categorical Dimensions Only",
+      "dimension_count": 2,
+      "dimensions_used": [
+        "realm",
+        "horizon"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 245,
+      "collisions": 9755,
+      "collision_rate": 0.9755,
+      "max_collisions_per_address": 62,
+      "coordinate_diversity": 1.0,
+      "description": "Fixed ID, fixed state, full ranges, only categorical dimensions"
+    }
+  ]
+}

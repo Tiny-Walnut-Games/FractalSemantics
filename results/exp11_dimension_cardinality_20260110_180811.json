@@ -1,0 +1,201 @@
+{
+  "experiment": "EXP-11",
+  "test_type": "Dimension Cardinality Analysis",
+  "start_time": "2026-01-10T18:07:18.567136+00:00",
+  "end_time": "2026-01-10T18:08:11.404525+00:00",
+  "total_duration_seconds": 52.837,
+  "sample_size": 10000,
+  "dimension_counts_tested": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "test_iterations": 10,
+  "optimal_analysis": {
+    "optimal_dimension_count": 6,
+    "optimal_collision_rate": 0.0,
+    "optimal_retrieval_latency_ms": 0.0004,
+    "optimal_storage_efficiency": 38.143,
+    "diminishing_returns_threshold": 7
+  },
+  "seven_dimensions_justified": true,
+  "major_findings": [
+    "Optimal dimension count: 6 (collision rate: 0.0000%)",
+    "Diminishing returns threshold: 7 dimensions",
+    "[OK] 7 dimensions justified: optimal balance of expressiveness and efficiency",
+    "Collision improvement (7->10 dims): 0.0% reduction",
+    "Storage overhead at 7 dims: 249 bytes (35.7 bytes/dimension)",
+    "Semantic expressiveness at 7 dims: 100.0%"
+  ],
+  "dimension_results": [
+    {
+      "dimension_count": 3,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.0003922711592167616,
+      "median_retrieval_latency_ms": 0.00032011885195970535,
+      "avg_storage_bytes": 148,
+      "storage_overhead_per_dimension": 49.64738,
+      "semantic_expressiveness_score": 0.73371832
+    },
+    {
+      "dimension_count": 4,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.0003436002880334854,
+      "median_retrieval_latency_ms": 0.0003100023604929447,
+      "avg_storage_bytes": 171,
+      "storage_overhead_per_dimension": 43.086845,
+      "semantic_expressiveness_score": 0.88375928
+    },
+    {
+      "dimension_count": 5,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.0003533202456310391,
+      "median_retrieval_latency_ms": 0.00030011869966983795,
+      "avg_storage_bytes": 204,
+      "storage_overhead_per_dimension": 41.09042,
+      "semantic_expressiveness_score": 0.98375108
+    },
+    {
+      "dimension_count": 6,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.00036114905960857866,
+      "median_retrieval_latency_ms": 0.0003000721335411072,
+      "avg_storage_bytes": 228,
+      "storage_overhead_per_dimension": 38.143078333333335,
+      "semantic_expressiveness_score": 1.0
+    },
+    {
+      "dimension_count": 7,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.0003630089806392789,
+      "median_retrieval_latency_ms": 0.0003100372850894928,
+      "avg_storage_bytes": 249,
+      "storage_overhead_per_dimension": 35.71161428571428,
+      "semantic_expressiveness_score": 1.0
+    },
+    {
+      "dimension_count": 8,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.00037346051540225743,
+      "median_retrieval_latency_ms": 0.0003200722858309746,
+      "avg_storage_bytes": 277,
+      "storage_overhead_per_dimension": 34.7711475,
+      "semantic_expressiveness_score": 1.0
+    },
+    {
+      "dimension_count": 9,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment",
+        "temperature"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.00039362015668302773,
+      "median_retrieval_latency_ms": 0.000330084003508091,
+      "avg_storage_bytes": 298,
+      "storage_overhead_per_dimension": 33.167696666666664,
+      "semantic_expressiveness_score": 1.0
+    },
+    {
+      "dimension_count": 10,
+      "dimensions_used": [
+        "realm",
+        "lineage",
+        "adjacency",
+        "horizon",
+        "luminosity",
+        "polarity",
+        "dimensionality",
+        "alignment",
+        "temperature",
+        "entropy"
+      ],
+      "sample_size": 10000,
+      "unique_addresses": 10000,
+      "collisions": 0,
+      "collision_rate": 0.0,
+      "mean_retrieval_latency_ms": 0.00037721898406744,
+      "median_retrieval_latency_ms": 0.00032011885195970535,
+      "avg_storage_bytes": 313,
+      "storage_overhead_per_dimension": 31.421277,
+      "semantic_expressiveness_score": 1.0
+    }
+  ]
+}
