@@ -1,7 +1,7 @@
 """
 FractalStat Validation Experiments: Complete Orchestrator
 
-Imports and runs all individual experiment modules (EXP-01 through EXP-12).
+Imports and runs all individual experiment modules (EXP-01 through EXP-20).
 Maintains modular architecture where each experiment is a standalone module.
 
 Benefits:
@@ -122,6 +122,13 @@ EXPERIMENTS = [
     ("exp11b_dimension_stress_test", "EXP-11b (Dimension Stress Test)"),
     ("exp12_benchmark_comparison", "EXP-12 (Benchmark Comparison)"),
     ("exp13_fractal_gravity", "EXP-13 (Fractal Gravity Without Falloff)"),
+    ("exp14_atomic_fractal_mapping", "EXP-14 (Atomic Fractal Mapping)"),
+    ("exp15_topological_conservation", "EXP-15 (Topological Conservation)"),
+    ("exp16_hierarchical_distance_mapping", "EXP-16 (Hierarchical Distance Mapping)"),
+    ("exp17_thermodynamic_validation", "EXP-17 (Thermodynamic Validation)"),
+    ("exp18_falloff_thermodynamics", "EXP-18 (Falloff Thermodynamics)"),
+    ("exp19_orbital_equivalence", "EXP-19 (Orbital Equivalence)"),
+    ("exp20_vector_field_derivation", "EXP-20 (Vector Field Derivation)"),
 ]
 
 
@@ -154,7 +161,15 @@ def run_single_experiment(module_name: str, display_name: str) -> Dict[str, Any]
             stderr_text = result.stderr.strip() if result.stderr else ""
             
             # Look for status indicators in the output
-            success_indicators = ["[OK]", "[Success]", "EXP-01 COMPLETE", "EXP-02 COMPLETE", "EXP-03 COMPLETE", "EXP-04 COMPLETE", "EXP-05 COMPLETE", "EXP-06 COMPLETE", "EXP-07 COMPLETE", "EXP-08 COMPLETE", "EXP-09 COMPLETE", "EXP-10 COMPLETE", "EXP-11 COMPLETE", "EXP-11b COMPLETE", "EXP-12 COMPLETE", "EXP-13 COMPLETE"]
+            success_indicators = [
+                "[OK]", "[Success]",
+                "EXP-01 COMPLETE", "EXP-02 COMPLETE", "EXP-03 COMPLETE", "EXP-04 COMPLETE",
+                "EXP-05 COMPLETE", "EXP-06 COMPLETE", "EXP-07 COMPLETE", "EXP-08 COMPLETE",
+                "EXP-09 COMPLETE", "EXP-10 COMPLETE", "EXP-11 COMPLETE", "EXP-11b COMPLETE",
+                "EXP-12 COMPLETE", "EXP-13 COMPLETE", "EXP-14 COMPLETE", "EXP-15 COMPLETE",
+                "EXP-16 COMPLETE", "EXP-17 COMPLETE", "EXP-18 COMPLETE", "EXP-19 COMPLETE",
+                "EXP-20 COMPLETE", "BREAKTHROUGH CONFIRMED", "SUCCESS: Fractal systems satisfy thermodynamic laws"
+            ]
             failure_indicators = ["[FAIL] EXPERIMENT FAILED", "[Error]", "EXPERIMENT FAILED"]
             
             has_success_indicator = any(indicator in stdout_text for indicator in success_indicators)

@@ -21,7 +21,6 @@ and robustness of the FractalStat multi-dimensional addressing system.
 from fractalstat.dynamic_enum import Realm, Horizon, Polarity, Alignment
 from fractalstat.fractalstat_entity import FractalStatCoordinates, FractalStatEntity
 from fractalstat.fractalstat_entity import BitChain
-from fractalstat.fractalstat_rag_bridge import FractalStatRAGBridge
 
 __version__ = "0.1.0"
 __author__ = "Tiny Walnut Games"
@@ -76,7 +75,4 @@ __all__ = [
     "FractalStatCoordinates",
     "FractalStatEntity",
     "BitChain",
-
-    # RAG Bridge
-    "FractalStatRAGBridge",
 ]

@@ -159,7 +159,7 @@ Where:
 ### Default Configuration
 
 | Parameter | Value | Rationale |
-|-----------|-------|-----------|
+| ----------- | ------- | ----------- |
 | Sample Size | 1,000 | Balance between statistical power and runtime |
 | Random Seed | 42 | Reproducibility for peer review |
 | Entropy Threshold | 5% | Distinguishes critical from optional dimensions |
@@ -420,7 +420,7 @@ H_max = log₂(4) = 2 bits
 H_norm = 1.5 / 2 = 0.75
 ```
 
-#### Entropy Reduction
+#### - Entropy Reduction
 
 Given H_baseline = 9.8 bits, H_ablation = 8.5 bits:
 

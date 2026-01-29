@@ -94,7 +94,7 @@ class EXP01_GeometricCollisionResistance:
         12: [0, 100],  # 12D coordinates
     }
 
-    def __init__(self, sample_size: int = 100000):  # 100k default for scale testing
+    def __init__(self, sample_size: int = 100000):  # 100K default for hardware-constrained testing
         self.sample_size = sample_size
         self.dimensions = list(self.DIMENSION_RANGES.keys())
         self.results: List[EXP01_Result] = []

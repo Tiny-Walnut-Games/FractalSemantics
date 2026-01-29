@@ -1,0 +1,135 @@
+{
+  "experiment": "EXP-10",
+  "title": "Multi-Dimensional Query Optimization",
+  "timestamp": "2026-01-29T17:51:14.399906+00:00",
+  "status": "FAIL",
+  "dataset_size": 250000,
+  "dimensions_coverage": {
+    "realm": 250000,
+    "polarity": 250000,
+    "dimensionality": 250000,
+    "luminosity": 250000,
+    "lineage": 250000
+  },
+  "coordinate_diversity": 0.8666666666666667,
+  "avg_query_time_ms": 132.4423399870284,
+  "avg_precision": 0.7778368,
+  "avg_recall": 0.8710816,
+  "avg_f1_score": 0.82160301295099,
+  "query_throughput_qps": 7.5504555423736965,
+  "optimization_strategies": [
+    "Dimensional Indexing",
+    "Query Result Caching",
+    "Selective Pruning",
+    "Parallel Query Execution"
+  ],
+  "optimization_improvement": 0.9998183198089184,
+  "indexing_efficiency": 0.5,
+  "caching_effectiveness": 0.5,
+  "use_case_validation": {
+    "Content Filtering": false,
+    "Recommendation System": false,
+    "Advanced Search": true,
+    "Historical Analysis": false,
+    "AI Reasoning": true
+  },
+  "practical_value_score": 0.4,
+  "scalability_score": 0.6,
+  "query_results": [
+    {
+      "query_id": "query_0",
+      "pattern_name": "Realm-Specific Search",
+      "execution_time_ms": 235.62049999600276,
+      "results_count": 10,
+      "precision_score": 0.85008,
+      "recall_score": 0.94996,
+      "f1_score": 0.8972489464678561,
+      "memory_usage_mb": 0.01,
+      "cpu_time_ms": 234.375
+    },
+    {
+      "query_id": "query_1",
+      "pattern_name": "Semantic Similarity",
+      "execution_time_ms": 29.79949995642528,
+      "results_count": 1000,
+      "precision_score": 0.788,
+      "recall_score": 0.896,
+      "f1_score": 0.8385368171021377,
+      "memory_usage_mb": 1.0,
+      "cpu_time_ms": 31.25
+    },
+    {
+      "query_id": "query_2",
+      "pattern_name": "Multi-Dimensional Filter",
+      "execution_time_ms": 43.07289997814223,
+      "results_count": 100,
+      "precision_score": 0.7207999999999999,
+      "recall_score": 0.8296,
+      "f1_score": 0.7713824561403508,
+      "memory_usage_mb": 0.1,
+      "cpu_time_ms": 46.875
+    },
+    {
+      "query_id": "query_3",
+      "pattern_name": "Temporal Pattern",
+      "execution_time_ms": 346.86900000087917,
+      "results_count": 27266,
+      "precision_score": 0.88,
+      "recall_score": 0.9299999999999999,
+      "f1_score": 0.9043093922651932,
+      "memory_usage_mb": 27.266000000000002,
+      "cpu_time_ms": 328.125
+    },
+    {
+      "query_id": "query_4",
+      "pattern_name": "Complex Relationship",
+      "execution_time_ms": 6.849800003692508,
+      "results_count": 38,
+      "precision_score": 0.650304,
+      "recall_score": 0.749848,
+      "f1_score": 0.6965374527794125,
+      "memory_usage_mb": 0.038,
+      "cpu_time_ms": 15.625
+    }
+  ],
+  "optimizer_results": [
+    {
+      "baseline_time_ms": 91.87133334732304,
+      "optimized_time_ms": 0.02023333217948675,
+      "improvement_ratio": 0.9997797644657774,
+      "optimization_time_ms": 1895.3691000351682,
+      "expected_improvement": 0.6,
+      "complexity_overhead": "medium"
+    },
+    {
+      "baseline_time_ms": 77.2116999917974,
+      "optimized_time_ms": 0.014666681333134571,
+      "improvement_ratio": 0.9998100458695418,
+      "optimization_time_ms": 259.73470002645627,
+      "expected_improvement": 0.4,
+      "complexity_overhead": "low"
+    },
+    {
+      "baseline_time_ms": 83.94073335997139,
+      "optimized_time_ms": 0.017366663087159395,
+      "improvement_ratio": 0.9997931080371589,
+      "optimization_time_ms": 0.0019999570213258266,
+      "expected_improvement": 0.5,
+      "complexity_overhead": "medium"
+    },
+    {
+      "baseline_time_ms": 102.76143332400049,
+      "optimized_time_ms": 0.011266674846410751,
+      "improvement_ratio": 0.9998903608631957,
+      "optimization_time_ms": 0.0016999547369778156,
+      "expected_improvement": 0.3,
+      "complexity_overhead": "high"
+    }
+  ],
+  "performance_benchmarks": {
+    "avg_query_time_ms": 132.4423399870284,
+    "query_throughput_qps": 7.5504555423736965,
+    "cache_hit_rate": 0.5,
+    "optimization_improvement": 0.9998183198089184
+  }
+}

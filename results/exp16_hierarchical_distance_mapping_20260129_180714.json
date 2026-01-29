@@ -1,0 +1,55 @@
+{
+  "experiment": "EXP-16",
+  "test_type": "Hierarchical Distance to Euclidean Distance Mapping",
+  "start_time": "2026-01-29T18:07:14.313930+00:00",
+  "end_time": "2026-01-29T18:07:14.401821+00:00",
+  "total_duration_seconds": 0.088,
+  "parameters": {
+    "hierarchy_depth": 5,
+    "branching_factor": 3,
+    "distance_samples": 1000
+  },
+  "embedding_results": {
+    "Exponential": {
+      "strategy_name": "Exponential",
+      "distance_correlation": 0.141332,
+      "force_correlation": 0.18698,
+      "exponent_in_range": false,
+      "overall_quality": 0.109437,
+      "distance_analysis": {
+        "power_law_exponent": 0.418533,
+        "power_law_coefficient": 14.544875,
+        "correlation_coefficient": 0.141332,
+        "mapping_quality": 0.141332
+      },
+      "force_validation": {
+        "force_correlation": 0.18698,
+        "scaling_consistency": 0.18698
+      }
+    },
+    "Spherical": {
+      "strategy_name": "Spherical",
+      "distance_correlation": 0.138592,
+      "force_correlation": 0.199514,
+      "exponent_in_range": false,
+      "overall_quality": 0.112702,
+      "distance_analysis": {
+        "power_law_exponent": 0.332819,
+        "power_law_coefficient": 1.818095,
+        "correlation_coefficient": 0.138592,
+        "mapping_quality": 0.138592
+      },
+      "force_validation": {
+        "force_correlation": 0.199514,
+        "scaling_consistency": 0.199514
+      }
+    }
+  },
+  "analysis": {
+    "best_embedding_strategy": "Spherical",
+    "optimal_exponent": 0.332819,
+    "distance_mapping_success": false,
+    "force_scaling_consistent": false,
+    "experiment_success": false
+  }
+}

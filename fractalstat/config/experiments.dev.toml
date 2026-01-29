@@ -17,9 +17,9 @@ enabled = [
     "EXP-12"
 ]
 
-# EXP-01: Adequate sample size for geometric collision resistance test
+# EXP-01: Adequate sample size for geometric collision resistance test (scaled)
 [experiments.EXP-01]
-sample_size = 10000         # Increased for reliable geometric validation (needs collisions in low D)
+sample_size = 100000        # Scaled from 1M for dev testing (reduced for faster iteration)
 iterations = 3              # Reduced from 10
 quick_mode = true
 
@@ -35,7 +35,7 @@ sample_size = 100           # Reduced from 1000
 # EXP-04: Quick mode only
 [experiments.EXP-04]
 quick_mode = true
-scales = [100, 1000]        # Smaller scales
+scales = [1000, 10000, 100000]        # Smaller scales
 num_retrievals = 100        # Reduced from 1000
 timeout_seconds = 60        # Shorter timeout
 

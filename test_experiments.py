@@ -11,21 +11,21 @@ def test_experiments():
     
     # Test EXP-01
     print('Testing EXP-01...')
-    from fractalstat_experiments import EXP01_GeometricCollisionResistance
+    from fractalstat.fractalstat_experiments import EXP01_GeometricCollisionResistance
     exp01 = EXP01_GeometricCollisionResistance(sample_size=100)
     results01, success01 = exp01.run()
     print(f'EXP-01 Success: {success01}')
     
     # Test EXP-02  
     print('Testing EXP-02...')
-    from fractalstat_experiments import EXP02_RetrievalEfficiency
+    from fractalstat.fractalstat_experiments import EXP02_RetrievalEfficiency
     exp02 = EXP02_RetrievalEfficiency(query_count=100)
     results02, success02 = exp02.run()
     print(f'EXP-02 Success: {success02}')
     
     # Test EXP-08
     print('Testing EXP-08...')
-    from exp08_self_organizing_memory import SelfOrganizingMemoryExperiment
+    from fractalstat.exp08_self_organizing_memory import SelfOrganizingMemoryExperiment
     exp08 = SelfOrganizingMemoryExperiment(num_memories=100)
     results08 = exp08.run()
     print(f'EXP-08 Status: {results08.status}')

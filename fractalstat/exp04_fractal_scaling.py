@@ -37,14 +37,14 @@ secure_random = secrets.SystemRandom()
 class ScaleTestConfig:
     """Configuration for a single scale level test."""
 
-    scale: int  # Number of bit-chains (1K, 10K, 100K, 1M)
+    scale: int  # Number of bit-chains (1K, 10K, 100K, 1M, 10M)
     num_retrievals: int  # Number of random retrieval queries
     timeout_seconds: int  # Kill test if it takes too long
 
     def name(self) -> str:
         """Human-readable scale name."""
-        if self.scale >= 1_000_000:
-            return f"{self.scale // 1_000_000}M"
+        if self.scale >= 10_000_000:
+            return f"{self.scale // 10_000_000}M"
         elif self.scale >= 1_000:
             return f"{self.scale // 1_000}K"
         return str(self.scale)

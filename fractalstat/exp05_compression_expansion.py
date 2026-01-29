@@ -682,7 +682,7 @@ def save_results(
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         output_file = f"exp05_compression_expansion_{timestamp}.json"
 
-    results_dir = Path(__file__).resolve().parent / "results"
+    results_dir = Path(__file__).resolve().parent.parent / "results"
     results_dir.mkdir(exist_ok=True)
     output_path = str(results_dir / output_file)
 
@@ -699,15 +699,15 @@ if __name__ == "__main__":
         from fractalstat.config import ExperimentConfig
 
         config = ExperimentConfig()
-        num_bitchains = config.get("EXP-05", "num_bitchains", 100)
+        num_bitchains = config.get("EXP-05", "num_bitchains", 1000000)
         show_samples = config.get("EXP-05", "show_samples", True)
     except Exception:
-        num_bitchains = 100
+        num_bitchains = 1000000  # Default to 1M for extreme scale testing
         show_samples = True
         if "--quick" in sys.argv:
-            num_bitchains = 20
+            num_bitchains = 10000  # Reduced for quick testing
         elif "--full" in sys.argv:
-            num_bitchains = 500
+            num_bitchains = 10000000  # 10M for maximum testing
 
     try:
         results = run_compression_expansion_test(

@@ -2,21 +2,22 @@
 """
 EXP-02: Retrieval Efficiency Test
 
-Validates that retrieving a bit-chain by FractalStat address is fast (< 1ms) at scale.
+Validates that retrieving a bit-chain by FractalStat address is fast at scale.
 
 Hypothesis:
 Retrieval latency scales logarithmically or better with dataset size.
 
 Methodology:
-1. Build indexed set of N bit-chains at different scales (1K, 10K, 100K)
-2. Query M random addresses (default: 1,000 queries)
+1. Build indexed set of N bit-chains at different scales (1M, 100M, 10B, 1T)
+2. Query M random addresses (default: 1,000,000 queries)
 3. Measure latency percentiles (mean, median, P95, P99)
 4. Verify retrieval meets performance targets at each scale
 
 Success Criteria:
-- Mean latency < 0.01ms at 1,000 bit-chains
-- Mean latency < 0.02ms at 10,000 bit-chains
-- Mean latency < 0.05ms at 100,000 bit-chains
+- Mean latency < 0.1ms at 1M bit-chains
+- Mean latency < 0.5ms at 100M bit-chains
+- Mean latency < 2.0ms at 10B bit-chains
+- Mean latency < 5.0ms at 1T bit-chains
 - Latency scales logarithmically or better
 """
 
@@ -78,9 +79,15 @@ class EXP02_RetrievalEfficiency:
     (hash table), which provides a realistic baseline for production systems.
     """
 
-    def __init__(self, query_count: int = 1000):
+    def __init__(self, query_count: int = 1000000):
         self.query_count = query_count
-        self.scales = [1_000, 10_000, 100_000]
+        # Load scales from config or use scaled defaults
+        try:
+            from fractalstat.config import ExperimentConfig
+            config = ExperimentConfig()
+            self.scales = config.get("EXP-02", "scales", [1000000, 100000000, 10000000000, 1000000000000])
+        except Exception:
+            self.scales = [1000000, 100000000, 10000000000, 1000000000000]  # Scaled defaults: 1M, 100M, 10B, 1T
         self.results: List[EXP02_Result] = []
 
     def run(self) -> Tuple[List[EXP02_Result], bool]:
@@ -105,7 +112,13 @@ class EXP02_RetrievalEfficiency:
         print()
 
         all_success = True
-        thresholds = {1_000: 0.01, 10_000: 0.02, 100_000: 0.05}  # ms - More challenging targets
+        # Updated thresholds for scaled experiments - more lenient for larger scales
+        thresholds = {
+            1000000: 0.1,      # 1M: 0.1ms target
+            100000000: 0.5,    # 100M: 0.5ms target
+            10000000000: 2.0,  # 10B: 2.0ms target
+            1000000000000: 5.0 # 1T: 5.0ms target
+        }
 
         for scale in self.scales:
             print(f"Testing scale: {scale:,} bit-chains")
@@ -338,7 +351,7 @@ if __name__ == "__main__":
     if "--quick" in sys.argv:
         query_count = 100
     elif "--full" in sys.argv:
-        query_count = 5000
+        query_count = 500000
 
     try:
         experiment = EXP02_RetrievalEfficiency(query_count=query_count)

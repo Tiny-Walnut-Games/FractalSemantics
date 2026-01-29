@@ -463,7 +463,7 @@ class LUCABootstrapTester:
 
         # Phase 1: Create test entities
         print("\n [1/6] Creating test entities...")
-        original_entities = self.create_test_entities(50)
+        original_entities = self.create_test_entities(1000000)
         print(f"      Created {len(original_entities)} test entities")
         for i, e in enumerate(original_entities[:3]):
             print(

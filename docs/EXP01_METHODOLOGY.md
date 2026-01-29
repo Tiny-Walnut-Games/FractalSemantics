@@ -11,6 +11,7 @@
 ## Hypothesis
 
 FractalStat 8D coordinate space demonstrates perfect collision resistance through geometric properties where:
+
 - 2D/3D coordinate subspaces show expected birthday paradox collisions when sample size exceeds coordinate space
 - 4D+ coordinate subspaces exhibit geometric collision resistance due to exponential coordinate space expansion
 - The 8th dimension provides complete expressivity coverage
@@ -34,7 +35,8 @@ Collision resistance through geometric properties is crucial because:
 FractalStat coordinates exhibit exponential collision resistance where coordinate space grows geometrically:
 
 **Coordinate Space Size Formula**:
-```
+
+```math
 Space(d) = r^d  where r = coordinate range, d = dimensions
 ```
 
@@ -43,7 +45,7 @@ For a coordinate range of 101 values (0-100) per dimension:
 **Sample Calculations**:
 
 | Dimensions | Coordinate Space | Interpretation |
-|------------|------------------|----------------|
+| ------------ | ------------------ | ---------------- |
 | 2D | 101² = 10,201 | Small - birthday paradox collisions |
 | 3D | 101³ = 1,030,301 | Moderate - some collisions expected |
 | 4D | 101⁴ = 104,060,401 | Large - no practical collisions |
@@ -167,11 +169,13 @@ With N = 100,000 coordinate tuples per dimension across 11 dimensions tested (2D
 **Geometric Scale Coverage**: Coordinate spaces range from 10,201 (2D) to 10^19+ (12D)
 
 **Geometric Validation**: The experiment tests at multiple orders of magnitude:
+
 - **Small Spaces (2D/3D)**: 10² to 10^3 coordinate combinations → expected collisions
 - **Large Spaces (4D+)**: 10^4 to 10^18+ coordinate combinations → geometric resistance
 - **Transition Point**: Empirically validates the 3D→4D geometric transition
 
 **Confidence Level**: The geometric testing approach provides mathematical certainty:
+
 - Low-dimensional collisions prove birthday paradox behavior is observed
 - High-dimensional zero collisions prove geometric resistance is achieved
 - Scale difference validates that coordinate space expansion prevents collisions
@@ -215,7 +219,7 @@ This ensures:
 
 **Locked Dependencies**:
 
-```
+```none
 secrets>=3.9.0  # Cryptographically secure random number generation
 ```
 
@@ -232,6 +236,7 @@ python fractalstat/exp01_geometric_collision.py --quick
 ```
 
 **Expected Runtime**:
+
 - **Default (100k)**: ~5-15 seconds (1.1M coordinate evaluations)
 - **Quick (10k)**: ~0.5-2 seconds (110k coordinate evaluations)
 
@@ -391,7 +396,7 @@ def canonical_serialize(data: Dict[str, Any]) -> str:
 
 **SHA-256 Address**:
 
-```
+```sha256
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 ```
 
@@ -401,14 +406,14 @@ For n bit-chains in a space of size d = 2^256:
 
 **Birthday Paradox Approximation**:
 
-```
+```none
 P(collision) ≈ 1 - e^(-n²/2d)
 ```
 
 **Sample Calculations**:
 
 | n (bit-chains) | P(collision) | Interpretation |
-|----------------|--------------|----------------|
+| ---------------- | -------------- | ---------------- |
 | 1,000 | ~10^-71 | Negligible |
 | 10,000 | ~10^-67 | Negligible |
 | 1,000,000 | ~10^-59 | Negligible |

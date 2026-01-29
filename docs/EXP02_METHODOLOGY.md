@@ -189,7 +189,7 @@ python fractalstat/exp02_retrieval_efficiency.py
 
 **Locked Dependencies**:
 
-```
+```none
 python = "^3.9"
 ```
 

@@ -334,7 +334,7 @@ class EXP03_CoordinateEntropy:
         "alignment",
     ]
 
-    def __init__(self, sample_size: int = 100000, random_seed: int = 42):
+    def __init__(self, sample_size: int = 1000000, random_seed: int = 42):
         """
         Initialize the coordinate entropy experiment.
 
@@ -1041,8 +1041,7 @@ if __name__ == "__main__":
         sample_size = 1000000
     elif "--medium" in sys.argv:
         sample_size = 500000
-    else:
-        sample_size = 100000
+    # else: keep the config-loaded value (no override)
 
     try:
         experiment = EXP03_CoordinateEntropy(

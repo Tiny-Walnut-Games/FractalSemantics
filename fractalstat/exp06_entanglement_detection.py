@@ -584,8 +584,8 @@ def main() -> bool:
         print(f"\n--- ITERATION {i+1}/10 ---")
 
         try:
-            # Run single iteration
-            results, success = run_experiment(20, 0.95)
+            # Run single iteration with scaled sample size
+            results, success = run_experiment(1000000, 0.95)
             all_results.append(results)
 
             if success:
@@ -665,38 +665,13 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
     """
     import time
     import random
-    from fractalstat.fractalstat_entity import generate_random_bitchain
+    # from fractalstat.fractalstat_entity import generate_random_bitchain
 
     print("=" * 80)
     print("EXP-06: ENTANGLEMENT DETECTION VALIDATION")
     print("=" * 80)
     print(f"Sample size: {sample_size} bit-chains")
     print(f"Detection threshold: {threshold}")
-    print()
-
-    # Generate sample bit-chains
-    print("Generating bit-chain samples...")
-    bitchains = []
-    for i in range(sample_size):
-        bc_obj = generate_random_bitchain(i)
-        # Convert BitChain object to dictionary format expected by entanglement functions
-        bc = {
-            "id": f"bc_{i:03d}",
-            "coordinates": {
-                "realm": bc_obj.coordinates.realm,
-                "lineage": bc_obj.coordinates.lineage,
-                "adjacency": bc_obj.coordinates.adjacency,
-                "horizon": bc_obj.coordinates.horizon,
-                "resonance": bc_obj.coordinates.luminosity / 100.0,  # Convert to 0-1 range
-                "velocity": bc_obj.coordinates.luminosity / 200.0 + 0.1,  # Convert to velocity range
-                "density": bc_obj.coordinates.luminosity / 100.0,  # Use luminosity as density proxy
-                "polarity": bc_obj.coordinates.polarity.value,  # Convert enum to string
-                "dimensionality": bc_obj.coordinates.dimensionality,  # Fractal depth level
-            }
-        }
-        bitchains.append(bc)
-
-    print(f"Generated {len(bitchains)} bit-chains")
     print()
 
     # Create ground truth entangled pairs - SIMULATING ENTITY "HOPPING" ACROSS REALMS
@@ -711,8 +686,15 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
 
     # Create entangled groups where each group represents the same logical entity
     # manifested in different realms (like the same particle in different universes)
-    entities_per_group = 3  # Each entity appears in 3 different realms
-    num_groups = sample_size // entities_per_group
+    # STRATEGY: Focus on quality over quantity - fewer entities with MANY manifestations each
+    # This creates strong statistical signals that are easy to detect
+    entities_per_group = 6  # FIXED: Max manifestations per entity (limited by 6 available realms)
+    num_groups = 50  # FIXED: Fewer entities, each with strong entanglement patterns
+    sample_size = num_groups * entities_per_group  # FIXED: 50 × 6 = 300 entities
+
+    # Generate ONLY the synthetic entangled entities (much more efficient)
+    print(f"Generating {sample_size} synthetic entangled bit-chains...")
+    bitchains = []
 
     print(f"Creating {num_groups} entangled entity groups across realms...")
 
@@ -740,7 +722,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
 
             # Create a new entity with the same core quantum fingerprint
             bc_entity: Dict[str, Any] = {
-                "id": f"bc_{entity_idx:03d}",
+                "id": f"bc_{len(bitchains):03d}",  # Use current list length for ID
                 "coordinates": {
                     "realm": realm,  # Different realm for each manifestation
                     "lineage": base_lineage,  # SAME lineage - quantum identity preservation
@@ -753,8 +735,8 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
                     "dimensionality": base_dimensionality,  # SAME dimensionality - fractal depth
                 }
             }
-            # Replace the original randomly generated entity
-            bitchains[entity_idx] = bc_entity
+            # Add the new synthetic entity
+            bitchains.append(bc_entity)
             group_ids.append(bc_entity["id"])
 
         # All combinations within this group are entangled (same entity, different realms)

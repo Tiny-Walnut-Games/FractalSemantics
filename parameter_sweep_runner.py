@@ -23,9 +23,9 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fractalstat'))
 
-from exp08_self_organizing_memory import SelfOrganizingMemoryExperiment, SelfOrganizingMemoryResults
-from exp09_memory_pressure import MemoryPressureExperiment, MemoryPressureResults
-from exp10_multidimensional_query import MultiDimensionalQueryExperiment, MultiDimensionalQueryResults
+from fractalstat.exp08_self_organizing_memory import SelfOrganizingMemoryExperiment, SelfOrganizingMemoryResults
+from fractalstat.exp09_memory_pressure import MemoryPressureExperiment, MemoryPressureResults
+from fractalstat.exp10_multidimensional_query import MultiDimensionalQueryExperiment, MultiDimensionalQueryResults
 
 
 @dataclass

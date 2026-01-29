@@ -583,8 +583,9 @@ def run_atomic_fractal_mapping_experiment_v2(
     Tests whether electron shell structure naturally maps to fractal hierarchy.
     """
     if elements_to_test is None:
-        elements_to_test = ["hydrogen", "helium", "carbon", "iron", "nickel",
-                           "copper", "silver", "gold", "uranium"]
+        # Use all available elements from the periodic table
+        shell_data = get_electron_shell_data()
+        elements_to_test = list(shell_data.keys())
 
     shell_data = get_electron_shell_data()
 
@@ -757,10 +758,15 @@ if __name__ == "__main__":
     try:
         from fractalstat.config import ExperimentConfig
         config = ExperimentConfig()
-        elements_to_test = config.get("EXP-14", "elements_to_test",
-                                    ["hydrogen", "carbon", "iron", "nickel", "copper", "gold"])
+        elements_to_test = config.get("EXP-14", "elements_to_test", None)
+        if elements_to_test is None:
+            # Use all available elements from the periodic table
+            shell_data = get_electron_shell_data()
+            elements_to_test = list(shell_data.keys())
     except Exception:
-        elements_to_test = ["hydrogen", "carbon", "iron", "nickel", "copper", "gold"]
+        # Use all available elements from the periodic table
+        shell_data = get_electron_shell_data()
+        elements_to_test = list(shell_data.keys())
 
     try:
         results = run_atomic_fractal_mapping_experiment(elements_to_test)

@@ -5,7 +5,7 @@
 # For development or CI/CD, use experiments.dev.toml or experiments.ci.toml overrides.
 
 [experiments]
-# List of enabled experiments (EXP-01 through EXP-13)
+# List of enabled experiments (EXP-01 through EXP-13, EXP-21 through EXP-25)
 enabled = [
     "EXP-01",
     "EXP-02",
@@ -19,7 +19,14 @@ enabled = [
     "EXP-10",
     "EXP-11",
     "EXP-12",
-    "EXP-13"
+    "EXP-13",
+    "EXP-14",
+    "EXP-15",
+    "EXP-16",
+    "EXP-17",
+    "EXP-18",
+    "EXP-19",
+    "EXP-20"
 ]
 
 # EXP-01: Address Uniqueness Test
@@ -27,7 +34,7 @@ enabled = [
 [experiments.EXP-01]
 name = "Address Uniqueness Test"
 enabled = true
-sample_size = 1000          # Bit-chains to generate per iteration
+sample_size = 100000        # Bit-chains to generate per iteration (fits in 32GB RAM)
 iterations = 10             # Number of test iterations
 quick_mode = false          # If true, reduce sample_size to 100
 
@@ -36,32 +43,32 @@ quick_mode = false          # If true, reduce sample_size to 100
 [experiments.EXP-02]
 name = "Retrieval Efficiency Test"
 enabled = true
-query_count = 1000          # Number of random retrieval queries per scale
-scales = [1000, 10000, 100000]  # Test scales (add 1000000 for full mode)
+query_count = 10000         # Number of random retrieval queries per scale (fits hardware)
+scales = [10000, 50000, 100000, 1000000]  # Test scales: 10K, 50K, 100K, 1M (push to storage limit)
 
 # EXP-03: Dimension Necessity Test
 # Tests that all 7 FractalStat dimensions are necessary to avoid collisions
 [experiments.EXP-03]
 name = "Dimension Necessity Test"
 enabled = true
-sample_size = 1000          # Bit-chains for ablation testing
+sample_size = 50000         # Bit-chains for ablation testing (fits in 32GB RAM)
 
 # EXP-04: Fractal Scaling
 # Tests whether FractalStat addressing maintains consistency at all scales
 [experiments.EXP-04]
 name = "Fractal Scaling"
 enabled = true
-quick_mode = true           # If false, test up to 1M scale
-scales = [1000, 10000, 100000]  # Add 1000000 for full mode
-num_retrievals = 1000       # Queries per scale
-timeout_seconds = 300       # Kill test if it takes too long
+quick_mode = false          # If false, test up to 500K scale (fits storage)
+scales = [1000, 10000, 100000, 1000000, 10000000]  # Test scales: 1K, 10K, 100K, 1M, and 10M (fits hardware)
+num_retrievals = 10000      # Queries per scale (fits hardware)
+timeout_seconds = 1800      # Kill test if it takes too long (30 minutes)
 
 # EXP-05: Compression/Expansion
 # Tests lossless compression through fragments → clusters → glyphs → mist
 [experiments.EXP-05]
 name = "Compression/Expansion"
 enabled = true
-num_bitchains = 100         # Number of bit-chains to compress
+num_bitchains = 1000000      # Number of bit-chains to compress (fits in 32GB RAM)
 show_samples = true         # Print detailed sample compression paths
 
 # EXP-06: Entanglement Detection
@@ -77,7 +84,7 @@ sample_size = 20            # Use smaller sample size for faster validation
 [experiments.EXP-07]
 name = "LUCA Bootstrap"
 enabled = true
-num_entities = 10           # Number of entities to derive from LUCA
+num_entities = 500000       # Number of entities to derive from LUCA (fits storage)
 max_generations = 5         # Maximum lineage depth
 
 # EXP-08: Self-Organizing Memory Networks
@@ -85,7 +92,7 @@ max_generations = 5         # Maximum lineage depth
 [experiments.EXP-08]
 name = "Self-Organizing Memory Networks"
 enabled = true
-num_memories = 1000         # Number of memories to generate and test
+num_memories = 10000       # Number of memories to generate and test (fits storage)
 consolidation_threshold = 0.8  # Threshold for memory consolidation
 show_samples = true         # Print detailed sample compression paths
 
@@ -94,7 +101,7 @@ show_samples = true         # Print detailed sample compression paths
 [experiments.EXP-09]
 name = "FractalStat Performance Under Memory Pressure"
 enabled = true
-max_memory_target_mb = 1000  # Maximum memory target for stress testing
+max_memory_target_mb = 25000      # Maximum memory target for stress testing (25GB = 80% of 32GB RAM)
 optimization_strategies = ["Lazy Loading", "Compression", "Eviction Policy", "Memory Pooling"]
 stress_phases = ["Light Pressure", "Moderate Pressure", "Heavy Pressure", "Critical Pressure"]
 
@@ -103,7 +110,7 @@ stress_phases = ["Light Pressure", "Moderate Pressure", "Heavy Pressure", "Criti
 [experiments.EXP-10]
 name = "Multi-Dimensional Query Optimization"
 enabled = true
-dataset_size = 10000        # Size of test dataset
+dataset_size = 250000       # Size of test dataset (fits storage)
 query_patterns = ["Realm-Specific Search", "Semantic Similarity", "Multi-Dimensional Filter", "Temporal Pattern", "Complex Relationship"]
 optimization_strategies = ["Dimensional Indexing", "Query Result Caching", "Selective Pruning", "Parallel Query Execution"]
 
@@ -112,19 +119,19 @@ optimization_strategies = ["Dimensional Indexing", "Query Result Caching", "Sele
 [experiments.EXP-11]
 name = "Dimension Cardinality Analysis"
 enabled = true
-sample_size = 1000          # Bit-chains to test per dimension count
+sample_size = 100000        # Bit-chains to test per dimension count (fits RAM)
 dimension_counts = [3, 4, 5, 6, 7, 8, 9, 10]  # Dimension counts to test
-test_iterations = 5         # Number of iterations per dimension count
+test_iterations = 10        # Number of iterations per dimension count (increased for statistical significance)
 
 # EXP-12: Benchmark Comparison
 # Compares FractalStat/FractalStat against common systems
 [experiments.EXP-12]
 name = "Benchmark Comparison"
 enabled = true
-sample_size = 100000        # Number of entities to test
+sample_size = 500000        # Number of entities to test (fits storage)
 benchmark_systems = ["uuid", "sha256", "vector_db", "graph_db", "rdbms", "fractalstat"]
-scales = [10000, 100000, 1000000]  # Test scales
-num_queries = 1000          # Number of retrieval queries per scale
+scales = [100000, 500000]   # Test scales: 100K, 500K (fits hardware)
+num_queries = 10000         # Number of retrieval queries per scale (fits hardware)
 
 # EXP-13: Fractal Gravity Without Falloff
 # Tests whether fractal entities naturally create gravitational cohesion without falloff
@@ -134,3 +141,68 @@ enabled = true
 elements_to_test = ["gold", "nickel", "copper", "iron", "silver"]  # Elements to test
 population_size = 5          # Max hierarchy depth (NOT number of entities - this creates 3^depth nodes)
 interaction_samples = 1000   # Number of interaction pairs to test per element
+
+# EXP-14: Atomic Fractal Mapping
+# Tests mapping of atomic structures to fractal representations
+[experiments.EXP-14]
+name = "Atomic Fractal Mapping"
+enabled = true
+sample_size = 100000        # Number of bit-chains to test (fits RAM)
+atom_types = ["hydrogen", "carbon", "oxygen", "nitrogen", "phosphorus"]  # Atom types to test
+test_iterations = 10        # Number of iterations per atom type (increased for statistical significance)
+
+# EXP-15: Topological Conservation
+# Tests conservation of topological features in fractal representations
+[experiments.EXP-15]
+name = "Topological Conservation"
+enabled = true
+sample_size = 100000        # Number of structures to test (fits RAM)
+topological_features = ["connectivity", "holes", "genus", "boundaries"]  # Features to test
+test_iterations = 10        # Number of iterations per feature (increased for statistical significance)
+
+# EXP-16: Hierarchical Distane Mapping
+# Tests mapping of hierarchical distances in fractal structures
+[experiments.EXP-16]
+name = "Hierarchical Distance Mapping"
+enabled = true
+sample_size = 100000        # Number of structures to test (fits RAM)
+distance_metrics = ["euclidean", "manhattan", "chebyshev", "minkowski"]  # Distance metrics to test
+test_iterations = 10        # Number of iterations per metric (increased for statistical significance)
+
+# EXP-17: Thermodynamic Validation
+# Tests thermodynamic properties of fractal structures
+[experiments.EXP-17]
+name = "Thermodynamic Validation"
+enabled = true
+sample_size = 100000        # Number of structures to test (fits RAM)
+thermodynamic_properties = ["entropy", "enthalpy", "free_energy", "heat_capacity"]  # Properties to test
+test_iterations = 10        # Number of iterations per property (increased for statistical significance)
+
+# EXP-18: Falloff Thermodynamics
+# Tests whether applying the same falloff formula used in gravity to thermodynamic properties
+# makes fractal thermodynamics behave more like classical thermodynamics.
+[experiments.EXP-18]
+name = "Falloff Thermodynamics"
+enabled = true
+sample_size = 100000        # Number of structures to test (fits RAM)
+falloff_functions = ["inverse_square", "exponential_decay", "logarithmic_decay"]  # Falloff functions to test
+test_iterations = 10        # Number of iterations per function (increased for statistical significance)
+
+# EXP-19: Orbital Equivalence
+# Tests whether orbital mechanics and fractal cohesion mechanics are equivalent representations
+# of the same physical reality.
+[experiments.EXP-19]
+name = "Orbital Equivalence"
+enabled = true
+sample_size = 100000        # Number of structures to test (fits RAM)
+orbital_parameters = ["semi_major_axis", "eccentricity", "inclination", "period"]  # Orbital parameters to test
+test_iterations = 10        # Number of iterations per parameter (increased for statistical significance)
+
+# EXP-20: Vector Field Derivation
+# Tests whether vector fields can be derived from fractal structures
+[experiments.EXP-20]
+name = "Vector Field Derivation"
+enabled = true
+sample_size = 100000        # Number of structures to test (fits RAM)
+vector_field_types = ["electric", "magnetic", "gravitational"]  # Vector field types to test
+test_iterations = 10        # Number of iterations per field type (increased for statistical significance)

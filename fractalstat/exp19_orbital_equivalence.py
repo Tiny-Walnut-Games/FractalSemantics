@@ -179,18 +179,34 @@ def simulate_orbital_trajectory(
 
         return np.array(derivatives)
 
-    # Solve ODE
+    # Solve ODE with improved settings
     try:
-        states = odeint(derivatives, initial_state, times)
+        # Use more robust ODE solver settings
+        states = odeint(
+            derivatives,
+            initial_state,
+            times,
+            rtol=1e-8,  # Relative tolerance
+            atol=1e-10,  # Absolute tolerance
+            mxstep=5000  # Maximum steps
+        )
     except Exception as e:
         print(f"ODE integration failed: {e}")
-        # Fallback to simple Euler integration
+        # Fallback to simple Euler integration with smaller steps
+        print("Falling back to Euler integration...")
         states = [initial_state.copy()]
         current_state = initial_state.copy()
+        dt_small = dt / 10  # Use smaller time steps for stability
 
         for t in times[1:]:
-            derivs = derivatives(current_state, t)
-            current_state += derivs * dt
+            # Multiple small steps per dt
+            for _ in range(10):
+                try:
+                    derivs = derivatives(current_state, t)
+                    current_state += derivs * dt_small
+                except (ValueError, RuntimeWarning):
+                    # Skip problematic steps
+                    break
             states.append(current_state.copy())
 
         states = np.array(states)
@@ -415,11 +431,19 @@ class TrajectoryComparison:
         for i in range(3):  # x, y, z coordinates
             if len(classical) > 1 and len(fractal) > 1:
                 try:
-                    corr = np.corrcoef(classical[:, i], fractal[:, i])[0, 1]
-                    if not np.isnan(corr):
-                        correlations.append(abs(corr))
-                except (ValueError, TypeError, IndexError) as e:
-                    print(f"Warning: Could not compute position correlation for coordinate {i}: {e}")
+                    # Check for valid data (not all zeros, not NaN)
+                    classical_coord = classical[:, i]
+                    fractal_coord = fractal[:, i]
+
+                    if (np.any(classical_coord != 0) and np.any(fractal_coord != 0) and
+                        not np.any(np.isnan(classical_coord)) and not np.any(np.isnan(fractal_coord)) and
+                        np.std(classical_coord) > 0 and np.std(fractal_coord) > 0):
+
+                        corr = np.corrcoef(classical_coord, fractal_coord)[0, 1]
+                        if not np.isnan(corr) and np.isfinite(corr):
+                            correlations.append(abs(corr))
+                except (ValueError, TypeError, IndexError, RuntimeWarning):
+                    # Silently skip problematic coordinates
                     pass
 
         self.position_correlation = statistics.mean(correlations) if correlations else 0.0
@@ -433,22 +457,36 @@ class TrajectoryComparison:
         classical = np.array(self.classical_positions)
         fractal = np.array(self.fractal_positions)
 
+        # Check for valid data
+        if (np.any(np.isnan(classical)) or np.any(np.isnan(fractal)) or
+            np.any(np.isinf(classical)) or np.any(np.isinf(fractal))):
+            self.trajectory_similarity = 0.0
+            return
+
         # Calculate average Euclidean distance between trajectories
         distances = []
         min_len = min(len(classical), len(fractal))
 
         for i in range(min_len):
-            dist = np.linalg.norm(classical[i] - fractal[i])
-            distances.append(dist)
+            try:
+                dist = np.linalg.norm(classical[i] - fractal[i])
+                if np.isfinite(dist):
+                    distances.append(dist)
+            except (ValueError, RuntimeWarning):
+                continue
 
         if distances:
             # Similarity = 1 / (1 + average_distance)
             # Normalize by trajectory scale
             avg_distance = statistics.mean(distances)
-            trajectory_scale = np.mean([np.linalg.norm(pos) for pos in classical[:min_len]])
-            if trajectory_scale > 0:
+            trajectory_scale = np.mean([np.linalg.norm(pos) for pos in classical[:min_len] if np.all(np.isfinite(pos))])
+
+            if trajectory_scale > 0 and np.isfinite(avg_distance):
                 normalized_distance = avg_distance / trajectory_scale
-                self.trajectory_similarity = 1.0 / (1.0 + normalized_distance)
+                if np.isfinite(normalized_distance):
+                    self.trajectory_similarity = 1.0 / (1.0 + normalized_distance)
+                else:
+                    self.trajectory_similarity = 0.0
             else:
                 self.trajectory_similarity = 0.0
         else:

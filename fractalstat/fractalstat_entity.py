@@ -26,7 +26,7 @@ import secrets
 from decimal import Decimal, ROUND_HALF_EVEN
 
 # Import enums from dynamic_enum to avoid circular import
-from .dynamic_enum import Realm, Horizon, Polarity, Alignment
+from fractalstat.dynamic_enum import Realm, Horizon, Polarity, Alignment
 
 
 def _utc_now() -> datetime:
@@ -38,6 +38,7 @@ def _utc_now() -> datetime:
 # FractalStat Dimension Enums (Dynamic)
 # ============================================================================
 
+# Enums are defined in dynamic_enum.py to avoid circular imports.
 
 # ============================================================================
 # FractalStat Coordinate Data Class (8 Dimensions)
