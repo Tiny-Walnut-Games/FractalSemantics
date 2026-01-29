@@ -1,0 +1,21 @@
+{
+  "experiment": "EXP-08",
+  "title": "Self-Organizing Memory Networks",
+  "timestamp": "2026-01-29T17:47:35.455277+00:00",
+  "status": "PASS",
+  "total_memories": 51,
+  "num_clusters": 25,
+  "avg_cluster_size": 279.48,
+  "semantic_cohesion_score": 0.6994603606009061,
+  "cluster_efficiency": 0.6994603606009061,
+  "retrieval_efficiency": 1.0,
+  "semantic_retrieval_accuracy": 0.0,
+  "self_organization_improvement": 0.6994603606009061,
+  "consolidation_ratio": 0.0,
+  "forgetting_events": 9949,
+  "memory_pressure": 0.9949,
+  "storage_overhead_reduction": 0.9949,
+  "emergent_intelligence_score": 0.6097841442403624,
+  "organic_growth_validated": true,
+  "network_connectivity": 0.1
+}

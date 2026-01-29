@@ -1,0 +1,116 @@
+{
+  "experiment": "EXP-04",
+  "test_type": "Fractal Scaling",
+  "start_time": "2026-01-29T17:07:03.543483+00:00",
+  "end_time": "2026-01-29T17:18:00.208149+00:00",
+  "total_duration_seconds": 656.665,
+  "scales_tested": 5,
+  "scale_results": [
+    {
+      "scale": 1000,
+      "num_bitchains": 1000,
+      "num_addresses": 1000,
+      "unique_addresses": 1000,
+      "collision_count": 0,
+      "collision_rate_percent": 0.0,
+      "retrieval": {
+        "num_queries": 10000,
+        "mean_ms": 0.000216,
+        "median_ms": 0.0002,
+        "p95_ms": 0.0004,
+        "p99_ms": 0.0005
+      },
+      "performance": {
+        "total_time_seconds": 0.082,
+        "addresses_per_second": 12200
+      },
+      "valid": true
+    },
+    {
+      "scale": 10000,
+      "num_bitchains": 10000,
+      "num_addresses": 10000,
+      "unique_addresses": 10000,
+      "collision_count": 0,
+      "collision_rate_percent": 0.0,
+      "retrieval": {
+        "num_queries": 10000,
+        "mean_ms": 0.00026,
+        "median_ms": 0.0002,
+        "p95_ms": 0.0004,
+        "p99_ms": 0.0006
+      },
+      "performance": {
+        "total_time_seconds": 0.645,
+        "addresses_per_second": 15509
+      },
+      "valid": true
+    },
+    {
+      "scale": 100000,
+      "num_bitchains": 100000,
+      "num_addresses": 100000,
+      "unique_addresses": 100000,
+      "collision_count": 0,
+      "collision_rate_percent": 0.0,
+      "retrieval": {
+        "num_queries": 10000,
+        "mean_ms": 0.000468,
+        "median_ms": 0.0004,
+        "p95_ms": 0.0007,
+        "p99_ms": 0.001
+      },
+      "performance": {
+        "total_time_seconds": 5.67,
+        "addresses_per_second": 17636
+      },
+      "valid": true
+    },
+    {
+      "scale": 1000000,
+      "num_bitchains": 1000000,
+      "num_addresses": 1000000,
+      "unique_addresses": 1000000,
+      "collision_count": 0,
+      "collision_rate_percent": 0.0,
+      "retrieval": {
+        "num_queries": 10000,
+        "mean_ms": 0.00051,
+        "median_ms": 0.0004,
+        "p95_ms": 0.0008,
+        "p99_ms": 0.001
+      },
+      "performance": {
+        "total_time_seconds": 57.881,
+        "addresses_per_second": 17276
+      },
+      "valid": true
+    },
+    {
+      "scale": 10000000,
+      "num_bitchains": 10000000,
+      "num_addresses": 10000000,
+      "unique_addresses": 10000000,
+      "collision_count": 0,
+      "collision_rate_percent": 0.0,
+      "retrieval": {
+        "num_queries": 10000,
+        "mean_ms": 0.000872,
+        "median_ms": 0.0007,
+        "p95_ms": 0.0014,
+        "p99_ms": 0.002
+      },
+      "performance": {
+        "total_time_seconds": 586.307,
+        "addresses_per_second": 17055
+      },
+      "valid": true
+    }
+  ],
+  "degradation_analysis": {
+    "collision_degradation": "OK Zero collisions at all scales",
+    "retrieval_degradation": "OK Retrieval latency scales logarithmically (4.04x for 10000x scale)"
+  },
+  "is_fractal": true,
+  "all_valid": true
+}

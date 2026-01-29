@@ -2,10 +2,23 @@
 Test suite for EXP-03: Coordinate Space Entropy Test
 
 Tests entropy calculation, normalization, semantic disambiguation metrics,
-and ablation testing for STAT7 dimensions.
+and ablation testing for FractalStat dimensions.
 """
-
+import json
+from unittest.mock import patch, MagicMock
+import tempfile
+from pathlib import Path
+import pytest
 import numpy as np
+
+# Import test dependencies at module level to fix pylint import warnings
+from fractalstat.exp03_coordinate_entropy import (
+    EXP03_CoordinateEntropy,
+    EXP03_Result,
+    save_results,
+    plot_entropy_contributions,
+)
+from fractalstat.fractalstat_experiments import generate_random_bitchain
 
 
 class TestEXP03Result:
@@ -13,13 +26,16 @@ class TestEXP03Result:
 
     def test_exp03_result_initialization(self):
         """EXP03_Result should track entropy metrics."""
-        from fractalstat.exp03_coordinate_entropy import EXP03_Result
 
         result = EXP03_Result(
             dimensions_used=["realm", "lineage", "adjacency"],
             sample_size=1000,
             shannon_entropy=8.5,
             normalized_entropy=0.85,
+            expressiveness_contribution=85.0,
+            individual_contribution=75.0,
+            relative_contribution=80.0,
+            complementary_contribution=70.0,
             entropy_reduction_pct=15.0,
             unique_coordinates=950,
             semantic_disambiguation_score=0.92,
@@ -37,13 +53,16 @@ class TestEXP03Result:
 
     def test_exp03_result_to_dict(self):
         """EXP03_Result should serialize to dict."""
-        from fractalstat.exp03_coordinate_entropy import EXP03_Result
 
         result = EXP03_Result(
             dimensions_used=["realm", "lineage"],
             sample_size=1000,
             shannon_entropy=7.2,
             normalized_entropy=0.72,
+            expressiveness_contribution=72.0,
+            individual_contribution=65.0,
+            relative_contribution=70.0,
+            complementary_contribution=68.0,
             entropy_reduction_pct=3.5,
             unique_coordinates=900,
             semantic_disambiguation_score=0.88,
@@ -62,31 +81,40 @@ class TestEXP03CoordinateEntropy:
 
     def test_exp03_initialization(self):
         """EXP03_CoordinateEntropy should initialize with sample size and seed."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
 
         exp = EXP03_CoordinateEntropy(sample_size=500, random_seed=123)
-        assert exp.sample_size == 500
-        assert exp.random_seed == 123
-        assert exp.results == []
-        assert exp.baseline_entropy is None
-        assert len(exp.STAT7_DIMENSIONS) == 7
+        if exp.sample_size != 500:
+            pytest.fail("Expected sample_size to be 500")
+        if exp.random_seed != 123:
+            pytest.fail("Expected random_seed to be 123")
+        if exp.results != []:
+            pytest.fail("Expected results to be empty list")
+        if exp.baseline_entropy is not None:
+            pytest.fail("Expected baseline_entropy to be None")
+        if len(exp.FractalStat_DIMENSIONS) != 8:
+            pytest.fail("Expected 8 FractalStat dimensions")
 
     def test_exp03_dimensions_defined(self):
-        """EXP03 should have all 7 STAT7 dimensions defined."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+        """EXP03 should have all 8 FractalStat dimensions defined."""
 
         exp = EXP03_CoordinateEntropy()
-        assert "realm" in exp.STAT7_DIMENSIONS
-        assert "lineage" in exp.STAT7_DIMENSIONS
-        assert "adjacency" in exp.STAT7_DIMENSIONS
-        assert "horizon" in exp.STAT7_DIMENSIONS
-        assert "resonance" in exp.STAT7_DIMENSIONS
-        assert "velocity" in exp.STAT7_DIMENSIONS
-        assert "density" in exp.STAT7_DIMENSIONS
+        if "realm" not in exp.FractalStat_DIMENSIONS:
+            pytest.fail("Expected 'realm' dimension to be defined")
+        if "lineage" not in exp.FractalStat_DIMENSIONS:
+            pytest.fail("Expected 'lineage' dimension to be defined")
+        if "adjacency" not in exp.FractalStat_DIMENSIONS:
+            pytest.fail("Expected 'adjacency' dimension to be defined")
+        if "horizon" not in exp.FractalStat_DIMENSIONS:
+            pytest.fail("Expected 'horizon' dimension to be defined")
+        if "luminosity" not in exp.FractalStat_DIMENSIONS:
+            pytest.fail("Expected 'luminosity' dimension to be defined")
+        if "polarity" not in exp.FractalStat_DIMENSIONS:
+            pytest.fail("Expected 'polarity' dimension to be defined")
+        if "dimensionality" not in exp.FractalStat_DIMENSIONS:
+            pytest.fail("Expected 'dimensionality' dimension to be defined")
+        if "alignment" not in exp.FractalStat_DIMENSIONS:
+            pytest.fail("Expected 'alignment' dimension to be defined")
+
 
 
 class TestShannonEntropy:
@@ -94,9 +122,7 @@ class TestShannonEntropy:
 
     def test_compute_shannon_entropy_uniform(self):
         """Shannon entropy should be maximum for uniform distribution."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 
@@ -110,9 +136,7 @@ class TestShannonEntropy:
 
     def test_compute_shannon_entropy_single_value(self):
         """Shannon entropy should be zero for single repeated value."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 
@@ -124,9 +148,7 @@ class TestShannonEntropy:
 
     def test_compute_shannon_entropy_empty(self):
         """Shannon entropy should handle empty list."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
         entropy = exp.compute_shannon_entropy([])
@@ -134,9 +156,7 @@ class TestShannonEntropy:
 
     def test_compute_shannon_entropy_two_values(self):
         """Shannon entropy should be 1.0 for equal split of two values."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 
@@ -149,9 +169,7 @@ class TestShannonEntropy:
 
     def test_compute_shannon_entropy_skewed(self):
         """Shannon entropy should be lower for skewed distribution."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 
@@ -168,9 +186,7 @@ class TestEntropyNormalization:
 
     def test_normalize_entropy_maximum(self):
         """Normalized entropy should be 1.0 for maximum entropy."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 
@@ -182,9 +198,7 @@ class TestEntropyNormalization:
 
     def test_normalize_entropy_zero(self):
         """Normalized entropy should be 0.0 for zero entropy."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
         normalized = exp.normalize_entropy(0.0, 100)
@@ -192,9 +206,7 @@ class TestEntropyNormalization:
 
     def test_normalize_entropy_half(self):
         """Normalized entropy should be 0.5 for half maximum."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 
@@ -206,9 +218,7 @@ class TestEntropyNormalization:
 
     def test_normalize_entropy_edge_cases(self):
         """Normalized entropy should handle edge cases."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 
@@ -224,9 +234,7 @@ class TestSemanticDisambiguation:
 
     def test_semantic_disambiguation_perfect(self):
         """Disambiguation score should be high for all unique coordinates."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 
@@ -239,9 +247,7 @@ class TestSemanticDisambiguation:
 
     def test_semantic_disambiguation_poor(self):
         """Disambiguation score should be low for many duplicates."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 
@@ -254,9 +260,7 @@ class TestSemanticDisambiguation:
 
     def test_semantic_disambiguation_empty(self):
         """Disambiguation score should handle empty list."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
         score = exp.compute_semantic_disambiguation_score([], 0)
@@ -264,9 +268,7 @@ class TestSemanticDisambiguation:
 
     def test_semantic_disambiguation_partial(self):
         """Disambiguation score should be moderate for partial uniqueness."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 
@@ -283,25 +285,19 @@ class TestCoordinateExtraction:
 
     def test_extract_coordinates_all_dimensions(self):
         """Should extract coordinates with all dimensions."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
-        from fractalstat.stat7_experiments import generate_random_bitchain
+
 
         exp = EXP03_CoordinateEntropy()
         bitchains = [generate_random_bitchain(seed=i) for i in range(10)]
 
-        coords = exp.extract_coordinates(bitchains, exp.STAT7_DIMENSIONS)
+        coords = exp.extract_coordinates(bitchains, exp.FractalStat_DIMENSIONS)
 
         assert len(coords) == 10
         assert all(isinstance(c, str) for c in coords)
 
     def test_extract_coordinates_subset(self):
         """Should extract coordinates with dimension subset."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
-        from fractalstat.stat7_experiments import generate_random_bitchain
+
 
         exp = EXP03_CoordinateEntropy()
         bitchains = [generate_random_bitchain(seed=i) for i in range(10)]
@@ -321,16 +317,13 @@ class TestCoordinateExtraction:
 
     def test_extract_coordinates_deterministic(self):
         """Coordinate extraction should be deterministic."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
-        from fractalstat.stat7_experiments import generate_random_bitchain
+
 
         exp = EXP03_CoordinateEntropy()
         bitchains = [generate_random_bitchain(seed=i) for i in range(10)]
 
-        coords1 = exp.extract_coordinates(bitchains, exp.STAT7_DIMENSIONS)
-        coords2 = exp.extract_coordinates(bitchains, exp.STAT7_DIMENSIONS)
+        coords1 = exp.extract_coordinates(bitchains, exp.FractalStat_DIMENSIONS)
+        coords2 = exp.extract_coordinates(bitchains, exp.FractalStat_DIMENSIONS)
 
         assert coords1 == coords2
 
@@ -340,53 +333,45 @@ class TestEXP03Run:
 
     def test_exp03_run_small_sample(self):
         """EXP-03 should run with small sample size."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         results, success = exp.run()
 
         assert isinstance(results, list)
-        assert len(results) == 8  # Baseline + 7 ablations
+        assert len(results) == 9  # Baseline + 8 ablations
         assert isinstance(success, bool)
 
     def test_exp03_baseline_result(self):
         """EXP-03 should have baseline result with all dimensions."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         results, _ = exp.run()
 
         baseline = results[0]
-        assert len(baseline.dimensions_used) == 7
+        assert len(baseline.dimensions_used) == 8
         assert baseline.entropy_reduction_pct == 0.0
         assert baseline.meets_threshold
 
     def test_exp03_ablation_results(self):
         """EXP-03 should have ablation results for each dimension."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         results, _ = exp.run()
 
-        # Should have 7 ablation results
+        # Should have 8 ablation results
         ablations = results[1:]
-        assert len(ablations) == 7
+        assert len(ablations) == 8
 
-        # Each should have 6 dimensions (one removed)
+        # Each should have 7 dimensions (one removed)
         for result in ablations:
-            assert len(result.dimensions_used) == 6
+            assert len(result.dimensions_used) == 7
 
     def test_exp03_entropy_reduction_calculated(self):
         """EXP-03 should calculate entropy reduction for ablations."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         results, _ = exp.run()
@@ -402,9 +387,7 @@ class TestEXP03Run:
 
     def test_exp03_baseline_entropy_stored(self):
         """EXP-03 should store baseline entropy."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         exp.run()
@@ -414,9 +397,7 @@ class TestEXP03Run:
 
     def test_exp03_reproducible_with_seed(self):
         """EXP-03 should be reproducible with same seed."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp1 = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         results1, _ = exp1.run()
@@ -433,9 +414,7 @@ class TestEXP03Summary:
 
     def test_exp03_get_summary(self):
         """EXP-03 should generate summary statistics."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         exp.run()
@@ -451,9 +430,7 @@ class TestEXP03Summary:
 
     def test_exp03_summary_values(self):
         """EXP-03 summary should have correct values."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         exp.run()
@@ -461,7 +438,7 @@ class TestEXP03Summary:
 
         assert summary["sample_size"] == 50
         assert summary["random_seed"] == 42
-        assert summary["total_tests"] == 8
+        assert summary["total_tests"] == 9
         assert isinstance(summary["all_critical"], bool)
 
 
@@ -470,9 +447,7 @@ class TestVisualizationData:
 
     def test_generate_visualization_data(self):
         """Should generate visualization data."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         exp.run()
@@ -486,23 +461,19 @@ class TestVisualizationData:
 
     def test_visualization_data_structure(self):
         """Visualization data should have correct structure."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         exp.run()
         viz_data = exp.generate_visualization_data()
 
-        assert len(viz_data["dimensions"]) == 7
-        assert len(viz_data["entropy_reductions"]) == 7
+        assert len(viz_data["dimensions"]) == 8
+        assert len(viz_data["entropy_reductions"]) == 8
         assert viz_data["threshold"] == 5.0
 
     def test_visualization_data_empty_before_run(self):
         """Visualization data should be empty before run."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         viz_data = exp.generate_visualization_data()
@@ -515,13 +486,6 @@ class TestSaveResults:
 
     def test_save_results_creates_file(self):
         """save_results should create JSON file."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-            save_results,
-        )
-        import tempfile
-        import json
-        from pathlib import Path
 
         exp = EXP03_CoordinateEntropy(sample_size=10, random_seed=42)
         exp.run()
@@ -546,7 +510,7 @@ class TestSaveResults:
                 assert saved_file.exists()
 
                 # Check valid JSON
-                with open(saved_file) as f:
+                with open(saved_file, encoding="utf-8") as f:
                     loaded = json.load(f)
                     assert loaded == summary
             finally:
@@ -558,9 +522,7 @@ class TestPlotEntropyContributions:
 
     def test_plot_without_matplotlib(self):
         """plot_entropy_contributions should handle missing matplotlib."""
-        from fractalstat.exp03_coordinate_entropy import (
-            plot_entropy_contributions,
-        )
+
 
         viz_data = {
             "dimensions": ["realm", "lineage"],
@@ -574,9 +536,7 @@ class TestPlotEntropyContributions:
 
     def test_plot_with_empty_data(self):
         """plot_entropy_contributions should handle empty data."""
-        from fractalstat.exp03_coordinate_entropy import (
-            plot_entropy_contributions,
-        )
+
 
         # Should not raise error with empty data
         plot_entropy_contributions({})
@@ -587,10 +547,7 @@ class TestMainEntryPoint:
 
     def test_main_with_config(self):
         """Main should use config if available."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
-        from unittest.mock import patch, MagicMock
+
 
         mock_config = MagicMock()
         mock_config.get.side_effect = lambda exp, param, default: {
@@ -602,18 +559,16 @@ class TestMainEntryPoint:
             exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=123)
             results, _ = exp.run()
 
-            assert len(results) == 8
+            assert len(results) == 9
 
     def test_main_without_config(self):
         """Main should use defaults if config unavailable."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=42)
         results, _ = exp.run()
 
-        assert len(results) == 8
+        assert len(results) == 9
 
 
 class TestEdgeCases:
@@ -621,9 +576,7 @@ class TestEdgeCases:
 
     def test_exp03_with_zero_samples(self):
         """EXP-03 should handle zero samples gracefully."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=0, random_seed=42)
         # Should not crash
@@ -635,21 +588,17 @@ class TestEdgeCases:
 
     def test_exp03_with_single_sample(self):
         """EXP-03 should handle single sample."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy(sample_size=1, random_seed=42)
         results, _ = exp.run()
 
         # Should complete but with low entropy
-        assert len(results) == 8
+        assert len(results) == 9
 
     def test_shannon_entropy_with_duplicates(self):
         """Shannon entropy should handle duplicate coordinates correctly."""
-        from fractalstat.exp03_coordinate_entropy import (
-            EXP03_CoordinateEntropy,
-        )
+
 
         exp = EXP03_CoordinateEntropy()
 

@@ -2,6 +2,7 @@
 Tests for EXP-11: Dimension Cardinality Analysis
 Comprehensive test coverage targeting 95%+
 """
+# pylint: disable=protected-access
 
 import json
 import tempfile
@@ -9,12 +10,12 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 from fractalstat.exp11_dimension_cardinality import (
-    DimensionCardinalityExperiment,
+    EXP11_DimensionCardinality,
     DimensionTestResult,
     DimensionCardinalityResult,
     save_results,
 )
-from fractalstat.stat7_experiments import generate_random_bitchain
+from fractalstat.fractalstat_experiments import generate_random_bitchain
 
 
 class TestDimensionTestResult:
@@ -136,7 +137,7 @@ class TestDimensionCardinalityExperiment:
 
     def test_initialization(self):
         """DimensionCardinalityExperiment should initialize with parameters."""
-        exp = DimensionCardinalityExperiment(
+        exp = EXP11_DimensionCardinality(
             sample_size=100,
             dimension_counts=[3, 5, 7],
             test_iterations=2,
@@ -149,15 +150,15 @@ class TestDimensionCardinalityExperiment:
 
     def test_initialization_defaults(self):
         """DimensionCardinalityExperiment should use default parameters."""
-        exp = DimensionCardinalityExperiment()
+        exp = EXP11_DimensionCardinality()
 
         assert exp.sample_size == 1000
         assert exp.dimension_counts == [3, 4, 5, 6, 7, 8, 9, 10]
         assert exp.test_iterations == 5
 
     def test_select_dimensions_reduced(self):
-        """_select_dimensions should return subset for counts <= 7."""
-        exp = DimensionCardinalityExperiment()
+        """_select_dimensions should return subset for counts <= 8."""
+        exp = EXP11_DimensionCardinality()
 
         dims_3 = exp._select_dimensions(3)
         assert len(dims_3) == 3
@@ -170,34 +171,35 @@ class TestDimensionCardinalityExperiment:
 
         dims_7 = exp._select_dimensions(7)
         assert len(dims_7) == 7
-        assert dims_7 == exp.STAT7_DIMENSIONS
+        assert dims_7 == exp.FractalStat_DIMENSIONS[:7]
 
     def test_select_dimensions_extended(self):
-        """_select_dimensions should add hypothetical dimensions for counts > 7."""
-        exp = DimensionCardinalityExperiment()
+        """_select_dimensions should add hypothetical dimensions for counts > 8."""
+        exp = EXP11_DimensionCardinality()
 
         dims_8 = exp._select_dimensions(8)
         assert len(dims_8) == 8
-        assert "temperature" in dims_8
+        assert dims_8 == exp.FractalStat_DIMENSIONS  # All FractalStat dimensions
+        assert "temperature" not in dims_8
 
         dims_9 = exp._select_dimensions(9)
         assert len(dims_9) == 9
         assert "temperature" in dims_9
-        assert "entropy" in dims_9
+        assert "entropy" not in dims_9
 
         dims_10 = exp._select_dimensions(10)
         assert len(dims_10) == 10
         assert "temperature" in dims_10
         assert "entropy" in dims_10
-        assert "coherence" in dims_10
+        assert "coherence" not in dims_10
 
     def test_compute_address_with_dimensions(self):
         """_compute_address_with_dimensions should generate addresses with selected dimensions."""
-        exp = DimensionCardinalityExperiment()
+        exp = EXP11_DimensionCardinality()
         bc = generate_random_bitchain(seed=42)
 
         # Test with all 7 dimensions
-        addr_7 = exp._compute_address_with_dimensions(bc, exp.STAT7_DIMENSIONS)
+        addr_7 = exp._compute_address_with_dimensions(bc, exp.FractalStat_DIMENSIONS)
         assert isinstance(addr_7, str)
         assert len(addr_7) == 64  # SHA-256 hex
 
@@ -213,7 +215,7 @@ class TestDimensionCardinalityExperiment:
 
     def test_compute_address_with_extended_dimensions(self):
         """_compute_address_with_dimensions should handle hypothetical dimensions."""
-        exp = DimensionCardinalityExperiment()
+        exp = EXP11_DimensionCardinality()
         bc = generate_random_bitchain(seed=42)
 
         # Test with extended dimensions
@@ -224,32 +226,34 @@ class TestDimensionCardinalityExperiment:
 
     def test_calculate_semantic_expressiveness(self):
         """_calculate_semantic_expressiveness should score dimension sets."""
-        exp = DimensionCardinalityExperiment()
+        exp = EXP11_DimensionCardinality()
         bitchains = [generate_random_bitchain(seed=i) for i in range(10)]
 
-        # Test with all 7 STAT7 dimensions
+        # Test with all 7 FractalStat dimensions
         score_7 = exp._calculate_semantic_expressiveness(
-            exp.STAT7_DIMENSIONS, bitchains
+            exp.FractalStat_DIMENSIONS, bitchains
         )
-        assert 0.0 <= score_7 <= 1.0
-        assert score_7 == 0.95  # Sum of STAT7 weights
+        assert score_7 >= 0.95  # Base score from FractalStat weights, plus bonuses
+        assert score_7 <= 2.0   # Reasonable upper bound
 
         # Test with 3 dimensions
         score_3 = exp._calculate_semantic_expressiveness(
             ["realm", "lineage", "adjacency"], bitchains
         )
-        assert 0.0 <= score_3 <= 1.0
+        assert score_3 >= 0.0
+        assert score_3 <= 1.5   # Should be lower than 7-dimension score with bonuses
         assert score_3 < score_7
 
         # Test with extended dimensions
         score_10 = exp._calculate_semantic_expressiveness(
-            exp.STAT7_DIMENSIONS + exp.EXTENDED_DIMENSIONS, bitchains
+            exp.FractalStat_DIMENSIONS + exp.EXTENDED_DIMENSIONS, bitchains
         )
-        assert 0.0 <= score_10 <= 1.0
+        assert score_10 >= 0.95  # At least base score
+        assert score_10 <= 3.0   # Reasonable upper bound
 
     def test_test_dimension_count(self):
         """_test_dimension_count should test a specific dimension count."""
-        exp = DimensionCardinalityExperiment(sample_size=50, test_iterations=1)
+        exp = EXP11_DimensionCardinality(sample_size=50, test_iterations=1)
 
         result = exp._test_dimension_count(7)
 
@@ -265,7 +269,7 @@ class TestDimensionCardinalityExperiment:
 
     def test_run_small_sample(self):
         """run() should execute with small sample for testing."""
-        exp = DimensionCardinalityExperiment(
+        exp = EXP11_DimensionCardinality(
             sample_size=20,
             dimension_counts=[3, 5, 7],
             test_iterations=1,
@@ -281,7 +285,7 @@ class TestDimensionCardinalityExperiment:
 
     def test_run_collision_detection(self):
         """run() should detect collisions with fewer dimensions."""
-        exp = DimensionCardinalityExperiment(
+        exp = EXP11_DimensionCardinality(
             sample_size=100,
             dimension_counts=[3, 7],
             test_iterations=1,
@@ -300,7 +304,7 @@ class TestDimensionCardinalityExperiment:
 
     def test_run_diminishing_returns(self):
         """run() should identify diminishing returns threshold."""
-        exp = DimensionCardinalityExperiment(
+        exp = EXP11_DimensionCardinality(
             sample_size=50,
             dimension_counts=[5, 6, 7, 8],
             test_iterations=1,
@@ -312,7 +316,7 @@ class TestDimensionCardinalityExperiment:
 
     def test_run_seven_dimensions_justified(self):
         """run() should evaluate if 7 dimensions is justified."""
-        exp = DimensionCardinalityExperiment(
+        exp = EXP11_DimensionCardinality(
             sample_size=100,
             dimension_counts=[3, 5, 7, 9],
             test_iterations=2,
@@ -328,7 +332,7 @@ class TestDimensionCardinalityExperiment:
 
     def test_run_major_findings(self):
         """run() should generate major findings."""
-        exp = DimensionCardinalityExperiment(
+        exp = EXP11_DimensionCardinality(
             sample_size=50,
             dimension_counts=[3, 7],
             test_iterations=1,
@@ -379,7 +383,7 @@ class TestSaveResults:
                 result_path = save_results(result, output_file)
 
                 assert Path(result_path).exists()
-                with open(result_path, "r") as f:
+                with open(result_path, "r", encoding="utf-8") as f:
                     loaded = json.load(f)
                     assert loaded["experiment"] == "EXP-11"
 
@@ -435,7 +439,7 @@ class TestMainEntryPoint:
         mock_config.get.side_effect = mock_get
 
         with patch("fractalstat.config.ExperimentConfig", return_value=mock_config):
-            exp = DimensionCardinalityExperiment(
+            exp = EXP11_DimensionCardinality(
                 sample_size=mock_config.get("EXP-11", "sample_size", 1000),
                 dimension_counts=mock_config.get(
                     "EXP-11", "dimension_counts", [3, 4, 5, 6, 7, 8, 9, 10]
@@ -453,7 +457,7 @@ class TestMainEntryPoint:
             "fractalstat.config.ExperimentConfig",
             side_effect=Exception("Config not found"),
         ):
-            exp = DimensionCardinalityExperiment()
+            exp = EXP11_DimensionCardinality()
 
             assert exp.sample_size == 1000
             assert exp.dimension_counts == [3, 4, 5, 6, 7, 8, 9, 10]
@@ -465,7 +469,7 @@ class TestEdgeCases:
 
     def test_zero_sample_size(self):
         """Experiment should handle zero sample size gracefully."""
-        exp = DimensionCardinalityExperiment(
+        exp = EXP11_DimensionCardinality(
             sample_size=0,
             dimension_counts=[7],
             test_iterations=1,
@@ -478,7 +482,7 @@ class TestEdgeCases:
 
     def test_single_dimension(self):
         """Experiment should handle single dimension."""
-        exp = DimensionCardinalityExperiment(
+        exp = EXP11_DimensionCardinality(
             sample_size=10,
             dimension_counts=[1],
             test_iterations=1,
@@ -490,7 +494,7 @@ class TestEdgeCases:
 
     def test_many_dimensions(self):
         """Experiment should handle many dimensions (> 10)."""
-        exp = DimensionCardinalityExperiment(
+        exp = EXP11_DimensionCardinality(
             sample_size=10,
             dimension_counts=[10],
             test_iterations=1,
@@ -501,7 +505,7 @@ class TestEdgeCases:
 
     def test_empty_dimension_counts(self):
         """Experiment should handle empty dimension counts list."""
-        exp = DimensionCardinalityExperiment(
+        exp = EXP11_DimensionCardinality(
             sample_size=10,
             dimension_counts=[],
             test_iterations=1,
@@ -512,7 +516,7 @@ class TestEdgeCases:
 
     def test_collision_rate_calculation(self):
         """Collision rate should be calculated correctly."""
-        exp = DimensionCardinalityExperiment(sample_size=100, test_iterations=1)
+        exp = EXP11_DimensionCardinality(sample_size=100, test_iterations=1)
 
         result = exp._test_dimension_count(7)
 

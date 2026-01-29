@@ -38,7 +38,7 @@ pip install -e .
 
 ```bash
 # Phase 1 validation experiments
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Individual experiments
 python -m fractalstat.exp04_fractal_scaling
@@ -68,9 +68,9 @@ bc = BitChain(
     state={"value": 42}
 )
 
-# Compute STAT7 address
+# Compute FractalStat address
 address = bc.compute_address()
-print(f"STAT7 Address: {address}")
+print(f"FractalStat Address: {address}")
 ```
 
 ## Configuration
@@ -80,13 +80,13 @@ FractalStat uses environment-specific configurations:
 ```bash
 # Development mode (fast iteration)
 export FRACTALSTAT_ENV=dev
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # CI mode (balanced testing)
 export FRACTALSTAT_ENV=ci
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Production mode (full validation)
 export FRACTALSTAT_ENV=production
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 ```

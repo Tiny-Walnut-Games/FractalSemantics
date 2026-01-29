@@ -32,7 +32,7 @@ class TestPolarityVector:
         assert len(vector) == 7
 
     def test_polarity_vector_normalization(self):
-        """Polarity vector components should be normalized."""
+        """Polarity vector components should be in valid range (some may be [-1,1])."""
         from fractalstat.exp06_entanglement_detection import (
             compute_polarity_vector,
         )
@@ -50,8 +50,9 @@ class TestPolarityVector:
         }
 
         vector = compute_polarity_vector(bitchain)
+        # Some components can be in [-1, 1] range (like velocity), others in [0, 1]
         for component in vector:
-            assert 0.0 <= component <= 1.0, f"Component {component} out of range"
+            assert -1.0 <= component <= 1.0, f"Component {component} out of allowed range [-1.0, 1.0]"
 
 
 class TestCosineSimilarity:

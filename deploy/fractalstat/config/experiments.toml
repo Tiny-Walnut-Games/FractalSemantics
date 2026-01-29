@@ -1,0 +1,126 @@
+# FractalStat Experiment Configuration
+# Default configuration for all 10 validation experiments
+# 
+# This file defines the baseline parameters for publication-quality experiments.
+# For development or CI/CD, use experiments.dev.toml or experiments.ci.toml overrides.
+
+[experiments]
+# List of enabled experiments (EXP-01 through EXP-12)
+enabled = [
+    "EXP-01",
+    "EXP-02", 
+    "EXP-03",
+    "EXP-04",
+    "EXP-05",
+    "EXP-06",
+    "EXP-07",
+    "EXP-08",
+    "EXP-09",
+    "EXP-10",
+    "EXP-11",
+    "EXP-12"
+]
+
+# EXP-01: Address Uniqueness Test
+# Tests that every bit-chain gets a unique address with zero collisions
+[experiments.EXP-01]
+name = "Address Uniqueness Test"
+enabled = true
+sample_size = 1000          # Bit-chains to generate per iteration
+iterations = 10             # Number of test iterations
+quick_mode = false          # If true, reduce sample_size to 100
+
+# EXP-02: Retrieval Efficiency Test
+# Tests that retrieving a bit-chain by address is fast (< 1ms) at scale
+[experiments.EXP-02]
+name = "Retrieval Efficiency Test"
+enabled = true
+query_count = 1000          # Number of random retrieval queries per scale
+scales = [1000, 10000, 100000]  # Test scales (add 1000000 for full mode)
+
+# EXP-03: Dimension Necessity Test
+# Tests that all 7 FractalStat dimensions are necessary to avoid collisions
+[experiments.EXP-03]
+name = "Dimension Necessity Test"
+enabled = true
+sample_size = 1000          # Bit-chains for ablation testing
+
+# EXP-04: Fractal Scaling
+# Tests whether FractalStat addressing maintains consistency at all scales
+[experiments.EXP-04]
+name = "Fractal Scaling"
+enabled = true
+quick_mode = true           # If false, test up to 1M scale
+scales = [1000, 10000, 100000]  # Add 1000000 for full mode
+num_retrievals = 1000       # Queries per scale
+timeout_seconds = 300       # Kill test if it takes too long
+
+# EXP-05: Compression/Expansion
+# Tests lossless compression through fragments → clusters → glyphs → mist
+[experiments.EXP-05]
+name = "Compression/Expansion"
+enabled = true
+num_bitchains = 100         # Number of bit-chains to compress
+show_samples = true         # Print detailed sample compression paths
+
+# EXP-06: Entanglement Detection
+# Tests detection of narrative entanglement between bit-chains
+[experiments.EXP-06]
+name = "Entanglement Detection"
+enabled = true
+threshold = 0.95            # Strict threshold for cryptographic identity preservation - only near-perfect matches
+sample_size = 20            # Use smaller sample size for faster validation
+
+# EXP-07: LUCA Bootstrap
+# Tests bootstrapping from Last Universal Common Ancestor
+[experiments.EXP-07]
+name = "LUCA Bootstrap"
+enabled = true
+num_entities = 10           # Number of entities to derive from LUCA
+max_generations = 5         # Maximum lineage depth
+
+# EXP-08: Self-Organizing Memory Networks
+# Tests FractalStat's ability to create self-organizing memory structures
+[experiments.EXP-08]
+name = "Self-Organizing Memory Networks"
+enabled = true
+num_memories = 1000         # Number of memories to generate and test
+consolidation_threshold = 0.8  # Threshold for memory consolidation
+show_samples = true         # Print detailed sample compression paths
+
+# EXP-09: FractalStat Performance Under Memory Pressure
+# Tests system resilience and performance under constrained memory conditions
+[experiments.EXP-09]
+name = "FractalStat Performance Under Memory Pressure"
+enabled = true
+max_memory_target_mb = 1000  # Maximum memory target for stress testing
+optimization_strategies = ["Lazy Loading", "Compression", "Eviction Policy", "Memory Pooling"]
+stress_phases = ["Light Pressure", "Moderate Pressure", "Heavy Pressure", "Critical Pressure"]
+
+# EXP-10: Multi-Dimensional Query Optimization
+# Tests FractalStat's unique querying capabilities across all dimensions
+[experiments.EXP-10]
+name = "Multi-Dimensional Query Optimization"
+enabled = true
+dataset_size = 10000        # Size of test dataset
+query_patterns = ["Realm-Specific Search", "Semantic Similarity", "Multi-Dimensional Filter", "Temporal Pattern", "Complex Relationship"]
+optimization_strategies = ["Dimensional Indexing", "Query Result Caching", "Selective Pruning", "Parallel Query Execution"]
+
+# EXP-11: Dimension Cardinality Analysis
+# Explores pros and cons of 7 dimensions vs. more or fewer dimensions
+[experiments.EXP-11]
+name = "Dimension Cardinality Analysis"
+enabled = true
+sample_size = 1000          # Bit-chains to test per dimension count
+dimension_counts = [3, 4, 5, 6, 7, 8, 9, 10]  # Dimension counts to test
+test_iterations = 5         # Number of iterations per dimension count
+
+# EXP-12: Benchmark Comparison
+# Compares FractalStat/FractalStat against common systems
+[experiments.EXP-12]
+name = "Benchmark Comparison"
+enabled = true
+sample_size = 100000        # Number of entities to test
+benchmark_systems = ["uuid", "sha256", "vector_db", "graph_db", "rdbms", "fractalstat"]
+scales = [10000, 100000, 1000000]  # Test scales
+num_queries = 1000          # Number of retrieval queries per scale

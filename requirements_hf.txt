@@ -1,0 +1,37 @@
+# Hugging Face Space Requirements
+# Core Python dependencies
+pydantic>=2.0.0
+numpy>=1.20.0
+click>=8.1.0
+tomli>=2.0.0
+toml>=0.10.0
+
+# Gradio for interactive interface
+gradio>=4.0.0
+
+# Data visualization - CRITICAL for app functionality
+matplotlib>=3.5.0
+pandas>=1.5.0
+plotly>=5.15.0
+seaborn>=0.12.0
+
+# Progress tracking and utilities
+tqdm>=4.65.0
+
+# Machine learning dependencies (lightweight for HF Spaces)
+torch>=2.0.0
+transformers>=4.30.0
+sentence-transformers>=2.2.0
+
+# Optional: For better performance monitoring
+psutil>=5.9.0
+
+# Optional: For enhanced mathematical visualization
+scipy>=1.9.0
+
+# File and path operations
+pathlib>=1.0.0
+
+# Web server dependencies
+fastapi>=0.104.0
+uvicorn>=0.24.0

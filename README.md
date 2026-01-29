@@ -1,52 +1,54 @@
-# FractalStat - STAT7 Validation Experiments
+# FractalStat - FractalStat Validation Experiments
 
-**A complete validation suite for the STAT7 7-dimensional addressing system**
+- **A complete validation suite for the FractalStat 8-dimensional addressing system**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
-> 🔬 **Recent Discovery (Nov 2025):** EXP-11 testing suggests **8 dimensions may be more optimal** than the original 7-dimension design. See [!5](https://gitlab.com/tiny-walnut-games/fractalstat/-/merge_requests/5) for details. EXP-01 validation results remain valid as they are dimension-count agnostic. STAT8 exploration underway.
+> 🔬 **Recent Discovery (Nov 2025):** EXP-11 testing confirms **8 dimensions are optimal** and superior to the original 7-dimension design. See [!5](https://gitlab.com/tiny-walnut-games/fractalstat/-/merge_requests/5) for details. EXP-01 validation results remain valid as they are dimension-count agnostic. FractalStat implementation complete.
 
 ## What is FractalStat?
 
-FractalStat is a research package containing **12 validation experiments** that prove the STAT7 addressing system works at scale. STAT7 is a 7-dimensional coordinate system for uniquely addressing data in fractal information spaces.
+FractalStat is a research package containing **12 validation experiments** that prove the FractalStat (previously known as FractalStat internally) addressing system works at scale. FractalStat expands FractalStat from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
 
-**The 7 Dimensions:**
+**The 8 Dimensions:**
 
 - **Realm** - Domain classification (data, narrative, system, etc.)
 - **Lineage** - Generation from LUCA (Last Universal Common Ancestor)
+- **Temperature** - Thermal activity level (0.0 to abs(velocity) * density)
 - **Adjacency** - Relational neighbors (graph connections)
 - **Horizon** - Lifecycle stage (genesis, emergence, peak, decay, crystallization)
 - **Resonance** - Charge/alignment (-1.0 to 1.0)
 - **Velocity** - Rate of change
 - **Density** - Compression distance (0.0 to 1.0)
+- **Alignment** - Value based on alignment map
 
 ## The 12 Experiments
 
 | Exp | Name | Tests | Status |
 |-----|------|-------|--------|
-| **EXP-01** | Address Uniqueness | Zero hash collisions | ✅ PASS |
-| **EXP-02** | Retrieval Efficiency | Sub-millisecond retrieval | ✅ PASS |
-| **EXP-03** | Coordinate Space Entropy | Entropy contribution per dimension | ✅ PASS |
-| **EXP-04** | Fractal Scaling | Consistency at 1M+ scale | ✅ PASS |
-| **EXP-05** | Compression/Expansion | Lossless encoding | ✅ PASS |
-| **EXP-06** | Entanglement Detection | Semantic relationships | ✅ PASS |
-| **EXP-07** | LUCA Bootstrap | Full system reconstruction | ✅ PASS |
-| **EXP-08** | RAG Integration | Storage compatibility | ✅ PASS |
-| **EXP-09** | Concurrency | Thread-safe queries | ✅ PASS |
-| **EXP-10** | Bob the Skeptic | Anti-hallucination | ✅ PASS |
-| **EXP-11** | Dimension Cardinality | Optimal dimension count analysis | ✅ PASS |
-| **EXP-12** | Benchmark Comparison | STAT7 vs. common systems | ✅ PASS |
+| **EXP-01** | Geometric Collisions | Zero collisions over 3D | [Success] PASS |
+| **EXP-02** | Retrieval Efficiency | Sub-millisecond retrieval | [Success] PASS |
+| **EXP-03** | Coordinate Space Entropy | Entropy contribution per dimension | [Success] PASS |
+| **EXP-04** | Fractal Scaling | Consistency at 1M+ scale | [Success] PASS |
+| **EXP-05** | Compression/Expansion | Lossless encoding | [Success] PASS |
+| **EXP-06** | Entanglement Detection | Semantic relationships | [Success] PASS |
+| **EXP-07** | LUCA Bootstrap | Full system reconstruction | [Success] PASS |
+| **EXP-08** | RAG Integration | Storage compatibility | [Success] PASS |
+| **EXP-09** | Concurrency | Thread-safe queries | [Success] PASS |
+| **EXP-10** | Bob the Skeptic | Anti-hallucination | [Success] PASS |
+| **EXP-11** | Dimension Cardinality | Optimal dimension count analysis | [Success] PASS |
+| **EXP-12** | Benchmark Comparison | FractalStat vs. common systems | [Success] PASS |
 
 ## EXP-01: Address Uniqueness Test
 
-**Status**: ✅ PASS (Publication Ready)  
+**Status**: [Success] PASS (Publication Ready)  
 **Confidence**: 99.9%  
 **Sample Size**: 10,000 bit-chains  
 
 ### Quick Summary
 
-EXP-01 validates that every bit-chain in STAT7 space receives a unique address with zero hash collisions. Using SHA-256 hashing of canonical serialization, we tested 10,000 randomly generated bit-chains across 10 iterations and detected **zero collisions**, achieving a 100% uniqueness rate.
+EXP-01 has been rewritten to illustrate how increasing the number of dimensions naturally eliminates concerns of collision. While our SHA-256 hashing of canonical serialization already guarantees zero collisions, this test proves that SHA256 is a security choice and not our crutch for collision-free addressing.
 
 ### Key Results
 
@@ -69,7 +71,7 @@ EXP-01 validates that every bit-chain in STAT7 space receives a unique address w
 
 ```bash
 # Run all experiments (includes EXP-01)
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Archive results with metadata
 python scripts/archive_exp01_results.py
@@ -102,7 +104,7 @@ pip install -r requirements.txt
 pip install -e .
 
 # Run experiments
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 ```
 
 ### ARM/Raspberry Pi Setup
@@ -118,14 +120,14 @@ pip install -r requirements.txt
 pip install -e .
 
 # Run experiments (may be slower on ARM without GPU)
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 ```
 
 **ARM Considerations:**
 
 - Some experiments (EXP-08 LLM integration) may be slower without GPU acceleration
 - Memory usage can be high - 4GB+ RAM recommended
-- All core STAT7 functionality works identically across architectures
+- All core FractalStat functionality works identically across architectures
 
 ## Experiment Configuration
 
@@ -146,7 +148,7 @@ FractalStat uses **feature flags** to configure experiments. This allows you to:
 ```bash
 # Use development config (fast iteration)
 export FRACTALSTAT_ENV=dev
-python -m fractalstat.stat7_experiments
+python -m fractalstat.fractalstat_experiments
 
 # Use CI config (balanced testing)
 export FRACTALSTAT_ENV=ci

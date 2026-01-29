@@ -1,35 +1,44 @@
+# pylint: disable=C0301,C0116,W0404,W0621,W0212,W0718
 """
 EXP-02: Retrieval Efficiency Test
 
-Validates that retrieving a bit-chain by STAT7 address is fast (< 1ms) at scale.
+Validates that retrieving a bit-chain by FractalStat address is fast at scale.
 
 Hypothesis:
 Retrieval latency scales logarithmically or better with dataset size.
 
 Methodology:
-1. Build indexed set of N bit-chains at different scales (1K, 10K, 100K)
-2. Query M random addresses (default: 1,000 queries)
+1. Build indexed set of N bit-chains at different scales (1M, 100M, 10B, 1T)
+2. Query M random addresses (default: 1,000,000 queries)
 3. Measure latency percentiles (mean, median, P95, P99)
 4. Verify retrieval meets performance targets at each scale
 
 Success Criteria:
-- Mean latency < 0.1ms at 1,000 bit-chains
-- Mean latency < 0.5ms at 10,000 bit-chains
-- Mean latency < 2.0ms at 100,000 bit-chains
+- Mean latency < 0.1ms at 1M bit-chains
+- Mean latency < 0.5ms at 100M bit-chains
+- Mean latency < 2.0ms at 10B bit-chains
+- Mean latency < 5.0ms at 1T bit-chains
 - Latency scales logarithmically or better
 """
 
 import json
 import sys
 import time
-import random
-from typing import Dict, List, Tuple, Any, Optional
-from dataclasses import dataclass, asdict
+import secrets
+import gc
+import psutil  # type: ignore[import-untyped]
 from pathlib import Path
 from datetime import datetime, timezone
+from typing import Dict, List, Tuple, Any, Optional
+from dataclasses import dataclass, asdict
+from fractalstat.fractalstat_entity import generate_random_bitchain
+secure_random = secrets.SystemRandom()
 
-from fractalstat.stat7_experiments import generate_random_bitchain
-
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
 
 @dataclass
 class EXP02_Result:
@@ -43,6 +52,9 @@ class EXP02_Result:
     p99_latency_ms: float
     min_latency_ms: float
     max_latency_ms: float
+    cache_hit_rate: float
+    memory_pressure: Optional[float]  # Memory usage as percentage
+    warmup_time_ms: float
     success: bool  # target_latency < threshold
 
     def to_dict(self) -> Dict[str, Any]:
@@ -53,7 +65,7 @@ class EXP02_RetrievalEfficiency:
     """
     EXP-02: Retrieval Efficiency Test
 
-    This experiment validates that STAT7 address-based retrieval is fast enough
+    This experiment validates that FractalStat address-based retrieval is fast enough
     for production use at realistic scales.
 
     Scientific Rationale:
@@ -67,51 +79,146 @@ class EXP02_RetrievalEfficiency:
     (hash table), which provides a realistic baseline for production systems.
     """
 
-    def __init__(self, query_count: int = 1000):
+    def __init__(self, query_count: int = 1000000):
         self.query_count = query_count
-        self.scales = [1_000, 10_000, 100_000]
+        # Load scales from config or use scaled defaults
+        try:
+            from fractalstat.config import ExperimentConfig
+            config = ExperimentConfig()
+            self.scales = config.get("EXP-02", "scales", [1000000, 100000000, 10000000000, 1000000000000])
+        except Exception:
+            self.scales = [1000000, 100000000, 10000000000, 1000000000000]  # Scaled defaults: 1M, 100M, 10B, 1T
         self.results: List[EXP02_Result] = []
 
     def run(self) -> Tuple[List[EXP02_Result], bool]:
         """
-        Run the retrieval efficiency test.
+        Run the retrieval efficiency test with comprehensive benchmarking.
+
+        This enhanced version includes:
+        - Warmup periods to account for JIT compilation and caching
+        - Memory pressure testing with realistic data storage
+        - Cache hit/miss simulation
+        - Multiple query patterns (cached, random, adversarial)
 
         Returns:
             Tuple of (results list, overall success boolean)
         """
         print(f"\n{'=' * 70}")
-        print("EXP-02: RETRIEVAL EFFICIENCY TEST")
+        print("EXP-02: RETRIEVAL EFFICIENCY TEST (ENHANCED)")
         print(f"{'=' * 70}")
         print(f"Query count per scale: {self.query_count}")
         print(f"Scales: {self.scales}")
+        print("Includes: warmup, memory pressure, cache simulation")
         print()
 
         all_success = True
-        thresholds = {1_000: 0.1, 10_000: 0.5, 100_000: 2.0}  # ms
+        # Updated thresholds for scaled experiments - more lenient for larger scales
+        thresholds = {
+            1000000: 0.1,      # 1M: 0.1ms target
+            100000000: 0.5,    # 100M: 0.5ms target
+            10000000000: 2.0,  # 10B: 2.0ms target
+            1000000000000: 5.0 # 1T: 5.0ms target
+        }
 
         for scale in self.scales:
             print(f"Testing scale: {scale:,} bit-chains")
+            start_time = time.time()
 
-            # Generate bit-chains
-            bitchains = [generate_random_bitchain(seed=i) for i in range(scale)]
+            # 1. Generate bit-chains with realistic data storage
+            bitchains = []
+            for i in range(scale):
+                bc = generate_random_bitchain(seed=i)
+                # Store realistic payload data to simulate real-world overhead
+                # This adds memory pressure and more realistic lookup costs
+                payload_data = f"simulated_payload_{i}" * 100  # ~2KB per chain
+                bitchains.append((bc, payload_data))
 
-            # Index by address for O(1) retrieval simulation
-            address_to_bc = {bc.compute_address(): bc for bc in bitchains}
-            addresses = list(address_to_bc.keys())
+            # 2. Index by address for more realistic storage simulation
+            # Use a richer structure to avoid pure Python dict optimization
+            address_to_data: Dict[str, Dict[str, Any]] = {}
+            for bc, payload_data in bitchains:
+                addr = bc.compute_address()
+                address_to_data[addr] = {
+                    'bitchain': bc,
+                    'payload_size': len(payload_data),
+                    'metadata': {
+                        'created': time.time(),
+                        'accessed_count': 0,
+                        'last_accessed': None
+                    }
+                }
 
-            # Measure retrieval latency
+            addresses = list(address_to_data.keys())
+            print(f"  Index built: {len(addresses)} entries")
+
+            # 3. Warmup phase - perform operations to stabilize performance
+            print("  Warmup phase...")
+            warmup_start = time.perf_counter()
+            warmup_operations = min(1000, scale // 10)  # Scale warmup with dataset size
+
+            for _ in range(warmup_operations):
+                # Perform random access patterns during warmup
+                addr = secure_random.choice(addresses)
+                _ = address_to_data[addr]['bitchain']
+
+                # Simulate some metadata updates
+                if secure_random.random() < 0.1:  # 10% chance
+                    address_to_data[addr]['metadata']['accessed_count'] += 1
+                    address_to_data[addr]['metadata']['last_accessed'] = time.time()
+
+            warmup_time = (time.perf_counter() - warmup_start) * 1000
+            print(f"  Warmup complete: {warmup_time:.3f}ms")
+
+            # 4. Memory pressure test - force garbage collection and measure impact
+            if HAS_PSUTIL:
+                try:
+                    process = psutil.Process()
+                    memory_before = process.memory_percent()
+                    gc.collect()  # Force garbage collection
+                    memory_after = process.memory_percent()
+                    memory_pressure = max(memory_before, memory_after)
+                except Exception:
+                    memory_pressure = None
+            else:
+                gc.collect()
+                memory_pressure = None
+
+            print(f"  Memory pressure: {memory_pressure:.1f}%" if memory_pressure else "  Memory pressure: N/A")
+
+            # Artificial memory pressure for larger datasets
+            if scale >= 10000:
+                # Create some memory pressure by allocating temporary objects
+                pressure_objects = [list(range(1000)) for _ in range(100)]
+                del pressure_objects
+                gc.collect()
+
+            # 5. Performance measurement with multiple query patterns
+            print("  Performance measurement...")
             latencies = []
+            hits = 0
+            total_queries = 0
 
-            for _ in range(self.query_count):
-                target_addr = random.choice(addresses)
+            # Mix of query patterns to simulate real-world usage
+            query_patterns = self._generate_query_patterns(addresses, self.query_count)
+
+            for query_addr in query_patterns:
+                total_queries += 1
 
                 start = time.perf_counter()
-                _ = address_to_bc[target_addr]  # Hash table lookup
+                result = address_to_data.get(query_addr)
+                if result:
+                    hits += 1
+                    # Access the payload to simulate realistic retrieval
+                    _ = result['bitchain']
+                    _ = result['payload_size']
+                    # Update metadata to simulate real usage
+                    result['metadata']['accessed_count'] += 1
+                    result['metadata']['last_accessed'] = time.time()
                 elapsed = (time.perf_counter() - start) * 1000  # Convert to ms
 
                 latencies.append(elapsed)
 
-            # Compute statistics
+            # 6. Compute enhanced statistics
             latencies.sort()
             mean_lat = sum(latencies) / len(latencies)
             median_lat = latencies[len(latencies) // 2]
@@ -119,11 +226,12 @@ class EXP02_RetrievalEfficiency:
             p99_lat = latencies[int(len(latencies) * 0.99)]
             min_lat = latencies[0]
             max_lat = latencies[-1]
+            cache_hit_rate = hits / total_queries if total_queries > 0 else 0.0
 
             threshold = thresholds.get(scale, 2.0)
             success = mean_lat < threshold
 
-            result = EXP02_Result(
+            exp_result: EXP02_Result = EXP02_Result(
                 scale=scale,
                 queries=self.query_count,
                 mean_latency_ms=mean_lat,
@@ -132,30 +240,74 @@ class EXP02_RetrievalEfficiency:
                 p99_latency_ms=p99_lat,
                 min_latency_ms=min_lat,
                 max_latency_ms=max_lat,
+                cache_hit_rate=cache_hit_rate,
+                memory_pressure=memory_pressure,
+                warmup_time_ms=warmup_time,
                 success=success,
             )
 
-            self.results.append(result)
+            self.results.append(exp_result)
             all_success = all_success and success
 
-            status = "✅ PASS" if success else "❌ FAIL"
+            total_time = time.time() - start_time
+            status = "PASS" if success else "FAIL"
             print(
                 f"  {status} | Mean: {mean_lat:.4f}ms | "
-                f"Median: {median_lat:.4f}ms | "
-                f"P95: {p95_lat:.4f}ms | P99: {p99_lat:.4f}ms"
+                f"Median: {median_lat:.4f}ms"
             )
-            print(f"       Target: < {threshold}ms")
+            print(
+                f"       P95: {p95_lat:.4f}ms | P99: {p99_lat:.4f}ms | "
+                f"Cache: {cache_hit_rate:.1%}"
+            )
+            print(
+                f"       Target: < {threshold}ms | "
+                f"Time: {total_time:.1f}s"
+            )
             print()
 
-        print(f"OVERALL RESULT: {'✅ ALL PASS' if all_success else '❌ SOME FAILED'}")
-
+        if all_success:
+            print("OVERALL RESULT: ALL PASS")
+        else:
+            print("OVERALL RESULT: SOME FAILED")
         return self.results, all_success
+
+    def _generate_query_patterns(self, addresses: List[str], query_count: int) -> List[str]:
+        """
+        Generate realistic query patterns including:
+        - Hot data access patterns (recently accessed items)
+        - Random access patterns
+        - Cache-friendly access patterns (temporal locality)
+        - Edge cases (non-existent keys, adversarial patterns)
+        """
+        queries = []
+
+        # 70% random access (typical DB workload)
+        for _ in range(int(query_count * 0.7)):
+            queries.append(secure_random.choice(addresses))
+
+        # 20% temporal locality (recently accessed patterns)
+        # Simulate by preferring items from the first quarter of the address list
+        locality_subset = addresses[:len(addresses)//4]
+        for _ in range(int(query_count * 0.2)):
+            queries.append(secure_random.choice(locality_subset))
+
+        # 10% adversarial patterns (worst case, potentially cache misses)
+        # Use non-sequential access patterns
+        for _ in range(query_count - len(queries)):
+            # Jump around the list to avoid cache-friendly patterns
+            idx = secure_random.randint(0, len(addresses)-1)
+            jump = secure_random.randint(1, len(addresses)//10)
+            queries.append(addresses[(idx + jump) % len(addresses)])
+
+        # Shuffle to avoid artificial patterns in measurement
+        secure_random.shuffle(queries)
+        return queries[:query_count]
 
     def get_summary(self) -> Dict[str, Any]:
         """Get summary statistics."""
         return {
             "total_scales_tested": len(self.results),
-            "all_passed": all(r.success for r in self.results),
+            "all_passed": bool(self.results) and all(r.success for r in self.results),
             "results": [r.to_dict() for r in self.results],
         }
 
@@ -166,11 +318,11 @@ def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> 
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         output_file = f"exp02_retrieval_efficiency_{timestamp}.json"
 
-    results_dir = Path(__file__).resolve().parent / "results"
+    results_dir = Path(__file__).resolve().parent.parent / "results"
     results_dir.mkdir(exist_ok=True)
     output_path = str(results_dir / output_file)
 
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="UTF-8") as f:
         json.dump(results, f, indent=2)
         f.write("\n")
 
@@ -180,18 +332,26 @@ def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> 
 
 if __name__ == "__main__":
     # Load from config or use defaults
+    query_count = 1000
     try:
         from fractalstat.config import ExperimentConfig
 
         config = ExperimentConfig()
         query_count = config.get("EXP-02", "query_count", 1000)
-    except Exception:
-        query_count = 1000
 
-        if "--quick" in sys.argv:
-            query_count = 100
-        elif "--full" in sys.argv:
-            query_count = 5000
+        # Detect dev environment config and upgrade to production settings for consistency
+        env = config.get_environment()
+        if env == "dev" and query_count == 100:  # Dev default is too low for reliable testing
+            # Use production settings to ensure orchestrator runs match direct --full runs
+            query_count = 5000  # Same as --full flag
+    except Exception:
+        pass  # Use default value set above
+
+    # Check CLI args regardless of config success (these override config)
+    if "--quick" in sys.argv:
+        query_count = 100
+    elif "--full" in sys.argv:
+        query_count = 500000
 
     try:
         experiment = EXP02_RetrievalEfficiency(query_count=query_count)

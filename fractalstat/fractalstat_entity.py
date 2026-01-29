@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
 """
-FractalStat Entity System - Enhanced 8-Dimensional Addressing
+Shared utilities for FractalStat validation experiments.
 
-Successor to STAT7 with improved expressivity (100% vs 95%).
+
+Successor to fractalstat with improved expressivity (100% vs 95%).
 Added 8th dimension: 'alignment' for social/coordination dynamics.
 
 Features:
@@ -22,6 +22,11 @@ import json
 import uuid
 import hashlib
 from abc import ABC, abstractmethod
+import secrets
+from decimal import Decimal, ROUND_HALF_EVEN
+
+# Import enums from dynamic_enum to avoid circular import
+from fractalstat.dynamic_enum import Realm, Horizon, Polarity, Alignment
 
 
 def _utc_now() -> datetime:
@@ -30,77 +35,10 @@ def _utc_now() -> datetime:
 
 
 # ============================================================================
-# FractalStat Dimension Enums
+# FractalStat Dimension Enums (Dynamic)
 # ============================================================================
 
-
-class Realm(Enum):
-    """Domain classification for FractalStat entities"""
-
-    COMPANION = "companion"  # Pets, familiars, companions
-    BADGE = "badge"  # Achievement badges
-    SPONSOR_RING = "sponsor_ring"  # Sponsor tier badges
-    ACHIEVEMENT = "achievement"  # Generic achievements
-    PATTERN = "pattern"  # System patterns
-    FACULTY = "faculty"  # Faculty-exclusive entities
-    TEMPORAL = "temporal"  # Time-based entities
-    VOID = "void"  # Null/empty realm
-
-
-class Horizon(Enum):
-    """Lifecycle stage in entity progression"""
-
-    GENESIS = "genesis"  # Entity created, initial state
-    EMERGENCE = "emergence"  # Entity becoming active
-    PEAK = "peak"  # Entity at maximum activity
-    DECAY = "decay"  # Entity waning
-    CRYSTALLIZATION = "crystallization"  # Entity settled/permanent
-    ARCHIVED = "archived"  # Historical record
-
-
-class Polarity(Enum):
-    """Resonance/affinity classification"""
-
-    # Companion polarities (elemental)
-    LOGIC = "logic"
-    CREATIVITY = "creativity"
-    ORDER = "order"
-    CHAOS = "chaos"
-    BALANCE = "balance"
-
-    # Badge polarities (category)
-    ACHIEVEMENT = "achievement"
-    CONTRIBUTION = "contribution"
-    COMMUNITY = "community"
-    TECHNICAL = "technical"
-    CREATIVE = "creative"
-    UNITY = "unity"  # Special for sponsor rings
-
-    # Neutral
-    VOID = "void"
-
-
-class Alignment(Enum):
-    """Social and coordination dynamics alignment"""
-
-    # Classical alignment system (inspired by fantasy RPGs) - Law vs Chaos
-    LAWFUL_GOOD = "lawful_good"  # Principled, helpful
-    NEUTRAL_GOOD = "neutral_good"  # Helpful, flexible
-    CHAOTIC_GOOD = "chaotic_good"  # Helpful, unconstrained
-
-    LAWFUL_NEUTRAL = "lawful_neutral"  # Principled, pragmatic
-    TRUE_NEUTRAL = "true_neutral"  # Balanced, pragmatic
-    CHAOTIC_NEUTRAL = "chaotic_neutral"  # Flexible, pragmatic
-
-    LAWFUL_EVIL = "lawful_evil"  # Principled, harmful
-    NEUTRAL_EVIL = "neutral_evil"  # Self-serving
-    CHAOTIC_EVIL = "chaotic_evil"  # Harmful, unconstrained
-
-    # Special classifications for FractalStat
-    HARMONIC = "harmonic"  # Naturally coordinated
-    ENTROPIC = "entropic"  # Naturally disruptive
-    SYMBIOTIC = "symbiotic"  # Mutually beneficial connections
-
+# Enums are defined in dynamic_enum.py to avoid circular imports.
 
 # ============================================================================
 # FractalStat Coordinate Data Class (8 Dimensions)
@@ -123,14 +61,14 @@ class FractalStatCoordinates:
       8. Alignment: Social/coordination dynamics (NEW - 100% expressivity boost)
     """
 
-    realm: Realm
+    realm: Realm  # pyright: ignore[reportInvalidTypeForm] # Domain classification
     lineage: int  # 0-based generation from LUCA
     adjacency: float  # 0-100 proximity score
-    horizon: Horizon
+    horizon: Horizon  # pyright: ignore[reportInvalidTypeForm] # lifecycle stage
     luminosity: float  # 0-100 activity level
-    polarity: Polarity
+    polarity: Polarity  # pyright: ignore[reportInvalidTypeForm] # resonance/affinity type
     dimensionality: int  # 0+ fractal depth
-    alignment: Alignment  # 8th dimension for social dynamics
+    alignment: Alignment  # pyright: ignore[reportInvalidTypeForm] # 8th dimension for social dynamics
 
     @property
     def address(self) -> str:
@@ -209,7 +147,7 @@ class FractalStatEntity(ABC):
     """
     Abstract base class for all FractalStat-addressed entities.
 
-    8-dimensional successor to STAT7 with enhanced expressivity.
+    8-dimensional successor to fractalstat with enhanced expressivity.
 
     Provides:
     - Hybrid encoding (bridge between legacy and FractalStat systems)
@@ -249,7 +187,7 @@ class FractalStatEntity(ABC):
     owner_id: str = ""
 
     # User Preferences
-    opt_in_fractalstat_nft: bool = True  # Renamed from opt_in_stat7_nft
+    opt_in_fractalstat_nft: bool = True  # Renamed from opt_in_fractalstat_nft
     opt_in_blockchain: bool = False
     preferred_zoom_level: int = 1  # Default display level
 
@@ -269,12 +207,10 @@ class FractalStatEntity(ABC):
         Compute 8D FractalStat coordinates from entity data.
         Each subclass defines its own coordinate mapping.
         """
-        pass
 
     @abstractmethod
     def to_collectible_card_data(self) -> Dict[str, Any]:
         """Convert entity to collectible card display format"""
-        pass
 
     @abstractmethod
     def validate_hybrid_encoding(self) -> Tuple[bool, str]:
@@ -282,7 +218,6 @@ class FractalStatEntity(ABC):
         Validate that FractalStat coordinates correctly encode legacy data.
         Returns (is_valid, error_message_or_empty_string)
         """
-        pass
 
     # ========================================================================
     # Event Tracking
@@ -349,8 +284,7 @@ class FractalStatEntity(ABC):
             self.entanglement_strength[idx] = new_strength
             self._record_event(
                 "entanglement_updated",
-                f"Entanglement strength changed {old_strength:.2f} → {
-                    new_strength:.2f}",
+                f"Entanglement strength changed {old_strength:.2f} → {new_strength:.2f}",
             )
 
     # ========================================================================
@@ -360,9 +294,8 @@ class FractalStatEntity(ABC):
     @property
     def luca_distance(self) -> int:
         """Distance from LUCA (Last Universal Common Ancestor)"""
-        assert self.fractalstat is not None, (
-            "fractalstat coordinates must be initialized"
-        )
+        if self.fractalstat is None:
+            raise ValueError("fractalstat coordinates must be initialized")
         return self.fractalstat.lineage
 
     def get_luca_trace(self) -> Dict[str, Any]:
@@ -370,9 +303,8 @@ class FractalStatEntity(ABC):
         Get path back to LUCA bootstrap origin.
         In a real system, this would trace parent entities.
         """
-        assert self.fractalstat is not None, (
-            "fractalstat coordinates must be initialized"
-        )
+        if self.fractalstat is None:
+            raise ValueError("fractalstat coordinates must be initialized")
         return {
             "entity_id": self.entity_id,
             "luca_distance": self.luca_distance,
@@ -395,9 +327,8 @@ class FractalStatEntity(ABC):
         if not self.opt_in_fractalstat_nft:
             raise ValueError("Entity not opted in to FractalStat-NFT system")
 
-        assert self.fractalstat is not None, (
-            "fractalstat coordinates must be initialized"
-        )
+        if self.fractalstat is None:
+            raise ValueError("fractalstat coordinates must be initialized")
         card_data = self.to_collectible_card_data()
 
         return {
@@ -474,13 +405,13 @@ class FractalStatEntity(ABC):
     def save_to_file(self, path: Path):
         """Persist entity to JSON file"""
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(self.to_dict(), f, indent=2, default=str)
 
     @classmethod
     def load_from_file(cls, path: Path) -> "FractalStatEntity":
         """Load entity from JSON file (must know concrete type)"""
-        with open(path, "r") as f:
+        with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
         entity_type = data.get("entity_type", "unknown")
         raise NotImplementedError(
@@ -506,9 +437,8 @@ class FractalStatEntity(ABC):
         if level < 1 or level > 8:  # Increased max zoom level for 8D
             raise ValueError(f"Invalid zoom level: {level}")
 
-        assert self.fractalstat is not None, (
-            "fractalstat coordinates must be initialized"
-        )
+        if self.fractalstat is None:
+            raise ValueError("FractalStat coordinates must be initialized")
         card_data = self.to_collectible_card_data()
 
         base = {
@@ -686,9 +616,276 @@ def compute_adjacency_score(tags1: List[str], tags2: List[str]) -> float:
     return (common / total) * 100 if total > 0 else 0.0
 
 
-if __name__ == "__main__":
-    print(
-        "FractalStat Entity system loaded. "
-        "Use as base class for Companion and Badge entities. "
-        "8 dimensions, 100% expressivity."
+# ============================================================================
+# BitChain Entity (moved from fractalstat_experiments to break circular import)
+# ============================================================================
+
+class DataClass(Enum):
+    """Data sensitivity classification."""
+
+    PUBLIC = "PUBLIC"  # Anyone can read
+    SENSITIVE = "SENSITIVE"  # Authenticated users, role-based
+    PII = "PII"  # Owner-only, requires 2FA
+
+
+class Capability(Enum):
+    """Recovery capability levels."""
+
+    COMPRESSED = "compressed"  # Read-only mist form, no expansion
+    PARTIAL = "partial"  # Anonymized expansion, limited fields
+    FULL = "full"  # Complete recovery
+
+
+# Coordinate data class for BitChain (different from FractalStatCoordinates)
+@dataclass
+class Coordinates:
+    """FractalStat 8-dimensional coordinates with enhanced expressivity."""
+
+    realm: str  # Domain: data, narrative, system, faculty, event, pattern, void, temporal
+    lineage: int  # Generation from LUCA
+    adjacency: List[str]  # Relational neighbors (append-only)
+    horizon: str  # Lifecycle stage
+    luminosity: float  # 0-100 activity level
+    polarity: Polarity  # pyright: ignore[reportInvalidTypeForm] # Resonance/affinity type
+    dimensionality: int  # 0+ fractal depth
+    alignment: Alignment  # pyright: ignore[reportInvalidTypeForm] # Social alignment dynamics - NEW DIMENSION
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization"""
+        return {
+            "realm": self.realm,
+            "lineage": self.lineage,
+            "adjacency": sorted(self.adjacency),
+            "horizon": self.horizon,
+            "luminosity": normalize_float(self.luminosity),
+            "polarity": self.polarity.name,
+            "dimensionality": self.dimensionality,
+            "alignment": self.alignment.name,
+        }
+
+
+@dataclass
+class BitChain:
+    """
+    Minimal addressable unit in FractalStat space.
+    Represents a single entity instance (manifestation).
+
+    Security fields (Phase 1 Doctrine: Authentication + Access Control):
+    - data_classification: Sensitivity level (PUBLIC, SENSITIVE, PII)
+    - access_control_list: Roles allowed to recover this bitchain
+    - owner_id: User who owns this bitchain
+    - encryption_key_id: Optional key for encrypted-at-rest data
+    """
+
+    id: str  # Unique entity ID
+    entity_type: str  # Type: concept, artifact, agent, etc.
+    realm: str  # Domain classification
+    coordinates: Coordinates  # FractalStat 8D position
+    created_at: str  # ISO8601 UTC timestamp
+    state: Dict[str, Any]  # Mutable state data
+
+    # Security fields (Phase 1)
+    data_classification: DataClass = DataClass.PUBLIC
+    access_control_list: List[str] = field(default_factory=lambda: ["owner"])
+    owner_id: Optional[str] = None
+    encryption_key_id: Optional[str] = None
+
+    def __post_init__(self):
+        """Normalize timestamps."""
+        self.created_at = normalize_timestamp(self.created_at)
+
+    def to_canonical_dict(self) -> Dict[str, Any]:
+        """Convert to canonical form for hashing."""
+        return {
+            "created_at": self.created_at,
+            "entity_type": self.entity_type,
+            "id": self.id,
+            "realm": self.realm,
+            "fractalstat_coordinates": self.coordinates.to_dict(),
+            "state": sort_json_keys(self.state),
+        }
+
+    def compute_address(self) -> str:
+        """Compute this bit-chain's FractalStat address (hash)."""
+        return compute_address_hash(self.to_canonical_dict())
+
+    def get_fractalstat_uri(self) -> str:
+        """Generate FractalStat URI address format."""
+        coords = self.coordinates
+        adjacency_hash = compute_address_hash({"adjacency": sorted(coords.adjacency)})[
+            :8
+        ]
+
+        uri = (
+            f"fractalstat://{coords.realm}/{coords.lineage}/{adjacency_hash}/{coords.horizon}"
+        )
+        uri += f"?r={normalize_float(coords.luminosity)}&p={coords.polarity.name}"
+        uri += f"&d={coords.dimensionality}&s={self.id}&a={coords.alignment.name}"
+
+        return uri
+
+
+# ============================================================================
+# Constants and utilities for BitChain (moved from fractalstat_experiments)
+# ============================================================================
+
+# Use cryptographically secure random number generator
+secure_random = secrets.SystemRandom()
+
+REALMS = ["data", "narrative", "system", "faculty", "event", "pattern", "void"]
+HORIZONS = ["genesis", "emergence", "peak", "decay", "crystallization"]
+POLARITY_LIST = ["logic", "creativity", "order", "chaos", "balance", "achievement",
+            "contribution", "community", "technical", "creative", "unity", "void"]
+ALIGNMENT_LIST = ["lawful_good", "neutral_good", "chaotic_good", "lawful_neutral",
+            "true_neutral", "chaotic_neutral", "lawful_evil", "neutral_evil"]
+ENTITY_TYPES = [
+    "concept",
+    "artifact",
+    "agent",
+    "lineage",
+    "adjacency",
+    "horizon",
+    "fragment",
+]
+
+
+def normalize_float(value: float, decimal_places: int = 8) -> str:
+    """
+    Normalize floating point to 8 decimal places using banker's rounding.
+    """
+    if isinstance(value, float):
+        if value != value or value == float("inf") or value == float("-inf"):
+            raise ValueError(f"NaN and Inf not allowed: {value}")
+
+    # Use Decimal for precise rounding
+    d = Decimal(str(value))
+    quantized = d.quantize(Decimal(10) ** -decimal_places, rounding=ROUND_HALF_EVEN)
+
+    # Convert to string with proper formatting - ensure clean decimal
+    result = f"{float(quantized):.8f}"
+    
+    # Strip trailing zeros and unnecessary decimal point
+    if "." in result:
+        result = result.rstrip("0")
+        if result.endswith("."):
+            result += "0"
+    
+    return result
+
+
+def normalize_timestamp(ts: Optional[str] = None) -> str:
+    """
+    Normalize timestamp to ISO8601 UTC with millisecond precision.
+    """
+    if ts is None:
+        now = datetime.now(timezone.utc)
+        return now.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+    else:
+        # Parse input timestamp and convert to UTC
+        if ts.endswith("Z"):
+            ts = ts[:-1] + "+00:00"
+        now = datetime.fromisoformat(ts).astimezone(timezone.utc)
+
+    # Format with millisecond precision
+    return now.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+
+
+def sort_json_keys(obj: Any) -> Any:
+    """
+    Recursively sort all JSON object keys in ASCII order (case-sensitive).
+    """
+    if isinstance(obj, dict):
+        return {k: sort_json_keys(obj[k]) for k in sorted(obj.keys())}
+    elif isinstance(obj, list):
+        return [sort_json_keys(item) for item in obj]
+    else:
+        return obj
+
+
+def canonical_serialize(data: Dict[str, Any]) -> str:
+    """
+    Serialize to canonical form for deterministic hashing.
+    Handles enum objects by converting them to string values.
+    """
+    def enum_encoder(obj):
+        """JSON encoder that handles enum objects."""
+        if hasattr(obj, 'value'):
+            # Handle enum-like objects (Enum, custom enum classes)
+            return obj.value
+        elif hasattr(obj, 'name'):
+            # Alternative for some enum types
+            return obj.name
+        elif isinstance(obj, Enum):
+            return obj.value
+        raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
+    sorted_data = sort_json_keys(data)
+    canonical = json.dumps(
+        sorted_data, separators=(",", ":"), ensure_ascii=True, sort_keys=False, default=enum_encoder
+    )
+    return canonical
+
+
+def compute_address_hash(data: Dict[str, Any]) -> str:
+    """
+    Compute SHA-256 hash of canonical serialization.
+    """
+    canonical = canonical_serialize(data)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
+    """
+    Generate a random bit-chain for testing and validation experiments.
+    """
+
+    if seed is not None:
+        secure_random.seed(seed)
+        base_id = hashlib.sha256(str(seed).encode()).hexdigest()[:32]
+        id_str = f"{base_id[:8]}-{base_id[8:12]}-{base_id[12:16]}-{base_id[16:20]}"
+        id_str += f"-{base_id[20:32]}"
+        created_at_str = f"2024-01-01T{seed % 24:02d}:{(seed // 24) % 60:02d}"
+        created_at_str += f":{(seed // 1440) % 60:02d}.000Z"
+    else:
+        id_str = str(uuid.uuid4())
+        created_at_str = datetime.now(timezone.utc).isoformat()
+
+    adjacency_ids = [
+        (
+            hashlib.sha256(f"{seed}-adj-{i}".encode()).hexdigest()[:32]
+            if seed is not None
+            else str(uuid.uuid4())
+        )
+        for i in range(secure_random.randint(0, 5))
+    ]
+
+    if seed is not None and adjacency_ids:
+        adjacency_ids = [
+            f"{uuid_hex[:8]}-{uuid_hex[8:12]}-{uuid_hex[12:16]}-{uuid_hex[16:20]}"
+            f"-{uuid_hex[20:32]}"
+            for uuid_hex in adjacency_ids
+        ]
+
+    # Generate coordinates with alignment
+    luminosity_val = secure_random.uniform(0, 100)
+    polarity_val = secure_random.choice(POLARITY_LIST)
+    dimensionality_val = secure_random.randint(0, 5)
+    alignment_val = secure_random.choice(list(Alignment))  # Random Alignment enum value
+
+    return BitChain(
+        id=id_str,
+        entity_type=secure_random.choice(ENTITY_TYPES),
+        realm=secure_random.choice(REALMS),
+        coordinates=Coordinates(
+            realm=secure_random.choice(REALMS),
+            lineage=secure_random.randint(1, 100),
+            adjacency=adjacency_ids,
+            horizon=secure_random.choice(HORIZONS),
+            luminosity=luminosity_val,
+            polarity=Polarity(polarity_val),  # Use constructor with correct case
+            dimensionality=dimensionality_val,
+            alignment=alignment_val,
+        ),
+        created_at=created_at_str,
+        state={"value": secure_random.randint(0, 1000)},
     )

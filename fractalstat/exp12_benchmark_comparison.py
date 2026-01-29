@@ -1,7 +1,7 @@
 """
 EXP-12: Benchmark Comparison Against Common Systems
 
-Compares FractalStat/STAT7 against established addressing and indexing systems:
+Compares FractalStat/FractalStat against established addressing and indexing systems:
 - UUID/GUID (128-bit random identifiers)
 - SHA-256 content addressing (Git-style)
 - Vector databases (similarity search)
@@ -24,6 +24,7 @@ import hashlib
 import time
 import uuid
 import sys
+import secrets
 from datetime import datetime, timezone
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict, field
@@ -31,13 +32,14 @@ import statistics
 from pathlib import Path
 
 # Reuse canonical serialization from Phase 1
-from fractalstat.stat7_experiments import (
+from fractalstat.fractalstat_experiments import (
     canonical_serialize,
     compute_address_hash,
     BitChain,
     generate_random_bitchain,
 )
 
+secure_random = secrets.SystemRandom()
 
 # ============================================================================
 # EXP-12 DATA STRUCTURES
@@ -99,16 +101,16 @@ class BenchmarkComparisonResult:
     best_semantic_expressiveness_system: str
     best_overall_system: str
 
-    # STAT7 positioning
-    stat7_rank_collision: int  # 1 = best
-    stat7_rank_retrieval: int
-    stat7_rank_storage: int
-    stat7_rank_semantic: int
-    stat7_overall_score: float  # 0.0 to 1.0
+    # FractalStat positioning
+    fractalstat_rank_collision: int  # 1 = best
+    fractalstat_rank_retrieval: int
+    fractalstat_rank_storage: int
+    fractalstat_rank_semantic: int
+    fractalstat_overall_score: float  # 0.0 to 1.0
 
     # Key findings
     major_findings: List[str] = field(default_factory=list)
-    stat7_competitive: bool = False
+    fractalstat_competitive: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to serializable dict."""
@@ -129,13 +131,13 @@ class BenchmarkComparisonResult:
                 "best_semantic_expressiveness": self.best_semantic_expressiveness_system,
                 "best_overall": self.best_overall_system,
             },
-            "stat7_positioning": {
-                "rank_collision": self.stat7_rank_collision,
-                "rank_retrieval": self.stat7_rank_retrieval,
-                "rank_storage": self.stat7_rank_storage,
-                "rank_semantic": self.stat7_rank_semantic,
-                "overall_score": round(self.stat7_overall_score, 3),
-                "competitive": self.stat7_competitive,
+            "fractalstat_positioning": {
+                "rank_collision": self.fractalstat_rank_collision,
+                "rank_retrieval": self.fractalstat_rank_retrieval,
+                "rank_storage": self.fractalstat_rank_storage,
+                "rank_semantic": self.fractalstat_rank_semantic,
+                "overall_score": round(self.fractalstat_overall_score, 3),
+                "competitive": self.fractalstat_competitive,
             },
             "major_findings": self.major_findings,
             "system_results": [r.to_dict() for r in self.system_results],
@@ -240,9 +242,9 @@ class VectorDBSystem(BenchmarkSystem):
         # Simulate embedding (use entity properties as vector)
         if isinstance(entity, BitChain):
             embedding = [
-                entity.coordinates.velocity,
-                entity.coordinates.resonance,
-                entity.coordinates.density,
+                entity.coordinates.lineage,
+                entity.coordinates.luminosity,
+                entity.coordinates.dimensionality,
             ]
             self.embeddings[addr] = embedding
         return addr
@@ -310,14 +312,14 @@ class RDBMSSystem(BenchmarkSystem):
         return 0.8  # SQL queries with complex predicates
 
 
-class STAT7System(BenchmarkSystem):
-    """STAT7 7-dimensional addressing system."""
+class FractalStatSystem(BenchmarkSystem):
+    """FractalStat 7-dimensional addressing system."""
 
     def __init__(self):
-        super().__init__("STAT7")
+        super().__init__("FractalStat")
 
     def generate_address(self, entity: Any) -> str:
-        """Generate STAT7 address."""
+        """Generate FractalStat address."""
         if isinstance(entity, BitChain):
             return entity.compute_address()
         else:
@@ -341,7 +343,7 @@ class STAT7System(BenchmarkSystem):
 
 class BenchmarkComparisonExperiment:
     """
-    Compares STAT7 against common addressing/indexing systems.
+    Compares FractalStat against common addressing/indexing systems.
 
     Tests:
     1. Uniqueness (collision rates)
@@ -374,7 +376,7 @@ class BenchmarkComparisonExperiment:
             "vector_db",
             "graph_db",
             "rdbms",
-            "stat7",
+            "fractalstat",
         ]
         self.scales = scales or [10000, 100000, 1000000]
         self.num_queries = num_queries
@@ -388,7 +390,7 @@ class BenchmarkComparisonExperiment:
             "vector_db": VectorDBSystem,
             "graph_db": GraphDBSystem,
             "rdbms": RDBMSSystem,
-            "stat7": STAT7System,
+            "fractalstat": FractalStatSystem,
         }
 
         system_class = systems.get(system_name.lower())
@@ -434,10 +436,9 @@ class BenchmarkComparisonExperiment:
 
         # Measure retrieval latency
         latencies = []
-        import random
 
         for _ in range(min(self.num_queries, scale)):
-            target_addr = random.choice(addresses)
+            target_addr = secure_random.choice(addresses)
             start = time.perf_counter()
             _ = system.retrieve(target_addr)
             elapsed = (time.perf_counter() - start) * 1000  # ms
@@ -561,25 +562,25 @@ class BenchmarkComparisonExperiment:
 
         best_overall = max(self.results, key=overall_score)
 
-        # Find STAT7 rankings
-        stat7_result = next((r for r in self.results if r.system_name == "STAT7"), None)
+        # Find FractalStat rankings
+        fractalstat_result = next((r for r in self.results if r.system_name == "FractalStat"), None)
 
-        if stat7_result:
+        if fractalstat_result:
             # Rank by collision rate (1 = best)
             sorted_by_collision = sorted(self.results, key=lambda r: r.collision_rate)
-            stat7_rank_collision = sorted_by_collision.index(stat7_result) + 1
+            fractalstat_rank_collision = sorted_by_collision.index(fractalstat_result) + 1
 
             # Rank by retrieval latency
             sorted_by_latency = sorted(
                 self.results, key=lambda r: r.mean_retrieval_latency_ms
             )
-            stat7_rank_retrieval = sorted_by_latency.index(stat7_result) + 1
+            fractalstat_rank_retrieval = sorted_by_latency.index(fractalstat_result) + 1
 
             # Rank by storage efficiency
             sorted_by_storage = sorted(
                 self.results, key=lambda r: r.avg_storage_bytes_per_entity
             )
-            stat7_rank_storage = sorted_by_storage.index(stat7_result) + 1
+            fractalstat_rank_storage = sorted_by_storage.index(fractalstat_result) + 1
 
             # Rank by semantic expressiveness
             sorted_by_semantic = sorted(
@@ -587,15 +588,15 @@ class BenchmarkComparisonExperiment:
                 key=lambda r: r.semantic_expressiveness,
                 reverse=True,
             )
-            stat7_rank_semantic = sorted_by_semantic.index(stat7_result) + 1
+            fractalstat_rank_semantic = sorted_by_semantic.index(fractalstat_result) + 1
 
-            stat7_score = overall_score(stat7_result)
+            fractalstat_score = overall_score(fractalstat_result)
         else:
-            stat7_rank_collision = len(self.results)
-            stat7_rank_retrieval = len(self.results)
-            stat7_rank_storage = len(self.results)
-            stat7_rank_semantic = len(self.results)
-            stat7_score = 0.0
+            fractalstat_rank_collision = len(self.results)
+            fractalstat_rank_retrieval = len(self.results)
+            fractalstat_rank_storage = len(self.results)
+            fractalstat_rank_semantic = len(self.results)
+            fractalstat_score = 0.0
 
         # Generate findings
         major_findings = []
@@ -622,44 +623,44 @@ class BenchmarkComparisonExperiment:
 
         major_findings.append(f"Best overall: {best_overall.system_name}")
 
-        if stat7_result:
+        if fractalstat_result:
             major_findings.append(
-                f"STAT7 rankings: Collision #{stat7_rank_collision}, "
-                f"Retrieval #{stat7_rank_retrieval}, "
-                f"Storage #{stat7_rank_storage}, "
-                f"Semantic #{stat7_rank_semantic}"
+                f"FractalStat rankings: Collision #{fractalstat_rank_collision}, "
+                f"Retrieval #{fractalstat_rank_retrieval}, "
+                f"Storage #{fractalstat_rank_storage}, "
+                f"Semantic #{fractalstat_rank_semantic}"
             )
 
-            major_findings.append(f"STAT7 overall score: {stat7_score:.3f}")
+            major_findings.append(f"FractalStat overall score: {fractalstat_score:.3f}")
 
-            # STAT7 unique strengths
-            if stat7_rank_semantic <= 2:
+            # FractalStat unique strengths
+            if fractalstat_rank_semantic <= 2:
                 major_findings.append(
-                    "[OK] STAT7 excels at semantic expressiveness (multi-dimensional addressing)"
+                    "[OK] FractalStat excels at semantic expressiveness (multi-dimensional addressing)"
                 )
 
-            if stat7_rank_collision <= 3:
+            if fractalstat_rank_collision <= 3:
                 major_findings.append(
-                    "[OK] STAT7 competitive on collision rates (deterministic addressing)"
+                    "[OK] FractalStat competitive on collision rates (deterministic addressing)"
                 )
 
             # Trade-offs
-            if stat7_rank_storage > len(self.results) // 2:
+            if fractalstat_rank_storage > len(self.results) // 2:
                 major_findings.append(
-                    "[TRADE-OFF] STAT7 has higher storage overhead (7 dimensions)"
+                    "[TRADE-OFF] FractalStat has higher storage overhead (7 dimensions)"
                 )
 
-            if stat7_rank_retrieval <= 3:
+            if fractalstat_rank_retrieval <= 3:
                 major_findings.append(
-                    "[OK] STAT7 competitive on retrieval latency (hash-based lookup)"
+                    "[OK] FractalStat competitive on retrieval latency (hash-based lookup)"
                 )
 
-        # Determine if STAT7 is competitive
-        stat7_competitive = (
-            stat7_result is not None
-            and stat7_rank_semantic <= 2
-            and stat7_rank_collision <= 3
-            and stat7_score >= 0.7
+        # Determine if FractalStat is competitive
+        fractalstat_competitive = (
+            fractalstat_result is not None
+            and fractalstat_rank_semantic <= 2
+            and fractalstat_rank_collision <= 3
+            and fractalstat_score >= 0.7
         )
 
         print()
@@ -684,41 +685,41 @@ class BenchmarkComparisonExperiment:
             best_storage_efficiency_system=best_storage.system_name,
             best_semantic_expressiveness_system=best_semantic.system_name,
             best_overall_system=best_overall.system_name,
-            stat7_rank_collision=stat7_rank_collision,
-            stat7_rank_retrieval=stat7_rank_retrieval,
-            stat7_rank_storage=stat7_rank_storage,
-            stat7_rank_semantic=stat7_rank_semantic,
-            stat7_overall_score=stat7_score,
+            fractalstat_rank_collision=fractalstat_rank_collision,
+            fractalstat_rank_retrieval=fractalstat_rank_retrieval,
+            fractalstat_rank_storage=fractalstat_rank_storage,
+            fractalstat_rank_semantic=fractalstat_rank_semantic,
+            fractalstat_overall_score=fractalstat_score,
             major_findings=major_findings,
-            stat7_competitive=stat7_competitive,
+            fractalstat_competitive=fractalstat_competitive,
         )
 
-        # Success if STAT7 shows good semantic expressiveness (its primary strength)
+        # Success if FractalStat shows good semantic expressiveness (its primary strength)
         # OR if it's competitive overall (score >= 0.6)
-        # Calculate STAT7 rankings first, then determine success
-        if stat7_result:
+        # Calculate FractalStat rankings first, then determine success
+        if fractalstat_result:
             # Rank by semantic expressiveness
             sorted_by_semantic = sorted(
                 self.results,
                 key=lambda r: r.semantic_expressiveness,
                 reverse=True,
             )
-            stat7_rank_semantic = sorted_by_semantic.index(stat7_result) + 1
-            stat7_score = overall_score(stat7_result)
+            fractalstat_rank_semantic = sorted_by_semantic.index(fractalstat_result) + 1
+            fractalstat_score = overall_score(fractalstat_result)
 
-            success = stat7_rank_semantic <= 2 or stat7_score >= 0.6
+            success = fractalstat_rank_semantic <= 2 or fractalstat_score >= 0.6
         else:
             success = False
 
         print("=" * 80)
         if success:
             print(
-                f"RESULT: [OK] STAT7 DEMONSTRATES SEMANTIC STRENGTHS "
-                f"(score: {stat7_score:.3f})"
+                f"RESULT: [OK] FractalStat DEMONSTRATES SEMANTIC STRENGTHS "
+                f"(score: {fractalstat_score:.3f})"
             )
         else:
             print(
-                f"RESULT: [INFO] BENCHMARK ANALYSIS COMPLETE (score: {stat7_score:.3f})"
+                f"RESULT: [INFO] BENCHMARK ANALYSIS COMPLETE (score: {fractalstat_score:.3f})"
             )
         print("=" * 80)
 
@@ -738,11 +739,11 @@ def save_results(
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         output_file = f"exp12_benchmark_comparison_{timestamp}.json"
 
-    results_dir = Path(__file__).resolve().parent / "results"
+    results_dir = Path(__file__).resolve().parent.parent / "results"
     results_dir.mkdir(exist_ok=True)
     output_path = str(results_dir / output_file)
 
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results.to_dict(), f, indent=2)
 
     print(f"Results saved to: {output_path}")
@@ -759,7 +760,7 @@ if __name__ == "__main__":
         benchmark_systems = config.get(
             "EXP-12",
             "benchmark_systems",
-            ["uuid", "sha256", "vector_db", "graph_db", "rdbms", "stat7"],
+            ["uuid", "sha256", "vector_db", "graph_db", "rdbms", "fractalstat"],
         )
         scales = config.get("EXP-12", "scales", [10000, 100000, 1000000])
         num_queries = config.get("EXP-12", "num_queries", 1000)
@@ -771,7 +772,7 @@ if __name__ == "__main__":
             "vector_db",
             "graph_db",
             "rdbms",
-            "stat7",
+            "fractalstat",
         ]
         scales = [10000, 100000, 1000000]
         num_queries = 1000

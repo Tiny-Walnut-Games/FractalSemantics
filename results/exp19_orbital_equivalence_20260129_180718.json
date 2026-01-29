@@ -1,0 +1,36 @@
+{
+  "experiment": "EXP-19",
+  "test_type": "Orbital Equivalence Test",
+  "start_time": "2026-01-29T18:07:18.573147+00:00",
+  "end_time": "2026-01-29T18:07:18.726741+00:00",
+  "total_duration_seconds": 0.154,
+  "systems_tested": [
+    "Earth-Sun"
+  ],
+  "include_perturbation": true,
+  "system_results": {
+    "Earth-Sun": {
+      "average_position_correlation": 0.009073,
+      "average_trajectory_similarity": 1.0,
+      "average_orbital_period_match": 0.939667,
+      "equivalence_confirmed": false,
+      "body_comparisons": {
+        "Sun": {
+          "position_correlation": 0.0,
+          "trajectory_similarity": 1.0,
+          "orbital_period_match": 0.94
+        },
+        "Earth": {
+          "position_correlation": 0.018145,
+          "trajectory_similarity": 1.0,
+          "orbital_period_match": 0.939333
+        }
+      }
+    }
+  },
+  "analysis": {
+    "gravitational_constant_derived": false,
+    "perturbation_equivalence": false,
+    "orbital_mechanics_proven_fractal": false
+  }
+}

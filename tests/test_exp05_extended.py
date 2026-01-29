@@ -10,6 +10,9 @@ from unittest.mock import patch
 
 import pytest
 
+# Import enums for coordinates
+from fractalstat.dynamic_enum import Polarity, Alignment
+
 
 class TestExp05Extended:
     """Extended tests for compression/expansion experiment."""
@@ -29,7 +32,7 @@ class TestExp05Extended:
     def test_compression_pipeline_all_stages(self):
         """Compression pipeline should create all stages."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import generate_random_bitchain
+        from fractalstat.fractalstat_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -46,7 +49,7 @@ class TestExp05Extended:
     def test_reconstruction_accuracy(self):
         """Reconstruction should achieve reasonable accuracy."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import generate_random_bitchain
+        from fractalstat.fractalstat_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -60,7 +63,7 @@ class TestExp05Extended:
     def test_luminosity_decay_validation(self):
         """Luminosity should decay through compression stages."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import generate_random_bitchain
+        from fractalstat.fractalstat_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -85,7 +88,7 @@ class TestExp05Extended:
             num_bitchains_tested=10,
             compression_paths=[],
             avg_compression_ratio=5.0,
-            avg_luminosity_decay=0.1,
+            avg_luminosity_decay_ratio=0.1,
             avg_coordinate_accuracy=0.95,
             percent_provenance_intact=100.0,
             percent_narrative_preserved=100.0,
@@ -101,7 +104,7 @@ class TestExp05Extended:
                 output_file = str(Path(tmpdir) / "test_results.json")
 
                 # Save directly to temp dir
-                with open(output_file, "w") as f:
+                with open(output_file, "w", encoding="utf-8") as f:
                     json.dump(results.to_dict(), f)
 
                 assert Path(output_file).exists()
@@ -125,7 +128,7 @@ class TestExp05Extended:
     def test_provenance_chain_tracking(self):
         """Provenance chain should be tracked through all stages."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import generate_random_bitchain
+        from fractalstat.fractalstat_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -138,7 +141,7 @@ class TestExp05Extended:
     def test_narrative_preservation(self):
         """Narrative should be preserved through compression."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import generate_random_bitchain
+        from fractalstat.fractalstat_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -186,7 +189,7 @@ class TestExp05Extended:
             num_bitchains_tested=10,
             compression_paths=[],
             avg_compression_ratio=5.0,
-            avg_luminosity_decay=0.1,
+            avg_luminosity_decay_ratio=0.1,
             avg_coordinate_accuracy=0.95,
             percent_provenance_intact=100.0,
             percent_narrative_preserved=100.0,
@@ -207,7 +210,7 @@ class TestExp05ExceptionHandling:
             CompressionPipeline,
             BitChainCompressionPath,
         )
-        from fractalstat.stat7_experiments import generate_random_bitchain
+        from fractalstat.fractalstat_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -216,7 +219,7 @@ class TestExp05ExceptionHandling:
         path = BitChainCompressionPath(
             original_bitchain=bc,
             original_address=bc.compute_address(),
-            original_stat7_dict={"realm": "test", "lineage": 1},
+            original_fractalstat_dict={"realm": "test", "lineage": 1},
             original_serialized_size=100,
             original_luminosity=1.0,
         )
@@ -286,24 +289,26 @@ class TestExp05EdgeCases:
     def test_compression_with_empty_adjacency(self):
         """Test bitchain compression with empty adjacency list."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain
+        from fractalstat.fractalstat_entity import Coordinates
 
         pipeline = CompressionPipeline()
 
         # Create bitchain with empty adjacency
         coords = Coordinates(
-            realm="test_realm",
+            realm="faculty",  # Use string value for BitChain Coordinates
             lineage=1,
-            adjacency=[],  # Empty adjacency
+            adjacency=[],  # Empty adjacency list (List[str])
             horizon="crystallization",
-            velocity=1.0,
-            resonance=0.5,
-            density=0.8,
+            luminosity=0.0,  # Zero velocity
+            polarity=Polarity.BALANCE,
+            dimensionality=0,
+            alignment=Alignment.TRUE_NEUTRAL,
         )
         bc = BitChain(
             id="test-id-1234",
             entity_type="concept",
-            realm="test_realm",
+            realm="faculty",
             coordinates=coords,
             created_at="2024-01-01T00:00:00.000Z",
             state={"value": 42},
@@ -318,24 +323,26 @@ class TestExp05EdgeCases:
     def test_compression_with_zero_velocity(self):
         """Test bitchain compression with zero velocity."""
         from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.stat7_experiments import BitChain, Coordinates
+        from fractalstat.fractalstat_experiments import BitChain
+        from fractalstat.fractalstat_entity import Coordinates
 
         pipeline = CompressionPipeline()
 
         # Create bitchain with zero velocity
-        coords = Coordinates(
-            realm="test_realm",
+        coords = Coordinates(  # Use correct BitChain Coordinates
+            realm="faculty",  # String value
             lineage=1,
-            adjacency=["adj1"],
-            horizon="crystallization",
-            velocity=0.0,  # Zero velocity
-            resonance=0.5,
-            density=0.8,
+            adjacency=["adj1"],  # List[str]
+            horizon="crystallization",  # String value
+            luminosity=0.0,  # Zero velocity
+            polarity=Polarity.BALANCE,
+            dimensionality=5,
+            alignment=Alignment.TRUE_NEUTRAL,
         )
         bc = BitChain(
             id="test-id-5678",
             entity_type="artifact",
-            realm="test_realm",
+            realm="faculty",
             coordinates=coords,
             created_at="2024-01-01T00:00:00.000Z",
             state={"value": 100},
@@ -353,7 +360,7 @@ class TestExp05EdgeCases:
             CompressionPipeline,
             BitChainCompressionPath,
         )
-        from fractalstat.stat7_experiments import generate_random_bitchain
+        from fractalstat.fractalstat_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -361,7 +368,7 @@ class TestExp05EdgeCases:
         path = BitChainCompressionPath(
             original_bitchain=bc,
             original_address=bc.compute_address(),
-            original_stat7_dict={"realm": "test", "lineage": 1},
+            original_fractalstat_dict={"realm": "test", "lineage": 1},
             original_serialized_size=100,
             original_luminosity=1.0,
         )
@@ -396,7 +403,7 @@ class TestExp05BoundaryCases:
             num_bitchains_tested=10,
             compression_paths=[],
             avg_compression_ratio=5.0,
-            avg_luminosity_decay=0.1,
+            avg_luminosity_decay_ratio=0.1,
             avg_coordinate_accuracy=0.95,
             percent_provenance_intact=0.0,  # 0% provenance
             percent_narrative_preserved=100.0,
@@ -415,7 +422,7 @@ class TestExp05BoundaryCases:
             num_bitchains_tested=10,
             compression_paths=[],
             avg_compression_ratio=5.0,
-            avg_luminosity_decay=0.1,
+            avg_luminosity_decay_ratio=0.1,
             avg_coordinate_accuracy=0.95,
             percent_provenance_intact=100.0,
             percent_narrative_preserved=90.0,  # Exactly 90%
@@ -433,7 +440,7 @@ class TestExp05BoundaryCases:
             num_bitchains_tested=10,
             compression_paths=[],
             avg_compression_ratio=5.0,
-            avg_luminosity_decay=0.1,
+            avg_luminosity_decay_ratio=0.1,
             avg_coordinate_accuracy=0.4,  # Exactly 0.4
             percent_provenance_intact=100.0,
             percent_narrative_preserved=100.0,
@@ -457,7 +464,7 @@ class TestExp05BoundaryCases:
             num_bitchains_tested=10,
             compression_paths=[],
             avg_compression_ratio=1.5,  # Less than 2.0
-            avg_luminosity_decay=0.1,
+            avg_luminosity_decay_ratio=0.1,
             avg_coordinate_accuracy=0.95,
             percent_provenance_intact=100.0,
             percent_narrative_preserved=100.0,

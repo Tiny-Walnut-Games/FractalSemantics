@@ -1,0 +1,633 @@
+{
+  "test_summary": {
+    "start_time": "2025-12-07T20:12:04.165743",
+    "end_time": "2025-12-07T20:22:17.803894",
+    "duration_seconds": 613.638151,
+    "duration_minutes": 10.227302516666667
+  },
+  "volume_metrics": {
+    "total_queries": 299,
+    "successful_queries": 0,
+    "failed_queries": 299,
+    "success_rate": 0.0,
+    "queries_per_second_target": 5,
+    "queries_per_second_actual": 0.4872578400034974
+  },
+  "performance_metrics": {
+    "avg_query_time_ms": 0.0,
+    "median_query_time_ms": 0.0,
+    "p95_query_time_ms": 0.0,
+    "p99_query_time_ms": 0.0
+  },
+  "bob_analysis": {
+    "total_decisions": 0,
+    "passed": 0,
+    "verified": 0,
+    "quarantined": 0,
+    "alert_rate": 0.0,
+    "quarantine_rate": 0.0
+  },
+  "query_type_analysis": {},
+  "detailed_results": [
+    {
+      "timestamp": "2025-12-07T20:18:54.673191",
+      "query_id": "stress_1765156732622_2717",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156732622_2717\",\"semantic\":\"What patterns emerge from Orion's behavior across multiple visits to Moon Harbor?\"}}]}",
+      "query_time": 2.0506651401519775
+    },
+    {
+      "timestamp": "2025-12-07T20:18:56.731774",
+      "query_id": "stress_1765156734673_8355",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156734673_8355\",\"semantic\":\"How does Leo consolidate memories of crafting experiences at Crystal Spire?\"}}]}",
+      "query_time": 2.0585834980010986
+    },
+    {
+      "timestamp": "2025-12-07T20:18:58.769826",
+      "query_id": "stress_1765156736731_3272",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156736731_3272\",\"semantic\":\"What narrative developments occur when Zara engages in learning while feeling melancholy?\"}}]}",
+      "query_time": 2.0380516052246094
+    },
+    {
+      "timestamp": "2025-12-07T20:19:00.835543",
+      "query_id": "stress_1765156738769_7981",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156738769_7981\",\"semantic\":\"What patterns emerge from James's behavior across multiple visits to Memory Palace?\",\"hybrid\":true,\"weight-semantic\":0.7644140524759631,\"weight-fractalstat\":0.3442623816144121}}]}",
+      "query_time": 2.0657174587249756
+    },
+    {
+      "timestamp": "2025-12-07T20:19:02.923418",
+      "query_id": "stress_1765156740835_4362",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156740835_4362\",\"semantic\":\"How does Dream Weavers influence the peaceful experiences of visitors like James?\",\"hybrid\":true,\"weight-semantic\":0.653627002509868,\"weight-fractalstat\":0.2301885348638311}}]}",
+      "query_time": 2.087874174118042
+    },
+    {
+      "timestamp": "2025-12-07T20:19:04.983738",
+      "query_id": "stress_1765156742923_1460",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156742923_1460\",\"semantic\":\"How does Time Keepers influence the peaceful experiences of visitors like Leo?\"}}]}",
+      "query_time": 2.0603203773498535
+    },
+    {
+      "timestamp": "2025-12-07T20:19:07.048311",
+      "query_id": "stress_1765156744983_1544",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156744983_1544\",\"semantic\":\"What behavioral patterns does Kai exhibit when curious during learning at Shadow Market?\",\"hybrid\":true,\"weight-semantic\":0.7515128589190636,\"weight-fractalstat\":0.22611318130895128}}]}",
+      "query_time": 2.06457257270813
+    },
+    {
+      "timestamp": "2025-12-07T20:19:09.084929",
+      "query_id": "stress_1765156747048_2137",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156747048_2137\",\"semantic\":\"What narrative developments occur when Elena engages in learning while feeling determined?\",\"hybrid\":true,\"weight-semantic\":0.5220955695938139,\"weight-fractalstat\":0.35826005360732777}}]}",
+      "query_time": 2.0366179943084717
+    },
+    {
+      "timestamp": "2025-12-07T20:19:11.128366",
+      "query_id": "stress_1765156749086_2181",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156749086_2181\",\"semantic\":\"What narrative developments occur when Nova engages in crafting while feeling curious?\"}}]}",
+      "query_time": 2.0419158935546875
+    },
+    {
+      "timestamp": "2025-12-07T20:19:13.176235",
+      "query_id": "stress_1765156751128_4429",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156751128_4429\",\"semantic\":\"What narrative developments occur when Zara engages in exploring while feeling hopeful?\",\"hybrid\":true,\"weight-semantic\":0.7609085896944929,\"weight-fractalstat\":0.40196601039989444}}]}",
+      "query_time": 2.0478692054748535
+    },
+    {
+      "timestamp": "2025-12-07T20:19:15.228713",
+      "query_id": "stress_1765156753176_2785",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156753176_2785\",\"semantic\":\"What patterns emerge from Aria's behavior across multiple visits to Star Forge?\",\"hybrid\":true,\"weight-semantic\":0.5635822424734581,\"weight-fractalstat\":0.44483440628417154}}]}",
+      "query_time": 2.052478075027466
+    },
+    {
+      "timestamp": "2025-12-07T20:19:17.267072",
+      "query_id": "stress_1765156755228_9839",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156755228_9839\",\"semantic\":\"Describe the evolving relationship between Rex and others during mourning sessions\",\"hybrid\":true,\"weight-semantic\":0.7489321884436378,\"weight-fractalstat\":0.31446292368862194}}]}",
+      "query_time": 2.038358688354492
+    },
+    {
+      "timestamp": "2025-12-07T20:19:19.326674",
+      "query_id": "stress_1765156757267_6965",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156757267_6965\",\"semantic\":\"How does Echo consolidate memories of negotiating experiences at Sun Temple?\",\"hybrid\":true,\"weight-semantic\":0.7312969091553817,\"weight-fractalstat\":0.23215088149026322}}]}",
+      "query_time": 2.0596017837524414
+    },
+    {
+      "timestamp": "2025-12-07T20:19:21.394487",
+      "query_id": "stress_1765156759327_1835",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156759327_1835\",\"semantic\":\"What narrative developments occur when Luna engages in celebrating while feeling melancholy?\"}}]}",
+      "query_time": 2.06680965423584
+    },
+    {
+      "timestamp": "2025-12-07T20:19:23.463477",
+      "query_id": "stress_1765156761394_2152",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156761394_2152\",\"semantic\":\"Describe the evolving relationship between Sofia and others during defending sessions\"}}]}",
+      "query_time": 2.0689895153045654
+    },
+    {
+      "timestamp": "2025-12-07T20:19:25.530279",
+      "query_id": "stress_1765156763463_9034",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156763463_9034\",\"semantic\":\"What narrative developments occur when Maya engages in negotiating while feeling determined?\",\"hybrid\":true,\"weight-semantic\":0.774389740750612,\"weight-fractalstat\":0.3729000973700325}}]}",
+      "query_time": 2.066802740097046
+    },
+    {
+      "timestamp": "2025-12-07T20:19:27.575952",
+      "query_id": "stress_1765156765530_4646",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156765530_4646\",\"semantic\":\"What patterns emerge from Iris's behavior across multiple visits to Shadow Market?\",\"hybrid\":true,\"weight-semantic\":0.743015953342119,\"weight-fractalstat\":0.2025603604741508}}]}",
+      "query_time": 2.04567289352417
+    },
+    {
+      "timestamp": "2025-12-07T20:19:29.632738",
+      "query_id": "stress_1765156767575_5469",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156767575_5469\",\"semantic\":\"What narrative developments occur when Leo engages in crafting while feeling hopeful?\"}}]}",
+      "query_time": 2.056785821914673
+    },
+    {
+      "timestamp": "2025-12-07T20:19:31.683955",
+      "query_id": "stress_1765156769634_5031",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156769634_5031\",\"semantic\":\"How does Shadow Market influence the conflicted experiences of visitors like Kai?\",\"hybrid\":true,\"weight-semantic\":0.5967332247040206,\"weight-fractalstat\":0.4941875747084686}}]}",
+      "query_time": 2.0496442317962646
+    },
+    {
+      "timestamp": "2025-12-07T20:19:33.719847",
+      "query_id": "stress_1765156771684_9081",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156771684_9081\",\"semantic\":\"How does Elena's joyful state affect their celebrating at Dream Weavers?\",\"hybrid\":true,\"weight-semantic\":0.7615507790398433,\"weight-fractalstat\":0.28790873426676195}}]}",
+      "query_time": 2.0353872776031494
+    },
+    {
+      "timestamp": "2025-12-07T20:19:35.784892",
+      "query_id": "stress_1765156773719_4106",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156773719_4106\",\"semantic\":\"How does Kai's restless state affect their defending at Crystal Spire?\",\"hybrid\":true,\"weight-semantic\":0.7890584239587592,\"weight-fractalstat\":0.20217569004496158}}]}",
+      "query_time": 2.065044403076172
+    },
+    {
+      "timestamp": "2025-12-07T20:19:37.842689",
+      "query_id": "stress_1765156775784_3225",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156775784_3225\",\"semantic\":\"How does Dream Weavers influence the anxious experiences of visitors like Iris?\",\"hybrid\":true,\"weight-semantic\":0.740639399184059,\"weight-fractalstat\":0.41496689821763866}}]}",
+      "query_time": 2.057797431945801
+    },
+    {
+      "timestamp": "2025-12-07T20:19:39.892501",
+      "query_id": "stress_1765156777842_9143",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156777842_9143\",\"semantic\":\"What behavioral patterns does James exhibit when determined during meditating at Star Forge?\",\"hybrid\":true,\"weight-semantic\":0.6667299423597008,\"weight-fractalstat\":0.33586578537147704}}]}",
+      "query_time": 2.049811363220215
+    },
+    {
+      "timestamp": "2025-12-07T20:19:41.942561",
+      "query_id": "stress_1765156779892_9968",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156779892_9968\",\"semantic\":\"How does Orion's restless state affect their negotiating at Crystal Spire?\"}}]}",
+      "query_time": 2.050060510635376
+    },
+    {
+      "timestamp": "2025-12-07T20:19:43.982211",
+      "query_id": "stress_1765156781942_8515",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156781942_8515\",\"semantic\":\"How does Marcus consolidate memories of defending experiences at Dream Weavers?\",\"hybrid\":true,\"weight-semantic\":0.7718208979015975,\"weight-fractalstat\":0.23721354212996537}}]}",
+      "query_time": 2.0396504402160645
+    },
+    {
+      "timestamp": "2025-12-07T20:19:46.021747",
+      "query_id": "stress_1765156783982_6160",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156783982_6160\",\"semantic\":\"What narrative developments occur when Aria engages in learning while feeling wary?\",\"hybrid\":true,\"weight-semantic\":0.5547745030175558,\"weight-fractalstat\":0.38032255664318826}}]}",
+      "query_time": 2.039536237716675
+    },
+    {
+      "timestamp": "2025-12-07T20:19:48.064995",
+      "query_id": "stress_1765156786021_8835",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156786021_8835\",\"semantic\":\"What patterns emerge from Echo's behavior across multiple visits to Shadow Market?\",\"hybrid\":true,\"weight-semantic\":0.6556322155791232,\"weight-fractalstat\":0.2761711959853642}}]}",
+      "query_time": 2.0432472229003906
+    },
+    {
+      "timestamp": "2025-12-07T20:19:50.106857",
+      "query_id": "stress_1765156788066_6574",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156788066_6574\",\"semantic\":\"Trace the emotional journey of Kai from restless to other states during teaching\"}}]}",
+      "query_time": 2.040855646133423
+    },
+    {
+      "timestamp": "2025-12-07T20:19:52.169190",
+      "query_id": "stress_1765156790107_2994",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156790107_2994\",\"semantic\":\"How does Elena's melancholy state affect their negotiating at Moon Harbor?\"}}]}",
+      "query_time": 2.0613279342651367
+    },
+    {
+      "timestamp": "2025-12-07T20:19:54.238219",
+      "query_id": "stress_1765156792170_3462",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156792170_3462\",\"semantic\":\"What behavioral patterns does Luna exhibit when wary during negotiating at Crystal Spire?\"}}]}",
+      "query_time": 2.0675151348114014
+    },
+    {
+      "timestamp": "2025-12-07T20:19:56.272881",
+      "query_id": "stress_1765156794238_8735",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156794238_8735\",\"semantic\":\"What narrative developments occur when Rex engages in mourning while feeling restless?\"}}]}",
+      "query_time": 2.0346624851226807
+    },
+    {
+      "timestamp": "2025-12-07T20:19:58.324389",
+      "query_id": "stress_1765156796272_6018",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156796272_6018\",\"semantic\":\"How does Time Keepers influence the determined experiences of visitors like Rex?\",\"hybrid\":true,\"weight-semantic\":0.765654270883207,\"weight-fractalstat\":0.4235356370584799}}]}",
+      "query_time": 2.0515077114105225
+    },
+    {
+      "timestamp": "2025-12-07T20:20:00.376453",
+      "query_id": "stress_1765156798324_3363",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156798324_3363\",\"semantic\":\"Describe the evolving relationship between Orion and others during crafting sessions\"}}]}",
+      "query_time": 2.0520641803741455
+    },
+    {
+      "timestamp": "2025-12-07T20:20:02.437964",
+      "query_id": "stress_1765156800377_1606",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156800377_1606\",\"semantic\":\"How does Star Forge influence the determined experiences of visitors like Sofia?\"}}]}",
+      "query_time": 2.060452461242676
+    },
+    {
+      "timestamp": "2025-12-07T20:20:04.473831",
+      "query_id": "stress_1765156802438_9412",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156802438_9412\",\"semantic\":\"What narrative developments occur when Rex engages in exploring while feeling joyful?\",\"hybrid\":true,\"weight-semantic\":0.7970327557410907,\"weight-fractalstat\":0.45579392669559327}}]}",
+      "query_time": 2.0353410243988037
+    },
+    {
+      "timestamp": "2025-12-07T20:20:06.519669",
+      "query_id": "stress_1765156804473_8210",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156804473_8210\",\"semantic\":\"How does Moon Harbor influence the restless experiences of visitors like James?\",\"hybrid\":true,\"weight-semantic\":0.745933412062557,\"weight-fractalstat\":0.32588593884670025}}]}",
+      "query_time": 2.045837879180908
+    },
+    {
+      "timestamp": "2025-12-07T20:20:08.560519",
+      "query_id": "stress_1765156806520_3514",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156806520_3514\",\"semantic\":\"What patterns emerge from Aria's behavior across multiple visits to Star Forge?\",\"hybrid\":true,\"weight-semantic\":0.6140804890742263,\"weight-fractalstat\":0.22110673760826563}}]}",
+      "query_time": 2.039328098297119
+    },
+    {
+      "timestamp": "2025-12-07T20:20:10.609574",
+      "query_id": "stress_1765156808560_3062",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156808560_3062\",\"semantic\":\"How does Leo's curious state affect their celebrating at Crystal Spire?\"}}]}",
+      "query_time": 2.048523426055908
+    },
+    {
+      "timestamp": "2025-12-07T20:20:12.657225",
+      "query_id": "stress_1765156810609_1089",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156810609_1089\",\"semantic\":\"How does Nova's peaceful state affect their crafting at Shadow Market?\"}}]}",
+      "query_time": 2.0476510524749756
+    },
+    {
+      "timestamp": "2025-12-07T20:20:14.709966",
+      "query_id": "stress_1765156812657_1874",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156812657_1874\",\"semantic\":\"What patterns emerge from Rex's behavior across multiple visits to Moon Harbor?\",\"hybrid\":true,\"weight-semantic\":0.5158286900372813,\"weight-fractalstat\":0.44190261716223983}}]}",
+      "query_time": 2.052741289138794
+    },
+    {
+      "timestamp": "2025-12-07T20:20:16.777020",
+      "query_id": "stress_1765156814710_2301",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156814710_2301\",\"semantic\":\"Trace the emotional journey of Sofia from anxious to other states during teaching\"}}]}",
+      "query_time": 2.0665032863616943
+    },
+    {
+      "timestamp": "2025-12-07T20:20:18.857287",
+      "query_id": "stress_1765156816777_8606",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156816777_8606\",\"semantic\":\"How does Marcus consolidate memories of negotiating experiences at Shadow Market?\"}}]}",
+      "query_time": 2.0802669525146484
+    },
+    {
+      "timestamp": "2025-12-07T20:20:20.922262",
+      "query_id": "stress_1765156818858_5305",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156818858_5305\",\"semantic\":\"What behavioral patterns does Sofia exhibit when peaceful during healing at Shadow Market?\"}}]}",
+      "query_time": 2.0639657974243164
+    },
+    {
+      "timestamp": "2025-12-07T20:20:22.970282",
+      "query_id": "stress_1765156820922_6165",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156820922_6165\",\"semantic\":\"What patterns emerge from Elena's behavior across multiple visits to Shadow Market?\",\"hybrid\":true,\"weight-semantic\":0.5743485799380397,\"weight-fractalstat\":0.44403867674233194}}]}",
+      "query_time": 2.048020601272583
+    },
+    {
+      "timestamp": "2025-12-07T20:20:25.020344",
+      "query_id": "stress_1765156822971_9138",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156822971_9138\",\"semantic\":\"How does Orion's determined state affect their celebrating at Crystal Spire?\",\"hybrid\":true,\"weight-semantic\":0.7112381946454954,\"weight-fractalstat\":0.3692060888541955}}]}",
+      "query_time": 2.0489983558654785
+    },
+    {
+      "timestamp": "2025-12-07T20:20:27.080058",
+      "query_id": "stress_1765156825020_3531",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156825020_3531\",\"semantic\":\"How does Memory Palace influence the conflicted experiences of visitors like Elena?\",\"hybrid\":true,\"weight-semantic\":0.5620375804949002,\"weight-fractalstat\":0.3894472220041799}}]}",
+      "query_time": 2.0591793060302734
+    },
+    {
+      "timestamp": "2025-12-07T20:20:29.131811",
+      "query_id": "stress_1765156827080_9563",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156827080_9563\",\"semantic\":\"How does Maya consolidate memories of exploring experiences at Dream Weavers?\",\"hybrid\":true,\"weight-semantic\":0.5637144414247802,\"weight-fractalstat\":0.2497066289837058}}]}",
+      "query_time": 2.051753520965576
+    },
+    {
+      "timestamp": "2025-12-07T20:20:31.175057",
+      "query_id": "stress_1765156829131_4769",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156829131_4769\",\"semantic\":\"How does Nova's wary state affect their defending at Shadow Market?\"}}]}",
+      "query_time": 2.043246030807495
+    },
+    {
+      "timestamp": "2025-12-07T20:20:33.219947",
+      "query_id": "stress_1765156831175_4362",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156831175_4362\",\"semantic\":\"What behavioral patterns does Marcus exhibit when curious during mourning at Time Keepers?\"}}]}",
+      "query_time": 2.0438904762268066
+    },
+    {
+      "timestamp": "2025-12-07T20:20:35.275089",
+      "query_id": "stress_1765156833219_2176",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156833219_2176\",\"semantic\":\"How does Dream Weavers influence the anxious experiences of visitors like Nova?\"}}]}",
+      "query_time": 2.0551419258117676
+    },
+    {
+      "timestamp": "2025-12-07T20:20:37.311643",
+      "query_id": "stress_1765156835276_8999",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156835276_8999\",\"semantic\":\"Describe the evolving relationship between James and others during exploring sessions\"}}]}",
+      "query_time": 2.0350310802459717
+    },
+    {
+      "timestamp": "2025-12-07T20:20:39.360397",
+      "query_id": "stress_1765156837311_1262",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156837311_1262\",\"semantic\":\"Trace the emotional journey of Elena from wary to other states during mourning\"}}]}",
+      "query_time": 2.0482451915740967
+    },
+    {
+      "timestamp": "2025-12-07T20:20:41.424134",
+      "query_id": "stress_1765156839360_7698",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156839360_7698\",\"semantic\":\"How does Marcus consolidate memories of crafting experiences at Star Forge?\"}}]}",
+      "query_time": 2.0637366771698
+    },
+    {
+      "timestamp": "2025-12-07T20:20:43.491619",
+      "query_id": "stress_1765156841424_3404",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156841424_3404\",\"semantic\":\"How does Iris's joyful state affect their mourning at Star Forge?\"}}]}",
+      "query_time": 2.0674855709075928
+    },
+    {
+      "timestamp": "2025-12-07T20:20:45.543726",
+      "query_id": "stress_1765156843491_1248",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156843491_1248\",\"semantic\":\"Describe the evolving relationship between Marcus and others during crafting sessions\",\"hybrid\":true,\"weight-semantic\":0.6506997300263588,\"weight-fractalstat\":0.43768206356148576}}]}",
+      "query_time": 2.0521061420440674
+    },
+    {
+      "timestamp": "2025-12-07T20:20:47.587145",
+      "query_id": "stress_1765156845543_9663",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156845543_9663\",\"semantic\":\"How does Nova's curious state affect their learning at Dream Weavers?\"}}]}",
+      "query_time": 2.043419599533081
+    },
+    {
+      "timestamp": "2025-12-07T20:20:49.651043",
+      "query_id": "stress_1765156847587_6313",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156847587_6313\",\"semantic\":\"Describe the evolving relationship between Finn and others during exploring sessions\",\"hybrid\":true,\"weight-semantic\":0.7444449625363254,\"weight-fractalstat\":0.3736411670572721}}]}",
+      "query_time": 2.0638978481292725
+    },
+    {
+      "timestamp": "2025-12-07T20:20:51.686462",
+      "query_id": "stress_1765156849651_3022",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156849651_3022\",\"semantic\":\"Trace the emotional journey of Finn from restless to other states during celebrating\"}}]}",
+      "query_time": 2.03541898727417
+    },
+    {
+      "timestamp": "2025-12-07T20:20:53.722416",
+      "query_id": "stress_1765156851686_8858",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156851686_8858\",\"semantic\":\"How does Iris consolidate memories of meditating experiences at Sun Temple?\"}}]}",
+      "query_time": 2.035954475402832
+    },
+    {
+      "timestamp": "2025-12-07T20:20:55.760440",
+      "query_id": "stress_1765156853722_7658",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156853722_7658\",\"semantic\":\"Describe the evolving relationship between Sofia and others during defending sessions\",\"hybrid\":true,\"weight-semantic\":0.7680261961454884,\"weight-fractalstat\":0.21773955808191064}}]}",
+      "query_time": 2.0380239486694336
+    },
+    {
+      "timestamp": "2025-12-07T20:20:57.810080",
+      "query_id": "stress_1765156855760_7494",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156855760_7494\",\"semantic\":\"What behavioral patterns does James exhibit when wary during learning at Dream Weavers?\",\"hybrid\":true,\"weight-semantic\":0.6816930307736523,\"weight-fractalstat\":0.34123021540167553}}]}",
+      "query_time": 2.0496394634246826
+    },
+    {
+      "timestamp": "2025-12-07T20:20:59.861529",
+      "query_id": "stress_1765156857811_5201",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156857811_5201\",\"semantic\":\"What behavioral patterns does Maya exhibit when peaceful during defending at Memory Palace?\",\"hybrid\":true,\"weight-semantic\":0.5364315895214653,\"weight-fractalstat\":0.2627396537921994}}]}",
+      "query_time": 2.050443410873413
+    },
+    {
+      "timestamp": "2025-12-07T20:21:01.903749",
+      "query_id": "stress_1765156859861_8448",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156859861_8448\",\"semantic\":\"Trace the emotional journey of Iris from restless to other states during crafting\",\"hybrid\":true,\"weight-semantic\":0.597781895356399,\"weight-fractalstat\":0.37497481058888427}}]}",
+      "query_time": 2.042219400405884
+    },
+    {
+      "timestamp": "2025-12-07T20:21:03.969143",
+      "query_id": "stress_1765156861903_9901",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156861903_9901\",\"semantic\":\"How does Marcus consolidate memories of negotiating experiences at Shadow Market?\",\"hybrid\":true,\"weight-semantic\":0.6002960608141499,\"weight-fractalstat\":0.41919950663065764}}]}",
+      "query_time": 2.065394639968872
+    },
+    {
+      "timestamp": "2025-12-07T20:21:06.048548",
+      "query_id": "stress_1765156863969_9361",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156863969_9361\",\"semantic\":\"How does Rex consolidate memories of celebrating experiences at Star Forge?\"}}]}",
+      "query_time": 2.0794050693511963
+    },
+    {
+      "timestamp": "2025-12-07T20:21:08.086369",
+      "query_id": "stress_1765156866048_3912",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156866048_3912\",\"semantic\":\"How does Marcus consolidate memories of crafting experiences at Star Forge?\"}}]}",
+      "query_time": 2.037820339202881
+    },
+    {
+      "timestamp": "2025-12-07T20:21:10.156074",
+      "query_id": "stress_1765156868086_4475",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156868086_4475\",\"semantic\":\"How does Sun Temple influence the joyful experiences of visitors like Marcus?\",\"hybrid\":true,\"weight-semantic\":0.6748252174910483,\"weight-fractalstat\":0.4318651419870298}}]}",
+      "query_time": 2.0697052478790283
+    },
+    {
+      "timestamp": "2025-12-07T20:21:12.216973",
+      "query_id": "stress_1765156870156_5511",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156870156_5511\",\"semantic\":\"What behavioral patterns does Orion exhibit when determined during meditating at Time Keepers?\"}}]}",
+      "query_time": 2.060898780822754
+    },
+    {
+      "timestamp": "2025-12-07T20:21:14.257142",
+      "query_id": "stress_1765156872216_4522",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156872216_4522\",\"semantic\":\"How does Sofia consolidate memories of negotiating experiences at Moon Harbor?\"}}]}",
+      "query_time": 2.0396149158477783
+    },
+    {
+      "timestamp": "2025-12-07T20:21:16.309343",
+      "query_id": "stress_1765156874257_5515",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156874257_5515\",\"semantic\":\"How does Elena consolidate memories of healing experiences at Crystal Spire?\"}}]}",
+      "query_time": 2.051683187484741
+    },
+    {
+      "timestamp": "2025-12-07T20:21:18.373594",
+      "query_id": "stress_1765156876309_2830",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156876309_2830\",\"semantic\":\"What patterns emerge from Luna's behavior across multiple visits to Memory Palace?\"}}]}",
+      "query_time": 2.0642502307891846
+    },
+    {
+      "timestamp": "2025-12-07T20:21:20.417086",
+      "query_id": "stress_1765156878373_8398",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156878373_8398\",\"semantic\":\"What patterns emerge from Nova's behavior across multiple visits to Shadow Market?\",\"hybrid\":true,\"weight-semantic\":0.726905767188972,\"weight-fractalstat\":0.29482422100427796}}]}",
+      "query_time": 2.043492555618286
+    },
+    {
+      "timestamp": "2025-12-07T20:21:22.472664",
+      "query_id": "stress_1765156880417_7557",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156880417_7557\",\"semantic\":\"How does Marcus's anxious state affect their negotiating at Moon Harbor?\",\"hybrid\":true,\"weight-semantic\":0.5803755644384226,\"weight-fractalstat\":0.497900200307173}}]}",
+      "query_time": 2.0555777549743652
+    },
+    {
+      "timestamp": "2025-12-07T20:21:24.535726",
+      "query_id": "stress_1765156882473_9397",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156882473_9397\",\"semantic\":\"What behavioral patterns does Echo exhibit when peaceful during mourning at Time Keepers?\",\"hybrid\":true,\"weight-semantic\":0.6953337622701791,\"weight-fractalstat\":0.3346202238021819}}]}",
+      "query_time": 2.0620570182800293
+    },
+    {
+      "timestamp": "2025-12-07T20:21:26.587017",
+      "query_id": "stress_1765156884536_7072",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156884536_7072\",\"semantic\":\"How does Nova consolidate memories of negotiating experiences at Crystal Spire?\",\"hybrid\":true,\"weight-semantic\":0.7902331573336141,\"weight-fractalstat\":0.3417467723570844}}]}",
+      "query_time": 2.0507383346557617
+    },
+    {
+      "timestamp": "2025-12-07T20:21:28.651735",
+      "query_id": "stress_1765156886587_4948",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156886587_4948\",\"semantic\":\"How does Dream Weavers influence the conflicted experiences of visitors like Leo?\",\"hybrid\":true,\"weight-semantic\":0.5404186469762992,\"weight-fractalstat\":0.3625731036376879}}]}",
+      "query_time": 2.064718246459961
+    },
+    {
+      "timestamp": "2025-12-07T20:21:30.713539",
+      "query_id": "stress_1765156888652_1751",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156888652_1751\",\"semantic\":\"Describe the evolving relationship between Zara and others during defending sessions\",\"hybrid\":true,\"weight-semantic\":0.620829853743658,\"weight-fractalstat\":0.45186957647621634}}]}",
+      "query_time": 2.060727119445801
+    },
+    {
+      "timestamp": "2025-12-07T20:21:32.760969",
+      "query_id": "stress_1765156890713_8840",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156890713_8840\",\"semantic\":\"What behavioral patterns does Maya exhibit when determined during celebrating at Moon Harbor?\"}}]}",
+      "query_time": 2.046825647354126
+    },
+    {
+      "timestamp": "2025-12-07T20:21:34.796184",
+      "query_id": "stress_1765156892760_3449",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156892760_3449\",\"semantic\":\"How does Sofia consolidate memories of defending experiences at Dream Weavers?\"}}]}",
+      "query_time": 2.034200668334961
+    },
+    {
+      "timestamp": "2025-12-07T20:21:36.855221",
+      "query_id": "stress_1765156894796_9020",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156894796_9020\",\"semantic\":\"How does Moon Harbor influence the hopeful experiences of visitors like Sofia?\"}}]}",
+      "query_time": 2.059037446975708
+    },
+    {
+      "timestamp": "2025-12-07T20:21:38.923184",
+      "query_id": "stress_1765156896855_3387",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156896855_3387\",\"semantic\":\"Trace the emotional journey of Aria from melancholy to other states during defending\"}}]}",
+      "query_time": 2.0673904418945312
+    },
+    {
+      "timestamp": "2025-12-07T20:21:40.956356",
+      "query_id": "stress_1765156898923_7493",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156898923_7493\",\"semantic\":\"How does Moon Harbor influence the hopeful experiences of visitors like Nova?\"}}]}",
+      "query_time": 2.033172130584717
+    },
+    {
+      "timestamp": "2025-12-07T20:21:43.001878",
+      "query_id": "stress_1765156900956_4054",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156900956_4054\",\"semantic\":\"What behavioral patterns does Orion exhibit when determined during defending at Star Forge?\",\"hybrid\":true,\"weight-semantic\":0.5009818134262612,\"weight-fractalstat\":0.2672464805039426}}]}",
+      "query_time": 2.045522451400757
+    },
+    {
+      "timestamp": "2025-12-07T20:21:45.048917",
+      "query_id": "stress_1765156903001_8035",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156903001_8035\",\"semantic\":\"What behavioral patterns does Maya exhibit when restless during celebrating at Shadow Market?\",\"hybrid\":true,\"weight-semantic\":0.5711653720119203,\"weight-fractalstat\":0.24337300434993214}}]}",
+      "query_time": 2.047039031982422
+    },
+    {
+      "timestamp": "2025-12-07T20:21:47.089747",
+      "query_id": "stress_1765156905048_9579",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156905048_9579\",\"semantic\":\"Trace the emotional journey of Leo from determined to other states during celebrating\",\"hybrid\":true,\"weight-semantic\":0.7680955830369394,\"weight-fractalstat\":0.2988096895334841}}]}",
+      "query_time": 2.0408291816711426
+    },
+    {
+      "timestamp": "2025-12-07T20:21:49.151251",
+      "query_id": "stress_1765156907089_4441",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156907089_4441\",\"semantic\":\"How does Shadow Market influence the hopeful experiences of visitors like Sofia?\"}}]}",
+      "query_time": 2.061504364013672
+    },
+    {
+      "timestamp": "2025-12-07T20:21:51.187826",
+      "query_id": "stress_1765156909152_2765",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156909152_2765\",\"semantic\":\"What narrative developments occur when Echo engages in negotiating while feeling peaceful?\"}}]}",
+      "query_time": 2.035024642944336
+    },
+    {
+      "timestamp": "2025-12-07T20:21:53.248657",
+      "query_id": "stress_1765156911188_7919",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156911188_7919\",\"semantic\":\"What narrative developments occur when Orion engages in negotiating while feeling determined?\",\"hybrid\":true,\"weight-semantic\":0.6520673363504823,\"weight-fractalstat\":0.35350435069198116}}]}",
+      "query_time": 2.059826135635376
+    },
+    {
+      "timestamp": "2025-12-07T20:21:55.314073",
+      "query_id": "stress_1765156913248_4613",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156913248_4613\",\"semantic\":\"What narrative developments occur when Aria engages in defending while feeling melancholy?\"}}]}",
+      "query_time": 2.065415620803833
+    },
+    {
+      "timestamp": "2025-12-07T20:21:57.370017",
+      "query_id": "stress_1765156915314_7230",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156915314_7230\",\"semantic\":\"How does Finn's joyful state affect their defending at Star Forge?\",\"hybrid\":true,\"weight-semantic\":0.5918360164213957,\"weight-fractalstat\":0.3282305189657375}}]}",
+      "query_time": 2.0559439659118652
+    },
+    {
+      "timestamp": "2025-12-07T20:21:59.429875",
+      "query_id": "stress_1765156917370_7127",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156917370_7127\",\"semantic\":\"How does Luna's melancholy state affect their negotiating at Crystal Spire?\"}}]}",
+      "query_time": 2.059284210205078
+    },
+    {
+      "timestamp": "2025-12-07T20:22:01.464694",
+      "query_id": "stress_1765156919429_9062",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156919429_9062\",\"semantic\":\"Describe the evolving relationship between Finn and others during defending sessions\"}}]}",
+      "query_time": 2.0348198413848877
+    },
+    {
+      "timestamp": "2025-12-07T20:22:03.497055",
+      "query_id": "stress_1765156921464_9913",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156921464_9913\",\"semantic\":\"How does Rex's peaceful state affect their teaching at Crystal Spire?\"}}]}",
+      "query_time": 2.0313634872436523
+    },
+    {
+      "timestamp": "2025-12-07T20:22:05.544236",
+      "query_id": "stress_1765156923497_5817",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156923497_5817\",\"semantic\":\"What narrative developments occur when Luna engages in negotiating while feeling melancholy?\"}}]}",
+      "query_time": 2.046668291091919
+    },
+    {
+      "timestamp": "2025-12-07T20:22:07.571008",
+      "query_id": "stress_1765156925544_3525",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156925544_3525\",\"semantic\":\"How does Iris consolidate memories of celebrating experiences at Sun Temple?\",\"hybrid\":true,\"weight-semantic\":0.6267317813215397,\"weight-fractalstat\":0.4601317265932319}}]}",
+      "query_time": 2.026771306991577
+    },
+    {
+      "timestamp": "2025-12-07T20:22:09.604111",
+      "query_id": "stress_1765156927571_7889",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156927571_7889\",\"semantic\":\"What narrative developments occur when Sofia engages in mourning while feeling joyful?\",\"hybrid\":true,\"weight-semantic\":0.717703000078576,\"weight-fractalstat\":0.4435178989459784}}]}",
+      "query_time": 2.0331029891967773
+    },
+    {
+      "timestamp": "2025-12-07T20:22:11.654466",
+      "query_id": "stress_1765156929604_6295",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156929604_6295\",\"semantic\":\"How does Kai's hopeful state affect their celebrating at Shadow Market?\"}}]}",
+      "query_time": 2.0503551959991455
+    },
+    {
+      "timestamp": "2025-12-07T20:22:13.690820",
+      "query_id": "stress_1765156931654_8045",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156931654_8045\",\"semantic\":\"How does Zara consolidate memories of teaching experiences at Memory Palace?\"}}]}",
+      "query_time": 2.0363545417785645
+    },
+    {
+      "timestamp": "2025-12-07T20:22:15.742216",
+      "query_id": "stress_1765156933690_4469",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156933690_4469\",\"semantic\":\"What narrative developments occur when Echo engages in learning while feeling hopeful?\",\"hybrid\":true,\"weight-semantic\":0.7247454628003567,\"weight-fractalstat\":0.2869353970906635}}]}",
+      "query_time": 2.0513951778411865
+    },
+    {
+      "timestamp": "2025-12-07T20:22:17.802839",
+      "query_id": "stress_1765156935743_8815",
+      "error": "HTTP 422: {\"detail\":[{\"type\":\"missing\",\"loc\":[\"body\",\"query_id\"],\"msg\":\"Field required\",\"input\":{\"query-id\":\"stress_1765156935743_8815\",\"semantic\":\"What narrative developments occur when Elena engages in defending while feeling joyful?\"}}]}",
+      "query_time": 2.059617519378662
+    }
+  ]
+}

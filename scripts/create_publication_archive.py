@@ -125,7 +125,7 @@ To reproduce these results:
 
 3. Run experiments:
    ```bash
-   python -m fractalstat.stat7_experiments
+   python -m fractalstat.fractalstat_experiments
    ```
 
 ## Citation
