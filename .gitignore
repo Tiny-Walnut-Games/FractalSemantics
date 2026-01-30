@@ -136,3 +136,6 @@ Thumbs.db
 .DS_Store
 task_progress.txt
 .venv_wsl
+
+# Results and logs that are generated during runtime
+results/

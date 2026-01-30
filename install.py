@@ -22,6 +22,9 @@ class FractalStatInstaller:
         self.machine = platform.machine().lower()
         self.python_version = sys.version_info
         self.project_root = Path(__file__).parent
+        self.venv_path = self.project_root / 'venv'
+        self.venv_python = self.venv_path / 'bin' / 'python' if self.system != 'windows' else self.venv_path / 'Scripts' / 'python.exe'
+        self.venv_pip = self.venv_path / 'bin' / 'pip' if self.system != 'windows' else self.venv_path / 'Scripts' / 'pip.exe'
 
     def run_command(self, cmd, description="", check=True, shell=False):
         """Run a command with proper error handling."""
@@ -91,6 +94,20 @@ class FractalStatInstaller:
 
         return platform_info
 
+    def create_virtual_environment(self):
+        """Create a virtual environment for the project."""
+        print("🔧 Creating virtual environment...")
+
+        if self.venv_path.exists():
+            print(f"   Virtual environment already exists at {self.venv_path}")
+            return
+
+        self.run_command([
+            sys.executable, '-m', 'venv', str(self.venv_path)
+        ], "Creating virtual environment")
+
+        print(f"   Created virtual environment at {self.venv_path}")
+
     def install_system_dependencies(self, platform_info):
         """Install system-level dependencies."""
         if platform_info['system'] == 'linux':
@@ -126,28 +143,28 @@ class FractalStatInstaller:
         if platform_info['is_raspberry_pi']:
             # Raspberry Pi - CPU only
             pytorch_cmd = [
-                sys.executable, '-m', 'pip', 'install',
+                str(self.venv_pip), 'install',
                 'torch', 'torchvision', 'torchaudio',
                 '--index-url', 'https://download.pytorch.org/whl/cpu'
             ]
         elif platform_info['is_apple_silicon']:
             # Apple Silicon Macs
             pytorch_cmd = [
-                sys.executable, '-m', 'pip', 'install',
+                str(self.venv_pip), 'install',
                 'torch', 'torchvision', 'torchaudio'
             ]
         else:
             # Standard installation
             pytorch_cmd = [
-                sys.executable, '-m', 'pip', 'install',
+                str(self.venv_pip), 'install',
                 'torch', 'torchvision', 'torchaudio'
             ]
 
         self.run_command(pytorch_cmd, "Installing PyTorch", check=False)
 
     def install_fractalstat(self, dev=False, minimal=False):
-        """Install FractalStat package."""
-        print("🎯 Installing FractalStat...")
+        """Install FractalStat dependencies."""
+        print("🎯 Installing FractalStat dependencies...")
 
         if minimal:
             # Install only core dependencies
@@ -161,38 +178,67 @@ class FractalStatInstaller:
 
             for dep in core_deps:
                 self.run_command([
-                    sys.executable, '-m', 'pip', 'install', dep
+                    str(self.venv_pip), 'install', dep
                 ], f"Installing {dep}")
 
-            # Install package without dependencies
-            self.run_command([
-                sys.executable, '-m', 'pip', 'install', '-e', '.', '--no-deps'
-            ], "Installing FractalStat (no dependencies)")
-
         else:
-            # Full installation
-            install_cmd = [sys.executable, '-m', 'pip', 'install', '-e', '.']
-            if dev:
-                install_cmd.append('.[dev]')
+            # Install from requirements.txt
+            requirements_file = self.project_root / 'requirements.txt'
+            if requirements_file.exists():
+                install_cmd = [str(self.venv_pip), 'install', '-r', str(requirements_file)]
+                self.run_command(install_cmd, "Installing dependencies from requirements.txt")
+            else:
+                print(f"   Warning: requirements.txt not found at {requirements_file}")
+                # Fallback to core dependencies
+                core_deps = [
+                    'pydantic>=2.0.0',
+                    'numpy>=1.20.0',
+                    'click>=8.1.0'
+                ]
+                if not minimal:
+                    core_deps.extend([
+                        'torch>=2.0.0',
+                        'transformers>=4.30.0',
+                        'sentence-transformers>=2.2.0'
+                    ])
 
-            self.run_command(install_cmd, "Installing FractalStat with dependencies")
+                for dep in core_deps:
+                    self.run_command([
+                        str(self.venv_pip), 'install', dep
+                    ], f"Installing {dep}")
+
+            # Install development dependencies if requested
+            if dev:
+                dev_deps = [
+                    'pytest>=7.0.0',
+                    'black>=22.0.0',
+                    'ruff>=0.1.0',
+                    'mypy>=1.0.0'
+                ]
+                for dep in dev_deps:
+                    self.run_command([
+                        str(self.venv_pip), 'install', dep
+                    ], f"Installing dev dependency {dep}")
 
     def test_installation(self):
-        """Test that FractalStat was installed correctly."""
+        """Test that FractalStat dependencies were installed correctly."""
         print("🧪 Testing installation...")
 
         try:
+            # Test that core dependencies can be imported
             self.run_command([
-                sys.executable, '-c', 'import fractalstat; print("FractalStat imported successfully!")'
-            ], "Testing basic import")
+                str(self.venv_python), '-c', 'import pydantic, numpy, click; print("Core dependencies imported successfully!")'
+            ], "Testing core dependencies")
 
+            # Test that the fractalstat module can be imported (by adding current dir to path)
             self.run_command([
-                sys.executable, '-c', '''
-from fractalstat.config import ExperimentConfig
-config = ExperimentConfig()
-print(f"Configuration loaded: {config.get_environment()}")
+                str(self.venv_python), '-c', '''
+import sys
+sys.path.insert(0, ".")
+import fractalstat
+print("FractalStat modules imported successfully!")
 '''
-            ], "Testing configuration system")
+            ], "Testing FractalStat modules")
 
             print("✅ Installation test passed!")
             return True
@@ -205,10 +251,16 @@ print(f"Configuration loaded: {config.get_environment()}")
         """Create a convenient launcher script."""
         print("📜 Creating launcher script...")
 
-        launcher_content = '''#!/bin/bash
+        # Get relative path to venv
+        venv_rel_path = self.venv_path.relative_to(self.project_root)
+
+        launcher_content = f'''#!/bin/bash
 # FractalStat Launcher Script
 
 echo "🚀 Starting FractalStat..."
+
+# Activate virtual environment
+source {venv_rel_path}/bin/activate
 
 # Set environment based on first argument
 if [ "$1" = "dev" ]; then
@@ -243,13 +295,17 @@ python -m fractalstat.fractalstat_experiments
         print("="*60)
 
         print("\n📚 Quick Start:")
-        print("  cd fractalstat")
         print("  ./run_experiments.sh dev    # Fast development mode")
         print("  ./run_experiments.sh        # Full production mode")
 
         print("\n🧪 Test Individual Experiments:")
-        print("  python -m fractalstat.exp01_geometric_collision")
-        print("  python -m fractalstat.exp02_retrieval_efficiency")
+        print("  source venv/bin/activate && python -m fractalstat.exp01_geometric_collision")
+        print("  source venv/bin/activate && python -m fractalstat.exp02_retrieval_efficiency")
+
+        print("\n🐍 Virtual Environment:")
+        print("  All dependencies are installed in a virtual environment (venv/)")
+        print("  The launcher script automatically activates the venv")
+        print("  To manually activate: source venv/bin/activate")
 
         if platform_info['is_raspberry_pi']:
             print("\n🍓 Raspberry Pi Notes:")
@@ -278,6 +334,9 @@ python -m fractalstat.fractalstat_experiments
         # Preliminary checks
         self.check_python_version()
         platform_info = self.detect_platform()
+
+        # Create virtual environment
+        self.create_virtual_environment()
 
         # Installation steps
         if not args.skip_system_deps:
