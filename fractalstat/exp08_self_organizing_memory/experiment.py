@@ -27,12 +27,12 @@ import os
 # Add the current directory to Python path to allow direct imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from fractalstat_entity import generate_random_bitchain, BitChain
+from fractalstat.fractalstat_entity import generate_random_bitchain, BitChain
 from .entities import (
     MemoryCluster,
     MemoryNode, 
     ForgettingEvent,
-    SelfOrganizingMemoryResults
+    SelfOrganizingMemoryResults,
 )
 
 secure_random = secrets.SystemRandom()
@@ -403,10 +403,13 @@ class SelfOrganizingMemoryExperiment:
             forgetting_threshold=0.05  # Lower threshold to enable forgetting
         )
     
-    def run(self) -> SelfOrganizingMemoryResults:
+    def run(self, verbose: bool = True) -> SelfOrganizingMemoryResults:
         """
         Run the self-organizing memory experiment.
         
+        Args:
+            verbose: Whether to print progress messages
+            
         Returns:
             Experiment results
         """

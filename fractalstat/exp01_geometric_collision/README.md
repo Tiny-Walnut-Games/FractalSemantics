@@ -79,17 +79,22 @@ print(f"Theoretical collision rate: {theoretical['theoretical_collision_rate']*1
 ### Command Line Usage
 
 ```bash
-# Run with default 100k samples
-python -m fractalstat.exp01_geometric_collision
+# From the fractalstat directory - run with default 100k samples
+cd fractalstat
+python -c "from exp01_geometric_collision import EXP01_GeometricCollisionResistance; exp = EXP01_GeometricCollisionResistance(); results, success = exp.run(); print('Experiment completed successfully')"
 
 # Quick test with 10k samples
-python -m fractalstat.exp01_geometric_collision --quick
+python -c "from exp01_geometric_collision import EXP01_GeometricCollisionResistance; exp = EXP01_GeometricCollisionResistance(sample_size=10000); results, success = exp.run(); print('Quick test completed')"
 
 # Stress test with 500k samples
-python -m fractalstat.exp01_geometric_collision --stress
+python -c "from exp01_geometric_collision import EXP01_GeometricCollisionResistance; exp = EXP01_GeometricCollisionResistance(sample_size=500000); results, success = exp.run(); print('Stress test completed')"
 
 # Maximum scale test with 1M samples
-python -m fractalstat.exp01_geometric_collision --max
+python -c "from exp01_geometric_collision import EXP01_GeometricCollisionResistance; exp = EXP01_GeometricCollisionResistance(sample_size=1000000); results, success = exp.run(); print('Maximum scale test completed')"
+
+# From project root with proper Python path
+cd /home/jerry/Documents/Tiny Walnut Games/FractalSemantics
+PYTHONPATH=. python -c "from fractalstat.exp01_geometric_collision import EXP01_GeometricCollisionResistance; exp = EXP01_GeometricCollisionResistance(); results, success = exp.run(); print('Experiment completed successfully')"
 ```
 
 ## API Reference

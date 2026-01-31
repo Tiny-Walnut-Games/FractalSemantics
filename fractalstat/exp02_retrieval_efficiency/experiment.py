@@ -28,14 +28,17 @@ import sys
 import time
 import secrets
 import gc
-import psutil  # type: ignore[import-untyped]
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Dict, List, Tuple, Any, Optional
 from dataclasses import dataclass
 
-from .entities import EXP02_Result
+from fractalstat.exp02_retrieval_efficiency.entities import EXP02_Result
 from fractalstat.fractalstat_entity import generate_random_bitchain
+
+# Add parent directory to path first to access fractalstat module
+current_dir = Path(__file__).resolve().parent
+sys.path.insert(0, str(current_dir.parent))
 
 secure_random = secrets.SystemRandom()
 
@@ -443,6 +446,7 @@ class EXP02_RetrievalEfficiency:
             - Memory efficiency analysis
             - Query pattern effectiveness
             - Detailed results for each dimension
+            - Raw results list for programmatic access
         """
         return {
             "total_scales_tested": len(self.results),
@@ -450,6 +454,7 @@ class EXP02_RetrievalEfficiency:
             "performance_targets": RetrievalConfig.PERFORMANCE_TARGETS,
             "query_pattern_distribution": RetrievalConfig.QUERY_PATTERN_DISTRIBUTION,
             "results": [r.to_dict() for r in self.results],
+            "raw_results": self.results,  # Include the raw results list for programmatic access
         }
 
 
@@ -476,8 +481,38 @@ def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> 
     results_dir.mkdir(exist_ok=True)
     output_path = str(results_dir / output_file)
 
+    # Create JSON-serializable copy with robust type handling
+    def make_serializable(obj):
+        # Handle boolean types first (including numpy bools)
+        if hasattr(obj, 'dtype'):  # numpy array/scalar
+            if obj.dtype == 'bool':
+                return bool(obj)
+            elif obj.dtype.kind in ['i', 'u']:  # integer types
+                return int(obj)
+            elif obj.dtype.kind in ['f', 'c']:  # float/complex types
+                return float(obj)
+            else:
+                return str(obj)  # fallback for other numpy types
+        elif isinstance(obj, bool):
+            return bool(obj)
+        elif isinstance(obj, (int, float)):
+            return obj
+        elif isinstance(obj, str):
+            return obj
+        elif isinstance(obj, dict):
+            return {k: make_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [make_serializable(item) for item in obj]
+        elif isinstance(obj, tuple):
+            return [make_serializable(item) for item in obj]  # convert tuples to lists
+        else:
+            # For any other object types, convert to string as fallback
+            return str(obj)
+
+    serializable_results = make_serializable(results)
+
     with open(output_path, "w", encoding="UTF-8") as f:
-        json.dump(results, f, indent=2)
+        json.dump(serializable_results, f, indent=2)
         f.write("\n")
 
     print(f"Results saved to: {output_path}")
@@ -508,3 +543,36 @@ def run_experiment_from_config(config: Optional[Dict[str, Any]] = None) -> Tuple
     summary = experiment.get_summary()
     
     return results_list, success, summary
+
+
+def main():
+    """Main entry point for EXP-02 execution."""
+
+    experiment = EXP02_RetrievalEfficiency()
+    results_list, success = experiment.run()
+    summary = experiment.get_summary()
+
+    # Use the results_list to add additional information to the summary
+    summary['raw_results'] = [r.to_dict() for r in results_list]  # Convert to dict for JSON serialization
+
+    # Save complete results to JSON file
+    save_results(summary)
+
+    # Set exit code based on test status for orchestrator
+    exit_code = 0 if success else 1
+
+    # Print summary with celebration at the end
+    print("\n[SUMMARY]")
+    print("-" * 70)
+    print(json.dumps(summary, indent=2))
+
+    # Celebration at the end
+    if success:
+        print("\n[Success] EXP-02 Retrieval Efficiency: OPTIMAL PERFORMANCE ACHIEVED!")
+        print(f"  - {summary['total_scales_tested']} scales tested")
+        print("  - All performance targets met")
+        print("   - Precision: VERIFIED")
+        print("   - Recall: VERIFIED")
+        print("   - Efficiency: OPTIMIZED")
+
+    sys.exit(exit_code)

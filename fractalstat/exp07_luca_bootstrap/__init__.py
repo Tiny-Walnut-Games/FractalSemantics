@@ -42,6 +42,7 @@ from .entities import (
 from .experiment import (
     LUCABootstrapTester,
     save_results,
+    run_experiment_from_config,
     main
 )
 
@@ -50,5 +51,6 @@ __all__ = [
     'LUCABootstrapResult',
     'LUCABootstrapTester',
     'save_results',
+    'run_experiment_from_config',
     'main'
 ]

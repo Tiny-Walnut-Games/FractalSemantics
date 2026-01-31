@@ -25,7 +25,6 @@ Date: 2025-12-07
 
 import json
 import sys
-import time
 import secrets
 import uuid
 import hashlib
@@ -36,10 +35,17 @@ from typing import Dict, List, Tuple, Any, Optional
 from collections import Counter
 from dataclasses import dataclass
 
-from .entities import EXP03_Result
+try:
+    from entities import EXP03_Result
+except ImportError:
+    from .entities import EXP03_Result
 from fractalstat.dynamic_enum import Realm, Horizon, Polarity, Alignment
 from fractalstat.dynamic_enum import REALM_REGISTRY, HORIZON_REGISTRY, POLARITY_REGISTRY, ALIGNMENT_REGISTRY
 from fractalstat.fractalstat_entity import BitChain, Coordinates, FractalStatCoordinates
+
+# Add parent directory to path first to access fractalstat module
+current_dir = Path(__file__).resolve().parent
+sys.path.insert(0, str(current_dir.parent))
 
 # Use cryptographically secure random number generator
 secure_random = secrets.SystemRandom()
@@ -215,9 +221,13 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
     elif use_coarse:
         # Coarse quantization: fewer possible values to force collisions even with small samples
         luminosity_val = int(round(secure_random.uniform(0, 100), 0))  # Integers 0-100 (101 values)
+        # Also constrain adjacency for consistency
+        adjacency_score = int(secure_random.uniform(0, 20))       # 20 values instead of 100+
     else:
         # Coarse quantization: constrained coordinate space to force collisions for entropy testing
         luminosity_val = int(secure_random.uniform(0, 5))     # 0-4, 5 values
+        # Use the adjacency list length for consistent entropy testing
+        adjacency_score = int(min(100.0, len(adjacency_ids) * 20.0))
 
     polarity_val = secure_random.choice(POLARITY_LIST)
     dimensionality_val = secure_random.randint(0, 5)
@@ -229,8 +239,9 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
     realm_enum = REALM_MAPPING[realm_str]
     horizon_enum = HORIZON_MAPPING[horizon_str]
 
-    # Convert adjacency list to a proximity score (0-100)
-    adjacency_score = int(min(100.0, len(adjacency_ids) * 20.0))
+    # Convert adjacency list to a proximity score (0-100) - ensure it's always calculated
+    if 'adjacency_score' not in locals():
+        adjacency_score = int(min(100.0, len(adjacency_ids) * 20.0))
 
     # Create FractalStatCoordinates with additional dimensions
     fractalstat_coords = FractalStatCoordinates(
@@ -327,7 +338,7 @@ class EXP03_CoordinateEntropy:
         """
         Compute Shannon entropy of a list of coordinate representations.
 
-        Shannon entropy H(X) = -£ p(x) * log2(p(x))
+        Shannon entropy H(X) = -Î£ p(x) * log2(p(x))
         where p(x) is the probability of observing coordinate value x.
 
         Higher entropy indicates more information content and better
@@ -1020,17 +1031,48 @@ def run_experiment_from_config(config: Optional[Dict[str, Any]] = None) -> Tuple
         Tuple of (results list, success status, summary dictionary)
         
     Configuration Options:
-        - sample_size: Number of bit-chains to generate (default: 1000000)
-        - random_seed: Random seed for reproducibility (default: 42)
+        - sample_size: Number of bit-chains to analyze (default: 1000000)
+        - dimensions: List of dimensions to test (default: [1, 2, 3, 4, 5])
     """
     if config is None:
         config = {}
     
     sample_size = config.get("sample_size", 1000000)
-    random_seed = config.get("random_seed", 42)
+    dimensions = config.get("dimensions", [1, 2, 3, 4, 5])
     
-    experiment = EXP03_CoordinateEntropy(sample_size=sample_size, random_seed=random_seed)
+    experiment = EXP03_CoordinateEntropy(sample_size=sample_size, dimensions=dimensions)
     results_list, success = experiment.run()
     summary = experiment.get_summary()
     
     return results_list, success, summary
+
+
+def main():
+    """Main entry point for EXP-03 execution."""
+    import sys
+
+    experiment = EXP03_CoordinateEntropy()
+    results_list, success = experiment.run()
+    summary = experiment.get_summary()
+
+    # Save complete results to JSON file
+    save_results(summary)
+
+    # Set exit code based on test status for orchestrator
+    exit_code = 0 if success else 1
+
+    # Print summary with celebration at the end
+    print("\n[SUMMARY]")
+    print("-" * 70)
+    print(json.dumps(summary, indent=2))
+
+    # Celebration at the end
+    if success:
+        print("\n[Success] EXP-03 Coordinate Entropy: OPTIMAL ENTROPY ACHIEVED!")
+        print(f"  - {summary['total_dimensions_tested']} dimensions analyzed")
+        print(f"  - All entropy targets met")
+        print("   - Dimensional complexity: VERIFIED")
+        print("   - Coordinate distribution: OPTIMAL")
+        print("   - Entropy scaling: PERFECT")
+
+    sys.exit(exit_code)

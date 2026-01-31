@@ -32,7 +32,7 @@ import uuid
 import sys
 import statistics
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 
 from .entities import (

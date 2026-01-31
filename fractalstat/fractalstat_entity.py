@@ -26,7 +26,7 @@ import secrets
 from decimal import Decimal, ROUND_HALF_EVEN
 
 # Import enums from dynamic_enum to avoid circular import
-from fractalstat.dynamic_enum import Realm, Horizon, Polarity, Alignment
+from .dynamic_enum import Realm, Horizon, Polarity, Alignment
 
 
 def _utc_now() -> datetime:
