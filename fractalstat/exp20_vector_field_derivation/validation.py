@@ -7,6 +7,7 @@ inverse-square law behavior and other physical constraints.
 
 import numpy as np
 from typing import Tuple, List, Dict, Optional
+from dataclasses import dataclass
 from .entities import FractalEntity
 from .vector_field_system import VectorFieldApproach
 
