@@ -32,7 +32,7 @@ from pathlib import Path
 import secrets
 
 # Import core components
-from fractalstat.fractalstat_entity import (
+from fractalsemantics.fractalsemantics_entity import (
     compute_address_hash,
     BitChain,
     Coordinates,
@@ -42,7 +42,7 @@ from fractalstat.fractalstat_entity import (
     POLARITY_LIST,
     ALIGNMENT_LIST,
 )
-from fractalstat.dynamic_enum import Polarity, Alignment
+from fractalsemantics.dynamic_enum import Polarity, Alignment
 
 secure_random = secrets.SystemRandom()
 
@@ -51,7 +51,7 @@ secure_random = secrets.SystemRandom()
 # ============================================================================
 
 # Dimension constants
-FRACTALSTAT_DIMENSIONS = [
+FRACTALSEMANTICS_DIMENSIONS = [
     "realm", "lineage", "adjacency", "horizon", "luminosity",
     "polarity", "dimensionality", "alignment"
 ]
@@ -73,7 +73,7 @@ DIMENSION_SUBSETS = {
     "single_dimension": ["realm"],
     "continuous_only": ["luminosity", "dimensionality", "adjacency"],
     "categorical_only": ["realm", "horizon"],
-    "all_dimensions": FRACTALSTAT_DIMENSIONS
+    "all_dimensions": FRACTALSEMANTICS_DIMENSIONS
 }
 
 # Test scenario configurations
@@ -355,7 +355,7 @@ class DimensionStressTest:
             "id": bc.id,
             "entity_type": bc.entity_type,
             "realm": bc.realm,
-            "fractalstat_coordinates": coords_dict,
+            "fractalsemantics_coordinates": coords_dict,
             "state": bc.state,
         }
 
@@ -599,7 +599,7 @@ if __name__ == "__main__":
     # Load from config or use defaults
     sample_size = 10000
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
 
         config = ExperimentConfig()
         sample_size = config.get("EXP-11b", "sample_size", 10000)

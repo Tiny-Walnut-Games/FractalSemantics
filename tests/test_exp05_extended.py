@@ -11,7 +11,7 @@ from unittest.mock import patch
 import pytest
 
 # Import enums for coordinates
-from fractalstat.dynamic_enum import Polarity, Alignment
+from fractalsemantics.dynamic_enum import Polarity, Alignment
 
 
 class TestExp05Extended:
@@ -19,7 +19,7 @@ class TestExp05Extended:
 
     def test_run_compression_expansion_test_execution(self):
         """run_compression_expansion_test should execute full test."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             run_compression_expansion_test,
         )
 
@@ -31,8 +31,8 @@ class TestExp05Extended:
 
     def test_compression_pipeline_all_stages(self):
         """Compression pipeline should create all stages."""
-        from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.fractalstat_experiments import generate_random_bitchain
+        from fractalsemantics.exp05_compression_expansion import CompressionPipeline
+        from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -48,8 +48,8 @@ class TestExp05Extended:
 
     def test_reconstruction_accuracy(self):
         """Reconstruction should achieve reasonable accuracy."""
-        from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.fractalstat_experiments import generate_random_bitchain
+        from fractalsemantics.exp05_compression_expansion import CompressionPipeline
+        from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -62,8 +62,8 @@ class TestExp05Extended:
 
     def test_luminosity_decay_validation(self):
         """Luminosity should decay through compression stages."""
-        from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.fractalstat_experiments import generate_random_bitchain
+        from fractalsemantics.exp05_compression_expansion import CompressionPipeline
+        from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -77,7 +77,7 @@ class TestExp05Extended:
 
     def test_save_results_with_file_io(self):
         """save_results should write to file."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             CompressionExperimentResults,
         )
 
@@ -99,7 +99,7 @@ class TestExp05Extended:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             # Mock the results directory
-            with patch("fractalstat.exp05_compression_expansion.Path") as mock_path:
+            with patch("fractalsemantics.exp05_compression_expansion.Path") as mock_path:
                 mock_path.return_value.resolve.return_value.parent = Path(tmpdir)
                 output_file = str(Path(tmpdir) / "test_results.json")
 
@@ -111,7 +111,7 @@ class TestExp05Extended:
 
     def test_compression_ratio_calculation(self):
         """Compression ratio should be calculated correctly."""
-        from fractalstat.exp05_compression_expansion import CompressionStage
+        from fractalsemantics.exp05_compression_expansion import CompressionStage
 
         stage = CompressionStage(
             stage_name="mist",
@@ -127,8 +127,8 @@ class TestExp05Extended:
 
     def test_provenance_chain_tracking(self):
         """Provenance chain should be tracked through all stages."""
-        from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.fractalstat_experiments import generate_random_bitchain
+        from fractalsemantics.exp05_compression_expansion import CompressionPipeline
+        from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -140,8 +140,8 @@ class TestExp05Extended:
 
     def test_narrative_preservation(self):
         """Narrative should be preserved through compression."""
-        from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.fractalstat_experiments import generate_random_bitchain
+        from fractalsemantics.exp05_compression_expansion import CompressionPipeline
+        from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -153,7 +153,7 @@ class TestExp05Extended:
 
     def test_edge_case_reconstruction_accuracy(self):
         """Reconstruction should handle edge cases."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             run_compression_expansion_test,
         )
 
@@ -165,7 +165,7 @@ class TestExp05Extended:
 
     def test_losslessness_determination(self):
         """System should correctly determine losslessness."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             run_compression_expansion_test,
         )
 
@@ -177,7 +177,7 @@ class TestExp05Extended:
 
     def test_main_entry_point_with_config(self):
         """Main entry point should load config."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             CompressionExperimentResults,
         )
 
@@ -206,11 +206,11 @@ class TestExp05ExceptionHandling:
 
     def test_reconstruction_failure_handling(self):
         """Test reconstruction failure exception handling."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             CompressionPipeline,
             BitChainCompressionPath,
         )
-        from fractalstat.fractalstat_experiments import generate_random_bitchain
+        from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -219,7 +219,7 @@ class TestExp05ExceptionHandling:
         path = BitChainCompressionPath(
             original_bitchain=bc,
             original_address=bc.compute_address(),
-            original_fractalstat_dict={"realm": "test", "lineage": 1},
+            original_fractalsemantics_dict={"realm": "test", "lineage": 1},
             original_serialized_size=100,
             original_luminosity=1.0,
         )
@@ -243,7 +243,7 @@ class TestExp05MainEntryPoint:
 
     def test_main_with_quick_mode(self):
         """Test main execution with --quick argument."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             run_compression_expansion_test,
         )
 
@@ -258,7 +258,7 @@ class TestExp05MainEntryPoint:
 
     def test_main_with_full_mode(self):
         """Test main execution with --full argument."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             run_compression_expansion_test,
         )
 
@@ -273,7 +273,7 @@ class TestExp05MainEntryPoint:
 
     def test_main_exception_handling(self):
         """Test exception handling in main block."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             run_compression_expansion_test,
         )
 
@@ -288,9 +288,9 @@ class TestExp05EdgeCases:
 
     def test_compression_with_empty_adjacency(self):
         """Test bitchain compression with empty adjacency list."""
-        from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.fractalstat_experiments import BitChain
-        from fractalstat.fractalstat_entity import Coordinates
+        from fractalsemantics.exp05_compression_expansion import CompressionPipeline
+        from fractalsemantics.fractalsemantics_experiments import BitChain
+        from fractalsemantics.fractalsemantics_entity import Coordinates
 
         pipeline = CompressionPipeline()
 
@@ -322,9 +322,9 @@ class TestExp05EdgeCases:
 
     def test_compression_with_zero_velocity(self):
         """Test bitchain compression with zero velocity."""
-        from fractalstat.exp05_compression_expansion import CompressionPipeline
-        from fractalstat.fractalstat_experiments import BitChain
-        from fractalstat.fractalstat_entity import Coordinates
+        from fractalsemantics.exp05_compression_expansion import CompressionPipeline
+        from fractalsemantics.fractalsemantics_experiments import BitChain
+        from fractalsemantics.fractalsemantics_entity import Coordinates
 
         pipeline = CompressionPipeline()
 
@@ -356,11 +356,11 @@ class TestExp05EdgeCases:
 
     def test_mist_without_breadcrumbs(self):
         """Test mist reconstruction without recovery breadcrumbs."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             CompressionPipeline,
             BitChainCompressionPath,
         )
-        from fractalstat.fractalstat_experiments import generate_random_bitchain
+        from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
 
         pipeline = CompressionPipeline()
         bc = generate_random_bitchain()
@@ -368,7 +368,7 @@ class TestExp05EdgeCases:
         path = BitChainCompressionPath(
             original_bitchain=bc,
             original_address=bc.compute_address(),
-            original_fractalstat_dict={"realm": "test", "lineage": 1},
+            original_fractalsemantics_dict={"realm": "test", "lineage": 1},
             original_serialized_size=100,
             original_luminosity=1.0,
         )
@@ -391,7 +391,7 @@ class TestExp05BoundaryCases:
 
     def test_losslessness_boundary_cases(self):
         """Test edge cases with boundary values for losslessness."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             CompressionExperimentResults,
         )
 
@@ -452,7 +452,7 @@ class TestExp05BoundaryCases:
 
     def test_findings_generation_edge_cases(self):
         """Test results aggregation with compression ratio < 2.0."""
-        from fractalstat.exp05_compression_expansion import (
+        from fractalsemantics.exp05_compression_expansion import (
             CompressionExperimentResults,
         )
 

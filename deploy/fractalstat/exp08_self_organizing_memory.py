@@ -1,12 +1,12 @@
 """
 EXP-08: Self-Organizing Memory Networks
 
-Demonstrates FractalStat's ability to create self-organizing memory structures
+Demonstrates FractalSemantics's ability to create self-organizing memory structures
 without external dependencies. This experiment validates emergent properties
 and real-world applicability through organic memory organization.
 
 Hypothesis:
-FractalStat coordinates enable self-organizing memory networks where:
+FractalSemantics coordinates enable self-organizing memory networks where:
 - Memory clusters form naturally based on semantic similarity
 - Retrieval patterns emerge organically without explicit indexing
 - Memory consolidation and forgetting mechanisms improve efficiency
@@ -14,7 +14,7 @@ FractalStat coordinates enable self-organizing memory networks where:
 
 Methodology:
 1. Generate diverse bit-chains representing different memory entities
-2. Simulate organic memory growth and clustering based on FractalStat coordinates
+2. Simulate organic memory growth and clustering based on FractalSemantics coordinates
 3. Test self-organizing retrieval patterns and semantic neighborhoods
 4. Measure memory consolidation efficiency and forgetting mechanisms
 5. Validate emergent properties at scale
@@ -43,7 +43,7 @@ import os
 # Add the current directory to Python path to allow direct imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from fractalstat.fractalstat_entity import generate_random_bitchain, BitChain
+from fractalsemantics.fractalsemantics_entity import generate_random_bitchain, BitChain
 
 
 secure_random = secrets.SystemRandom()
@@ -55,7 +55,7 @@ secure_random = secrets.SystemRandom()
 
 @dataclass
 class MemoryCluster:
-    """A self-organizing memory cluster based on FractalStat coordinates."""
+    """A self-organizing memory cluster based on FractalSemantics coordinates."""
     
     cluster_id: str
     representative_address: str
@@ -159,7 +159,7 @@ class SelfOrganizingMemoryResults:
 
 
 class SelfOrganizingMemoryNetwork:
-    """Self-organizing memory network based on FractalStat coordinates."""
+    """Self-organizing memory network based on FractalSemantics coordinates."""
     
     def __init__(self, consolidation_threshold: float = 0.8, forgetting_threshold: float = 0.2):
         """
@@ -251,7 +251,7 @@ class SelfOrganizingMemoryNetwork:
         """
         Calculate semantic similarity between coordinates and cluster representative.
         
-        Uses FractalStat coordinate comparison for semantic similarity.
+        Uses FractalSemantics coordinate comparison for semantic similarity.
         """
         if address2 not in self.memories:
             return 0.0
@@ -724,7 +724,7 @@ def main():
     consolidation_threshold = 0.8
     
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
         config = ExperimentConfig()
         num_memories = config.get("EXP-08", "num_memories", 1000)
         consolidation_threshold = config.get("EXP-08", "consolidation_threshold", 0.8)

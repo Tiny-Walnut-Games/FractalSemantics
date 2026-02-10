@@ -6,7 +6,7 @@ Tests collision rates, retrieval performance, storage efficiency, and semantic
 expressiveness across different dimension counts (3-10 dimensions).
 
 Validates:
-- Optimal dimension count for FractalStat addressing
+- Optimal dimension count for FractalSemantics addressing
 - Collision rate vs. dimension count relationship
 - Retrieval performance impact of dimension count
 - Storage overhead per dimension
@@ -27,7 +27,7 @@ import statistics
 from pathlib import Path
 
 # Reuse canonical serialization from Phase 1
-from fractalstat.fractalstat_experiments import (
+from fractalsemantics.fractalsemantics_experiments import (
     compute_address_hash,
     BitChain,
     generate_random_bitchain,
@@ -120,16 +120,16 @@ class DimensionCardinalityResult:
 class EXP11_DimensionCardinality:
     """
     Previously called DimensionCardinalityExperiment, EXP11_DimensionCardinality tests
-    FractalStat addressing with different dimension counts.
+    FractalSemantics addressing with different dimension counts.
 
     Approach:
-    1. Baseline: Test with all 7 FractalStat dimensions
+    1. Baseline: Test with all 7 FractalSemantics dimensions
     2. Reduced: Test with 3, 4, 5, 6 dimensions
     3. Extended: Test with 8, 9, 10 dimensions (hypothetical)
     4. Measure: Collision rates, retrieval latency, storage, expressiveness
     """
 
-    FractalStat_DIMENSIONS = [
+    FractalSemantics_DIMENSIONS = [
         "realm",
         "lineage",
         "adjacency",
@@ -175,14 +175,14 @@ class EXP11_DimensionCardinality:
         Select which dimensions to use for a given count.
 
         Strategy:
-        - For count <= 8: Use first N FractalStat dimensions
-        - For count > 8: Use all 8 FractalStat + extended dimensions
+        - For count <= 8: Use first N FractalSemantics dimensions
+        - For count > 8: Use all 8 FractalSemantics + extended dimensions
         """
         if count <= 8:
-            return self.FractalStat_DIMENSIONS[:count]
+            return self.FractalSemantics_DIMENSIONS[:count]
         else:
             extended_count = count - 8
-            return self.FractalStat_DIMENSIONS + self.EXTENDED_DIMENSIONS[:extended_count]
+            return self.FractalSemantics_DIMENSIONS + self.EXTENDED_DIMENSIONS[:extended_count]
 
     def _compute_address_with_dimensions(
         self, bc: BitChain, dimensions: List[str]
@@ -201,8 +201,8 @@ class EXP11_DimensionCardinality:
         coords_dict = {}
 
         for dim in dimensions:
-            if dim in self.FractalStat_DIMENSIONS:
-                # Use actual FractalStat dimension
+            if dim in self.FractalSemantics_DIMENSIONS:
+                # Use actual FractalSemantics dimension
                 coords_dict[dim] = getattr(bc.coordinates, dim)
             elif dim == "temperature":
                 # Hypothetical: temperature = abs(luminosity) * dimensionality
@@ -225,7 +225,7 @@ class EXP11_DimensionCardinality:
             "id": bc.id,
             "entity_type": bc.entity_type,
             "realm": bc.realm,
-            "fractalstat_coordinates": coords_dict,
+            "fractalsemantics_coordinates": coords_dict,
         }
 
         return compute_address_hash(data)
@@ -659,7 +659,7 @@ def save_results(
 if __name__ == "__main__":
     # Load from config or fall back to command-line args
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
 
         config = ExperimentConfig()
         sample_size = config.get("EXP-11", "sample_size", 1000)

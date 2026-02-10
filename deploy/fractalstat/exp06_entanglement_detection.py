@@ -625,7 +625,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
     """
     import time
     import random
-    from fractalstat.fractalstat_entity import generate_random_bitchain
+    from fractalsemantics.fractalsemantics_entity import generate_random_bitchain
 
     print("=" * 80)
     print("EXP-06: ENTANGLEMENT DETECTION VALIDATION")

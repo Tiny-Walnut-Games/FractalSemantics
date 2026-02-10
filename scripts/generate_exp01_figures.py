@@ -49,7 +49,7 @@ def load_validation_results() -> Optional[Dict[str, Any]]:
 
     if not results_file.exists():
         print(f"Warning: {results_file} not found. Run experiments first:")
-        print("  python -m fractalstat.fractalstat_experiments")
+        print("  python -m fractalsemantics.fractalsemantics_experiments")
         return None
 
     with open(results_file, "r") as f:
@@ -256,7 +256,7 @@ def extract_coordinate_data_from_experiments(sample_count: int = 10000):
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
     try:
-        from fractalstat.fractalstat_experiments import generate_random_bitchain
+        from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
     except ImportError:
         print(
             "Warning: Could not import generate_random_bitchain, falling back to simulated data"
@@ -291,7 +291,7 @@ def extract_coordinate_data_from_experiments(sample_count: int = 10000):
 
 def generate_coordinate_distribution_figure(output_dir: Path):
     """
-    Generate figure showing distribution of FractalStat coordinates.
+    Generate figure showing distribution of FractalSemantics coordinates.
 
     This demonstrates that random bit-chain generation produces
     uniform distributions across all coordinate dimensions.
@@ -310,7 +310,7 @@ def generate_coordinate_distribution_figure(output_dir: Path):
 
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
     fig.suptitle(
-        "EXP-01: FractalStat Coordinate Distributions\n(Actual Experiment Data)",
+        "EXP-01: FractalSemantics Coordinate Distributions\n(Actual Experiment Data)",
         fontsize=14,
         fontweight="bold",
     )
@@ -580,7 +580,7 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
 
     # Conclusion
     conclusion_text = (
-        "Conclusion: The FractalStat addressing system successfully produces\n"
+        "Conclusion: The FractalSemantics addressing system successfully produces\n"
         "unique addresses for all bit-chains with zero hash collisions,\n"
         "validating the core hypothesis at 99.9% confidence level."
     )

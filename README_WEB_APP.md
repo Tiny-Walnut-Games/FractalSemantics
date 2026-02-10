@@ -1,8 +1,8 @@
-# FractalStat Experiment Orchestrator - Web Application
+# FractalSemantics Experiment Orchestrator - Web Application
 
 ## Overview
 
-The FractalStat Experiment Orchestrator is an educational web application that provides interactive access to all 12 FractalStat validation experiments with comprehensive step-by-step mathematical walkthroughs. This application transforms complex computational concepts into accessible educational experiences.
+The FractalSemantics Experiment Orchestrator is an educational web application that provides interactive access to all 12 FractalSemantics validation experiments with comprehensive step-by-step mathematical walkthroughs. This application transforms complex computational concepts into accessible educational experiences.
 
 ## Features
 
@@ -282,4 +282,4 @@ For questions or support:
 
 ## License
 
-This educational application is part of the FractalStat project and follows the same licensing terms as the main project.
+This educational application is part of the FractalSemantics project and follows the same licensing terms as the main project.

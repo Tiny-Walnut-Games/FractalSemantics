@@ -4,13 +4,13 @@ Embedding Provider Factory - Dynamic Provider Creation
 
 from typing import Dict, Any, Optional, List
 
-from fractalstat.embeddings.base_provider import EmbeddingProvider
-from fractalstat.embeddings.local_provider import LocalEmbeddingProvider
-from fractalstat.embeddings.openai_provider import OpenAIEmbeddingProvider
+from fractalsemantics.embeddings.base_provider import EmbeddingProvider
+from fractalsemantics.embeddings.local_provider import LocalEmbeddingProvider
+from fractalsemantics.embeddings.openai_provider import OpenAIEmbeddingProvider
 
 # Import sentence transformer provider conditionally
 try:
-    from fractalstat.embeddings.sentence_transformer_provider import (
+    from fractalsemantics.embeddings.sentence_transformer_provider import (
         SentenceTransformerEmbeddingProvider,
     )
     _SENTENCE_TRANSFORMER_AVAILABLE = True

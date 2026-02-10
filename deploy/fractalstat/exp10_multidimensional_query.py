@@ -1,11 +1,11 @@
 """
 EXP-10: Multi-Dimensional Query Optimization
 
-Demonstrates FractalStat's unique querying capabilities across all dimensions,
+Demonstrates FractalSemantics's unique querying capabilities across all dimensions,
 showcasing practical value proposition and differentiation from traditional systems.
 
 Hypothesis:
-FractalStat enables sophisticated multi-dimensional queries that:
+FractalSemantics enables sophisticated multi-dimensional queries that:
 - Leverage all 8 dimensions for precise semantic targeting
 - Outperform traditional indexing in complex query scenarios
 - Provide intuitive query patterns for real-world use cases
@@ -14,7 +14,7 @@ FractalStat enables sophisticated multi-dimensional queries that:
 Methodology:
 1. Generate diverse bit-chain datasets with rich coordinate information
 2. Design complex multi-dimensional query patterns
-3. Compare FractalStat query performance against traditional approaches
+3. Compare FractalSemantics query performance against traditional approaches
 4. Test real-world query scenarios and use cases
 5. Validate query optimization and indexing strategies
 
@@ -37,7 +37,7 @@ from datetime import datetime, timezone
 from collections import defaultdict, Counter
 import statistics
 
-from fractalstat.fractalstat_entity import generate_random_bitchain, BitChain
+from fractalsemantics.fractalsemantics_entity import generate_random_bitchain, BitChain
 
 secure_random = secrets.SystemRandom()
 
@@ -142,7 +142,7 @@ class MultiDimensionalQueryResults:
 
 
 class MultiDimensionalQueryEngine:
-    """Query engine for FractalStat multi-dimensional queries."""
+    """Query engine for FractalSemantics multi-dimensional queries."""
     
     def __init__(self, dataset_size: int = 10000):
         """
@@ -165,7 +165,7 @@ class MultiDimensionalQueryEngine:
         self.optimizers: List[QueryOptimizer] = [
             QueryOptimizer(
                 strategy_name="Dimensional Indexing",
-                description="Create indexes for each FractalStat dimension",
+                description="Create indexes for each FractalSemantics dimension",
                 optimization_type="indexing",
                 expected_improvement=0.6,
                 complexity_overhead="medium"
@@ -194,7 +194,7 @@ class MultiDimensionalQueryEngine:
         ]
     
     def build_dataset(self) -> None:
-        """Build test dataset with diverse FractalStat coordinates."""
+        """Build test dataset with diverse FractalSemantics coordinates."""
         print(f"Building dataset with {self.dataset_size} bit-chains...")
         
         start_time = time.time()
@@ -894,7 +894,7 @@ def main():
     dataset_size = 10000
     
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
         config = ExperimentConfig()
         dataset_size = config.get("EXP-10", "dataset_size", 10000)
     except Exception:

@@ -1,5 +1,5 @@
 """
-Test suite for EXP-04: Bit-Chain FractalStat Fractal Scaling Test
+Test suite for EXP-04: Bit-Chain FractalSemantics Fractal Scaling Test
 Tests address collision detection and retrieval performance at scale.
 """
 
@@ -9,7 +9,7 @@ class TestScaleTestConfig:
 
     def test_scale_config_initializes(self):
         """ScaleTestConfig should initialize with scale parameters."""
-        from fractalstat.exp04_fractal_scaling import ScaleTestConfig
+        from fractalsemantics.exp04_fractal_scaling import ScaleTestConfig
 
         config = ScaleTestConfig(scale=1000, num_retrievals=100, timeout_seconds=60)
         assert config.scale == 1000
@@ -18,7 +18,7 @@ class TestScaleTestConfig:
 
     def test_scale_name_formatting(self):
         """Scale name should format large numbers correctly."""
-        from fractalstat.exp04_fractal_scaling import ScaleTestConfig
+        from fractalsemantics.exp04_fractal_scaling import ScaleTestConfig
 
         config_1k = ScaleTestConfig(scale=1_000, num_retrievals=100, timeout_seconds=60)
         assert config_1k.name() == "1K"
@@ -39,7 +39,7 @@ class TestScaleTestResults:
 
     def test_results_initialization(self):
         """ScaleTestResults should initialize with all fields."""
-        from fractalstat.exp04_fractal_scaling import ScaleTestResults
+        from fractalsemantics.exp04_fractal_scaling import ScaleTestResults
 
         results = ScaleTestResults(
             scale=1000,
@@ -63,7 +63,7 @@ class TestScaleTestResults:
 
     def test_results_validity_check(self):
         """is_valid should correctly identify valid results."""
-        from fractalstat.exp04_fractal_scaling import ScaleTestResults
+        from fractalsemantics.exp04_fractal_scaling import ScaleTestResults
 
         valid_results = ScaleTestResults(
             scale=1000,
@@ -86,7 +86,7 @@ class TestScaleTestResults:
 
     def test_results_to_dict(self):
         """Results should convert to serializable dict."""
-        from fractalstat.exp04_fractal_scaling import ScaleTestResults
+        from fractalsemantics.exp04_fractal_scaling import ScaleTestResults
 
         results = ScaleTestResults(
             scale=1000,
@@ -117,7 +117,7 @@ class TestFractalScalingResults:
 
     def test_results_initialization(self):
         """FractalScalingResults should aggregate scale results."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             FractalScalingResults,
             ScaleTestResults,
         )
@@ -154,7 +154,7 @@ class TestFractalScalingResults:
 
     def test_results_to_dict(self):
         """Results should serialize to dict."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             FractalScalingResults,
             ScaleTestResults,
         )
@@ -197,7 +197,7 @@ class TestDegradationAnalysis:
 
     def test_analyze_degradation_zero_collisions(self):
         """analyze_degradation should detect zero collision state."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             analyze_degradation,
             ScaleTestResults,
         )
@@ -248,7 +248,7 @@ class TestSaveResults:
 
     def test_save_results_returns_filename(self):
         """save_results should return output file path."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             save_results,
             FractalScalingResults,
             ScaleTestResults,

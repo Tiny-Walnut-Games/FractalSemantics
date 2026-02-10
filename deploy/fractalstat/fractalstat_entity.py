@@ -1,12 +1,12 @@
 """
-Shared utilities for FractalStat validation experiments.
+Shared utilities for FractalSemantics validation experiments.
 
 
-Successor to fractalstat with improved expressivity (100% vs 95%).
+Successor to fractalsemantics with improved expressivity (100% vs 95%).
 Added 8th dimension: 'alignment' for social/coordination dynamics.
 
 Features:
-- Hybrid encoding (maps legacy systems to FractalStat coordinates)
+- Hybrid encoding (maps legacy systems to FractalSemantics coordinates)
 - Backward compatibility with existing pets/badges/entities
 - LUCA-adjacent bootstrap tracing
 - Deterministic coordinate assignment
@@ -35,17 +35,17 @@ def _utc_now() -> datetime:
 
 
 # ============================================================================
-# FractalStat Dimension Enums (Dynamic)
+# FractalSemantics Dimension Enums (Dynamic)
 # ============================================================================
 
 
 # ============================================================================
-# FractalStat Coordinate Data Class (8 Dimensions)
+# FractalSemantics Coordinate Data Class (8 Dimensions)
 # ============================================================================
 
 
 @dataclass
-class FractalStatCoordinates:
+class FractalSemanticsCoordinates:
     """
     8-dimensional addressing space for all entities with 100% expressivity.
 
@@ -71,23 +71,23 @@ class FractalStatCoordinates:
 
     @property
     def address(self) -> str:
-        """Generate canonical FractalStat address string"""
-        return f"FractalStat-{self.realm.value[0].upper()}-{self.lineage:03d}-{int(self.adjacency):02d}-{self.horizon.value[0].upper()}-{int(self.luminosity):02d}-{self.polarity.value[0].upper()}-{self.dimensionality}-{self.alignment.value[0].upper()}"
+        """Generate canonical FractalSemantics address string"""
+        return f"FractalSemantics-{self.realm.value[0].upper()}-{self.lineage:03d}-{int(self.adjacency):02d}-{self.horizon.value[0].upper()}-{int(self.luminosity):02d}-{self.polarity.value[0].upper()}-{self.dimensionality}-{self.alignment.value[0].upper()}"
 
     @staticmethod
-    def from_address(address: str) -> "FractalStatCoordinates":
-        """Parse FractalStat address back to coordinates"""
-        # Format: FractalStat-R-000-00-H-00-P-0-A
+    def from_address(address: str) -> "FractalSemanticsCoordinates":
+        """Parse FractalSemantics address back to coordinates"""
+        # Format: FractalSemantics-R-000-00-H-00-P-0-A
         parts = address.split("-")
-        if len(parts) != 10 or parts[0] != "FractalStat":
-            raise ValueError(f"Invalid FractalStat address: {address}")
+        if len(parts) != 10 or parts[0] != "FractalSemantics":
+            raise ValueError(f"Invalid FractalSemantics address: {address}")
 
         realm_map = {r.value[0].upper(): r for r in Realm}
         horizon_map = {h.value[0].upper(): h for h in Horizon}
         polarity_map = {p.value[0].upper(): p for p in Polarity}
         alignment_map = {a.value[0].upper(): a for a in Alignment}
 
-        return FractalStatCoordinates(
+        return FractalSemanticsCoordinates(
             realm=realm_map[parts[1]],
             lineage=int(parts[2]),
             adjacency=float(parts[3]),
@@ -137,19 +137,19 @@ class LifecycleEvent:
 
 
 # ============================================================================
-# FractalStat Entity Base Class
+# FractalSemantics Entity Base Class
 # ============================================================================
 
 
 @dataclass
-class FractalStatEntity(ABC):
+class FractalSemanticsEntity(ABC):
     """
-    Abstract base class for all FractalStat-addressed entities.
+    Abstract base class for all FractalSemantics-addressed entities.
 
-    8-dimensional successor to fractalstat with enhanced expressivity.
+    8-dimensional successor to fractalsemantics with enhanced expressivity.
 
     Provides:
-    - Hybrid encoding (bridge between legacy and FractalStat systems)
+    - Hybrid encoding (bridge between legacy and FractalSemantics systems)
     - 8D coordinate assignment
     - Entanglement tracking
     - Temporal tracking
@@ -160,8 +160,8 @@ class FractalStatEntity(ABC):
     entity_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     entity_type: str = ""  # Overridden in subclasses
 
-    # FractalStat Addressing (8D)
-    fractalstat: Optional[FractalStatCoordinates] = None
+    # FractalSemantics Addressing (8D)
+    fractalsemantics: Optional[FractalSemanticsCoordinates] = None
 
     # Legacy Fields (backward compatibility)
     legacy_data: Dict[str, Any] = field(default_factory=dict)
@@ -186,24 +186,24 @@ class FractalStatEntity(ABC):
     owner_id: str = ""
 
     # User Preferences
-    opt_in_fractalstat_nft: bool = True  # Renamed from opt_in_fractalstat_nft
+    opt_in_fractalsemantics_nft: bool = True  # Renamed from opt_in_fractalsemantics_nft
     opt_in_blockchain: bool = False
     preferred_zoom_level: int = 1  # Default display level
 
     def __post_init__(self):
-        """Initialize FractalStat coordinates if not provided"""
-        if self.fractalstat is None:
-            self.fractalstat = self._compute_fractalstat_coordinates()
-        self._record_event("genesis", "Entity initialized in FractalStat space")
+        """Initialize FractalSemantics coordinates if not provided"""
+        if self.fractalsemantics is None:
+            self.fractalsemantics = self._compute_fractalsemantics_coordinates()
+        self._record_event("genesis", "Entity initialized in FractalSemantics space")
 
     # ========================================================================
     # Abstract Methods (Implemented by Subclasses)
     # ========================================================================
 
     @abstractmethod
-    def _compute_fractalstat_coordinates(self) -> FractalStatCoordinates:
+    def _compute_fractalsemantics_coordinates(self) -> FractalSemanticsCoordinates:
         """
-        Compute 8D FractalStat coordinates from entity data.
+        Compute 8D FractalSemantics coordinates from entity data.
         Each subclass defines its own coordinate mapping.
         """
 
@@ -214,7 +214,7 @@ class FractalStatEntity(ABC):
     @abstractmethod
     def validate_hybrid_encoding(self) -> Tuple[bool, str]:
         """
-        Validate that FractalStat coordinates correctly encode legacy data.
+        Validate that FractalSemantics coordinates correctly encode legacy data.
         Returns (is_valid, error_message_or_empty_string)
         """
 
@@ -293,22 +293,22 @@ class FractalStatEntity(ABC):
     @property
     def luca_distance(self) -> int:
         """Distance from LUCA (Last Universal Common Ancestor)"""
-        if self.fractalstat is None:
-            raise ValueError("fractalstat coordinates must be initialized")
-        return self.fractalstat.lineage
+        if self.fractalsemantics is None:
+            raise ValueError("fractalsemantics coordinates must be initialized")
+        return self.fractalsemantics.lineage
 
     def get_luca_trace(self) -> Dict[str, Any]:
         """
         Get path back to LUCA bootstrap origin.
         In a real system, this would trace parent entities.
         """
-        if self.fractalstat is None:
-            raise ValueError("fractalstat coordinates must be initialized")
+        if self.fractalsemantics is None:
+            raise ValueError("fractalsemantics coordinates must be initialized")
         return {
             "entity_id": self.entity_id,
             "luca_distance": self.luca_distance,
-            "realm": self.fractalstat.realm.value,
-            "lineage": self.fractalstat.lineage,
+            "realm": self.fractalsemantics.realm.value,
+            "lineage": self.fractalsemantics.lineage,
             "created_at": self.created_at.isoformat(),
             "migration_source": self.migration_source,
             "event_count": len(self.lifecycle_events),
@@ -323,11 +323,11 @@ class FractalStatEntity(ABC):
         Generate NFT metadata for minting.
         Returns ERC-721/ERC-1155 compatible metadata object.
         """
-        if not self.opt_in_fractalstat_nft:
-            raise ValueError("Entity not opted in to FractalStat-NFT system")
+        if not self.opt_in_fractalsemantics_nft:
+            raise ValueError("Entity not opted in to FractalSemantics-NFT system")
 
-        if self.fractalstat is None:
-            raise ValueError("fractalstat coordinates must be initialized")
+        if self.fractalsemantics is None:
+            raise ValueError("fractalsemantics coordinates must be initialized")
         card_data = self.to_collectible_card_data()
 
         return {
@@ -337,22 +337,22 @@ class FractalStatEntity(ABC):
             "external_url": f"https://theseed.example.com/entity/{self.entity_id}",
             "attributes": [
                 {"trait_type": "Entity Type", "value": self.entity_type},
-                {"trait_type": "Realm", "value": self.fractalstat.realm.value},
-                {"trait_type": "Lineage", "value": self.fractalstat.lineage},
-                {"trait_type": "Horizon", "value": self.fractalstat.horizon.value},
+                {"trait_type": "Realm", "value": self.fractalsemantics.realm.value},
+                {"trait_type": "Lineage", "value": self.fractalsemantics.lineage},
+                {"trait_type": "Horizon", "value": self.fractalsemantics.horizon.value},
                 {
                     "trait_type": "Luminosity",
-                    "value": int(self.fractalstat.luminosity),
+                    "value": int(self.fractalsemantics.luminosity),
                 },
-                {"trait_type": "Polarity", "value": self.fractalstat.polarity.value},
+                {"trait_type": "Polarity", "value": self.fractalsemantics.polarity.value},
                 {
                     "trait_type": "Dimensionality",
-                    "value": self.fractalstat.dimensionality,
+                    "value": self.fractalsemantics.dimensionality,
                 },
-                {"trait_type": "Alignment", "value": self.fractalstat.alignment.value},
+                {"trait_type": "Alignment", "value": self.fractalsemantics.alignment.value},
                 {
-                    "trait_type": "FractalStat Address",
-                    "value": self.fractalstat.address,
+                    "trait_type": "FractalSemantics Address",
+                    "value": self.fractalsemantics.address,
                 },
             ],
             "properties": card_data.get("properties", {}),
@@ -383,7 +383,7 @@ class FractalStatEntity(ABC):
         return {
             "entity_id": self.entity_id,
             "entity_type": self.entity_type,
-            "fractalstat": self.fractalstat.to_dict() if self.fractalstat else None,
+            "fractalsemantics": self.fractalsemantics.to_dict() if self.fractalsemantics else None,
             "legacy_data": self.legacy_data,
             "migration_source": self.migration_source,
             "nft_minted": self.nft_minted,
@@ -396,7 +396,7 @@ class FractalStatEntity(ABC):
             "last_activity": self.last_activity.isoformat(),
             "lifecycle_events": [e.to_dict() for e in self.lifecycle_events],
             "owner_id": self.owner_id,
-            "opt_in_fractalstat_nft": self.opt_in_fractalstat_nft,
+            "opt_in_fractalsemantics_nft": self.opt_in_fractalsemantics_nft,
             "opt_in_blockchain": self.opt_in_blockchain,
             "preferred_zoom_level": self.preferred_zoom_level,
         }
@@ -408,7 +408,7 @@ class FractalStatEntity(ABC):
             json.dump(self.to_dict(), f, indent=2, default=str)
 
     @classmethod
-    def load_from_file(cls, path: Path) -> "FractalStatEntity":
+    def load_from_file(cls, path: Path) -> "FractalSemanticsEntity":
         """Load entity from JSON file (must know concrete type)"""
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -436,14 +436,14 @@ class FractalStatEntity(ABC):
         if level < 1 or level > 8:  # Increased max zoom level for 8D
             raise ValueError(f"Invalid zoom level: {level}")
 
-        if self.fractalstat is None:
-            raise ValueError("FractalStat coordinates must be initialized")
+        if self.fractalsemantics is None:
+            raise ValueError("FractalSemantics coordinates must be initialized")
         card_data = self.to_collectible_card_data()
 
         base = {
             "zoom_level": level,
             "entity_id": self.entity_id,
-            "fractalstat_address": self.fractalstat.address,
+            "fractalsemantics_address": self.fractalsemantics.address,
             "created_at": self.created_at.isoformat(),
         }
 
@@ -498,7 +498,7 @@ class FractalStatEntity(ABC):
             return {
                 **base,
                 "type": "fractal_awareness",
-                "fractalstat_dimensions": self.fractalstat.to_dict(),
+                "fractalsemantics_dimensions": self.fractalsemantics.to_dict(),
                 "alignment_dynamics": self._get_alignment_details(),
                 "realm_details": self._get_realm_details(),
                 "entanglement_network": self.get_entanglements(),
@@ -509,7 +509,7 @@ class FractalStatEntity(ABC):
             return {
                 **base,
                 "type": "fractal_descent",
-                "fractalstat_dimensions": self.fractalstat.to_dict(),
+                "fractalsemantics_dimensions": self.fractalsemantics.to_dict(),
                 "alignment_dynamics": self._get_alignment_details(),
                 "realm_details": self._get_realm_details(),
                 "entanglement_network": self.get_entanglements(),
@@ -523,10 +523,10 @@ class FractalStatEntity(ABC):
 
     def _get_alignment_details(self) -> Dict[str, Any]:
         """Get alignment-based social/coordination analysis"""
-        if self.fractalstat is None:
+        if self.fractalsemantics is None:
             return {}
 
-        alignment = self.fractalstat.alignment
+        alignment = self.fractalsemantics.alignment
         # Analyze social coordination patterns based on alignment
         coordination_style = {
             Alignment.LAWFUL_GOOD: "structured_harmonious",
@@ -551,11 +551,11 @@ class FractalStatEntity(ABC):
 
     def _analyze_social_dynamics(self) -> Dict[str, Any]:
         """Analyze social interaction patterns based on entanglement and alignment"""
-        if self.fractalstat is None:
+        if self.fractalsemantics is None:
             return {}
 
         # Simplified social analysis based on alignment
-        alignment = self.fractalstat.alignment
+        alignment = self.fractalsemantics.alignment
 
         if alignment in [Alignment.LAWFUL_GOOD, Alignment.HARMONIC]:
             social_pattern = "coordinating_harmonious"
@@ -584,7 +584,7 @@ class FractalStatEntity(ABC):
             Alignment.CHAOTIC_EVIL: -0.5,
             Alignment.ENTROPIC: -0.3,
         }.get(
-            self.fractalstat.alignment if self.fractalstat else Alignment.TRUE_NEUTRAL,
+            self.fractalsemantics.alignment if self.fractalsemantics else Alignment.TRUE_NEUTRAL,
             1.0,
         )
 
@@ -616,7 +616,7 @@ def compute_adjacency_score(tags1: List[str], tags2: List[str]) -> float:
 
 
 # ============================================================================
-# BitChain Entity (moved from fractalstat_experiments to break circular import)
+# BitChain Entity (moved from fractalsemantics_experiments to break circular import)
 # ============================================================================
 
 class DataClass(Enum):
@@ -635,10 +635,10 @@ class Capability(Enum):
     FULL = "full"  # Complete recovery
 
 
-# Coordinate data class for BitChain (different from FractalStatCoordinates)
+# Coordinate data class for BitChain (different from FractalSemanticsCoordinates)
 @dataclass
 class Coordinates:
-    """FractalStat 8-dimensional coordinates with enhanced expressivity."""
+    """FractalSemantics 8-dimensional coordinates with enhanced expressivity."""
 
     realm: str  # Domain: data, narrative, system, faculty, event, pattern, void, temporal
     lineage: int  # Generation from LUCA
@@ -666,7 +666,7 @@ class Coordinates:
 @dataclass
 class BitChain:
     """
-    Minimal addressable unit in FractalStat space.
+    Minimal addressable unit in FractalSemantics space.
     Represents a single entity instance (manifestation).
 
     Security fields (Phase 1 Doctrine: Authentication + Access Control):
@@ -679,7 +679,7 @@ class BitChain:
     id: str  # Unique entity ID
     entity_type: str  # Type: concept, artifact, agent, etc.
     realm: str  # Domain classification
-    coordinates: Coordinates  # FractalStat 8D position
+    coordinates: Coordinates  # FractalSemantics 8D position
     created_at: str  # ISO8601 UTC timestamp
     state: Dict[str, Any]  # Mutable state data
 
@@ -700,23 +700,23 @@ class BitChain:
             "entity_type": self.entity_type,
             "id": self.id,
             "realm": self.realm,
-            "fractalstat_coordinates": self.coordinates.to_dict(),
+            "fractalsemantics_coordinates": self.coordinates.to_dict(),
             "state": sort_json_keys(self.state),
         }
 
     def compute_address(self) -> str:
-        """Compute this bit-chain's FractalStat address (hash)."""
+        """Compute this bit-chain's FractalSemantics address (hash)."""
         return compute_address_hash(self.to_canonical_dict())
 
-    def get_fractalstat_uri(self) -> str:
-        """Generate FractalStat URI address format."""
+    def get_fractalsemantics_uri(self) -> str:
+        """Generate FractalSemantics URI address format."""
         coords = self.coordinates
         adjacency_hash = compute_address_hash({"adjacency": sorted(coords.adjacency)})[
             :8
         ]
 
         uri = (
-            f"fractalstat://{coords.realm}/{coords.lineage}/{adjacency_hash}/{coords.horizon}"
+            f"fractalsemantics://{coords.realm}/{coords.lineage}/{adjacency_hash}/{coords.horizon}"
         )
         uri += f"?r={normalize_float(coords.luminosity)}&p={coords.polarity.name}"
         uri += f"&d={coords.dimensionality}&s={self.id}&a={coords.alignment.name}"
@@ -725,7 +725,7 @@ class BitChain:
 
 
 # ============================================================================
-# Constants and utilities for BitChain (moved from fractalstat_experiments)
+# Constants and utilities for BitChain (moved from fractalsemantics_experiments)
 # ============================================================================
 
 # Use cryptographically secure random number generator

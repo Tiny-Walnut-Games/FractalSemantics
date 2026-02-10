@@ -1,7 +1,7 @@
 """
-EXP-04: Bit-Chain FractalStat Fractal Scaling Test
+EXP-04: Bit-Chain FractalSemantics Fractal Scaling Test
 
-Tests whether FractalStat addressing maintains consistency and zero collisions
+Tests whether FractalSemantics addressing maintains consistency and zero collisions
 when scaled from 1K → 10K → 100K → 1M data points.
 
 Verifies the "fractal" property: self-similar behavior at all scales.
@@ -21,7 +21,7 @@ from collections import defaultdict
 import statistics
 
 # Reuse canonical serialization from Phase 1
-from fractalstat.fractalstat_experiments import (
+from fractalsemantics.fractalsemantics_experiments import (
     BitChain,
     generate_random_bitchain,
 )
@@ -306,7 +306,7 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
     """
     # Load experiment configuration
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
 
         config = ExperimentConfig()
         quick_mode = config.get("EXP-04", "quick_mode", quick_mode)
@@ -323,7 +323,7 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
     overall_start = time.time()
 
     print("\n" + "=" * 70)
-    print("EXP-04: FractalStat FRACTAL SCALING TEST")
+    print("EXP-04: FractalSemantics FRACTAL SCALING TEST")
     print("=" * 70)
     print(f"Mode: {'Quick' if quick_mode else 'Full'} (scales: {scales})")
     print()
@@ -419,7 +419,7 @@ def save_results(
 if __name__ == "__main__":
     # Load from config or fall back to command-line args
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
 
         exp_config = ExperimentConfig()
         quick_mode = exp_config.get("EXP-04", "quick_mode", True)

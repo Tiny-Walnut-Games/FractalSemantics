@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
-from fractalstat.embeddings.base_provider import EmbeddingProvider
+from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 
 if TYPE_CHECKING:
     from sentence_transformers import (
@@ -221,11 +221,11 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         except Exception as e:
             print(f"Warning: Could not save cache to {cache_file}: {e}")
 
-    def compute_fractalstat_from_embedding(self, embedding: List[float]) -> Dict[str, Any]:
+    def compute_fractalsemantics_from_embedding(self, embedding: List[float]) -> Dict[str, Any]:
         """
-        Compute FractalStat coordinates from embedding vector.
+        Compute FractalSemantics coordinates from embedding vector.
 
-        Maps 384D embedding to 7D FractalStat addressing space using robust
+        Maps 384D embedding to 7D FractalSemantics addressing space using robust
         statistical features.
         """
         import numpy as np

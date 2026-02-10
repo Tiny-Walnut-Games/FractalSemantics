@@ -1,13 +1,13 @@
 """
 EXP-05: Bit-Chain Compression/Expansion Losslessness Validation
 
-Tests whether FractalStat bit-chains can be compressed through the full pipeline
+Tests whether FractalSemantics bit-chains can be compressed through the full pipeline
 (fragments → clusters → glyphs → mist) and then expanded back to original
 coordinates without information loss.
 
 Validates:
 - Provenance chain integrity (all source IDs tracked)
-- FractalStat coordinate reconstruction accuracy
+- FractalSemantics coordinate reconstruction accuracy
 - Luminosity decay through compression stages
 - Narrative preservation (embeddings, affect survival)
 - Compression ratio efficiency
@@ -27,13 +27,13 @@ import statistics
 from pathlib import Path
 
 # Reuse canonical serialization from Phase 1
-from fractalstat.fractalstat_experiments import (
+from fractalsemantics.fractalsemantics_experiments import (
     canonical_serialize,
     BitChain,
     generate_random_bitchain,
 )
-from fractalstat.dynamic_enum import Polarity, Alignment
-from fractalstat.fractalstat_entity import Coordinates
+from fractalsemantics.dynamic_enum import Polarity, Alignment
+from fractalsemantics.fractalsemantics_entity import Coordinates
 
 
 # ============================================================================
@@ -63,7 +63,7 @@ class BitChainCompressionPath:
 
     original_bitchain: BitChain
     original_address: str
-    original_fractalstat_dict: Dict[str, Any]
+    original_fractalsemantics_dict: Dict[str, Any]
     original_serialized_size: int
     original_luminosity: float
 
@@ -84,7 +84,7 @@ class BitChainCompressionPath:
     def calculate_stats(self) -> Dict[str, Any]:
         """Compute summary statistics for this compression path."""
         result = {
-            "original_realm": self.original_fractalstat_dict.get("realm"),
+            "original_realm": self.original_fractalsemantics_dict.get("realm"),
             "original_address": self.original_address[:16] + "...",
             "stages_count": len(self.stages),
             "compression_ratio": self.final_compression_ratio,
@@ -185,7 +185,7 @@ class CompressionPipeline:
         Compress a bit-chain through the full pipeline.
 
         Stages:
-        1. Original FractalStat coordinates
+        1. Original FractalSemantics coordinates
         2. Fragment representation (serialize bit-chain)
         3. Cluster (group fragments - here just one per chain)
         4. Glyph (molten form with provenance)
@@ -200,7 +200,7 @@ class CompressionPipeline:
         path = BitChainCompressionPath(
             original_bitchain=bc,
             original_address=bc.compute_address(),
-            original_fractalstat_dict=bc.coordinates.to_dict(),
+            original_fractalsemantics_dict=bc.coordinates.to_dict(),
             original_serialized_size=len(canonical_serialize(bc_dict)),
             original_luminosity=abs(
                 bc.coordinates.luminosity
@@ -374,7 +374,7 @@ class CompressionPipeline:
     def _reconstruct_from_mist(
         self, path: BitChainCompressionPath, mist: Dict[str, Any]
     ) -> BitChainCompressionPath:
-        """Attempt to reconstruct FractalStat coordinates from mist form."""
+        """Attempt to reconstruct FractalSemantics coordinates from mist form."""
         try:
             breadcrumbs = mist.get("recovery_breadcrumbs", {})
 
@@ -424,7 +424,7 @@ class CompressionPipeline:
             narrative_preserved = len(embedding) > 0
 
             # Check coordinate accuracy - compare reconstructed vs original
-            original_coords = path.original_fractalstat_dict
+            original_coords = path.original_fractalsemantics_dict
             fields_recovered = 0
             total_fields = 8  # realm, lineage, adjacency, horizon, luminosity, polarity, dimensionality, alignment
 
@@ -508,7 +508,7 @@ def _print_sample_paths(compression_paths: List[BitChainCompressionPath]):
     for path in compression_paths[:3]:
         print(f"\nBit-Chain: {path.original_bitchain.id[:12]}...")
         print(
-            f"  Original FractalStat: {path.original_fractalstat_dict['realm']} gen={path.original_fractalstat_dict['lineage']}"
+            f"  Original FractalSemantics: {path.original_fractalsemantics_dict['realm']} gen={path.original_fractalsemantics_dict['lineage']}"
         )
         print(f"  Original Address: {path.original_address[:32]}...")
         print(f"  Original Size: {path.original_serialized_size} bytes")
@@ -588,9 +588,9 @@ def _generate_major_findings(metrics: Dict[str, float], compression_paths: List[
         findings.append(f"[WARN] Narrative degradation observed ({100 - metrics['percent_narrative']:.1f}% affected)")
 
     if metrics["avg_coordinate_accuracy"] >= 0.4:
-        findings.append(f"[OK] FractalStat coordinates partially recoverable ({metrics['avg_coordinate_accuracy']:.1%})")
+        findings.append(f"[OK] FractalSemantics coordinates partially recoverable ({metrics['avg_coordinate_accuracy']:.1%})")
     else:
-        findings.append(f"[FAIL] FractalStat coordinate recovery insufficient ({metrics['avg_coordinate_accuracy']:.1%})")
+        findings.append(f"[FAIL] FractalSemantics coordinate recovery insufficient ({metrics['avg_coordinate_accuracy']:.1%})")
 
     if metrics["avg_compression_ratio"] >= 2.0:
         findings.append(f"[OK] Effective compression achieved ({metrics['avg_compression_ratio']:.2f}x)")
@@ -696,7 +696,7 @@ def save_results(
 if __name__ == "__main__":
     # Load from config or fall back to command-line args
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
 
         config = ExperimentConfig()
         num_bitchains = config.get("EXP-05", "num_bitchains", 100)

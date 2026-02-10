@@ -1,19 +1,19 @@
 """
-EXP-01: FractalStat Semantic Collision Resistance Test
+EXP-01: FractalSemantics Semantic Collision Resistance Test
 
-Validates that FractalStat coordinates achieve collision resistance through semantic
+Validates that FractalSemantics coordinates achieve collision resistance through semantic
 differentiation rather than coordinate space geometry, demonstrating that expressivity
 emerges from deterministic coordinate assignment.
 
 Hypothesis:
-FractalStat 8D coordinate space demonstrates perfect collision resistance where:
+FractalSemantics 8D coordinate space demonstrates perfect collision resistance where:
 - 2D/3D coordinate subspaces show expected collisions when exceeding space bounds
 - 4D+ coordinate subspaces exhibit geometric collision resistance
 - The 8th dimension (alignment) provides complete expressivity coverage
 - Collision resistance is purely mathematical, cryptography serves as assurance
 
 Methodology:
-1. Generate complete FractalStat 8D coordinate distributions at scale (100k+ samples)
+1. Generate complete FractalSemantics 8D coordinate distributions at scale (100k+ samples)
 2. Test collision rates across dimensional subspaces (2D through 8D projections)
 3. Verify 8D coordinates maintain zero collisions under any practical testing scale
 4. Demonstrate the geometric transition point where collisions become impossible
@@ -23,7 +23,7 @@ Success Criteria:
 - 2D/3D subspaces show expected Birthday Paradox collision patterns
 - 4D+ subspaces exhibit perfect geometric collision resistance (0 collisions)
 - 8D full coordinates prove complete expressivity and collision immunity
-- Empirical validation that FractalStat transcends cryptographic limitations
+- Empirical validation that FractalSemantics transcends cryptographic limitations
 """
 
 import json
@@ -56,11 +56,11 @@ class EXP01_GeometricCollisionResistance:
     """
     EXP-01: Geometric Collision Resistance Test
 
-    This experiment validates that FractalStat coordinate space exhibits mathematical
+    This experiment validates that FractalSemantics coordinate space exhibits mathematical
     collision resistance properties independent of cryptographic hashing.
 
     Scientific Rationale:
-    The geometric structure of FractalStat coordinates inherently prevents collisions
+    The geometric structure of FractalSemantics coordinates inherently prevents collisions
     at higher dimensions due to exponential expansion of coordinate space:
 
     - 2D/3D: Coordinate space smaller than test scales → expected collisions
@@ -74,7 +74,7 @@ class EXP01_GeometricCollisionResistance:
 
     Statistical Significance:
     Testing at 100k+ samples empirically validates the geometric transition point,
-    proving that FractalStat works through mathematics, with crypto as additional assurance.
+    proving that FractalSemantics works through mathematics, with crypto as additional assurance.
     """
 
     # Coordinate ranges: Using realistic ranges that demonstrate hash collision resistance
@@ -299,7 +299,7 @@ if __name__ == "__main__":
 
     try:
         # Try to load from config first
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
         config = ExperimentConfig()
         sample_size = config.get("EXP-01", "sample_size", sample_size)
 

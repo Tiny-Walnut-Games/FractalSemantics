@@ -106,11 +106,11 @@ def main():
 
     # Import experiment (specific import for clarity and maintainability)
     try:
-        from fractalstat.exp01_geometric_collision import EXP01_GeometricCollisionResistance
+        from fractalsemantics.exp01_geometric_collision import EXP01_GeometricCollisionResistance
         import sys
     except ImportError as e:
         print(
-            "[Fail] Error: Cannot import fractalstat.exp01_geometric_collision.EXP01_GeometricCollisionResistance"
+            "[Fail] Error: Cannot import fractalsemantics.exp01_geometric_collision.EXP01_GeometricCollisionResistance"
         )
         print(f"Import error: {e}")
         print("Make sure you're in the project root directory")
@@ -130,7 +130,7 @@ def main():
     metadata = {
         "experiment": "EXP-01",
         "experiment_name": "Geometric Collision Resistance Test",
-        "description": "Validates FractalStat coordinate space collision resistance across dimensional subspaces (2D-12D)",
+        "description": "Validates FractalSemantics coordinate space collision resistance across dimensional subspaces (2D-12D)",
         "sample_size": sample_size,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "system_info": get_system_info(),

@@ -12,7 +12,7 @@ class TestExp04Extended:
 
     def test_run_scale_test_execution(self):
         """run_scale_test should execute full test at small scale."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             run_scale_test,
             ScaleTestConfig,
         )
@@ -28,7 +28,7 @@ class TestExp04Extended:
 
     def test_run_scale_test_collision_detection(self):
         """run_scale_test should detect collisions if they occur."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             run_scale_test,
             ScaleTestConfig,
         )
@@ -37,13 +37,13 @@ class TestExp04Extended:
 
         result = run_scale_test(config)
 
-        # Should have zero collisions for FractalStat
+        # Should have zero collisions for FractalSemantics
         assert result.collision_count == 0
         assert result.collision_rate == 0.0
 
     def test_run_scale_test_retrieval_performance(self):
         """run_scale_test should measure retrieval performance."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             run_scale_test,
             ScaleTestConfig,
         )
@@ -59,7 +59,7 @@ class TestExp04Extended:
 
     def test_run_fractal_scaling_test_quick_mode(self):
         """run_fractal_scaling_test should complete in quick mode."""
-        from fractalstat.exp04_fractal_scaling import run_fractal_scaling_test
+        from fractalsemantics.exp04_fractal_scaling import run_fractal_scaling_test
 
         # Override config to use very small scales
         with tempfile.TemporaryDirectory():
@@ -71,7 +71,7 @@ class TestExp04Extended:
 
     def test_analyze_degradation_with_collisions(self):
         """analyze_degradation should detect collision degradation."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             analyze_degradation,
             ScaleTestResults,
         )
@@ -107,7 +107,7 @@ class TestExp04Extended:
 
     def test_analyze_degradation_retrieval_scaling(self):
         """analyze_degradation should analyze retrieval scaling."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             analyze_degradation,
             ScaleTestResults,
         )
@@ -158,7 +158,7 @@ class TestExp04Extended:
 
     def test_save_results_with_file_io(self):
         """save_results should write to file."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             save_results,
             FractalScalingResults,
             ScaleTestResults,
@@ -205,7 +205,7 @@ class TestExp04Extended:
 
     def test_scale_test_timeout_handling(self):
         """run_scale_test should respect timeout."""
-        from fractalstat.exp04_fractal_scaling import ScaleTestConfig
+        from fractalsemantics.exp04_fractal_scaling import ScaleTestConfig
 
         config = ScaleTestConfig(scale=100, num_retrievals=10, timeout_seconds=1)
 
@@ -214,7 +214,7 @@ class TestExp04Extended:
 
     def test_performance_degradation_edge_cases(self):
         """analyze_degradation should handle edge cases."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             analyze_degradation,
             ScaleTestResults,
         )
@@ -248,7 +248,7 @@ class TestExp04Extended:
 
     def test_results_persistence_with_actual_file_io(self):
         """Results should persist correctly with actual file I/O."""
-        from fractalstat.exp04_fractal_scaling import (
+        from fractalsemantics.exp04_fractal_scaling import (
             FractalScalingResults,
             ScaleTestResults,
         )

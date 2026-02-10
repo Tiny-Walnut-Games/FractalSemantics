@@ -2,7 +2,7 @@
 """
 Hugging Face Space Setup Script
 
-This script helps set up and validate the FractalStat Interactive Experiments
+This script helps set up and validate the FractalSemantics Interactive Experiments
 Hugging Face Space environment. It checks dependencies, validates configuration,
 and provides helpful setup information.
 """
@@ -62,15 +62,15 @@ class HFSpaceSetup:
         success = len(missing_packages) == 0
         return success, installed_packages, missing_packages
     
-    def check_fractalstat_modules(self) -> Tuple[bool, List[str], List[str]]:
-        """Check if FractalStat modules are available."""
-        fractalstat_dir = self.project_root / "fractalstat"
-        if not fractalstat_dir.exists():
-            return False, [], ["fractalstat directory not found"]
+    def check_fractalsemantics_modules(self) -> Tuple[bool, List[str], List[str]]:
+        """Check if FractalSemantics modules are available."""
+        fractalsemantics_dir = self.project_root / "fractalsemantics"
+        if not fractalsemantics_dir.exists():
+            return False, [], ["fractalsemantics directory not found"]
         
         required_modules = [
-            "fractalstat_experiments.py",
-            "fractalstat_entity.py",
+            "fractalsemantics_experiments.py",
+            "fractalsemantics_entity.py",
             "config/__init__.py"
         ]
         
@@ -78,7 +78,7 @@ class HFSpaceSetup:
         available_modules = []
         
         for module in required_modules:
-            module_path = fractalstat_dir / module
+            module_path = fractalsemantics_dir / module
             if module_path.exists():
                 available_modules.append(module)
             else:
@@ -135,7 +135,7 @@ class HFSpaceSetup:
             'PYTHONUNBUFFERED': os.environ.get('PYTHONUNBUFFERED', 'Not set'),
             'GRADIO_SERVER_NAME': os.environ.get('GRADIO_SERVER_NAME', 'Not set'),
             'GRADIO_SERVER_PORT': os.environ.get('GRADIO_SERVER_PORT', 'Not set'),
-            'FRACTALSTAT_ENV': os.environ.get('FRACTALSTAT_ENV', 'Not set')
+            'FRACTALSEMANTICS_ENV': os.environ.get('FRACTALSEMANTICS_ENV', 'Not set')
         }
         return env_vars
     
@@ -157,7 +157,7 @@ class HFSpaceSetup:
         """Generate deployment information and instructions."""
         python_ok, python_version = self.check_python_version()
         reqs_ok, installed, missing = self.check_requirements()
-        modules_ok, available, unavailable = self.check_fractalstat_modules()
+        modules_ok, available, unavailable = self.check_fractalsemantics_modules()
         yaml_ok, yaml_errors = self.validate_app_yaml()
         env_vars = self.check_environment_variables()
         
@@ -171,7 +171,7 @@ class HFSpaceSetup:
                 "installed": installed,
                 "missing": missing
             },
-            "fractalstat_modules": {
+            "fractalsemantics_modules": {
                 "status": "OK" if modules_ok else "ERROR",
                 "available": available,
                 "missing": unavailable
@@ -189,7 +189,7 @@ class HFSpaceSetup:
         info = self.generate_deployment_info()
         
         print("=" * 80)
-        print("FRACTALSTAT HUGGING FACE SPACE - SETUP SUMMARY")
+        print("FRACTALSEMANTICS HUGGING FACE SPACE - SETUP SUMMARY")
         print("=" * 80)
         
         # Python version
@@ -202,11 +202,11 @@ class HFSpaceSetup:
             print(f"   Missing: {', '.join(info['dependencies']['missing'])}")
         print(f"   Installed: {len(info['dependencies']['installed'])} packages")
         
-        # FractalStat modules
-        print(f"\n🧩 FractalStat Modules: {info['fractalstat_modules']['status']}")
-        if info['fractalstat_modules']['missing']:
-            print(f"   Missing: {', '.join(info['fractalstat_modules']['missing'])}")
-        print(f"   Available: {len(info['fractalstat_modules']['available'])} modules")
+        # FractalSemantics modules
+        print(f"\n🧩 FractalSemantics Modules: {info['fractalsemantics_modules']['status']}")
+        if info['fractalsemantics_modules']['missing']:
+            print(f"   Missing: {', '.join(info['fractalsemantics_modules']['missing'])}")
+        print(f"   Available: {len(info['fractalsemantics_modules']['available'])} modules")
         
         # Configuration
         print(f"\n⚙️  Configuration: {info['configuration']['status']}")
@@ -227,8 +227,8 @@ class HFSpaceSetup:
                 print("   - Install Python 3.8 or higher")
             if info['dependencies']['status'] != "OK":
                 print("   - Install missing dependencies: pip install -r requirements_hf.txt")
-            if info['fractalstat_modules']['status'] != "OK":
-                print("   - Ensure all FractalStat modules are present")
+            if info['fractalsemantics_modules']['status'] != "OK":
+                print("   - Ensure all FractalSemantics modules are present")
             if info['configuration']['status'] != "OK":
                 print("   - Fix app.yaml configuration errors")
         
@@ -238,7 +238,7 @@ class HFSpaceSetup:
     
     def create_deployment_guide(self) -> str:
         """Create a deployment guide file."""
-        guide_content = """# FractalStat Hugging Face Space - Deployment Guide
+        guide_content = """# FractalSemantics Hugging Face Space - Deployment Guide
 
 ## Quick Deployment
 
@@ -271,16 +271,16 @@ class HFSpaceSetup:
 
 Required files for deployment:
 ```
-fractalstat-hf-space/
+fractalsemantics-hf-space/
 ├── app.py                    # Main application
 ├── requirements_hf.txt       # Dependencies
 ├── app.yaml                  # Hugging Face configuration
 ├── README_HF_SPACE.md        # Documentation
 ├── setup_hf_space.py         # Setup utility
-└── fractalstat/              # Experiment modules
+└── fractalsemantics/              # Experiment modules
     ├── __init__.py
-    ├── fractalstat_experiments.py
-    ├── fractalstat_entity.py
+    ├── fractalsemantics_experiments.py
+    ├── fractalsemantics_entity.py
     └── config/
         └── __init__.py
 ```
@@ -288,7 +288,7 @@ fractalstat-hf-space/
 ## Troubleshooting
 
 ### Import Errors
-- Ensure all FractalStat modules are uploaded
+- Ensure all FractalSemantics modules are uploaded
 - Check Python version compatibility (3.8+)
 - Verify dependencies are installed
 

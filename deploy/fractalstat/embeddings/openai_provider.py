@@ -8,7 +8,7 @@ import struct
 from typing import Any, Dict, List, Optional
 from types import ModuleType
 
-from fractalstat.embeddings.base_provider import EmbeddingProvider
+from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 
 
 class OpenAIEmbeddingProvider(EmbeddingProvider):

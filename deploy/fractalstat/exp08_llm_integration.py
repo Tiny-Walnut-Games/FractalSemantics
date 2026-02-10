@@ -1,11 +1,11 @@
 """
 EXP-08: LLM Integration Demo (Approach #2)
-Demonstrates living integration of LLM capabilities with FractalStat 8D addressing.
+Demonstrates living integration of LLM capabilities with FractalSemantics 8D addressing.
 
 Features:
 - Embedding generation via SentenceTransformers
 - LLM narrative enhancement via transformers
-- FractalStat coordinate extraction from embeddings
+- FractalSemantics coordinate extraction from embeddings
 - Batch processing support
 - Academic integration proof for research papers
 """
@@ -17,7 +17,7 @@ import numpy as np
 
 @dataclass
 class LLMIntegrationDemo:
-    """Complete LLM integration demonstration with FractalStat 8D addressing."""
+    """Complete LLM integration demonstration with FractalSemantics 8D addressing."""
 
     def __init__(self):
         """Initialize LLM and embedding models."""
@@ -59,9 +59,9 @@ class LLMIntegrationDemo:
                 "transformers not installed. Install with: pip install transformers"
             )
 
-    def embed_fractalstat_address(self, bit_chain: Any) -> np.ndarray:
+    def embed_fractalsemantics_address(self, bit_chain: Any) -> np.ndarray:
         """
-        Generate embedding for a FractalStat bit chain entity.
+        Generate embedding for a FractalSemantics bit chain entity.
 
         Creates a rich semantic representation incorporating realm, luminosity, and content.
 
@@ -71,7 +71,7 @@ class LLMIntegrationDemo:
         Returns:
             384-dimensional embedding vector as numpy array
         """
-        # Build semantic representation incorporating FractalStat properties
+        # Build semantic representation incorporating FractalSemantics properties
         description = f"{bit_chain.realm} realm entity: {bit_chain.content}"
 
         if self.embedder is not None:
@@ -88,7 +88,7 @@ class LLMIntegrationDemo:
 
     def enhance_bit_chain_narrative(self, bit_chain: Any) -> Dict[str, Any]:
         """
-        Generate LLM-enhanced narrative for a FractalStat bit chain.
+        Generate LLM-enhanced narrative for a FractalSemantics bit chain.
 
         Args:
             bit_chain: Entity with bit_chain_id, content, realm, luminosity attributes
@@ -97,9 +97,9 @@ class LLMIntegrationDemo:
             Dictionary with embedding, enhanced_narrative, and integration_proof
         """
         # Generate embedding
-        embedding = self.embed_fractalstat_address(bit_chain)
+        embedding = self.embed_fractalsemantics_address(bit_chain)
 
-        # Build prompt leveraging FractalStat properties
+        # Build prompt leveraging FractalSemantics properties
         realm_name = (
             bit_chain.realm.title()
             if isinstance(bit_chain.realm, str)
@@ -131,7 +131,7 @@ class LLMIntegrationDemo:
             "bit_chain_id": bit_chain.bit_chain_id,
             "embedding": embedding,
             "enhanced_narrative": enhanced_text,
-            "integration_proof": "LLM successfully integrated with FractalStat 8D addressing",
+            "integration_proof": "LLM successfully integrated with FractalSemantics 8D addressing",
         }
 
     def batch_enhance_narratives(self, bit_chains: List[Any]) -> List[Dict[str, Any]]:  # type: ignore[misc]
@@ -150,17 +150,17 @@ class LLMIntegrationDemo:
             results.append(result)
         return results
 
-    def extract_fractalstat_from_embedding(self, embedding: np.ndarray) -> Dict[str, Any]:  # type: ignore[misc]
+    def extract_fractalsemantics_from_embedding(self, embedding: np.ndarray) -> Dict[str, Any]:  # type: ignore[misc]
         """
-        Extract FractalStat coordinates from a semantic embedding.
+        Extract FractalSemantics coordinates from a semantic embedding.
 
-        Maps 384-dimensional embedding space to 8-dimensional FractalStat addressing.
+        Maps 384-dimensional embedding space to 8-dimensional FractalSemantics addressing.
 
         Args:
             embedding: 384-dimensional embedding vector
 
         Returns:
-            Dictionary with all 8 FractalStat dimensions (normalized to 0-1)
+            Dictionary with all 8 FractalSemantics dimensions (normalized to 0-1)
         """
         if not isinstance(embedding, np.ndarray):
             embedding = np.array(embedding)
@@ -180,11 +180,11 @@ class LLMIntegrationDemo:
                 "realm": {"type": "semantic", "label": "embedding-derived"},
             }
 
-        # Segment embedding into 8 parts for FractalStat dimensions
+        # Segment embedding into 8 parts for FractalSemantics dimensions
         seg_size = dim // 8
         segments = [embedding[i * seg_size : (i + 1) * seg_size] for i in range(8)]
 
-        # Extract FractalStat dimensions from embedding segments
+        # Extract FractalSemantics dimensions from embedding segments
         lineage = float(np.mean(segments[0] ** 2))
 
         # Adjacency from correlation between segments (social connectivity)
@@ -294,9 +294,9 @@ class LLMIntegrationDemo:
         """
         return {
             "integration_capabilities": {
-                "embedding_generation": "✓ FractalStat → Vector embeddings (SentenceTransformers)",
+                "embedding_generation": "✓ FractalSemantics → Vector embeddings (SentenceTransformers)",
                 "narrative_enhancement": "✓ LLM narrative generation (transformers/GPT-2)",
-                "coordinate_extraction": "✓ Embedding → FractalStat 7D coordinates",
+                "coordinate_extraction": "✓ Embedding → FractalSemantics 7D coordinates",
                 "batch_processing": "✓ Multi-entity processing",
                 "semantic_search": "✓ Similarity-based retrieval",
             },
@@ -308,7 +308,7 @@ class LLMIntegrationDemo:
                 "framework": "PyTorch",
             },
             "academic_validation": {
-                "addressability": "Unique FractalStat addresses enable precise semantic retrieval",
+                "addressability": "Unique FractalSemantics addresses enable precise semantic retrieval",
                 "scalability": "Fractal embedding properties maintain performance at scale",
                 "losslessness": "Coordinate extraction preserves embedding information content",
                 "reproducibility": "Deterministic embedding generation ensures reproducible results",
@@ -332,7 +332,7 @@ class LLMIntegrationDemo:
 def main():
     """Run LLM integration demonstration."""
     print("=" * 70)
-    print("FRACTALSTAT EXP-08: LLM Integration Demo")
+    print("FRACTALSEMANTICS EXP-08: LLM Integration Demo")
     print("=" * 70)
 
     demo = LLMIntegrationDemo()
@@ -353,7 +353,7 @@ def main():
 
     # Create test entity
     test_entity = TestBitChain(
-        bit_chain_id="FractalStat-DEMO-001",
+        bit_chain_id="FractalSemantics-DEMO-001",
         content="A sentient companion with enhanced cognition",
         realm="companion",
         luminosity=0.85,
@@ -372,18 +372,18 @@ def main():
     print("\nEnhanced Narrative:")
     print(f"  {result['enhanced_narrative'][:150]}...")
 
-    # Extract FractalStat coordinates
-    print("\nExtracting FractalStat coordinates from embedding...")
-    fractalstat_coords = demo.extract_fractalstat_from_embedding(result["embedding"])
+    # Extract FractalSemantics coordinates
+    print("\nExtracting FractalSemantics coordinates from embedding...")
+    fractalsemantics_coords = demo.extract_fractalsemantics_from_embedding(result["embedding"])
 
-    print("\n[+] FractalStat Coordinates extracted:")
-    print(f"  Lineage:       {fractalstat_coords['lineage']:.3f}")
-    print(f"  Adjacency:     {fractalstat_coords['adjacency']:.3f}")
-    print(f"  Luminosity:    {fractalstat_coords['luminosity']:.3f}")
-    print(f"  Polarity:      {fractalstat_coords['polarity']:.3f}")
-    print(f"  Dimensionality: {fractalstat_coords['dimensionality']:.3f}")
-    print(f"  Alignment:      {fractalstat_coords['alignment']:.3f}")
-    print(f"  Horizon:       {fractalstat_coords['horizon']}")
+    print("\n[+] FractalSemantics Coordinates extracted:")
+    print(f"  Lineage:       {fractalsemantics_coords['lineage']:.3f}")
+    print(f"  Adjacency:     {fractalsemantics_coords['adjacency']:.3f}")
+    print(f"  Luminosity:    {fractalsemantics_coords['luminosity']:.3f}")
+    print(f"  Polarity:      {fractalsemantics_coords['polarity']:.3f}")
+    print(f"  Dimensionality: {fractalsemantics_coords['dimensionality']:.3f}")
+    print(f"  Alignment:      {fractalsemantics_coords['alignment']:.3f}")
+    print(f"  Horizon:       {fractalsemantics_coords['horizon']}")
 
     # Generate integration report
     print("\nGenerating integration report...")

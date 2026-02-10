@@ -9,13 +9,13 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from fractalstat.exp11_dimension_cardinality import (
+from fractalsemantics.exp11_dimension_cardinality import (
     EXP11_DimensionCardinality,
     DimensionTestResult,
     DimensionCardinalityResult,
     save_results,
 )
-from fractalstat.fractalstat_experiments import generate_random_bitchain
+from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
 
 
 class TestDimensionTestResult:
@@ -171,7 +171,7 @@ class TestDimensionCardinalityExperiment:
 
         dims_7 = exp._select_dimensions(7)
         assert len(dims_7) == 7
-        assert dims_7 == exp.FractalStat_DIMENSIONS[:7]
+        assert dims_7 == exp.FractalSemantics_DIMENSIONS[:7]
 
     def test_select_dimensions_extended(self):
         """_select_dimensions should add hypothetical dimensions for counts > 8."""
@@ -179,7 +179,7 @@ class TestDimensionCardinalityExperiment:
 
         dims_8 = exp._select_dimensions(8)
         assert len(dims_8) == 8
-        assert dims_8 == exp.FractalStat_DIMENSIONS  # All FractalStat dimensions
+        assert dims_8 == exp.FractalSemantics_DIMENSIONS  # All FractalSemantics dimensions
         assert "temperature" not in dims_8
 
         dims_9 = exp._select_dimensions(9)
@@ -199,7 +199,7 @@ class TestDimensionCardinalityExperiment:
         bc = generate_random_bitchain(seed=42)
 
         # Test with all 7 dimensions
-        addr_7 = exp._compute_address_with_dimensions(bc, exp.FractalStat_DIMENSIONS)
+        addr_7 = exp._compute_address_with_dimensions(bc, exp.FractalSemantics_DIMENSIONS)
         assert isinstance(addr_7, str)
         assert len(addr_7) == 64  # SHA-256 hex
 
@@ -229,11 +229,11 @@ class TestDimensionCardinalityExperiment:
         exp = EXP11_DimensionCardinality()
         bitchains = [generate_random_bitchain(seed=i) for i in range(10)]
 
-        # Test with all 7 FractalStat dimensions
+        # Test with all 7 FractalSemantics dimensions
         score_7 = exp._calculate_semantic_expressiveness(
-            exp.FractalStat_DIMENSIONS, bitchains
+            exp.FractalSemantics_DIMENSIONS, bitchains
         )
-        assert score_7 >= 0.95  # Base score from FractalStat weights, plus bonuses
+        assert score_7 >= 0.95  # Base score from FractalSemantics weights, plus bonuses
         assert score_7 <= 2.0   # Reasonable upper bound
 
         # Test with 3 dimensions
@@ -246,7 +246,7 @@ class TestDimensionCardinalityExperiment:
 
         # Test with extended dimensions
         score_10 = exp._calculate_semantic_expressiveness(
-            exp.FractalStat_DIMENSIONS + exp.EXTENDED_DIMENSIONS, bitchains
+            exp.FractalSemantics_DIMENSIONS + exp.EXTENDED_DIMENSIONS, bitchains
         )
         assert score_10 >= 0.95  # At least base score
         assert score_10 <= 3.0   # Reasonable upper bound
@@ -367,7 +367,7 @@ class TestSaveResults:
         )
 
         # Mock the results directory creation
-        with patch("fractalstat.exp11_dimension_cardinality.Path") as mock_path:
+        with patch("fractalsemantics.exp11_dimension_cardinality.Path") as mock_path:
             mock_results_dir = MagicMock()
             mock_path.return_value.resolve.return_value.parent = MagicMock()
             mock_path.return_value.resolve.return_value.parent.__truediv__ = (
@@ -408,7 +408,7 @@ class TestSaveResults:
 
         with tempfile.TemporaryDirectory() as tmpdir:
             # Mock the results directory
-            with patch("fractalstat.exp11_dimension_cardinality.Path") as mock_path:
+            with patch("fractalsemantics.exp11_dimension_cardinality.Path") as mock_path:
                 mock_path.return_value.resolve.return_value.parent = MagicMock()
                 mock_path.return_value.resolve.return_value.parent.__truediv__ = (
                     lambda self, x: Path(tmpdir)
@@ -438,7 +438,7 @@ class TestMainEntryPoint:
 
         mock_config.get.side_effect = mock_get
 
-        with patch("fractalstat.config.ExperimentConfig", return_value=mock_config):
+        with patch("fractalsemantics.config.ExperimentConfig", return_value=mock_config):
             exp = EXP11_DimensionCardinality(
                 sample_size=mock_config.get("EXP-11", "sample_size", 1000),
                 dimension_counts=mock_config.get(
@@ -454,7 +454,7 @@ class TestMainEntryPoint:
     def test_main_without_config(self):
         """Main should fallback to defaults when config unavailable."""
         with patch(
-            "fractalstat.config.ExperimentConfig",
+            "fractalsemantics.config.ExperimentConfig",
             side_effect=Exception("Config not found"),
         ):
             exp = EXP11_DimensionCardinality()

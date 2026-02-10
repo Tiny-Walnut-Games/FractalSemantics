@@ -9,7 +9,7 @@
       "results": {
         "success": false,
         "stdout": "================================================================================\nEXP-01: GEOMETRIC COLLISION RESISTANCE TEST\n================================================================================\nSample size per dimension: 100 coordinates\nTesting dimensions: 2D, 3D, 4D, 5D, 6D, 7D\n\nTesting 2D coordinate space...\n  Coordinate space: 2,601 possible combinations\n\n[FAIL] EXPERIMENT FAILED: 'charmap' codec can't encode characters in position 2-3: character maps to <undefined>",
-        "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\jerio\\RiderProjects\\fractalstat\\fractalstat\\exp01_geometric_collision.py\", line 302, in <module>\n    results_list, success = experiment.run()\n                            ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\jerio\\RiderProjects\\fractalstat\\fractalstat\\exp01_geometric_collision.py\", line 176, in run\n    print(f\"  {symbol} | Unique: {unique_coords:,} | Collisions: {collisions}\")\n  File \"C:\\Users\\jerio\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode characters in position 2-3: character maps to <undefined>"
+        "stderr": "Traceback (most recent call last):\n  File \"C:\\Users\\jerio\\RiderProjects\\fractalsemantics\\fractalsemantics\\exp01_geometric_collision.py\", line 302, in <module>\n    results_list, success = experiment.run()\n                            ^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\jerio\\RiderProjects\\fractalsemantics\\fractalsemantics\\exp01_geometric_collision.py\", line 176, in run\n    print(f\"  {symbol} | Unique: {unique_coords:,} | Collisions: {collisions}\")\n  File \"C:\\Users\\jerio\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\encodings\\cp1252.py\", line 19, in encode\n    return codecs.charmap_encode(input,self.errors,encoding_table)[0]\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nUnicodeEncodeError: 'charmap' codec can't encode characters in position 2-3: character maps to <undefined>"
       }
     },
     "EXP02_RETRIEVAL_EFFICIENCY": {
@@ -17,7 +17,7 @@
       "success": false,
       "results": {
         "success": false,
-        "error": "Failed to import exp02_retrieval_efficiency: cannot import name 'generate_random_bitchain' from 'fractalstat.fractalstat_experiments' (C:\\Users\\jerio\\RiderProjects\\fractalstat\\fractalstat\\fractalstat_experiments.py)"
+        "error": "Failed to import exp02_retrieval_efficiency: cannot import name 'generate_random_bitchain' from 'fractalsemantics.fractalsemantics_experiments' (C:\\Users\\jerio\\RiderProjects\\fractalsemantics\\fractalsemantics\\fractalsemantics_experiments.py)"
       }
     }
   }

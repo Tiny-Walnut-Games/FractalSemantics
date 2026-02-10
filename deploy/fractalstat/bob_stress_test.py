@@ -77,7 +77,7 @@ class BobStressTestConfig:
         config_dict = {}
 
         try:
-            from fractalstat.config import ExperimentConfig
+            from fractalsemantics.config import ExperimentConfig
 
             config = ExperimentConfig()
 
@@ -253,7 +253,7 @@ class NPCQueryGenerator:
             "activity": activity,
             "hybrid": secure_random.choice([True, False]),
             "weight_semantic": secure_random.uniform(0.5, 0.8),
-            "weight_fractalstat": secure_random.uniform(0.2, 0.5),
+            "weight_fractalsemantics": secure_random.uniform(0.2, 0.5),
         }
 
 
@@ -402,8 +402,8 @@ class BobStressTester:
                 "anchor_ids": ["string"],  # Use placeholder like curl example
                 "max_results": 10,
                 "confidence_threshold": 0.6,
-                "fractalstat_hybrid": query_data.get("hybrid", False),
-                "fractalstat_address": {
+                "fractalsemantics_hybrid": query_data.get("hybrid", False),
+                "fractalsemantics_address": {
                     "realm": {"additionalProp1": {}},
                     "lineage": 0,
                     "adjacency": "semantic_proximity",
@@ -413,7 +413,7 @@ class BobStressTester:
                     "dimensionality": 1
                 },
                 "weight_semantic": query_data.get("weight_semantic", 0.6),
-                "weight_fractalstat": query_data.get("weight_fractalstat", 0.4)
+                "weight_fractalsemantics": query_data.get("weight_fractalsemantics", 0.4)
             }
 
             # Execute query with configured timeout (POST with JSON body)
@@ -592,8 +592,8 @@ class BobStressTester:
 
         if not test_result["available"]:
             logger.warning(f"[Fail] API server not available: {test_result['error']}")
-            logger.warning("   Please ensure the FractalStat API server is running")
-            logger.warning("   Start it with: python -m fractalstat.api_server")
+            logger.warning("   Please ensure the FractalSemantics API server is running")
+            logger.warning("   Start it with: python -m fractalsemantics.api_server")
 
             # Return a skipped result for integration tests that can't run
             return {
@@ -784,8 +784,8 @@ def check_api_sync() -> bool:
             "anchor_ids": ["string"],  # Use placeholder like curl example
             "max_results": 1,
             "confidence_threshold": 0.6,
-            "fractalstat_hybrid": False,
-            "fractalstat_address": {
+            "fractalsemantics_hybrid": False,
+            "fractalsemantics_address": {
                 "realm": {"additionalProp1": {}},
                 "lineage": 0,
                 "adjacency": "semantic_proximity",
@@ -795,7 +795,7 @@ def check_api_sync() -> bool:
                 "dimensionality": 1
             },
             "weight_semantic": 0.6,
-            "weight_fractalstat": 0.4
+            "weight_fractalsemantics": 0.4
         }
         response = requests.post("http://localhost:8000/query", json=params, timeout=5)
         return response.status_code == 200
@@ -812,7 +812,7 @@ async def main():
         print("=" * 80)
         print("This is an integration test requiring external infrastructure.")
         print("Reason: API server not available at http://localhost:8000")
-        print("Recommendation: This test requires FractalStat API server to be running")
+        print("Recommendation: This test requires FractalSemantics API server to be running")
         print("\nFor validation pipeline, this skip is expected when API server is not running.")
         print("=" * 80)
         return  # Exit successfully (no exception) for validation pipeline
@@ -822,7 +822,7 @@ async def main():
     parser = argparse.ArgumentParser(description="Bob Skeptic Stress Test Framework")
     # Load defaults from config
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
 
         exp_config = ExperimentConfig()
         default_duration = exp_config.get("EXP-10", "duration_minutes", 30)

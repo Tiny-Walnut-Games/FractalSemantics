@@ -7,7 +7,7 @@ that fractal entities exhibit natural gravity without distance falloff.
 
 import pytest
 
-from fractalstat.exp13_fractal_gravity import (
+from fractalsemantics.exp13_fractal_gravity import (
     ElementEntity,
     GravityTestResults,
     EXP13_GravityTestResults,
@@ -25,8 +25,8 @@ class TestElementEntity:
 
     def test_fractal_density_calculation(self):
         """Test that fractal density is calculated correctly."""
-        from fractalstat.dynamic_enum import Realm, Polarity, Alignment
-        from fractalstat.fractalstat_entity import Coordinates, Horizon
+        from fractalsemantics.dynamic_enum import Realm, Polarity, Alignment
+        from fractalsemantics.fractalsemantics_entity import Coordinates, Horizon
 
         coordinates = Coordinates(
             realm=Realm.ACHIEVEMENT,
@@ -89,8 +89,8 @@ class TestGravitationalCohesion:
     @pytest.fixture
     def sample_entities(self):
         """Create sample entities for testing."""
-        from fractalstat.dynamic_enum import Realm, Polarity, Alignment
-        from fractalstat.fractalstat_entity import Coordinates, Horizon
+        from fractalsemantics.dynamic_enum import Realm, Polarity, Alignment
+        from fractalsemantics.fractalsemantics_entity import Coordinates, Horizon
 
         coordinates1 = Coordinates(
             realm=Realm.ACHIEVEMENT,

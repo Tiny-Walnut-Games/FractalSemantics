@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FractalStat Memory Server Stress Test
+FractalSemantics Memory Server Stress Test
 
 Comprehensive stress testing and benchmarking for memory MCP servers.
 Compares neurodivergent-memory server vs existing memory server performance.
@@ -316,7 +316,7 @@ class MemoryServerStressTest:
             return f"Stress test failed: {e}"
 
 async def main():
-    print("FractalStat Memory Server Stress Test")
+    print("FractalSemantics Memory Server Stress Test")
     print("====================================")
 
     config = StressTestConfig()

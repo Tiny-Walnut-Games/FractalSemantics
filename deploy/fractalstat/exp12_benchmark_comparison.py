@@ -1,7 +1,7 @@
 """
 EXP-12: Benchmark Comparison Against Common Systems
 
-Compares FractalStat/FractalStat against established addressing and indexing systems:
+Compares FractalSemantics/FractalSemantics against established addressing and indexing systems:
 - UUID/GUID (128-bit random identifiers)
 - SHA-256 content addressing (Git-style)
 - Vector databases (similarity search)
@@ -32,7 +32,7 @@ import statistics
 from pathlib import Path
 
 # Reuse canonical serialization from Phase 1
-from fractalstat.fractalstat_experiments import (
+from fractalsemantics.fractalsemantics_experiments import (
     canonical_serialize,
     compute_address_hash,
     BitChain,
@@ -101,16 +101,16 @@ class BenchmarkComparisonResult:
     best_semantic_expressiveness_system: str
     best_overall_system: str
 
-    # FractalStat positioning
-    fractalstat_rank_collision: int  # 1 = best
-    fractalstat_rank_retrieval: int
-    fractalstat_rank_storage: int
-    fractalstat_rank_semantic: int
-    fractalstat_overall_score: float  # 0.0 to 1.0
+    # FractalSemantics positioning
+    fractalsemantics_rank_collision: int  # 1 = best
+    fractalsemantics_rank_retrieval: int
+    fractalsemantics_rank_storage: int
+    fractalsemantics_rank_semantic: int
+    fractalsemantics_overall_score: float  # 0.0 to 1.0
 
     # Key findings
     major_findings: List[str] = field(default_factory=list)
-    fractalstat_competitive: bool = False
+    fractalsemantics_competitive: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to serializable dict."""
@@ -131,13 +131,13 @@ class BenchmarkComparisonResult:
                 "best_semantic_expressiveness": self.best_semantic_expressiveness_system,
                 "best_overall": self.best_overall_system,
             },
-            "fractalstat_positioning": {
-                "rank_collision": self.fractalstat_rank_collision,
-                "rank_retrieval": self.fractalstat_rank_retrieval,
-                "rank_storage": self.fractalstat_rank_storage,
-                "rank_semantic": self.fractalstat_rank_semantic,
-                "overall_score": round(self.fractalstat_overall_score, 3),
-                "competitive": self.fractalstat_competitive,
+            "fractalsemantics_positioning": {
+                "rank_collision": self.fractalsemantics_rank_collision,
+                "rank_retrieval": self.fractalsemantics_rank_retrieval,
+                "rank_storage": self.fractalsemantics_rank_storage,
+                "rank_semantic": self.fractalsemantics_rank_semantic,
+                "overall_score": round(self.fractalsemantics_overall_score, 3),
+                "competitive": self.fractalsemantics_competitive,
             },
             "major_findings": self.major_findings,
             "system_results": [r.to_dict() for r in self.system_results],
@@ -312,14 +312,14 @@ class RDBMSSystem(BenchmarkSystem):
         return 0.8  # SQL queries with complex predicates
 
 
-class FractalStatSystem(BenchmarkSystem):
-    """FractalStat 7-dimensional addressing system."""
+class FractalSemanticsSystem(BenchmarkSystem):
+    """FractalSemantics 7-dimensional addressing system."""
 
     def __init__(self):
-        super().__init__("FractalStat")
+        super().__init__("FractalSemantics")
 
     def generate_address(self, entity: Any) -> str:
-        """Generate FractalStat address."""
+        """Generate FractalSemantics address."""
         if isinstance(entity, BitChain):
             return entity.compute_address()
         else:
@@ -343,7 +343,7 @@ class FractalStatSystem(BenchmarkSystem):
 
 class BenchmarkComparisonExperiment:
     """
-    Compares FractalStat against common addressing/indexing systems.
+    Compares FractalSemantics against common addressing/indexing systems.
 
     Tests:
     1. Uniqueness (collision rates)
@@ -376,7 +376,7 @@ class BenchmarkComparisonExperiment:
             "vector_db",
             "graph_db",
             "rdbms",
-            "fractalstat",
+            "fractalsemantics",
         ]
         self.scales = scales or [10000, 100000, 1000000]
         self.num_queries = num_queries
@@ -390,7 +390,7 @@ class BenchmarkComparisonExperiment:
             "vector_db": VectorDBSystem,
             "graph_db": GraphDBSystem,
             "rdbms": RDBMSSystem,
-            "fractalstat": FractalStatSystem,
+            "fractalsemantics": FractalSemanticsSystem,
         }
 
         system_class = systems.get(system_name.lower())
@@ -562,25 +562,25 @@ class BenchmarkComparisonExperiment:
 
         best_overall = max(self.results, key=overall_score)
 
-        # Find FractalStat rankings
-        fractalstat_result = next((r for r in self.results if r.system_name == "FractalStat"), None)
+        # Find FractalSemantics rankings
+        fractalsemantics_result = next((r for r in self.results if r.system_name == "FractalSemantics"), None)
 
-        if fractalstat_result:
+        if fractalsemantics_result:
             # Rank by collision rate (1 = best)
             sorted_by_collision = sorted(self.results, key=lambda r: r.collision_rate)
-            fractalstat_rank_collision = sorted_by_collision.index(fractalstat_result) + 1
+            fractalsemantics_rank_collision = sorted_by_collision.index(fractalsemantics_result) + 1
 
             # Rank by retrieval latency
             sorted_by_latency = sorted(
                 self.results, key=lambda r: r.mean_retrieval_latency_ms
             )
-            fractalstat_rank_retrieval = sorted_by_latency.index(fractalstat_result) + 1
+            fractalsemantics_rank_retrieval = sorted_by_latency.index(fractalsemantics_result) + 1
 
             # Rank by storage efficiency
             sorted_by_storage = sorted(
                 self.results, key=lambda r: r.avg_storage_bytes_per_entity
             )
-            fractalstat_rank_storage = sorted_by_storage.index(fractalstat_result) + 1
+            fractalsemantics_rank_storage = sorted_by_storage.index(fractalsemantics_result) + 1
 
             # Rank by semantic expressiveness
             sorted_by_semantic = sorted(
@@ -588,15 +588,15 @@ class BenchmarkComparisonExperiment:
                 key=lambda r: r.semantic_expressiveness,
                 reverse=True,
             )
-            fractalstat_rank_semantic = sorted_by_semantic.index(fractalstat_result) + 1
+            fractalsemantics_rank_semantic = sorted_by_semantic.index(fractalsemantics_result) + 1
 
-            fractalstat_score = overall_score(fractalstat_result)
+            fractalsemantics_score = overall_score(fractalsemantics_result)
         else:
-            fractalstat_rank_collision = len(self.results)
-            fractalstat_rank_retrieval = len(self.results)
-            fractalstat_rank_storage = len(self.results)
-            fractalstat_rank_semantic = len(self.results)
-            fractalstat_score = 0.0
+            fractalsemantics_rank_collision = len(self.results)
+            fractalsemantics_rank_retrieval = len(self.results)
+            fractalsemantics_rank_storage = len(self.results)
+            fractalsemantics_rank_semantic = len(self.results)
+            fractalsemantics_score = 0.0
 
         # Generate findings
         major_findings = []
@@ -623,44 +623,44 @@ class BenchmarkComparisonExperiment:
 
         major_findings.append(f"Best overall: {best_overall.system_name}")
 
-        if fractalstat_result:
+        if fractalsemantics_result:
             major_findings.append(
-                f"FractalStat rankings: Collision #{fractalstat_rank_collision}, "
-                f"Retrieval #{fractalstat_rank_retrieval}, "
-                f"Storage #{fractalstat_rank_storage}, "
-                f"Semantic #{fractalstat_rank_semantic}"
+                f"FractalSemantics rankings: Collision #{fractalsemantics_rank_collision}, "
+                f"Retrieval #{fractalsemantics_rank_retrieval}, "
+                f"Storage #{fractalsemantics_rank_storage}, "
+                f"Semantic #{fractalsemantics_rank_semantic}"
             )
 
-            major_findings.append(f"FractalStat overall score: {fractalstat_score:.3f}")
+            major_findings.append(f"FractalSemantics overall score: {fractalsemantics_score:.3f}")
 
-            # FractalStat unique strengths
-            if fractalstat_rank_semantic <= 2:
+            # FractalSemantics unique strengths
+            if fractalsemantics_rank_semantic <= 2:
                 major_findings.append(
-                    "[OK] FractalStat excels at semantic expressiveness (multi-dimensional addressing)"
+                    "[OK] FractalSemantics excels at semantic expressiveness (multi-dimensional addressing)"
                 )
 
-            if fractalstat_rank_collision <= 3:
+            if fractalsemantics_rank_collision <= 3:
                 major_findings.append(
-                    "[OK] FractalStat competitive on collision rates (deterministic addressing)"
+                    "[OK] FractalSemantics competitive on collision rates (deterministic addressing)"
                 )
 
             # Trade-offs
-            if fractalstat_rank_storage > len(self.results) // 2:
+            if fractalsemantics_rank_storage > len(self.results) // 2:
                 major_findings.append(
-                    "[TRADE-OFF] FractalStat has higher storage overhead (7 dimensions)"
+                    "[TRADE-OFF] FractalSemantics has higher storage overhead (7 dimensions)"
                 )
 
-            if fractalstat_rank_retrieval <= 3:
+            if fractalsemantics_rank_retrieval <= 3:
                 major_findings.append(
-                    "[OK] FractalStat competitive on retrieval latency (hash-based lookup)"
+                    "[OK] FractalSemantics competitive on retrieval latency (hash-based lookup)"
                 )
 
-        # Determine if FractalStat is competitive
-        fractalstat_competitive = (
-            fractalstat_result is not None
-            and fractalstat_rank_semantic <= 2
-            and fractalstat_rank_collision <= 3
-            and fractalstat_score >= 0.7
+        # Determine if FractalSemantics is competitive
+        fractalsemantics_competitive = (
+            fractalsemantics_result is not None
+            and fractalsemantics_rank_semantic <= 2
+            and fractalsemantics_rank_collision <= 3
+            and fractalsemantics_score >= 0.7
         )
 
         print()
@@ -685,41 +685,41 @@ class BenchmarkComparisonExperiment:
             best_storage_efficiency_system=best_storage.system_name,
             best_semantic_expressiveness_system=best_semantic.system_name,
             best_overall_system=best_overall.system_name,
-            fractalstat_rank_collision=fractalstat_rank_collision,
-            fractalstat_rank_retrieval=fractalstat_rank_retrieval,
-            fractalstat_rank_storage=fractalstat_rank_storage,
-            fractalstat_rank_semantic=fractalstat_rank_semantic,
-            fractalstat_overall_score=fractalstat_score,
+            fractalsemantics_rank_collision=fractalsemantics_rank_collision,
+            fractalsemantics_rank_retrieval=fractalsemantics_rank_retrieval,
+            fractalsemantics_rank_storage=fractalsemantics_rank_storage,
+            fractalsemantics_rank_semantic=fractalsemantics_rank_semantic,
+            fractalsemantics_overall_score=fractalsemantics_score,
             major_findings=major_findings,
-            fractalstat_competitive=fractalstat_competitive,
+            fractalsemantics_competitive=fractalsemantics_competitive,
         )
 
-        # Success if FractalStat shows good semantic expressiveness (its primary strength)
+        # Success if FractalSemantics shows good semantic expressiveness (its primary strength)
         # OR if it's competitive overall (score >= 0.6)
-        # Calculate FractalStat rankings first, then determine success
-        if fractalstat_result:
+        # Calculate FractalSemantics rankings first, then determine success
+        if fractalsemantics_result:
             # Rank by semantic expressiveness
             sorted_by_semantic = sorted(
                 self.results,
                 key=lambda r: r.semantic_expressiveness,
                 reverse=True,
             )
-            fractalstat_rank_semantic = sorted_by_semantic.index(fractalstat_result) + 1
-            fractalstat_score = overall_score(fractalstat_result)
+            fractalsemantics_rank_semantic = sorted_by_semantic.index(fractalsemantics_result) + 1
+            fractalsemantics_score = overall_score(fractalsemantics_result)
 
-            success = fractalstat_rank_semantic <= 2 or fractalstat_score >= 0.6
+            success = fractalsemantics_rank_semantic <= 2 or fractalsemantics_score >= 0.6
         else:
             success = False
 
         print("=" * 80)
         if success:
             print(
-                f"RESULT: [OK] FractalStat DEMONSTRATES SEMANTIC STRENGTHS "
-                f"(score: {fractalstat_score:.3f})"
+                f"RESULT: [OK] FractalSemantics DEMONSTRATES SEMANTIC STRENGTHS "
+                f"(score: {fractalsemantics_score:.3f})"
             )
         else:
             print(
-                f"RESULT: [INFO] BENCHMARK ANALYSIS COMPLETE (score: {fractalstat_score:.3f})"
+                f"RESULT: [INFO] BENCHMARK ANALYSIS COMPLETE (score: {fractalsemantics_score:.3f})"
             )
         print("=" * 80)
 
@@ -753,14 +753,14 @@ def save_results(
 if __name__ == "__main__":
     # Load from config or fall back to command-line args
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
 
         config = ExperimentConfig()
         sample_size = config.get("EXP-12", "sample_size", 100000)
         benchmark_systems = config.get(
             "EXP-12",
             "benchmark_systems",
-            ["uuid", "sha256", "vector_db", "graph_db", "rdbms", "fractalstat"],
+            ["uuid", "sha256", "vector_db", "graph_db", "rdbms", "fractalsemantics"],
         )
         scales = config.get("EXP-12", "scales", [10000, 100000, 1000000])
         num_queries = config.get("EXP-12", "num_queries", 1000)
@@ -772,7 +772,7 @@ if __name__ == "__main__":
             "vector_db",
             "graph_db",
             "rdbms",
-            "fractalstat",
+            "fractalsemantics",
         ]
         scales = [10000, 100000, 1000000]
         num_queries = 1000

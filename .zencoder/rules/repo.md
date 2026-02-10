@@ -3,16 +3,16 @@ description: Repository Information Overview
 alwaysApply: true
 ---
 
-# FractalStat Information
+# FractalSemantics Information
 
 ## Summary
-FractalStat is a complete validation suite for the FractalStat 7-dimensional addressing system. It provides experimental frameworks for testing address uniqueness, retrieval efficiency, dimension necessity, compression/expansion, entanglement detection, and RAG (Retrieval-Augmented Generation) integration. The project implements Phase 1 Doctrine validation with security enums, canonical serialization, and recovery capabilities.
+FractalSemantics is a complete validation suite for the FractalSemantics 7-dimensional addressing system. It provides experimental frameworks for testing address uniqueness, retrieval efficiency, dimension necessity, compression/expansion, entanglement detection, and RAG (Retrieval-Augmented Generation) integration. The project implements Phase 1 Doctrine validation with security enums, canonical serialization, and recovery capabilities.
 
 ## Structure
-- **fractalstat/**: Main package directory containing core FractalStat implementation and experiments
-  - **fractalstat_entity.py**: Core entity definitions for the FractalStat addressing system
-  - **fractalstat_experiments.py**: Phase 1 validation experiments (EXP-01, EXP-02, EXP-03)
-  - **fractalstat_rag_bridge.py**: RAG integration bridge implementation
+- **fractalsemantics/**: Main package directory containing core FractalSemantics implementation and experiments
+  - **fractalsemantics_entity.py**: Core entity definitions for the FractalSemantics addressing system
+  - **fractalsemantics_experiments.py**: Phase 1 validation experiments (EXP-01, EXP-02, EXP-03)
+  - **fractalsemantics_rag_bridge.py**: RAG integration bridge implementation
   - **exp04_fractal_scaling.py**: Fractal address scaling experiments
   - **exp05_compression_expansion.py**: Address compression/expansion testing
   - **exp06_entanglement_detection.py**: Entanglement detection algorithms
@@ -54,7 +54,7 @@ FractalStat is a complete validation suite for the FractalStat 7-dimensional add
 
 ## Build & Installation
 ```bash
-cd fractalstat
+cd fractalsemantics
 python copy_and_transform.py
 pip install -e .
 ```
@@ -62,22 +62,22 @@ pip install -e .
 ## Main Entry Points
 **Phase 1 Validation**:
 ```bash
-python -m fractalstat.fractalstat_experiments
+python -m fractalsemantics.fractalsemantics_experiments
 ```
 
 **Individual Experiments**:
 ```bash
-python -m fractalstat.exp04_fractal_scaling
-python -m fractalstat.exp05_compression_expansion
-python -m fractalstat.exp06_entanglement_detection
-python -m fractalstat.exp07_luca_bootstrap
-python -m fractalstat.exp08_rag_integration
-python -m fractalstat.exp09_concurrency
+python -m fractalsemantics.exp04_fractal_scaling
+python -m fractalsemantics.exp05_compression_expansion
+python -m fractalsemantics.exp06_entanglement_detection
+python -m fractalsemantics.exp07_luca_bootstrap
+python -m fractalsemantics.exp08_rag_integration
+python -m fractalsemantics.exp09_concurrency
 ```
 
 **Library Usage**:
 ```python
-from fractalstat import BitChain, Coordinates
+from fractalsemantics import BitChain, Coordinates
 bc = BitChain(...)
 address = bc.compute_address()
 ```

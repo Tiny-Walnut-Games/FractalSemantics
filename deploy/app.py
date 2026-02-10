@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-FractalStat Interactive Experiments - Hugging Face Space Application
+FractalSemantics Interactive Experiments - Hugging Face Space Application
 
-This is the main application file for the FractalStat interactive experiments platform.
+This is the main application file for the FractalSemantics interactive experiments platform.
 It provides a web-based interface for running and visualizing the 12 validation experiments
 with real-time progress tracking, mathematical explanations, and data visualization.
 
@@ -33,9 +33,9 @@ except ImportError:
     MATPLOTLIB_AVAILABLE = False
     print("Warning: matplotlib not available, charts will be disabled")
 
-# Import FractalStat modules
-from fractalstat.fractalstat_experiments import run_single_experiment, EXPERIMENTS
-from fractalstat.config import ExperimentConfig
+# Import FractalSemantics modules
+from fractalsemantics.fractalsemantics_experiments import run_single_experiment, EXPERIMENTS
+from fractalsemantics.config import ExperimentConfig
 
 # Global state management
 class ExperimentState:
@@ -57,12 +57,12 @@ config = ExperimentConfig()
 EXPERIMENT_INFO = {
     "exp01_geometric_collision": {
         "title": "EXP-01: Geometric Collision Resistance",
-        "description": "Tests the fundamental property that FractalStat addresses are unique across the 8-dimensional space.",
+        "description": "Tests the fundamental property that FractalSemantics addresses are unique across the 8-dimensional space.",
         "math_concept": "SHA-256 Hashing & 8-Dimensional Coordinate Systems",
         "educational_content": """
         **Mathematical Foundation:**
         
-        FractalStat uses SHA-256 hashing of canonical serialization to guarantee zero collisions:
+        FractalSemantics uses SHA-256 hashing of canonical serialization to guarantee zero collisions:
         
         ```
         address = SHA256(canonical_serialize(coordinates))
@@ -91,7 +91,7 @@ EXPERIMENT_INFO = {
         "educational_content": """
         **Computational Complexity:**
         
-        FractalStat achieves O(1) retrieval time through:
+        FractalSemantics achieves O(1) retrieval time through:
         
         ```
         retrieval_time = O(1)  # Constant time lookup
@@ -131,7 +131,7 @@ EXPERIMENT_INFO = {
         "educational_content": """
         **Fractal Properties:**
         
-        FractalStat exhibits self-similar behavior across scales:
+        FractalSemantics exhibits self-similar behavior across scales:
         
         ```
         performance(scale) ∝ scale^k  # Power law relationship
@@ -151,7 +151,7 @@ EXPERIMENT_INFO = {
         "educational_content": """
         **Compression Algorithms:**
         
-        FractalStat uses hierarchical compression:
+        FractalSemantics uses hierarchical compression:
         
         ```
         fragments → clusters → glyphs → mist
@@ -286,7 +286,7 @@ EXPERIMENT_INFO = {
     },
     "exp12_benchmark_comparison": {
         "title": "EXP-12: Benchmark Comparison",
-        "description": "Compares FractalStat performance against traditional addressing systems.",
+        "description": "Compares FractalSemantics performance against traditional addressing systems.",
         "math_concept": "Comparative Analysis & Performance Metrics",
         "educational_content": """
         **Benchmarking Methodology:**
@@ -518,7 +518,7 @@ def export_results():
     }
     
     # Save to file
-    export_file = f"fractalstat_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    export_file = f"fractalsemantics_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     with open(export_file, 'w') as f:
         json.dump(export_data, f, indent=2, default=str)
     
@@ -527,15 +527,15 @@ def export_results():
 def create_gradio_interface():
     """Create the main Gradio interface."""
     
-    with gr.Blocks(title="FractalStat Interactive Experiments") as demo:
+    with gr.Blocks(title="FractalSemantics Interactive Experiments") as demo:
         gr.Markdown("""
-        # FractalStat Interactive Experiments
+        # FractalSemantics Interactive Experiments
         
-        Welcome to the FractalStat validation experiments platform! This interactive interface allows you to run and visualize the 12 validation experiments that prove the FractalStat 8-dimensional addressing system works at scale.
+        Welcome to the FractalSemantics validation experiments platform! This interactive interface allows you to run and visualize the 12 validation experiments that prove the FractalSemantics 8-dimensional addressing system works at scale.
         
-        ## What is FractalStat?
+        ## What is FractalSemantics?
         
-        FractalStat is a research package containing **12 validation experiments** that prove the FractalStat addressing system works at scale. FractalStat expands FractalStat from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
+        FractalSemantics is a research package containing **12 validation experiments** that prove the FractalSemantics addressing system works at scale. FractalSemantics expands FractalSemantics from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
         """)
         
         # Experiment selection and controls
@@ -628,7 +628,7 @@ def create_gradio_interface():
         # Footer
         gr.Markdown("""
         ---
-        **Note**: This is a research platform for validating the FractalStat addressing system. 
+        **Note**: This is a research platform for validating the FractalSemantics addressing system. 
         All experiments are designed to run safely and provide educational insights into 
         multi-dimensional coordinate systems and their applications.
         """)

@@ -2,10 +2,10 @@
 Embedding Provider System - Pluggable Semantic Grounding
 """
 
-from fractalstat.embeddings.base_provider import EmbeddingProvider
-from fractalstat.embeddings.openai_provider import OpenAIEmbeddingProvider
-from fractalstat.embeddings.local_provider import LocalEmbeddingProvider
-from fractalstat.embeddings.factory import EmbeddingProviderFactory
+from fractalsemantics.embeddings.base_provider import EmbeddingProvider
+from fractalsemantics.embeddings.openai_provider import OpenAIEmbeddingProvider
+from fractalsemantics.embeddings.local_provider import LocalEmbeddingProvider
+from fractalsemantics.embeddings.factory import EmbeddingProviderFactory
 
 
 # Conditionally import PyTorch-dependent providers
@@ -13,7 +13,7 @@ try:
     import torch
     # Verify PyTorch can actually be used (not just imported)
     torch.tensor([1.0, 2.0])
-    from fractalstat.embeddings.sentence_transformer_provider import (
+    from fractalsemantics.embeddings.sentence_transformer_provider import (
         SentenceTransformerEmbeddingProvider,
     )
     _SENTENCE_TRANSFORMER_AVAILABLE = True

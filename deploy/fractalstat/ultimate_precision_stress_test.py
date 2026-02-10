@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FractalStat Ultimate Precision Memory Server BRUTAL OVERLOAD Test
+FractalSemantics Ultimate Precision Memory Server BRUTAL OVERLOAD Test
 
 High-precision nanosecond timing stress test comparing neurodivergent-memory vs standard memory servers.
 Performs actual operations on live MCP servers with extreme precision measurements.

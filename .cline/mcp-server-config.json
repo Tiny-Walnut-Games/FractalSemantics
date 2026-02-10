@@ -1,0 +1,91 @@
+{
+  "$schema": "https://claudecodeplugins.io/schemas/mcp-presets.schema.json",
+  "name": "cline-global-tools",
+  "description": "Anthropic/Claude-style markdown-based workflows, hooks, and skills for Cline global development tools",
+  "version": "1.0.0",
+  "homepage": "https://github.com/Tiny-Walnut-Games/FractalSemantics",
+  "presets": {
+    "python-dev-workflow": {
+      "name": "Python Development Workflow",
+      "description": "Comprehensive Python development workflow with environment setup, quality checks, testing, and documentation",
+      "type": "markdown",
+      "path": ".cline/workflows/python-dev-workflow.md",
+      "requiresApiKey": false,
+      "category": "development",
+      "tags": ["python", "workflow", "automation", "quality", "testing"],
+      "commands": [
+        "/python-dev-workflow",
+        "/python-dev-workflow setup",
+        "/python-dev-workflow check",
+        "/python-dev-workflow docs",
+        "/python-dev-workflow deps"
+      ]
+    },
+    "git-workflow": {
+      "name": "Git Workflow Automation",
+      "description": "Comprehensive Git workflow management including branch management, PR preparation, and release management",
+      "type": "markdown",
+      "path": ".cline/workflows/git-workflow.md",
+      "requiresApiKey": false,
+      "category": "git",
+      "tags": ["git", "workflow", "automation", "branching", "releases"],
+      "commands": [
+        "/git-workflow",
+        "/git-workflow setup-hooks",
+        "/git-workflow feature <name>",
+        "/git-workflow pr",
+        "/git-workflow release <version>",
+        "/git-workflow status",
+        "/git-workflow cleanup",
+        "/git-workflow changelog"
+      ]
+    },
+    "pre-commit-hook": {
+      "name": "Pre-Commit Hook",
+      "description": "Comprehensive pre-commit hook that runs quality checks before allowing commits across multiple languages",
+      "type": "markdown",
+      "path": ".cline/hooks/pre-commit-hook.md",
+      "requiresApiKey": false,
+      "category": "quality",
+      "tags": ["pre-commit", "quality", "automation", "git", "hooks"],
+      "commands": [
+        "/pre-commit-hook",
+        "/pre-commit-hook setup",
+        "/pre-commit-hook check",
+        "/pre-commit-hook config"
+      ]
+    },
+    "code-reviewer": {
+      "name": "Code Reviewer",
+      "description": "AI-powered code reviewer that provides comprehensive feedback on code quality, security, and best practices",
+      "type": "markdown",
+      "path": ".cline/skills/code-reviewer.md",
+      "requiresApiKey": false,
+      "category": "review",
+      "tags": ["code-review", "quality", "security", "performance", "best-practices"],
+      "commands": [
+        "/code-reviewer <file>",
+        "/code-reviewer .",
+        "/code-reviewer <file> --security",
+        "/code-reviewer <file> --performance",
+        "/code-reviewer <file> --best-practices"
+      ]
+    },
+    "project-analyzer": {
+      "name": "Project Analyzer",
+      "description": "Comprehensive project analysis tool that examines codebases for complexity, test coverage, and architectural patterns",
+      "type": "markdown",
+      "path": ".cline/skills/project-analyzer.md",
+      "requiresApiKey": false,
+      "category": "analysis",
+      "tags": ["analysis", "metrics", "complexity", "architecture", "health"],
+      "commands": [
+        "/project-analyzer .",
+        "/project-analyzer . --quick",
+        "/project-analyzer . --metrics complexity",
+        "/project-analyzer . --report html",
+        "/project-analyzer . --export json"
+      ]
+    }
+  }
+}

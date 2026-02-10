@@ -2,7 +2,7 @@
 """
 EXP-02: Retrieval Efficiency Test
 
-Validates that retrieving a bit-chain by FractalStat address is fast (< 1ms) at scale.
+Validates that retrieving a bit-chain by FractalSemantics address is fast (< 1ms) at scale.
 
 Hypothesis:
 Retrieval latency scales logarithmically or better with dataset size.
@@ -30,7 +30,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 from typing import Dict, List, Tuple, Any, Optional
 from dataclasses import dataclass, asdict
-from fractalstat.fractalstat_entity import generate_random_bitchain
+from fractalsemantics.fractalsemantics_entity import generate_random_bitchain
 secure_random = secrets.SystemRandom()
 
 try:
@@ -64,7 +64,7 @@ class EXP02_RetrievalEfficiency:
     """
     EXP-02: Retrieval Efficiency Test
 
-    This experiment validates that FractalStat address-based retrieval is fast enough
+    This experiment validates that FractalSemantics address-based retrieval is fast enough
     for production use at realistic scales.
 
     Scientific Rationale:
@@ -321,7 +321,7 @@ if __name__ == "__main__":
     # Load from config or use defaults
     query_count = 1000
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
 
         config = ExperimentConfig()
         query_count = config.get("EXP-02", "query_count", 1000)

@@ -10,7 +10,7 @@ class TestExp06Extended:
 
     def test_entanglement_detector_with_large_dataset(self):
         """EntanglementDetector should handle large datasets."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             EntanglementDetector,
         )
 
@@ -40,7 +40,7 @@ class TestExp06Extended:
 
     def test_validation_result_edge_cases(self):
         """compute_validation_metrics should handle edge cases."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             compute_validation_metrics,
         )
 
@@ -56,7 +56,7 @@ class TestExp06Extended:
 
     def test_validation_result_all_false_positives(self):
         """compute_validation_metrics should handle all false positives."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             compute_validation_metrics,
         )
 
@@ -71,7 +71,7 @@ class TestExp06Extended:
 
     def test_entanglement_detector_get_score_distribution(self):
         """get_score_distribution should return statistics."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             EntanglementDetector,
         )
 
@@ -104,7 +104,7 @@ class TestExp06Extended:
 
     def test_entanglement_detector_get_all_scores(self):
         """get_all_scores should return all computed scores."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             EntanglementDetector,
         )
 
@@ -134,7 +134,7 @@ class TestExp06Extended:
 
     def test_entanglement_detector_score_method(self):
         """score method should compute single pair score."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             EntanglementDetector,
         )
 
@@ -172,7 +172,7 @@ class TestExp06Extended:
 
     def test_validation_result_passed_property(self):
         """ValidationResult.passed should check thresholds."""
-        from fractalstat.exp06_entanglement_detection import ValidationResult
+        from fractalsemantics.exp06_entanglement_detection import ValidationResult
 
         # Passing result
         result_pass = ValidationResult(
@@ -208,7 +208,7 @@ class TestExp06Extended:
 
     def test_entanglement_detector_threshold_validation(self):
         """EntanglementDetector should validate threshold."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             EntanglementDetector,
         )
 
@@ -220,7 +220,7 @@ class TestExp06Extended:
 
     def test_compute_validation_metrics_empty_sets(self):
         """compute_validation_metrics should handle empty sets."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             compute_validation_metrics,
         )
 

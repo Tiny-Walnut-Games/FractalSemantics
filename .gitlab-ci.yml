@@ -25,7 +25,7 @@ code_format:
   image: python:${PYTHON_VERSION}
   script:
     - pip install black[d]
-    - black --check fractalstat/
+    - black --check fractalsemantics/
   allow_failure: false
   only:
     - merge_requests
@@ -36,7 +36,7 @@ lint:
   image: python:${PYTHON_VERSION}
   script:
     - pip install ruff
-    - ruff check fractalstat/
+    - ruff check fractalsemantics/
   allow_failure: false
   only:
     - merge_requests
@@ -47,7 +47,7 @@ type_check:
   image: python:${PYTHON_VERSION}
   script:
     - pip install mypy types-click types-requests
-    - mypy fractalstat/ --ignore-missing-imports
+    - mypy fractalsemantics/ --ignore-missing-imports
   allow_failure: true
   only:
     - merge_requests
@@ -63,26 +63,26 @@ validate_experiments:
   stage: validate
   image: python:${PYTHON_VERSION}
   variables:
-    FRACTALSTAT_ENV: "ci"
+    FRACTALSEMANTICS_ENV: "ci"
   script:
     - pip install -e .
-    - python -m fractalstat.fractalstat_experiments
-    - python -m fractalstat.exp04_fractal_scaling
-    - python -m fractalstat.exp05_compression_expansion
-    - python -m fractalstat.exp06_entanglement_detection
-    - python -m fractalstat.exp07_luca_bootstrap
-    - python -m fractalstat.exp08_llm_integration
-    - python -m fractalstat.exp09_concurrency
-    - python -m fractalstat.exp11_dimension_cardinality
-    - python -m fractalstat.exp12_benchmark_comparison
+    - python -m fractalsemantics.fractalsemantics_experiments
+    - python -m fractalsemantics.exp04_fractal_scaling
+    - python -m fractalsemantics.exp05_compression_expansion
+    - python -m fractalsemantics.exp06_entanglement_detection
+    - python -m fractalsemantics.exp07_luca_bootstrap
+    - python -m fractalsemantics.exp08_llm_integration
+    - python -m fractalsemantics.exp09_concurrency
+    - python -m fractalsemantics.exp11_dimension_cardinality
+    - python -m fractalsemantics.exp12_benchmark_comparison
   artifacts:
     paths:
       - experiment_reports/
       - .coverage
       - "exp*.json"
       - "bob_stress_test*.json"
-      - fractalstat/config/experiments.toml
-      - fractalstat/config/experiments.ci.toml
+      - fractalsemantics/config/experiments.toml
+      - fractalsemantics/config/experiments.ci.toml
     expire_in: 30 days
     when: always
   timeout: 2 hours
@@ -100,7 +100,7 @@ stress_tests:
   image: python:${PYTHON_VERSION}
   script:
     - pip install -e .
-    - python -m fractalstat.bob_stress_test
+    - python -m fractalsemantics.bob_stress_test
   artifacts:
     paths:
       - stress_test_results/
@@ -162,7 +162,7 @@ deploy_pypi:
     - twine upload dist/* --non-interactive --skip-existing
   environment:
     name: pypi
-    url: https://pypi.org/project/fractalstat/
+    url: https://pypi.org/project/fractalsemantics/
   only:
     - tags
   when: manual

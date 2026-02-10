@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Parameter Sweep Runner for FractalStat Experiments
+Parameter Sweep Runner for FractalSemantics Experiments
 
 This script systematically tests different parameter combinations for EXP-08, EXP-09, and EXP-10
 to identify optimal parameter ranges for achieving passing scores.
@@ -21,11 +21,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # Import experiments directly to avoid circular imports
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fractalstat'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fractalsemantics'))
 
-from fractalstat.exp08_self_organizing_memory import SelfOrganizingMemoryExperiment, SelfOrganizingMemoryResults
-from fractalstat.exp09_memory_pressure import MemoryPressureExperiment, MemoryPressureResults
-from fractalstat.exp10_multidimensional_query import MultiDimensionalQueryExperiment, MultiDimensionalQueryResults
+from fractalsemantics.exp08_self_organizing_memory import SelfOrganizingMemoryExperiment, SelfOrganizingMemoryResults
+from fractalsemantics.exp09_memory_pressure import MemoryPressureExperiment, MemoryPressureResults
+from fractalsemantics.exp10_multidimensional_query import MultiDimensionalQueryExperiment, MultiDimensionalQueryResults
 
 
 @dataclass
@@ -441,7 +441,7 @@ class ParameterSweepRunner:
 
 def main():
     """Main entry point for parameter sweep runner."""
-    print("FractalStat Parameter Sweep Runner")
+    print("FractalSemantics Parameter Sweep Runner")
     print("=" * 50)
     
     runner = ParameterSweepRunner()

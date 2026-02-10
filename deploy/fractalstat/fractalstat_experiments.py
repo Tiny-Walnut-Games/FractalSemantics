@@ -1,5 +1,5 @@
 """
-FractalStat Validation Experiments: Complete Orchestrator
+FractalSemantics Validation Experiments: Complete Orchestrator
 
 Imports and runs all individual experiment modules (EXP-01 through EXP-12).
 Maintains modular architecture where each experiment is a standalone module.
@@ -11,8 +11,8 @@ Benefits:
 - Proper import organization: Fixes linter warnings about import placement
 
 Usage:
-    python fractalstat_experiments.py  # Run all experiments
-    python fractalstat/exp01_geometric_collision.py  # Run individual experiment
+    python fractalsemantics_experiments.py  # Run all experiments
+    python fractalsemantics/exp01_geometric_collision.py  # Run individual experiment
 """
 
 import subprocess
@@ -23,8 +23,8 @@ from typing import Dict, Any, List, Optional
 # Re-export functions and classes that moved to separate modules during refactoring
 # plus constants from the main package for backward compatibility
 try:
-    from fractalstat.fractalstat_entity import (
-        FractalStatCoordinates,
+    from fractalsemantics.fractalsemantics_entity import (
+        FractalSemanticsCoordinates,
         Coordinates,
         BitChain,
         canonical_serialize,
@@ -37,22 +37,22 @@ try:
         ENTITY_TYPES,
     )
     # Import constants from main package
-    from fractalstat import POLARITY, ALIGNMENT
+    from fractalsemantics import POLARITY, ALIGNMENT
 
     # Import experiment result classes and enums
-    from fractalstat.exp01_geometric_collision import (
+    from fractalsemantics.exp01_geometric_collision import (
         EXP01_Result,
         EXP01_GeometricCollisionResistance,
     )
-    from fractalstat.exp02_retrieval_efficiency import (
+    from fractalsemantics.exp02_retrieval_efficiency import (
         EXP02_Result,
         EXP02_RetrievalEfficiency,
     )
-    from fractalstat.exp03_coordinate_entropy import (
+    from fractalsemantics.exp03_coordinate_entropy import (
         EXP03_Result,
         EXP03_CoordinateEntropy,
     )
-    from fractalstat.experiment_utils import (
+    from fractalsemantics.experiment_utils import (
         normalize_float,
         normalize_timestamp,
         sort_json_keys,
@@ -61,14 +61,14 @@ try:
     )
 
 except ImportError as e:
-    print(f"Warning: Some imports failed from fractalstat_experiments: {e}")
+    print(f"Warning: Some imports failed from fractalsemantics_experiments: {e}")
     # Fallback for missing imports (will cause runtime errors but better than silent failures)
     pass
 
 # Define public interface for backward compatibility
 __all__ = [
-    # Re-exported from fractalstat_entity
-    "FractalStatCoordinates",
+    # Re-exported from fractalsemantics_entity
+    "FractalSemanticsCoordinates",
     "Coordinates",
     "BitChain",
     "canonical_serialize",
@@ -202,7 +202,7 @@ def run_all_experiments(selected_experiments: Optional[List[str]] = None) -> Dic
         Dictionary with experiment results and overall summary
     """
     print("=" * 100)
-    print("FRACTALSTAT VALIDATION EXPERIMENTS - MODULAR ORCHESTRATOR")
+    print("FRACTALSEMANTICS VALIDATION EXPERIMENTS - MODULAR ORCHESTRATOR")
     print("=" * 100)
     print(f"Total experiments available: {len(EXPERIMENTS)}")
     print()
@@ -277,13 +277,13 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Run FractalStat validation experiments",
+        description="Run FractalSemantics validation experiments",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-    python fractalstat_experiments.py                    # Run all experiments
-    python fractalstat_experiments.py exp01 exp02      # Run specific experiments
-    python fractalstat_experiments.py --list             # List available experiments
+    python fractalsemantics_experiments.py                    # Run all experiments
+    python fractalsemantics_experiments.py exp01 exp02      # Run specific experiments
+    python fractalsemantics_experiments.py --list             # List available experiments
         """
     )
 
@@ -308,7 +308,7 @@ Examples:
     args = parser.parse_args()
 
     if args.list:
-        print("Available FractalStat Experiments:")
+        print("Available FractalSemantics Experiments:")
         print("-" * 40)
         for module_name, display_name in EXPERIMENTS:
             print(f"  {module_name:<30} {display_name}")

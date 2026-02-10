@@ -44,7 +44,7 @@ def ensure_output_dir():
 
 def load_exp02_results() -> Optional[Dict[str, Any]]:
     """Load EXP-02 results from the most recent JSON file."""
-    results_dir = Path("fractalstat/results")
+    results_dir = Path("fractalsemantics/results")
 
     if not results_dir.exists():
         print(f"Warning: {results_dir} not found")
@@ -625,7 +625,7 @@ def generate_summary_figure(results: Dict[str, Any], output_dir: Path):
 
     # Conclusion - Bottom center
     conclusion_text = (
-        "Conclusion: FractalStat enables sub-microsecond retrieval with excellent scaling characteristics,\n"
+        "Conclusion: FractalSemantics enables sub-microsecond retrieval with excellent scaling characteristics,\n"
         "validating production readiness for content-addressable storage systems."
     )
     ax.text(
@@ -674,7 +674,7 @@ def main():
     if results is None:
         print(" Warning: No EXP-02 results found")
         print(" Run the experiment first:")
-        print(" Python fractalstat/exp02_retrieval_efficiency.py")
+        print(" Python fractalsemantics/exp02_retrieval_efficiency.py")
         return 1
 
     print("Generating figures...")

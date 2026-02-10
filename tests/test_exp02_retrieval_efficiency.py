@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from fractalstat.exp02_retrieval_efficiency import (
+from fractalsemantics.exp02_retrieval_efficiency import (
     EXP02_RetrievalEfficiency,
     EXP02_Result,
     save_results,
@@ -182,7 +182,7 @@ class TestSaveResults:
 
     @patch("pathlib.Path.mkdir")
     @patch("builtins.open")
-    @patch("fractalstat.exp02_retrieval_efficiency.Path")
+    @patch("fractalsemantics.exp02_retrieval_efficiency.Path")
     def test_save_results_custom_filename(self, mock_path_class, mock_open, mock_mkdir):
         """save_results should save with custom filename."""
         summary = {
@@ -227,7 +227,7 @@ class TestSaveResults:
     @patch("pathlib.Path.mkdir")
     @patch("builtins.open")
     @patch("datetime.datetime")
-    @patch("fractalstat.exp02_retrieval_efficiency.Path")
+    @patch("fractalsemantics.exp02_retrieval_efficiency.Path")
     def test_save_results_default_filename(self, mock_path_class, mock_datetime, mock_open, mock_mkdir):
         """save_results should create default filename."""
         summary = {
@@ -280,7 +280,7 @@ class TestMainEntryPoint:
 
         mock_config.get.side_effect = mock_get
 
-        with patch("fractalstat.config.ExperimentConfig", return_value=mock_config):
+        with patch("fractalsemantics.config.ExperimentConfig", return_value=mock_config):
             exp = EXP02_RetrievalEfficiency(
                 query_count=mock_config.get("EXP-02", "query_count", 1000),
             )
@@ -290,7 +290,7 @@ class TestMainEntryPoint:
     def test_main_without_config(self):
         """Main should fallback to defaults when config unavailable."""
         with patch(
-            "fractalstat.config.ExperimentConfig",
+            "fractalsemantics.config.ExperimentConfig",
             side_effect=Exception("Config not found"),
         ):
             exp = EXP02_RetrievalEfficiency()

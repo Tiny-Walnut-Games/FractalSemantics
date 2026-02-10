@@ -10,7 +10,7 @@
 
 ## Hypothesis
 
-The FractalStat 8D addressing system enables fast retrieval of bit-chains by address, with latency scaling logarithmically or better with dataset size.
+The FractalSemantics 8D addressing system enables fast retrieval of bit-chains by address, with latency scaling logarithmically or better with dataset size.
 
 ## Scientific Rationale
 
@@ -61,7 +61,7 @@ The experiment validates that:
 
 For each scale S ∈ {1,000, 10,000, 100,000}:
 
-1. Generate S random bit-chains with valid FractalStat coordinates
+1. Generate S random bit-chains with valid FractalSemantics coordinates
 2. Compute addresses for all bit-chains
 3. Build hash table: `address_to_bc = {addr: bc for addr, bc in bit_chains}`
 
@@ -172,7 +172,7 @@ The large sample size per scale ensures reliable percentile estimates, particula
 **Command**:
 
 ```bash
-python fractalstat/exp02_retrieval_efficiency.py
+python fractalsemantics/exp02_retrieval_efficiency.py
 ```
 
 **Expected Runtime**: ~1-2 seconds (300 queries)
@@ -267,7 +267,7 @@ This is a computational performance experiment with no human subjects, personal 
 
 - **Input**: Randomly generated bit-chains (deterministic seeds)
 - **Output**: Latency measurements, statistical summaries
-- **Storage**: `fractalstat/results/exp02_retrieval_efficiency_[timestamp].json`
+- **Storage**: `fractalsemantics/results/exp02_retrieval_efficiency_[timestamp].json`
 
 ### Data Retention
 

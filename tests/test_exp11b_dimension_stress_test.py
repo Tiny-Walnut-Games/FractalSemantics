@@ -5,7 +5,7 @@ Comprehensive tests for EXP-11b: Dimension Stress Test
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from fractalstat.exp11b_dimension_stress_test import (
+from fractalsemantics.exp11b_dimension_stress_test import (
     DimensionStressTest,
     StressTestResult,
     save_results,
@@ -245,7 +245,7 @@ class TestSaveResults:
             "key_findings": [],
         }
 
-        with patch("fractalstat.exp11b_dimension_stress_test.Path") as mock_path:
+        with patch("fractalsemantics.exp11b_dimension_stress_test.Path") as mock_path:
             mock_results_dir = MagicMock()
             mock_path.return_value.resolve.return_value.parent = MagicMock()
             mock_path.return_value.resolve.return_value.parent.__truediv__ = (
@@ -264,7 +264,7 @@ class TestSaveResults:
         mock_results = MagicMock()
         mock_results.to_dict.return_value = {"experiment": "EXP-11b"}
 
-        with patch("fractalstat.exp11b_dimension_stress_test.Path") as mock_path:
+        with patch("fractalsemantics.exp11b_dimension_stress_test.Path") as mock_path:
             mock_results_dir = MagicMock()
             mock_path.return_value.resolve.return_value.parent = MagicMock()
             mock_path.return_value.resolve.return_value.parent.__truediv__ = (

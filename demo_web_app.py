@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Demonstration script for the improved FractalStat HTML Web Application.
+Demonstration script for the improved FractalSemantics HTML Web Application.
 
 This script shows how the enhanced educational features work with real mathematical calculations.
 """
@@ -11,7 +11,7 @@ from pathlib import Path
 def demonstrate_improvements():
     """Demonstrate the key improvements made to the HTML application."""
     
-    print("🧪 FractalStat Web Application - Educational Improvements Demo")
+    print("🧪 FractalSemantics Web Application - Educational Improvements Demo")
     print("=" * 60)
     
     print("\n🎯 KEY IMPROVEMENTS IMPLEMENTED:")
@@ -60,12 +60,12 @@ def show_sample_output():
       Input: 100,000 random bit-chains
       Calculation: 
         - Generate 100,000 random 256-bit sequences
-        - Apply FractalStat coordinate transformation
+        - Apply FractalSemantics coordinate transformation
         - Compute 8-dimensional coordinates for each
       Result: 100,000 unique coordinate sets generated
    💡 Real-world Analogy: assigning unique postal codes to every house in a city
 
-2/5 2. Compute FractalStat coordinates for each
+2/5 2. Compute FractalSemantics coordinates for each
    📖 Mathematical Concept: Collision Resistance Mathematics
    🧮 Detailed Calculation:
       Formula: Coordinates = (realm, lineage, adjacency, horizon, luminosity, polarity, dimensionality, alignment)
@@ -146,7 +146,7 @@ Step 1
    Result: 100,000 unique coordinate sets generated
 
 Step 2
-2. Compute FractalStat coordinates for each
+2. Compute FractalSemantics coordinates for each
    Formula: Coordinates = (realm, lineage, adjacency, horizon, luminosity, polarity, dimensionality, alignment)
    Input: 100,000 bit-chains
    Calculation: Apply coordinate transformation to each bit-chain

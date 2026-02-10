@@ -1,9 +1,9 @@
-# FractalStat Development Environment Overrides
+# FractalSemantics Development Environment Overrides
 # 
 # This file overrides experiments.toml for faster development iteration.
 # Use quick modes and smaller sample sizes for rapid testing.
 #
-# To use: export FRACTALSTAT_ENV=dev
+# To use: export FRACTALSEMANTICS_ENV=dev
 
 [experiments]
 # Enable only a subset for quick development testing
@@ -80,6 +80,6 @@ test_iterations = 10        # Increased for statistical significance
 # EXP-12: Quick benchmark comparison
 [experiments.EXP-12]
 sample_size = 1000          # Reduced from 100000
-benchmark_systems = ["uuid", "sha256", "fractalstat"]  # Subset for dev
+benchmark_systems = ["uuid", "sha256", "fractalsemantics"]  # Subset for dev
 scales = [1000, 10000]      # Reduced from [10000, 100000, 1000000]
 num_queries = 100           # Reduced from 1000

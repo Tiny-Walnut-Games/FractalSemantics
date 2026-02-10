@@ -1,4 +1,4 @@
-# FractalStat Quick Start
+# FractalSemantics Quick Start
 
 ## Prerequisites
 
@@ -7,7 +7,7 @@
 
 ### ARM/Raspberry Pi Notes
 
-FractalStat works on ARM architectures (like Raspberry Pi), but some dependencies may require additional setup:
+FractalSemantics works on ARM architectures (like Raspberry Pi), but some dependencies may require additional setup:
 
 - **PyTorch**: Use ARM-compatible wheels or install from source
 - **Transformers/SentenceTransformers**: Generally work on ARM, but may be slower without GPU acceleration
@@ -38,17 +38,17 @@ pip install -e .
 
 ```bash
 # Phase 1 validation experiments
-python -m fractalstat.fractalstat_experiments
+python -m fractalsemantics.fractalsemantics_experiments
 
 # Individual experiments
-python -m fractalstat.exp04_fractal_scaling
-python -m fractalstat.exp06_entanglement_detection
+python -m fractalsemantics.exp04_fractal_scaling
+python -m fractalsemantics.exp06_entanglement_detection
 ```
 
 ## Use as Library
 
 ```python
-from fractalstat import BitChain, Coordinates
+from fractalsemantics import BitChain, Coordinates
 
 # Create a bit-chain
 bc = BitChain(
@@ -68,25 +68,25 @@ bc = BitChain(
     state={"value": 42}
 )
 
-# Compute FractalStat address
+# Compute FractalSemantics address
 address = bc.compute_address()
-print(f"FractalStat Address: {address}")
+print(f"FractalSemantics Address: {address}")
 ```
 
 ## Configuration
 
-FractalStat uses environment-specific configurations:
+FractalSemantics uses environment-specific configurations:
 
 ```bash
 # Development mode (fast iteration)
-export FRACTALSTAT_ENV=dev
-python -m fractalstat.fractalstat_experiments
+export FRACTALSEMANTICS_ENV=dev
+python -m fractalsemantics.fractalsemantics_experiments
 
 # CI mode (balanced testing)
-export FRACTALSTAT_ENV=ci
-python -m fractalstat.fractalstat_experiments
+export FRACTALSEMANTICS_ENV=ci
+python -m fractalsemantics.fractalsemantics_experiments
 
 # Production mode (full validation)
-export FRACTALSTAT_ENV=production
-python -m fractalstat.fractalstat_experiments
+export FRACTALSEMANTICS_ENV=production
+python -m fractalsemantics.fractalsemantics_experiments
 ```

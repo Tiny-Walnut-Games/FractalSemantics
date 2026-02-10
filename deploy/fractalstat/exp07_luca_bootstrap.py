@@ -26,7 +26,7 @@ from typing import Dict, List, Any, Tuple, Optional
 from dataclasses import dataclass, field
 from pathlib import Path
 
-# Import FractalStat components
+# Import FractalSemantics components
 
 
 # ============================================================================
@@ -69,10 +69,10 @@ class TestBitChain:
         """Convert to JSON string."""
         return json.dumps(self.to_dict())
 
-    def get_fractalstat_address(self) -> str:
-        """Generate FractalStat-like address."""
+    def get_fractalsemantics_address(self) -> str:
+        """Generate FractalSemantics-like address."""
         return (
-            f"FractalStat-{self.realm[0].upper()}-{self.lineage:03d}-"
+            f"FractalSemantics-{self.realm[0].upper()}-{self.lineage:03d}-"
             f"50-{self.horizon[0].upper()}-50-{self.polarity[0].upper()}-{
                 self.dimensionality
             }"
@@ -468,7 +468,7 @@ class LUCABootstrapTester:
         for i, e in enumerate(original_entities[:3]):
             print(
                 f"        - Entity {i}: lineage={e.lineage}, realm={e.realm}, address={
-                    e.get_fractalstat_address()
+                    e.get_fractalsemantics_address()
                 }"
             )
 

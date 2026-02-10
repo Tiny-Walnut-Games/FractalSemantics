@@ -2,7 +2,7 @@
 Test suite for EXP-03: Coordinate Space Entropy Test
 
 Tests entropy calculation, normalization, semantic disambiguation metrics,
-and ablation testing for FractalStat dimensions.
+and ablation testing for FractalSemantics dimensions.
 """
 import json
 from unittest.mock import patch, MagicMock
@@ -12,13 +12,13 @@ import pytest
 import numpy as np
 
 # Import test dependencies at module level to fix pylint import warnings
-from fractalstat.exp03_coordinate_entropy import (
+from fractalsemantics.exp03_coordinate_entropy import (
     EXP03_CoordinateEntropy,
     EXP03_Result,
     save_results,
     plot_entropy_contributions,
 )
-from fractalstat.fractalstat_experiments import generate_random_bitchain
+from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
 
 
 class TestEXP03Result:
@@ -91,28 +91,28 @@ class TestEXP03CoordinateEntropy:
             pytest.fail("Expected results to be empty list")
         if exp.baseline_entropy is not None:
             pytest.fail("Expected baseline_entropy to be None")
-        if len(exp.FractalStat_DIMENSIONS) != 8:
-            pytest.fail("Expected 8 FractalStat dimensions")
+        if len(exp.FractalSemantics_DIMENSIONS) != 8:
+            pytest.fail("Expected 8 FractalSemantics dimensions")
 
     def test_exp03_dimensions_defined(self):
-        """EXP03 should have all 8 FractalStat dimensions defined."""
+        """EXP03 should have all 8 FractalSemantics dimensions defined."""
 
         exp = EXP03_CoordinateEntropy()
-        if "realm" not in exp.FractalStat_DIMENSIONS:
+        if "realm" not in exp.FractalSemantics_DIMENSIONS:
             pytest.fail("Expected 'realm' dimension to be defined")
-        if "lineage" not in exp.FractalStat_DIMENSIONS:
+        if "lineage" not in exp.FractalSemantics_DIMENSIONS:
             pytest.fail("Expected 'lineage' dimension to be defined")
-        if "adjacency" not in exp.FractalStat_DIMENSIONS:
+        if "adjacency" not in exp.FractalSemantics_DIMENSIONS:
             pytest.fail("Expected 'adjacency' dimension to be defined")
-        if "horizon" not in exp.FractalStat_DIMENSIONS:
+        if "horizon" not in exp.FractalSemantics_DIMENSIONS:
             pytest.fail("Expected 'horizon' dimension to be defined")
-        if "luminosity" not in exp.FractalStat_DIMENSIONS:
+        if "luminosity" not in exp.FractalSemantics_DIMENSIONS:
             pytest.fail("Expected 'luminosity' dimension to be defined")
-        if "polarity" not in exp.FractalStat_DIMENSIONS:
+        if "polarity" not in exp.FractalSemantics_DIMENSIONS:
             pytest.fail("Expected 'polarity' dimension to be defined")
-        if "dimensionality" not in exp.FractalStat_DIMENSIONS:
+        if "dimensionality" not in exp.FractalSemantics_DIMENSIONS:
             pytest.fail("Expected 'dimensionality' dimension to be defined")
-        if "alignment" not in exp.FractalStat_DIMENSIONS:
+        if "alignment" not in exp.FractalSemantics_DIMENSIONS:
             pytest.fail("Expected 'alignment' dimension to be defined")
 
 
@@ -290,7 +290,7 @@ class TestCoordinateExtraction:
         exp = EXP03_CoordinateEntropy()
         bitchains = [generate_random_bitchain(seed=i) for i in range(10)]
 
-        coords = exp.extract_coordinates(bitchains, exp.FractalStat_DIMENSIONS)
+        coords = exp.extract_coordinates(bitchains, exp.FractalSemantics_DIMENSIONS)
 
         assert len(coords) == 10
         assert all(isinstance(c, str) for c in coords)
@@ -322,8 +322,8 @@ class TestCoordinateExtraction:
         exp = EXP03_CoordinateEntropy()
         bitchains = [generate_random_bitchain(seed=i) for i in range(10)]
 
-        coords1 = exp.extract_coordinates(bitchains, exp.FractalStat_DIMENSIONS)
-        coords2 = exp.extract_coordinates(bitchains, exp.FractalStat_DIMENSIONS)
+        coords1 = exp.extract_coordinates(bitchains, exp.FractalSemantics_DIMENSIONS)
+        coords2 = exp.extract_coordinates(bitchains, exp.FractalSemantics_DIMENSIONS)
 
         assert coords1 == coords2
 
@@ -496,7 +496,7 @@ class TestSaveResults:
             output_file = Path(tmpdir) / "test_results.json"
 
             # Temporarily override results directory
-            import fractalstat.exp03_coordinate_entropy as exp03_module
+            import fractalsemantics.exp03_coordinate_entropy as exp03_module
 
             original_file = exp03_module.__file__
             exp03_module.__file__ = str(Path(tmpdir) / "exp03_coordinate_entropy.py")
@@ -555,7 +555,7 @@ class TestMainEntryPoint:
             ("EXP-03", "random_seed", 42): 123,
         }.get((exp, param, default), default)
 
-        with patch("fractalstat.config.ExperimentConfig", return_value=mock_config):
+        with patch("fractalsemantics.config.ExperimentConfig", return_value=mock_config):
             exp = EXP03_CoordinateEntropy(sample_size=50, random_seed=123)
             results, _ = exp.run()
 

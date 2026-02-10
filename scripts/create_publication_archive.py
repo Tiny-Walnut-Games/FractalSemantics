@@ -38,7 +38,7 @@ def create_archive(version: str) -> None:
         print(f"✓ Archived {json_file.name}")
 
     # Copy experiment configuration files for reproducibility
-    config_dir = Path("fractalstat") / "config"
+    config_dir = Path("fractalsemantics") / "config"
     if config_dir.exists():
         dest = archive_dir / "config"
         dest.mkdir(exist_ok=True)
@@ -63,7 +63,7 @@ def create_archive(version: str) -> None:
         "archived_at": datetime.now().isoformat(),
         "repository": os.environ.get(
             "CI_PROJECT_URL",
-            "https://gitlab.com/tiny-walnut-games/fractalstat",
+            "https://gitlab.com/tiny-walnut-games/fractalsemantics",
         ),
         "experiments": [
             {"id": "EXP-01", "name": "Address Uniqueness"},
@@ -82,7 +82,7 @@ def create_archive(version: str) -> None:
             "reports": "reports/",
             "experiment_data": "experiment_data/",
             "config": "config/",
-            "code_snapshot": f"https://gitlab.com/tiny-walnut-games/fractalstat/-/tree/v{version}",
+            "code_snapshot": f"https://gitlab.com/tiny-walnut-games/fractalsemantics/-/tree/v{version}",
         },
         "reproducibility": {
             "python_version": "3.11",
@@ -96,7 +96,7 @@ def create_archive(version: str) -> None:
     print(f"✓ Created manifest: {manifest_file}")
 
     # Create README for the archive
-    readme = f"""# FractalStat Publication Archive - Version {version}
+    readme = f"""# FractalSemantics Publication Archive - Version {version}
 
 Archived: {datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")}
 
@@ -114,8 +114,8 @@ To reproduce these results:
 
 1. Clone the repository at tag v{version}:
    ```bash
-   git clone --branch v{version} https://gitlab.com/tiny-walnut-games/fractalstat.git
-   cd fractalstat
+   git clone --branch v{version} https://gitlab.com/tiny-walnut-games/fractalsemantics.git
+   cd fractalsemantics
    ```
 
 2. Install dependencies:
@@ -125,7 +125,7 @@ To reproduce these results:
 
 3. Run experiments:
    ```bash
-   python -m fractalstat.fractalstat_experiments
+   python -m fractalsemantics.fractalsemantics_experiments
    ```
 
 ## Citation

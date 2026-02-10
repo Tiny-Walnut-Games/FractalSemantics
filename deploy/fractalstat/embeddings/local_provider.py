@@ -8,7 +8,7 @@ import re
 from collections import Counter
 from typing import Any, Dict, List, Optional, Set
 
-from fractalstat.embeddings.base_provider import EmbeddingProvider
+from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 
 
 class LocalEmbeddingProvider(EmbeddingProvider):

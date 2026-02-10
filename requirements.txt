@@ -1,4 +1,4 @@
-# Core dependencies for FractalStat
+# Core dependencies for FractalSemantics
 pydantic>=2.0.0
 numpy>=1.20.0
 click>=8.1.0
@@ -17,5 +17,5 @@ pytest-asyncio>=0.21.0
 black>=22.0.0
 ruff>=0.1.0
 mypy>=1.0.0
-types-click>=8.1.0
+types-click>=7.1.0
 types-requests>=2.28.0

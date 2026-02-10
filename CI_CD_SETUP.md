@@ -1,7 +1,7 @@
 # CI/CD Pipeline Setup Guide
 
 ## Overview
-FractalStat has a comprehensive four-stage GitLab CI/CD pipeline:
+FractalSemantics has a comprehensive four-stage GitLab CI/CD pipeline:
 
 1. **Quality** - Code formatting, linting, type checking
 2. **Validate** - Run experiments to prove system correctness
@@ -20,8 +20,8 @@ FractalStat has a comprehensive four-stage GitLab CI/CD pipeline:
 
 **Local equivalent:**
 ```bash
-black --check fractalstat/
-black fractalstat/  # to auto-fix
+black --check fractalsemantics/
+black fractalsemantics/  # to auto-fix
 ```
 
 #### `lint`
@@ -32,8 +32,8 @@ black fractalstat/  # to auto-fix
 
 **Local equivalent:**
 ```bash
-ruff check fractalstat/
-ruff check --fix fractalstat/  # auto-fix
+ruff check fractalsemantics/
+ruff check --fix fractalsemantics/  # auto-fix
 ```
 
 #### `type_check`
@@ -44,7 +44,7 @@ ruff check --fix fractalstat/  # auto-fix
 
 **Local equivalent:**
 ```bash
-mypy fractalstat/ --ignore-missing-imports
+mypy fractalsemantics/ --ignore-missing-imports
 ```
 
 ### Validate Stage (Experiment-Based)
@@ -54,7 +54,7 @@ mypy fractalstat/ --ignore-missing-imports
 - **Duration**: Up to 2 hours
 - **Action**: Runs 9 nested and standalone experiments sequentially:
 
-  **Phase 1 Doctrine (nested in `fractalstat_experiments.py`)**:
+  **Phase 1 Doctrine (nested in `fractalsemantics_experiments.py`)**:
   - **EXP-01**: Address Uniqueness Test
   - **EXP-02**: Retrieval Efficiency Test
   - **EXP-03**: Dimension Necessity Test
@@ -95,7 +95,7 @@ mypy fractalstat/ --ignore-missing-imports
 - **Trigger**: Manual on tagged releases
 - **Requires**: Build stage success
 - **Action**: Uploads package to PyPI (Python Package Index)
-- **Environment**: https://pypi.org/project/fractalstat/
+- **Environment**: https://pypi.org/project/fractalsemantics/
 
 #### `deploy_huggingface`
 - **Trigger**: Manual on tagged releases
@@ -120,7 +120,7 @@ Set these in **GitLab → Project → Settings → CI/CD → Variables**:
 
 - **HF_REPO_ID**: Your HuggingFace model repository
   - Format: `username/model-name`
-  - Example: `tinywalnutgames/fractalstat-v1`
+  - Example: `tinywalnutgames/fractalsemantics-v1`
 
 ### For PyPI Deployment (Optional)
 - **PYPI_API_TOKEN**: Your PyPI API token
@@ -171,24 +171,24 @@ Set these in **GitLab → Project → Settings → CI/CD → Variables**:
 pip install -e ".[dev]"
 
 # Check code quality
-black --check fractalstat/
-ruff check fractalstat/
-mypy fractalstat/ --ignore-missing-imports
+black --check fractalsemantics/
+ruff check fractalsemantics/
+mypy fractalsemantics/ --ignore-missing-imports
 
 # Run all 9 Phase 1-2+ experiments (EXP-01 through EXP-09)
 # Phase 1 Doctrine (nested: EXP-01, EXP-02, EXP-03)
-python -m fractalstat.fractalstat_experiments
+python -m fractalsemantics.fractalsemantics_experiments
 
 # Phase 2+ experiments (separate files)
-python -m fractalstat.exp04_fractal_scaling
-python -m fractalstat.exp05_compression_expansion
-python -m fractalstat.exp06_entanglement_detection
-python -m fractalstat.exp07_luca_bootstrap
-python -m fractalstat.exp08_rag_integration
-python -m fractalstat.exp09_concurrency
+python -m fractalsemantics.exp04_fractal_scaling
+python -m fractalsemantics.exp05_compression_expansion
+python -m fractalsemantics.exp06_entanglement_detection
+python -m fractalsemantics.exp07_luca_bootstrap
+python -m fractalsemantics.exp08_rag_integration
+python -m fractalsemantics.exp09_concurrency
 
 # Run EXP-10: Bob Stress Test (optional, high-volume load testing)
-python -m fractalstat.bob_stress_test
+python -m fractalsemantics.bob_stress_test
 
 # Build package
 python copy_and_transform.py
@@ -196,7 +196,7 @@ python -m build
 ```
 
 **Total: 10 Experiments**
-- 3 Phase 1 Doctrine experiments nested in `fractalstat_experiments.py` (EXP-01, EXP-02, EXP-03)
+- 3 Phase 1 Doctrine experiments nested in `fractalsemantics_experiments.py` (EXP-01, EXP-02, EXP-03)
 - 6 Phase 2+ experiments in separate files (EXP-04 through EXP-09)
 - 1 Stress testing framework (EXP-10: Bob Stress Test)
 
@@ -233,8 +233,8 @@ This reduces pipeline runtime significantly by avoiding re-downloading dependenc
 ### Black/Ruff Failures
 ```bash
 # Auto-fix locally
-black fractalstat/
-ruff check --fix fractalstat/
+black fractalsemantics/
+ruff check --fix fractalsemantics/
 git add .
 git commit -m "Fix code formatting"
 git push

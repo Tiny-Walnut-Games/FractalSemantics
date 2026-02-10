@@ -12,7 +12,7 @@ class TestExperimentConfig:
 
     def test_config_initialization_default(self):
         """ExperimentConfig should initialize with default config file."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
 
@@ -21,26 +21,26 @@ class TestExperimentConfig:
         assert config.env in ["dev", "ci", "production"]
 
     def test_config_environment_from_env_var(self):
-        """ExperimentConfig should read environment from FRACTALSTAT_ENV."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        """ExperimentConfig should read environment from FRACTALSEMANTICS_ENV."""
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
-        with patch.dict(os.environ, {"FRACTALSTAT_ENV": "ci"}):
+        with patch.dict(os.environ, {"FRACTALSEMANTICS_ENV": "ci"}):
             config = ExperimentConfig()
             assert config.env == "ci"
 
     def test_config_environment_default_dev(self):
         """ExperimentConfig should default to 'dev' environment."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         with patch.dict(os.environ, {}, clear=True):
-            if "FRACTALSTAT_ENV" in os.environ:
-                del os.environ["FRACTALSTAT_ENV"]
+            if "FRACTALSEMANTICS_ENV" in os.environ:
+                del os.environ["FRACTALSEMANTICS_ENV"]
             config = ExperimentConfig()
             assert config.env == "dev"
 
     def test_config_is_enabled_true(self):
         """is_enabled should return True for enabled experiments."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         enabled_experiments = config.get_enabled_experiments()
@@ -50,7 +50,7 @@ class TestExperimentConfig:
 
     def test_config_is_enabled_false(self):
         """is_enabled should return False for disabled experiments."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
 
@@ -58,7 +58,7 @@ class TestExperimentConfig:
 
     def test_config_get_value_exists(self):
         """get should return configuration value if it exists."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         enabled = config.get_enabled_experiments()
@@ -70,7 +70,7 @@ class TestExperimentConfig:
 
     def test_config_get_value_default(self):
         """get should return default value if key doesn't exist."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
 
@@ -79,7 +79,7 @@ class TestExperimentConfig:
 
     def test_config_get_value_no_default(self):
         """get should return None if key doesn't exist and no default."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
 
@@ -88,7 +88,7 @@ class TestExperimentConfig:
 
     def test_config_get_all_experiment(self):
         """get_all should return all configuration for an experiment."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         enabled = config.get_enabled_experiments()
@@ -100,7 +100,7 @@ class TestExperimentConfig:
 
     def test_config_get_all_nonexistent(self):
         """get_all should return empty dict for nonexistent experiment."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
 
@@ -109,7 +109,7 @@ class TestExperimentConfig:
 
     def test_config_get_enabled_experiments(self):
         """get_enabled_experiments should return list of enabled experiments."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         enabled = config.get_enabled_experiments()
@@ -118,15 +118,15 @@ class TestExperimentConfig:
 
     def test_config_get_environment(self):
         """get_environment should return current environment name."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
-        with patch.dict(os.environ, {"FRACTALSTAT_ENV": "ci"}):
+        with patch.dict(os.environ, {"FRACTALSEMANTICS_ENV": "ci"}):
             config = ExperimentConfig()
             assert config.get_environment() == "ci"
 
     def test_config_repr(self):
         """__repr__ should return string representation."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         repr_str = repr(config)
@@ -137,7 +137,7 @@ class TestExperimentConfig:
 
     def test_config_load_base_config_file_not_found(self):
         """_load_base_config should raise FileNotFoundError for missing file."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         with pytest.raises(
             FileNotFoundError, match="Base configuration file not found"
@@ -146,7 +146,7 @@ class TestExperimentConfig:
 
     def test_config_merge_configs_enabled_list(self):
         """_merge_configs should merge enabled list from override."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         config.get_enabled_experiments().copy()
@@ -159,7 +159,7 @@ class TestExperimentConfig:
 
     def test_config_merge_configs_experiment_settings(self):
         """_merge_configs should merge experiment-specific settings."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
 
@@ -174,7 +174,7 @@ class TestExperimentConfig:
 
     def test_config_merge_configs_preserves_existing(self):
         """_merge_configs should preserve existing non-overridden values."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         config.get_enabled_experiments()
@@ -191,7 +191,7 @@ class TestGetConfigFunction:
 
     def test_get_config_returns_instance(self):
         """get_config should return ExperimentConfig instance."""
-        from fractalstat.config.feature_flags import (
+        from fractalsemantics.config.feature_flags import (
             get_config,
             ExperimentConfig,
         )
@@ -202,7 +202,7 @@ class TestGetConfigFunction:
 
     def test_get_config_singleton(self):
         """get_config should return same instance on multiple calls."""
-        from fractalstat.config.feature_flags import get_config
+        from fractalsemantics.config.feature_flags import get_config
 
         if hasattr(get_config, "_instance"):
             delattr(get_config, "_instance")
@@ -214,7 +214,7 @@ class TestGetConfigFunction:
 
     def test_get_config_has_methods(self):
         """get_config instance should have all expected methods."""
-        from fractalstat.config.feature_flags import get_config
+        from fractalsemantics.config.feature_flags import get_config
 
         config = get_config()
 
@@ -230,7 +230,7 @@ class TestConfigIntegration:
 
     def test_config_loads_experiments_toml(self):
         """Config should successfully load experiments.toml."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
 
@@ -239,7 +239,7 @@ class TestConfigIntegration:
 
     def test_config_enabled_experiments_valid(self):
         """Enabled experiments should be valid experiment IDs."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         enabled = config.get_enabled_experiments()
@@ -250,7 +250,7 @@ class TestConfigIntegration:
 
     def test_config_experiment_has_settings(self):
         """Enabled experiments should have configuration settings."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         enabled = config.get_enabled_experiments()
@@ -262,17 +262,17 @@ class TestConfigIntegration:
 
     def test_config_environment_specific_override(self):
         """Environment-specific config should override base config."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
-        with patch.dict(os.environ, {"FRACTALSTAT_ENV": "ci"}):
+        with patch.dict(os.environ, {"FRACTALSEMANTICS_ENV": "ci"}):
             config = ExperimentConfig()
             assert config.env == "ci"
 
     def test_config_missing_env_file_graceful(self):
         """Missing environment-specific file should not cause error."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
-        with patch.dict(os.environ, {"FRACTALSTAT_ENV": "nonexistent_env"}):
+        with patch.dict(os.environ, {"FRACTALSEMANTICS_ENV": "nonexistent_env"}):
             config = ExperimentConfig()
             assert config.config is not None
 
@@ -282,7 +282,7 @@ class TestConfigEdgeCases:
 
     def test_config_empty_enabled_list(self):
         """Config should handle empty enabled list."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         config.config["experiments"]["enabled"] = []
@@ -293,7 +293,7 @@ class TestConfigEdgeCases:
 
     def test_config_missing_experiments_section(self):
         """Config should handle missing experiments section."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         config.config = {}
@@ -303,7 +303,7 @@ class TestConfigEdgeCases:
 
     def test_config_get_with_nested_dict(self):
         """get should handle nested dictionary values."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         config = ExperimentConfig()
         config.config["experiments"]["TEST-EXP"] = {"nested": {"key": "value"}}
@@ -314,9 +314,9 @@ class TestConfigEdgeCases:
 
     def test_config_multiple_environments(self):
         """Config should work with different environments."""
-        from fractalstat.config.feature_flags import ExperimentConfig
+        from fractalsemantics.config.feature_flags import ExperimentConfig
 
         for env in ["dev", "ci"]:
-            with patch.dict(os.environ, {"FRACTALSTAT_ENV": env}):
+            with patch.dict(os.environ, {"FRACTALSEMANTICS_ENV": env}):
                 config = ExperimentConfig()
                 assert config.get_environment() == env

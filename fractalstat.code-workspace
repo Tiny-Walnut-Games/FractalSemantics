@@ -4,5 +4,9 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"projectManager.git.baseFolders": [
+			"/home/jerry/Documents/Tiny Walnut Games"
+		]
+	}
 }

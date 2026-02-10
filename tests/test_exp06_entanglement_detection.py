@@ -11,7 +11,7 @@ class TestPolarityVector:
 
     def test_compute_polarity_vector_returns_list(self):
         """compute_polarity_vector should return 7-element list."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             compute_polarity_vector,
         )
 
@@ -33,7 +33,7 @@ class TestPolarityVector:
 
     def test_polarity_vector_normalization(self):
         """Polarity vector components should be in valid range (some may be [-1,1])."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             compute_polarity_vector,
         )
 
@@ -60,7 +60,7 @@ class TestCosineSimilarity:
 
     def test_cosine_similarity_identical_vectors(self):
         """Cosine similarity of identical vectors should be 1.0."""
-        from fractalstat.exp06_entanglement_detection import cosine_similarity
+        from fractalsemantics.exp06_entanglement_detection import cosine_similarity
 
         vec = [1.0, 0.0, 0.0, 0.5, 0.5]
         similarity = cosine_similarity(vec, vec)
@@ -68,7 +68,7 @@ class TestCosineSimilarity:
 
     def test_cosine_similarity_orthogonal_vectors(self):
         """Cosine similarity of orthogonal vectors should be 0.0."""
-        from fractalstat.exp06_entanglement_detection import cosine_similarity
+        from fractalsemantics.exp06_entanglement_detection import cosine_similarity
 
         vec1 = [1.0, 0.0, 0.0]
         vec2 = [0.0, 1.0, 0.0]
@@ -77,7 +77,7 @@ class TestCosineSimilarity:
 
     def test_cosine_similarity_opposite_vectors(self):
         """Cosine similarity of opposite vectors should be -1.0."""
-        from fractalstat.exp06_entanglement_detection import cosine_similarity
+        from fractalsemantics.exp06_entanglement_detection import cosine_similarity
 
         vec1 = [1.0, 1.0, 1.0]
         vec2 = [-1.0, -1.0, -1.0]
@@ -86,7 +86,7 @@ class TestCosineSimilarity:
 
     def test_cosine_similarity_length_mismatch_raises(self):
         """Cosine similarity should raise on vector length mismatch."""
-        from fractalstat.exp06_entanglement_detection import cosine_similarity
+        from fractalsemantics.exp06_entanglement_detection import cosine_similarity
 
         with pytest.raises(ValueError):
             cosine_similarity([1.0, 2.0], [1.0, 2.0, 3.0])
@@ -97,7 +97,7 @@ class TestPolarityResonance:
 
     def test_polarity_resonance_returns_float(self):
         """polarity_resonance should return a float score."""
-        from fractalstat.exp06_entanglement_detection import polarity_resonance
+        from fractalsemantics.exp06_entanglement_detection import polarity_resonance
 
         bc1 = {
             "coordinates": {
@@ -129,7 +129,7 @@ class TestPolarityResonance:
 
     def test_polarity_resonance_identical_chains(self):
         """Polarity resonance of identical chains should be high."""
-        from fractalstat.exp06_entanglement_detection import polarity_resonance
+        from fractalsemantics.exp06_entanglement_detection import polarity_resonance
 
         bc = {
             "coordinates": {
@@ -152,7 +152,7 @@ class TestRealmAffinity:
 
     def test_realm_affinity_same_realm(self):
         """Realm affinity of same realm should be 1.0."""
-        from fractalstat.exp06_entanglement_detection import realm_affinity
+        from fractalsemantics.exp06_entanglement_detection import realm_affinity
 
         bc1 = {"coordinates": {"realm": "data"}}
         bc2 = {"coordinates": {"realm": "data"}}
@@ -162,7 +162,7 @@ class TestRealmAffinity:
 
     def test_realm_affinity_adjacent_realms(self):
         """Realm affinity of adjacent realms should be 0.7."""
-        from fractalstat.exp06_entanglement_detection import realm_affinity
+        from fractalsemantics.exp06_entanglement_detection import realm_affinity
 
         bc1 = {"coordinates": {"realm": "data"}}
         bc2 = {"coordinates": {"realm": "narrative"}}
@@ -172,7 +172,7 @@ class TestRealmAffinity:
 
     def test_realm_affinity_orthogonal_realms(self):
         """Realm affinity of non-adjacent realms should be 0.0."""
-        from fractalstat.exp06_entanglement_detection import realm_affinity
+        from fractalsemantics.exp06_entanglement_detection import realm_affinity
 
         bc1 = {"coordinates": {"realm": "system"}}
         bc2 = {"coordinates": {"realm": "void"}}
@@ -186,7 +186,7 @@ class TestAdjacencyOverlap:
 
     def test_jaccard_similarity_identical_sets(self):
         """Jaccard similarity of identical sets should be 1.0."""
-        from fractalstat.exp06_entanglement_detection import jaccard_similarity
+        from fractalsemantics.exp06_entanglement_detection import jaccard_similarity
 
         set1 = {"a", "b", "c"}
         set2 = {"a", "b", "c"}
@@ -196,7 +196,7 @@ class TestAdjacencyOverlap:
 
     def test_jaccard_similarity_disjoint_sets(self):
         """Jaccard similarity of disjoint sets should be 0.0."""
-        from fractalstat.exp06_entanglement_detection import jaccard_similarity
+        from fractalsemantics.exp06_entanglement_detection import jaccard_similarity
 
         set1 = {"a", "b"}
         set2 = {"c", "d"}
@@ -206,14 +206,14 @@ class TestAdjacencyOverlap:
 
     def test_jaccard_similarity_both_empty(self):
         """Jaccard similarity of empty sets should be 1.0."""
-        from fractalstat.exp06_entanglement_detection import jaccard_similarity
+        from fractalsemantics.exp06_entanglement_detection import jaccard_similarity
 
         score = jaccard_similarity(set(), set())
         assert score == 1.0
 
     def test_adjacency_overlap_returns_score(self):
         """adjacency_overlap should return normalized score."""
-        from fractalstat.exp06_entanglement_detection import adjacency_overlap
+        from fractalsemantics.exp06_entanglement_detection import adjacency_overlap
 
         bc1 = {"coordinates": {"adjacency": ["n1", "n2", "n3"]}}
         bc2 = {"coordinates": {"adjacency": ["n2", "n3", "n4"]}}
@@ -227,7 +227,7 @@ class TestLuminosityProximity:
 
     def test_luminosity_proximity_identical_density(self):
         """Luminosity proximity of same density should be 1.0."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             luminosity_proximity,
         )
 
@@ -239,7 +239,7 @@ class TestLuminosityProximity:
 
     def test_luminosity_proximity_opposite_density(self):
         """Luminosity proximity of opposite density should be 0.0."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             luminosity_proximity,
         )
 
@@ -251,7 +251,7 @@ class TestLuminosityProximity:
 
     def test_luminosity_proximity_partial_difference(self):
         """Luminosity proximity with 0.25 difference should be 0.75."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             luminosity_proximity,
         )
 
@@ -267,7 +267,7 @@ class TestLineageAffinity:
 
     def test_lineage_affinity_same_lineage(self):
         """Lineage affinity of same generation should be 1.0."""
-        from fractalstat.exp06_entanglement_detection import lineage_affinity
+        from fractalsemantics.exp06_entanglement_detection import lineage_affinity
 
         bc1 = {"coordinates": {"lineage": 5}}
         bc2 = {"coordinates": {"lineage": 5}}
@@ -277,7 +277,7 @@ class TestLineageAffinity:
 
     def test_lineage_affinity_distance_one(self):
         """Lineage affinity with distance 1 should be 0.9."""
-        from fractalstat.exp06_entanglement_detection import lineage_affinity
+        from fractalsemantics.exp06_entanglement_detection import lineage_affinity
 
         bc1 = {"coordinates": {"lineage": 5}}
         bc2 = {"coordinates": {"lineage": 6}}
@@ -287,7 +287,7 @@ class TestLineageAffinity:
 
     def test_lineage_affinity_exponential_decay(self):
         """Lineage affinity should decay exponentially with distance."""
-        from fractalstat.exp06_entanglement_detection import lineage_affinity
+        from fractalsemantics.exp06_entanglement_detection import lineage_affinity
 
         bc1 = {"coordinates": {"lineage": 1}}
 
@@ -302,7 +302,7 @@ class TestEntanglementScore:
 
     def test_entanglement_score_dataclass(self):
         """EntanglementScore should store component breakdown."""
-        from fractalstat.exp06_entanglement_detection import EntanglementScore
+        from fractalsemantics.exp06_entanglement_detection import EntanglementScore
 
         score = EntanglementScore(
             bitchain1_id="bc1",
@@ -320,7 +320,7 @@ class TestEntanglementScore:
 
     def test_entanglement_score_to_dict(self):
         """EntanglementScore should serialize to dict."""
-        from fractalstat.exp06_entanglement_detection import EntanglementScore
+        from fractalsemantics.exp06_entanglement_detection import EntanglementScore
 
         score = EntanglementScore(
             bitchain1_id="bc1",
@@ -340,7 +340,7 @@ class TestEntanglementScore:
 
     def test_compute_entanglement_score_returns_valid_score(self):
         """compute_entanglement_score should return EntanglementScore with valid range."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             compute_entanglement_score,
         )
 
@@ -376,7 +376,7 @@ class TestEntanglementScore:
 
     def test_entanglement_score_symmetry(self):
         """Entanglement score should be symmetric: E(B1,B2) = E(B2,B1)."""
-        from fractalstat.exp06_entanglement_detection import (
+        from fractalsemantics.exp06_entanglement_detection import (
             compute_entanglement_score,
         )
 

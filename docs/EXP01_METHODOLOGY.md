@@ -10,7 +10,7 @@
 
 ## Hypothesis
 
-FractalStat 8D coordinate space demonstrates perfect collision resistance through geometric properties where:
+FractalSemantics 8D coordinate space demonstrates perfect collision resistance through geometric properties where:
 
 - 2D/3D coordinate subspaces show expected birthday paradox collisions when sample size exceeds coordinate space
 - 4D+ coordinate subspaces exhibit geometric collision resistance due to exponential coordinate space expansion
@@ -21,7 +21,7 @@ FractalStat 8D coordinate space demonstrates perfect collision resistance throug
 
 ### Why This Matters
 
-Geometric collision resistance demonstrates that FractalStat coordinate spaces provide mathematical collision prevention independent of cryptographic methods. This validates the fundamental design principle that expressivity emerges from coordinate geometry rather than relying solely on hash functions.
+Geometric collision resistance demonstrates that FractalSemantics coordinate spaces provide mathematical collision prevention independent of cryptographic methods. This validates the fundamental design principle that expressivity emerges from coordinate geometry rather than relying solely on hash functions.
 
 Collision resistance through geometric properties is crucial because:
 
@@ -32,7 +32,7 @@ Collision resistance through geometric properties is crucial because:
 
 ### Theoretical Foundation
 
-FractalStat coordinates exhibit exponential collision resistance where coordinate space grows geometrically:
+FractalSemantics coordinates exhibit exponential collision resistance where coordinate space grows geometrically:
 
 **Coordinate Space Size Formula**:
 
@@ -81,7 +81,7 @@ For a coordinate range of 101 values (0-100) per dimension:
 
 - Hashing algorithm: SHA-256 (fixed)
 - Canonical serialization rules (fixed)
-- Coordinate ranges (FractalStat 8D specification)
+- Coordinate ranges (FractalSemantics 8D specification)
 - Python version: 3.9+ (documented)
 
 ### Methodology
@@ -229,10 +229,10 @@ secrets>=3.9.0  # Cryptographically secure random number generation
 
 ```bash
 # Default geometric test (100k samples per dimension)
-python fractalstat/exp01_geometric_collision.py
+python fractalsemantics/exp01_geometric_collision.py
 
 # Or quick test (10k samples)
-python fractalstat/exp01_geometric_collision.py --quick
+python fractalsemantics/exp01_geometric_collision.py --quick
 ```
 
 **Expected Runtime**:
@@ -279,7 +279,7 @@ The experiment would fail if geometric collision resistance is not demonstrated:
 
 1. **SHA-256 Correctness**: Assumes Python's hashlib.sha256 is correctly implemented
 2. **Random Distribution**: Assumes random bit-chains approximate real-world distribution
-3. **Coordinate Validity**: All generated coordinates are within FractalStat 8D specification
+3. **Coordinate Validity**: All generated coordinates are within FractalSemantics 8D specification
 4. **Platform Independence**: Assumes Python's JSON and Decimal libraries are consistent
 
 ### Limitations
@@ -391,7 +391,7 @@ def canonical_serialize(data: Dict[str, Any]) -> str:
 **Canonical Form**:
 
 ```json
-{"created_at":"2024-11-11T12:30:45.123Z","entity_type":"concept","id":"a1b2c3d4-e5f6-7890-abcd-ef1234567890","realm":"narrative","fractalstat_coordinates":{"adjacency":["uuid1","uuid2"],"density":0.6,"horizon":"peak","lineage":42,"realm":"narrative","resonance":0.75,"velocity":-0.25},"state":{"value":100}}
+{"created_at":"2024-11-11T12:30:45.123Z","entity_type":"concept","id":"a1b2c3d4-e5f6-7890-abcd-ef1234567890","realm":"narrative","fractalsemantics_coordinates":{"adjacency":["uuid1","uuid2"],"density":0.6,"horizon":"peak","lineage":42,"realm":"narrative","resonance":0.75,"velocity":-0.25},"state":{"value":100}}
 ```
 
 **SHA-256 Address**:

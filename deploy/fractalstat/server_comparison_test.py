@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FractalStat Direct Server Comparison Test
+FractalSemantics Direct Server Comparison Test
 
 Real comparative benchmarking between neurodivergent-memory and standard memory MCP servers.
 Uses actual MCP tool calls to both servers for fair performance comparison.

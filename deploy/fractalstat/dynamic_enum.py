@@ -1,5 +1,5 @@
 """
-Dynamic Enum System for FractalStat
+Dynamic Enum System for FractalSemantics
 
 Provides extensible enums with immutable core entries and registration system.
 Core entries are locked and cannot be modified or removed through API calls.
@@ -223,7 +223,7 @@ class DynamicEnumRegistry:
 
 
 # ============================================================================
-# FractalStat Enums
+# FractalSemantics Enums
 # ============================================================================
 
 # Core entries for Realm enum (immutable)
@@ -297,7 +297,7 @@ ALIGNMENT_REGISTRY = DynamicEnumRegistry("Alignment", ALIGNMENT_CORE_ENTRIES)
 
 # Create the enums using a simpler approach that mypy can understand
 class Realm(Enum):
-    """Realm enum for FractalStat entities."""
+    """Realm enum for FractalSemantics entities."""
     COMPANION = "companion"
     BADGE = "badge"
     SPONSOR_RING = "sponsor_ring"
@@ -309,7 +309,7 @@ class Realm(Enum):
 
 
 class Horizon(Enum):
-    """Horizon enum for FractalStat lifecycle stages."""
+    """Horizon enum for FractalSemantics lifecycle stages."""
     GENESIS = "genesis"
     EMERGENCE = "emergence"
     PEAK = "peak"
@@ -319,7 +319,7 @@ class Horizon(Enum):
 
 
 class Polarity(Enum):
-    """Polarity enum for FractalStat resonance types."""
+    """Polarity enum for FractalSemantics resonance types."""
     LOGIC = "logic"
     CREATIVITY = "creativity"
     ORDER = "order"
@@ -335,7 +335,7 @@ class Polarity(Enum):
 
 
 class Alignment(Enum):
-    """Alignment enum for FractalStat social dynamics."""
+    """Alignment enum for FractalSemantics social dynamics."""
     LAWFUL_GOOD = "lawful_good"
     NEUTRAL_GOOD = "neutral_good"
     CHAOTIC_GOOD = "chaotic_good"

@@ -1,9 +1,9 @@
 """
-FractalStat-RAG Bridge: Realm-Agnostic Hybrid Scoring for Document Retrieval
+FractalSemantics-RAG Bridge: Realm-Agnostic Hybrid Scoring for Document Retrieval
 
-Bridges RAG documents with FractalStat 8D addressing coordinates for intelligent,
+Bridges RAG documents with FractalSemantics 8D addressing coordinates for intelligent,
 multi-dimensional hybrid scoring that combines semantic similarity with
-FractalStat entanglement resonance including social alignment dynamics.
+FractalSemantics entanglement resonance including social alignment dynamics.
 
 Supports any realm type (game, system, faculty, pattern, data, business, concept, etc.)
 and scales deterministically to 10K+ documents.
@@ -21,7 +21,7 @@ secure_random = secrets.SystemRandom()
 
 
 # ============================================================================
-# Data Structures: Realm-Agnostic FractalStat Addressing
+# Data Structures: Realm-Agnostic FractalSemantics Addressing
 # ============================================================================
 
 
@@ -42,9 +42,9 @@ class Alignment:
 
 
 @dataclass
-class FractalStatAddress:
+class FractalSemanticsAddress:
     """
-    FractalStat coordinate system: 8 dimensions for unique, multidimensional addressing.
+    FractalSemantics coordinate system: 8 dimensions for unique, multidimensional addressing.
 
     - realm: Domain/context (flexible type + label)
     - lineage: Version/generation (int >= 0)
@@ -66,7 +66,7 @@ class FractalStatAddress:
     alignment: Alignment
 
     def __post_init__(self):
-        """Validate FractalStat constraints."""
+        """Validate FractalSemantics constraints."""
         if not 0.0 <= self.adjacency <= 100.0:
             raise ValueError(f"adjacency must be [0,100], got {self.adjacency}")
         if not 0.0 <= self.luminosity <= 100.0:
@@ -94,12 +94,12 @@ class FractalStatAddress:
 
 @dataclass
 class RAGDocument:
-    """RAG document enhanced with FractalStat addressing."""
+    """RAG document enhanced with FractalSemantics addressing."""
 
     id: str
     text: str
     embedding: List[float]
-    fractalstat: FractalStatAddress
+    fractalsemantics: FractalSemanticsAddress
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
@@ -109,7 +109,7 @@ class RAGDocument:
 
 
 # ============================================================================
-# Scoring Functions: Semantic + FractalStat Hybrid
+# Scoring Functions: Semantic + FractalSemantics Hybrid
 # ============================================================================
 
 
@@ -129,12 +129,12 @@ def cosine_similarity(a: List[float], b: List[float]) -> float:
     return dot / denom
 
 
-def fractalstat_resonance(
-    query_fractalstat: FractalStatAddress,
-    doc_fractalstat: FractalStatAddress
+def fractalsemantics_resonance(
+    query_fractalsemantics: FractalSemanticsAddress,
+    doc_fractalsemantics: FractalSemanticsAddress
     ) -> float:
     """
-    Compute FractalStat resonance between query and document addresses.
+    Compute FractalSemantics resonance between query and document addresses.
 
     This is the "entanglement score" — how well-aligned are all 8 dimensions?
 
@@ -150,13 +150,13 @@ def fractalstat_resonance(
     Returns: [0.0, 1.0] resonance score
     """
     # Realm match (direct enum comparison)
-    realm_score = 1.0 if query_fractalstat.realm == doc_fractalstat.realm else 0.85
+    realm_score = 1.0 if query_fractalsemantics.realm == doc_fractalsemantics.realm else 0.85
     realm_score = min(realm_score, 1.0)  # Cap at 1.0
 
     # Horizon alignment: scale by distance
     horizon_levels = {"logline": 1, "outline": 2, "scene": 3, "panel": 4}
-    h_query = horizon_levels.get(query_fractalstat.horizon, 3)
-    h_doc = horizon_levels.get(doc_fractalstat.horizon, 3)
+    h_query = horizon_levels.get(query_fractalsemantics.horizon, 3)
+    h_doc = horizon_levels.get(doc_fractalsemantics.horizon, 3)
     h_distance = abs(h_query - h_doc)
 
     if h_distance == 0:
@@ -167,19 +167,19 @@ def fractalstat_resonance(
         horizon_score = 0.7
 
     # Lineage proximity: prefer ±0-1 generation distance
-    lineage_distance = abs(query_fractalstat.lineage - doc_fractalstat.lineage)
+    lineage_distance = abs(query_fractalsemantics.lineage - doc_fractalsemantics.lineage)
     lineage_score = max(0.7, 1.0 - 0.05 * lineage_distance)
 
     # Signal alignment: luminosity + polarity (normalized for [-1,1] polarity range)
     # Normalize to [0,1]
-    luminosity_diff = abs(query_fractalstat.luminosity - doc_fractalstat.luminosity) / 100.0
+    luminosity_diff = abs(query_fractalsemantics.luminosity - doc_fractalsemantics.luminosity) / 100.0
     # Normalize to [0,1] for [-1,1] range
-    polarity_diff = abs(query_fractalstat.polarity - doc_fractalstat.polarity) / 2.0
+    polarity_diff = abs(query_fractalsemantics.polarity - doc_fractalsemantics.polarity) / 2.0
     signal_score = 1.0 - 0.5 * (luminosity_diff + polarity_diff)
     signal_score = max(0.0, signal_score)
 
     # Dimensionality alignment: complexity resonance
-    dim_distance = abs(query_fractalstat.dimensionality - doc_fractalstat.dimensionality)
+    dim_distance = abs(query_fractalsemantics.dimensionality - doc_fractalsemantics.dimensionality)
     dim_score = max(0.6, 1.0 - 0.1 * dim_distance)  # ±1 dim gets 0.9, ±2 gets 0.8, etc.
 
     # Alignment synergy: coordination pattern matching
@@ -195,15 +195,15 @@ def fractalstat_resonance(
         ("chaotic", "symbiotic"): 0.5,
         ("chaotic", "entropic"): 0.4,
     }
-    query_align = query_fractalstat.alignment.type
-    doc_align = doc_fractalstat.alignment.type
+    query_align = query_fractalsemantics.alignment.type
+    doc_align = doc_fractalsemantics.alignment.type
 
     # Symmetric lookup for alignment synergy (A-B same as B-A)
     alignment_key: Tuple[str, str] = tuple(sorted([query_align, doc_align]))  # type: ignore
     synergy_score = alignment_synergy.get(alignment_key, 0.8)  # Default good coordination
 
     # Adjacency connectivity bonus (normalized from 0-100 to 0-1)
-    adj_bonus = doc_fractalstat.adjacency / 100.0
+    adj_bonus = doc_fractalsemantics.adjacency / 100.0
 
     # Combine all scores - multiplicative core with additive bonuses
     resonance = (realm_score * horizon_score * lineage_score * signal_score *
@@ -218,29 +218,29 @@ def fractalstat_resonance(
 def hybrid_score(
     query_embedding: List[float],
     doc: RAGDocument,
-    query_fractalstat: FractalStatAddress,
+    query_fractalsemantics: FractalSemanticsAddress,
     weight_semantic: float = 0.55,
-    weight_fractalstat: float = 0.45,
+    weight_fractalsemantics: float = 0.45,
 ) -> float:
     """
-    Hybrid scoring: combine semantic similarity with FractalStat resonance.
+    Hybrid scoring: combine semantic similarity with FractalSemantics resonance.
 
     Args:
         query_embedding: Query embedding vector (dimension-matched to doc.embedding)
-        doc: RAG document with embedding and FractalStat address
-        query_fractalstat: Query FractalStat address (8D coordinates)
+        doc: RAG document with embedding and FractalSemantics address
+        query_fractalsemantics: Query FractalSemantics address (8D coordinates)
         weight_semantic: Weight for semantic similarity (default 0.55 to balance 8D improvement)
-        weight_fractalstat: Weight for FractalStat resonance (default 0.45 for 100% expressivity)
+        weight_fractalsemantics: Weight for FractalSemantics resonance (default 0.45 for 100% expressivity)
 
     Returns: [0.0, 1.0] hybrid score
     """
-    if abs(weight_semantic + weight_fractalstat - 1.0) >= 1e-6:
+    if abs(weight_semantic + weight_fractalsemantics - 1.0) >= 1e-6:
         raise ValueError("Weights must sum to 1.0")
 
     semantic_sim = cosine_similarity(query_embedding, doc.embedding)
-    fractalstat_res = fractalstat_resonance(query_fractalstat, doc.fractalstat)
+    fractalsemantics_res = fractalsemantics_resonance(query_fractalsemantics, doc.fractalsemantics)
 
-    hybrid = (weight_semantic * semantic_sim) + (weight_fractalstat * fractalstat_res)
+    hybrid = (weight_semantic * semantic_sim) + (weight_fractalsemantics * fractalsemantics_res)
     return max(0.0, min(hybrid, 1.0))  # Clamp to [0,1]
 
 
@@ -252,17 +252,17 @@ def hybrid_score(
 def retrieve(
     documents: List[RAGDocument],
     query_embedding: List[float],
-    query_fractalstat: FractalStatAddress,
+    query_fractalsemantics: FractalSemanticsAddress,
     k: int = 10,
     weight_semantic: float = 0.55,
-    weight_fractalstat: float = 0.45,
+    weight_fractalsemantics: float = 0.45,
 ) -> List[Tuple[str, float]]:
     """
-    Retrieve top-k documents using intelligent hybrid (semantic + 8D FractalStat) scoring.
+    Retrieve top-k documents using intelligent hybrid (semantic + 8D FractalSemantics) scoring.
 
     Features 8D intelligence including social alignment for superior document ranking:
     - Semantic similarity for content relevance
-    - 8D FractalStat resonance across all dimensions
+    - 8D FractalSemantics resonance across all dimensions
     - Alignment-aware coordination patterns
     - Realm-specific context understanding
     - Generation lineage awareness
@@ -271,17 +271,17 @@ def retrieve(
     Args:
         documents: List of 8D-enhanced RAG documents
         query_embedding: Query embedding vector
-        query_fractalstat: Query FractalStat 8D address
+        query_fractalsemantics: Query FractalSemantics 8D address
         k: Number of results to return (default 10)
         weight_semantic: Weight for semantic similarity (default 0.55)
-        weight_fractalstat: Weight for 8D FractalStat resonance (default 0.45)
+        weight_fractalsemantics: Weight for 8D FractalSemantics resonance (default 0.45)
 
     Returns: List of (doc_id, hybrid_score) tuples, sorted by score (descending)
     """
     scores = []
     for doc in documents:
         score = hybrid_score(
-            query_embedding, doc, query_fractalstat, weight_semantic, weight_fractalstat
+            query_embedding, doc, query_fractalsemantics, weight_semantic, weight_fractalsemantics
         )
         scores.append((doc.id, score))
 
@@ -313,18 +313,18 @@ def retrieve_semantic_only(
 
 
 # ============================================================================
-# Utilities: Document Generation & 8D FractalStat Randomization
+# Utilities: Document Generation & 8D FractalSemantics Randomization
 # ============================================================================
 
 
-def generate_random_fractalstat_address(
+def generate_random_fractalsemantics_address(
     realm: Realm,
     lineage_range: Tuple[int, int] = (0, 10),
     horizon_choices: Optional[List[str]] = None,
     seed_offset: int = 0,
-) -> FractalStatAddress:
+) -> FractalSemanticsAddress:
     """
-    Generate a random 8D FractalStat address with optional seeding for reproducibility.
+    Generate a random 8D FractalSemantics address with optional seeding for reproducibility.
 
     Produces valid 8D coordinates across all dimensions:
     - realm: Specified constraint
@@ -342,7 +342,7 @@ def generate_random_fractalstat_address(
         horizon_choices: List of horizon options (logline, outline, scene, panel)
         seed_offset: For reproducibility with different random seeds
 
-    Returns: Randomized 8D FractalStatAddress with valid constraints
+    Returns: Randomized 8D FractalSemanticsAddress with valid constraints
     """
     # Use secure random for cryptographically secure randomness
     # seed_offset enables deterministic generation for testing through indexed selection
@@ -357,7 +357,7 @@ def generate_random_fractalstat_address(
     alignment_idx = (seed_offset * 29 + 73) % len(alignments)
     lineage_offset = (seed_offset * 31 + 89) % (lineage_range[1] - lineage_range[0] + 1)
 
-    return FractalStatAddress(
+    return FractalSemanticsAddress(
         realm=realm,
         lineage=lineage_range[0] + lineage_offset,
         adjacency=round(rand_gen.uniform(0.0, 100.0), 1),
@@ -374,10 +374,10 @@ def generate_synthetic_rag_documents(
     realm: Realm,
     scale: int,
     embedding_fn: Callable,
-    randomize_fractalstat: bool = False,
+    randomize_fractalsemantics: bool = False,
 ) -> List[RAGDocument]:
     """
-    Generate synthetic RAG documents with 8D FractalStat addressing.
+    Generate synthetic RAG documents with 8D FractalSemantics addressing.
 
     Creates documents with consistent thematic content but varied 8D coordinates,
     enabling comprehensive testing of the hybrid retrieval system.
@@ -387,10 +387,10 @@ def generate_synthetic_rag_documents(
         realm: Realm context for all documents (different realms for different domains)
         scale: Number of documents to generate (test with 100-1000)
         embedding_fn: Function to generate embeddings from text
-        randomize_fractalstat: Whether to fully randomize 8D
+        randomize_fractalsemantics: Whether to fully randomize 8D
         coordinates using cryptographically secure random
 
-    Returns: List of RAGDocument with 8D FractalStat addresses
+    Returns: List of RAGDocument with 8D FractalSemantics addresses
     """
     # Note: Uses cryptographically secure random (secrets.SystemRandom)
     # Does not support deterministic seeding for security reasons
@@ -411,11 +411,11 @@ def generate_synthetic_rag_documents(
         text = f"[{realm.label} context #{i}] {base_texts[base_idx]} ({'variant' if var_num > 0 else 'original'} {var_num})"
         embedding = embedding_fn(text)
 
-        # Generate FractalStat address
-        if randomize_fractalstat:
-            fractalstat_addr = generate_random_fractalstat_address(realm)
+        # Generate FractalSemantics address
+        if randomize_fractalsemantics:
+            fractalsemantics_addr = generate_random_fractalsemantics_address(realm)
         else:
-            fractalstat_addr = FractalStatAddress(
+            fractalsemantics_addr = FractalSemanticsAddress(
                 realm=realm,
                 lineage=i % 10,
                 adjacency=round(i % 100, 1),
@@ -430,7 +430,7 @@ def generate_synthetic_rag_documents(
             id=f"doc-{i:06d}",
             text=text,
             embedding=embedding,
-            fractalstat=fractalstat_addr,
+            fractalsemantics=fractalsemantics_addr,
             metadata={
                 "source": f"group-{category_idx}",
                 "category": groups[category_idx],
@@ -456,7 +456,7 @@ def compare_retrieval_results(
     """
     Compare semantic-only vs 8D hybrid retrieval results.
 
-    Analyzes how FractalStat 8D intelligence improves document ranking:
+    Analyzes how FractalSemantics 8D intelligence improves document ranking:
     - Higher semantic scores due to content relevance
     - Better contextual matching from realm alignment
     - Smarter reranking from generation lineage awareness
@@ -486,7 +486,7 @@ def compare_retrieval_results(
 
     avg_reranking = sum(distances) / len(distances) if distances else 0.0
 
-    signal = ("[Success] FractalStat 8D provides contextual intelligence"
+    signal = ("[Success] FractalSemantics 8D provides contextual intelligence"
             if avg_reranking > 2.0 else "[Warn] Limited 8D intelligence signal")
 
     return {
@@ -501,15 +501,15 @@ def compare_retrieval_results(
 
 
 # ============================================================================
-# FractalStatRAGBridge: 8D Intelligence Wrapper for RetrievalAPI Integration
+# FractalSemanticsRAGBridge: 8D Intelligence Wrapper for RetrievalAPI Integration
 # ============================================================================
 
 
-class FractalStatRAGBridge:
+class FractalSemanticsRAGBridge:
     """
-    Bridge class providing 8D FractalStat intelligence for RetrievalAPI integration.
+    Bridge class providing 8D FractalSemantics intelligence for RetrievalAPI integration.
 
-    Wraps the module-level FractalStat 8D functions (fractalstat_resonance, hybrid_score, retrieve)
+    Wraps the module-level FractalSemantics 8D functions (fractalsemantics_resonance, hybrid_score, retrieve)
     to provide unified interface for RetrievalAPI's hybrid scoring system with social alignment.
 
     Features:
@@ -519,15 +519,15 @@ class FractalStatRAGBridge:
     - 100% expressivity retrieval (vs baseline 95%)
     - Dependency injection ready for enterprise APIs
 
-    This enables RetrievalAPI to seamlessly work with FractalStat coordinates
+    This enables RetrievalAPI to seamlessly work with FractalSemantics coordinates
     for superior document ranking through multi-dimensional intelligence.
     """
 
-    def fractalstat_resonance(
-        self, query_fractalstat: FractalStatAddress, doc_fractalstat: FractalStatAddress
+    def fractalsemantics_resonance(
+        self, query_fractalsemantics: FractalSemanticsAddress, doc_fractalsemantics: FractalSemanticsAddress
     ) -> float:
         """
-        Compute 8D FractalStat resonance between query and document addresses.
+        Compute 8D FractalSemantics resonance between query and document addresses.
 
         Considers all dimensions including social alignment patterns:
         - Realm context matching
@@ -540,55 +540,55 @@ class FractalStatRAGBridge:
         - Social coordination synergy (alignment)
 
         Args:
-            query_fractalstat: Query 8D FractalStat address
-            doc_fractalstat: Document 8D FractalStat address
+            query_fractalsemantics: Query 8D FractalSemantics address
+            doc_fractalsemantics: Document 8D FractalSemantics address
 
         Returns: [0.0, 1.0] resonance score with alignment intelligence
         """
-        return fractalstat_resonance(query_fractalstat, doc_fractalstat)
+        return fractalsemantics_resonance(query_fractalsemantics, doc_fractalsemantics)
 
     def hybrid_score(
         self,
         query_embedding: List[float],
         doc: RAGDocument,
-        query_fractalstat: FractalStatAddress,
+        query_fractalsemantics: FractalSemanticsAddress,
         weight_semantic: float = 0.55,
-        weight_fractalstat: float = 0.45,
+        weight_fractalsemantics: float = 0.45,
     ) -> float:
         """
-        Compute hybrid score combining semantic similarity with 8D FractalStat intelligence.
+        Compute hybrid score combining semantic similarity with 8D FractalSemantics intelligence.
 
         Balances content relevance with multi-dimensional context including alignment:
         - Semantic matching for topic relevance
-        - 8D FractalStat resonance for intelligent contextual filtering
+        - 8D FractalSemantics resonance for intelligent contextual filtering
         - Social coordination awareness for relationship understanding
 
         Args:
             query_embedding: Query embedding vector
-            doc: RAG document with 8D FractalStat address and embedding
-            query_fractalstat: Query 8D FractalStat address
+            doc: RAG document with 8D FractalSemantics address and embedding
+            query_fractalsemantics: Query 8D FractalSemantics address
             weight_semantic: Weight for semantic similarity (default 0.55)
-            weight_fractalstat: Weight for 8D intelligence (default 0.45)
+            weight_fractalsemantics: Weight for 8D intelligence (default 0.45)
 
         Returns: [0.0, 1.0] hybrid score optimized for 100% expressivity
         """
         return hybrid_score(
-            query_embedding, doc, query_fractalstat, weight_semantic, weight_fractalstat
+            query_embedding, doc, query_fractalsemantics, weight_semantic, weight_fractalsemantics
         )
 
     def retrieve(
         self,
         documents: List[RAGDocument],
         query_embedding: List[float],
-        query_fractalstat: FractalStatAddress,
+        query_fractalsemantics: FractalSemanticsAddress,
         k: int = 10,
         weight_semantic: float = 0.55,
-        weight_fractalstat: float = 0.45,
+        weight_fractalsemantics: float = 0.45,
     ) -> List[Tuple[str, float]]:
         """
         Retrieve top-k documents using 8D intelligent hybrid scoring.
 
-        Features FractalStat 8D intelligence for superior retrieval:
+        Features FractalSemantics 8D intelligence for superior retrieval:
         - Content-aware semantic matching
         - Realm-contextual filtering
         - Generation-temporal awareness
@@ -600,18 +600,18 @@ class FractalStatRAGBridge:
         Args:
             documents: List of 8D-enhanced RAG documents
             query_embedding: Query semantic embedding
-            query_fractalstat: Query 8D coordinates with alignment
+            query_fractalsemantics: Query 8D coordinates with alignment
             k: Number of results to return
             weight_semantic: Semantic weight (default 0.55 for balance)
-            weight_fractalstat: 8D intelligence weight (default 0.45)
+            weight_fractalsemantics: 8D intelligence weight (default 0.45)
 
         Returns: Ranked (doc_id, hybrid_score) tuples with 8D optimization
         """
         return retrieve(
             documents,
             query_embedding,
-            query_fractalstat,
+            query_fractalsemantics,
             k,
             weight_semantic,
-            weight_fractalstat,
+            weight_fractalsemantics,
         )

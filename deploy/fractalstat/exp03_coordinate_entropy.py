@@ -1,7 +1,7 @@
 """
 EXP-03: Coordinate Space Entropy Test
 
-Quantifies the entropy contribution of each FractalStat dimension to the coordinate space,
+Quantifies the entropy contribution of each FractalSemantics dimension to the coordinate space,
 measuring semantic disambiguation power and determining whether 8 dimensions is the
 minimal necessary set.
 
@@ -46,10 +46,10 @@ import uuid
 import secrets
 import numpy as np
 
-from fractalstat.dynamic_enum import Realm, Horizon, Polarity, Alignment
-from fractalstat.dynamic_enum import REALM_REGISTRY, HORIZON_REGISTRY, POLARITY_REGISTRY, ALIGNMENT_REGISTRY
-from fractalstat.fractalstat_entity import BitChain, Coordinates
-from fractalstat.fractalstat_entity import FractalStatCoordinates
+from fractalsemantics.dynamic_enum import Realm, Horizon, Polarity, Alignment
+from fractalsemantics.dynamic_enum import REALM_REGISTRY, HORIZON_REGISTRY, POLARITY_REGISTRY, ALIGNMENT_REGISTRY
+from fractalsemantics.fractalsemantics_entity import BitChain, Coordinates
+from fractalsemantics.fractalsemantics_entity import FractalSemanticsCoordinates
 
 
 # Use cryptographically secure random number generator
@@ -59,7 +59,7 @@ secure_random = secrets.SystemRandom()
 # CONSTANTS AND GLOBALS (copied to avoid circular imports)
 # ============================================================================
 
-# Map experiment realms to FractalStat Realm enums
+# Map experiment realms to FractalSemantics Realm enums
 REALM_MAPPING = {
     "data": Realm.VOID,  # Map data to VOID as default
     "narrative": Realm.PATTERN,  # Map narrative to PATTERN
@@ -70,7 +70,7 @@ REALM_MAPPING = {
     "void": Realm.VOID,  # Direct mapping
 }
 
-# Map experiment horizons to FractalStat Horizon enums
+# Map experiment horizons to FractalSemantics Horizon enums
 HORIZON_MAPPING = {
     "genesis": Horizon.GENESIS,  # Direct mapping
     "emergence": Horizon.EMERGENCE,  # Direct mapping
@@ -100,7 +100,7 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
     """
     Generate a random bit-chain for testing and validation experiments.
 
-    This function creates synthetic bit-chains with randomized but valid FractalStat
+    This function creates synthetic bit-chains with randomized but valid FractalSemantics
     coordinates. It's used extensively in validation experiments to test address
     uniqueness, collision rates, and system behavior at scale.
 
@@ -123,7 +123,7 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
        - dimensionality: 0-5 (fractal depth)
     6. Generate 0-5 random adjacency relationships
 
-    Coordinate Ranges (enforced by FractalStat specification):
+    Coordinate Ranges (enforced by FractalSemantics specification):
     - realm: One of 7 domains (data, narrative, system, faculty, event, pattern, void)
     - lineage: Positive integer (generation count from LUCA)
     - adjacency: List of UUIDs (relational neighbors)
@@ -149,7 +149,7 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
               system randomness for non-deterministic generation.
 
     Returns:
-        BitChain: A randomly generated bit-chain with valid FractalStat coordinates
+        BitChain: A randomly generated bit-chain with valid FractalSemantics coordinates
     """
 
     if seed is not None:
@@ -208,8 +208,8 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
     # Convert adjacency list to a proximity score (0-100)
     adjacency_score = int(min(100.0, len(adjacency_ids) * 20.0))
 
-    # Create FractalStatCoordinates with additional dimensions
-    fractalstat_coords = FractalStatCoordinates(
+    # Create FractalSemanticsCoordinates with additional dimensions
+    fractalsemantics_coords = FractalSemanticsCoordinates(
         realm=realm_enum,
         lineage=secure_random.randint(1, 100),
         adjacency=adjacency_score,
@@ -226,7 +226,7 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
         realm=realm_str,
         coordinates=Coordinates(  # Use the legacy Coordinates for BitChain
             realm=realm_str,
-            lineage=fractalstat_coords.lineage,
+            lineage=fractalsemantics_coords.lineage,
             adjacency=adjacency_ids,  # Keep as list for BitChain
             horizon=horizon_str,
             luminosity=luminosity_val,
@@ -283,11 +283,11 @@ class EXP03_CoordinateEntropy:
     EXP-03: Coordinate Space Entropy Test
 
     This experiment quantifies the information-theoretic entropy contribution of
-    each FractalStat dimension to the coordinate space, measuring how well each dimension
+    each FractalSemantics dimension to the coordinate space, measuring how well each dimension
     contributes to semantic disambiguation.
 
     Scientific Rationale:
-    The FractalStat addressing system uses 8 dimensions to create a rich semantic space.
+    The FractalSemantics addressing system uses 8 dimensions to create a rich semantic space.
     While the previous collision-based test showed that all dimensions are necessary
     to avoid hash collisions, this entropy-based test provides deeper insight into
     HOW MUCH each dimension contributes to the information content of the system.
@@ -319,11 +319,11 @@ class EXP03_CoordinateEntropy:
     By measuring entropy contribution, we can:
     - Identify which dimensions are most critical for disambiguation
     - Determine if 7 is truly the minimal necessary set
-    - Understand the information structure of FractalStat space
-    - Guide future dimension design decisions (e.g., FractalStat?)
+    - Understand the information structure of FractalSemantics space
+    - Guide future dimension design decisions (e.g., FractalSemantics?)
     """
 
-    FractalStat_DIMENSIONS = [
+    FractalSemantics_DIMENSIONS = [
         "realm",
         "lineage",
         "adjacency",
@@ -469,7 +469,7 @@ class EXP03_CoordinateEntropy:
         for bc in bitchains:
             # Get canonical dict
             data = bc.to_canonical_dict()
-            coords = data["fractalstat_coordinates"]
+            coords = data["fractalsemantics_coordinates"]
 
             # Start with coordinates from the BitChain
             filtered_coords = {k: v for k, v in coords.items() if k in dimensions}
@@ -502,7 +502,7 @@ class EXP03_CoordinateEntropy:
         Returns:
             Contribution score [0, 100] (percentage of theoretical maximum)
         """
-        if dimension_name not in self.FractalStat_DIMENSIONS:
+        if dimension_name not in self.FractalSemantics_DIMENSIONS:
             return 0.0
 
         # Get entropy using only this dimension
@@ -551,11 +551,11 @@ class EXP03_CoordinateEntropy:
         Returns:
             Relative contribution score [0, 100]
         """
-        if dimension_name not in self.FractalStat_DIMENSIONS:
+        if dimension_name not in self.FractalSemantics_DIMENSIONS:
             return 0.0
 
         # Simplified relative contribution: entropy of subset without this dimension vs with it
-        other_dims = [d for d in self.FractalStat_DIMENSIONS if d != dimension_name]
+        other_dims = [d for d in self.FractalSemantics_DIMENSIONS if d != dimension_name]
 
         try:
             without_dim_coords = self.extract_coordinates(bitchains, other_dims)
@@ -571,7 +571,7 @@ class EXP03_CoordinateEntropy:
                 return 0.0
         except Exception:
             # If there's an issue with the calculation, return baseline entropy share
-            return 100.0 / len(self.FractalStat_DIMENSIONS)
+            return 100.0 / len(self.FractalSemantics_DIMENSIONS)
 
     def compute_complementary_contribution(self, dimension_name: str, bitchains: List) -> float:
         """
@@ -587,7 +587,7 @@ class EXP03_CoordinateEntropy:
         Returns:
             Complementary contribution score [0, 100]
         """
-        if dimension_name not in self.FractalStat_DIMENSIONS:
+        if dimension_name not in self.FractalSemantics_DIMENSIONS:
             return 0.0
 
         try:
@@ -596,7 +596,7 @@ class EXP03_CoordinateEntropy:
             single_entropy = self.compute_shannon_entropy(single_coords)
 
             # Get entropy of all other dimensions
-            other_dims = [d for d in self.FractalStat_DIMENSIONS if d != dimension_name]
+            other_dims = [d for d in self.FractalSemantics_DIMENSIONS if d != dimension_name]
             other_coords = self.extract_coordinates(bitchains, other_dims)
             other_entropy = self.compute_shannon_entropy(other_coords)
 
@@ -640,7 +640,7 @@ class EXP03_CoordinateEntropy:
         complementary = self.compute_complementary_contribution(dimension_name, bitchains) / 100.0  # [0,1]
 
         # Ablation contribution (legacy - entropy loss when removed)
-        other_dims = [d for d in self.FractalStat_DIMENSIONS if d != dimension_name]
+        other_dims = [d for d in self.FractalSemantics_DIMENSIONS if d != dimension_name]
         ablation_coords = self.extract_coordinates(bitchains, other_dims)
         ablation_entropy = self.compute_shannon_entropy(ablation_coords)
         ablation_contrib = max(0.0, (baseline_entropy - ablation_entropy) / baseline_entropy)  # [0,1]
@@ -694,7 +694,7 @@ class EXP03_CoordinateEntropy:
         print("=" * 70)
 
         baseline_start = time.time()
-        baseline_coords = self.extract_coordinates(bitchains, self.FractalStat_DIMENSIONS)
+        baseline_coords = self.extract_coordinates(bitchains, self.FractalSemantics_DIMENSIONS)
         baseline_unique = len(set(baseline_coords))
         baseline_entropy = self.compute_shannon_entropy(baseline_coords)
         baseline_normalized = self.normalize_entropy(baseline_entropy, self.sample_size)
@@ -707,7 +707,7 @@ class EXP03_CoordinateEntropy:
         self.baseline_entropy = baseline_entropy
 
         result = EXP03_Result(
-            dimensions_used=self.FractalStat_DIMENSIONS.copy(),
+            dimensions_used=self.FractalSemantics_DIMENSIONS.copy(),
             sample_size=self.sample_size,
             shannon_entropy=baseline_entropy,
             normalized_entropy=baseline_normalized,
@@ -731,14 +731,14 @@ class EXP03_CoordinateEntropy:
         # Ablation: remove each dimension
         all_success = True
 
-        for i, removed_dim in enumerate(self.FractalStat_DIMENSIONS, 1):
+        for i, removed_dim in enumerate(self.FractalSemantics_DIMENSIONS, 1):
             print("=" * 70)
             print(f"ABLATION: Remove '{removed_dim}' ({i}/8)")
             print("=" * 70)
 
             dim_start = time.time()
             # Get dimensions without the removed one
-            remaining_dims = [d for d in self.FractalStat_DIMENSIONS if d != removed_dim]
+            remaining_dims = [d for d in self.FractalSemantics_DIMENSIONS if d != removed_dim]
 
             # Extract coordinates without this dimension
             ablation_coords = self.extract_coordinates(bitchains, remaining_dims)
@@ -819,7 +819,7 @@ class EXP03_CoordinateEntropy:
 
         for i, result in enumerate(ranked, 1):
             removed_dim = [
-                d for d in self.FractalStat_DIMENSIONS if d not in result.dimensions_used
+                d for d in self.FractalSemantics_DIMENSIONS if d not in result.dimensions_used
             ][0]
             status = "PASS" if result.meets_threshold else "FAIL"
             print(
@@ -872,7 +872,7 @@ class EXP03_CoordinateEntropy:
 
         for result in self.results[1:]:  # Skip baseline
             removed_dim = [
-                d for d in self.FractalStat_DIMENSIONS if d not in result.dimensions_used
+                d for d in self.FractalSemantics_DIMENSIONS if d not in result.dimensions_used
             ][0]
             dimensions.append(removed_dim)
             entropy_reductions.append(result.entropy_reduction_pct)
@@ -976,7 +976,7 @@ def plot_entropy_contributions(
     )
 
     # Labels and title
-    ax.set_xlabel("FractalStat Dimension", fontsize=12, fontweight="bold")
+    ax.set_xlabel("FractalSemantics Dimension", fontsize=12, fontweight="bold")
     ax.set_ylabel("Entropy Reduction (%)", fontsize=12, fontweight="bold")
     ax.set_title(
         "EXP-03: Entropy Contribution by Dimension\n(When Dimension is Removed)",
@@ -1026,7 +1026,7 @@ if __name__ == "__main__":
     random_seed = 42      # Default fallback
 
     try:
-        from fractalstat.config import ExperimentConfig
+        from fractalsemantics.config import ExperimentConfig
 
         config = ExperimentConfig()
         sample_size = config.get("EXP-03", "sample_size", 100000)

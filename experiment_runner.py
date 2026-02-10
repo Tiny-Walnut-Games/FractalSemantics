@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Experiment Runner for FractalStat HTML Web Application
+Experiment Runner for FractalSemantics HTML Web Application
 
 This script provides the backend execution capabilities for the HTML web application,
-allowing it to run real FractalStat experiments with educational output.
+allowing it to run real FractalSemantics experiments with educational output.
 """
 
 import asyncio
@@ -14,8 +14,8 @@ from typing import Dict, List, Any
 from dataclasses import dataclass
 from pathlib import Path
 
-# Add the fractalstat module to the path
-sys.path.insert(0, str(Path(__file__).parent / 'fractalstat'))
+# Add the fractalsemantics module to the path
+sys.path.insert(0, str(Path(__file__).parent / 'fractalsemantics'))
 
 @dataclass
 class ExperimentResult:
@@ -28,68 +28,68 @@ class ExperimentResult:
     educational_content: List[str]
 
 class ExperimentRunner:
-    """Runs FractalStat experiments with educational output."""
+    """Runs FractalSemantics experiments with educational output."""
     
     def __init__(self):
         self.experiment_configs = {
             "EXP-01": {
-                "module": "fractalstat.exp01_geometric_collision",
+                "module": "fractalsemantics.exp01_geometric_collision",
                 "description": "Tests that every bit-chain gets a unique address with zero collisions using 8-dimensional coordinates.",
                 "educational_focus": "8-Dimensional Coordinate Space and Collision Resistance Mathematics"
             },
             "EXP-02": {
-                "module": "fractalstat.exp02_retrieval_efficiency", 
+                "module": "fractalsemantics.exp02_retrieval_efficiency", 
                 "description": "Tests sub-millisecond retrieval performance at scale using hash table indexing.",
                 "educational_focus": "Hash Table Performance Analysis and Big O Notation"
             },
             "EXP-03": {
-                "module": "fractalstat.exp03_coordinate_entropy",
+                "module": "fractalsemantics.exp03_coordinate_entropy",
                 "description": "Validates that all 7 dimensions are necessary to avoid collisions through ablation testing.",
                 "educational_focus": "Dimensional Analysis and Shannon Entropy Calculation"
             },
             "EXP-04": {
-                "module": "fractalstat.exp04_fractal_scaling",
+                "module": "fractalsemantics.exp04_fractal_scaling",
                 "description": "Tests consistency of addressing properties across different scales (1K to 1M entities).",
                 "educational_focus": "Fractal Geometry Principles and Scale Invariance Analysis"
             },
             "EXP-05": {
-                "module": "fractalstat.exp05_compression_expansion",
+                "module": "fractalsemantics.exp05_compression_expansion",
                 "description": "Tests lossless compression through hierarchical structures (fragments → clusters → glyphs → mist).",
                 "educational_focus": "Information Theory and Hierarchical Compression Algorithms"
             },
             "EXP-06": {
-                "module": "fractalstat.exp06_entanglement_detection",
+                "module": "fractalsemantics.exp06_entanglement_detection",
                 "description": "Tests detection of narrative entanglement between bit-chains using semantic similarity.",
                 "educational_focus": "Semantic Similarity Metrics and Cosine Similarity Calculation"
             },
             "EXP-07": {
-                "module": "fractalstat.exp07_luca_bootstrap",
+                "module": "fractalsemantics.exp07_luca_bootstrap",
                 "description": "Tests bootstrapping from Last Universal Common Ancestor to derive all entities.",
                 "educational_focus": "Evolutionary Algorithms and Lineage Tree Generation"
             },
             "EXP-08": {
-                "module": "fractalstat.exp08_self_organizing_memory",
-                "description": "Tests FractalStat's ability to create self-organizing memory structures with semantic clustering.",
+                "module": "fractalsemantics.exp08_self_organizing_memory",
+                "description": "Tests FractalSemantics's ability to create self-organizing memory structures with semantic clustering.",
                 "educational_focus": "Neural Network Clustering and Self-Organization Principles"
             },
             "EXP-09": {
-                "module": "fractalstat.exp09_memory_pressure",
+                "module": "fractalsemantics.exp09_memory_pressure",
                 "description": "Tests system resilience and performance under constrained memory conditions.",
                 "educational_focus": "Memory Management Algorithms and Performance Under Constraints"
             },
             "EXP-10": {
-                "module": "fractalstat.exp10_multidimensional_query",
-                "description": "Tests FractalStat's unique querying capabilities across all 8 dimensions.",
+                "module": "fractalsemantics.exp10_multidimensional_query",
+                "description": "Tests FractalSemantics's unique querying capabilities across all 8 dimensions.",
                 "educational_focus": "Multi-Dimensional Indexing and Query Optimization Algorithms"
             },
             "EXP-11": {
-                "module": "fractalstat.exp11_dimension_cardinality",
+                "module": "fractalsemantics.exp11_dimension_cardinality",
                 "description": "Explores pros and cons of 7 dimensions vs. more or fewer dimensions.",
                 "educational_focus": "Dimensional Trade-off Analysis and Optimal Dimension Count"
             },
             "EXP-12": {
-                "module": "fractalstat.exp12_benchmark_comparison",
-                "description": "Compares FractalStat against common systems (UUID, SHA256, Vector DB, etc.).",
+                "module": "fractalsemantics.exp12_benchmark_comparison",
+                "description": "Compares FractalSemantics against common systems (UUID, SHA256, Vector DB, etc.).",
                 "educational_focus": "Comparative Performance Analysis and Benchmarking Methodologies"
             }
         }
@@ -278,7 +278,7 @@ class ExperimentRunner:
         steps_map = {
             "EXP-01": [
                 "Generate random bit-chains with specified sample size",
-                "Compute FractalStat coordinates for each bit-chain",
+                "Compute FractalSemantics coordinates for each bit-chain",
                 "Calculate unique addresses using coordinate hashing",
                 "Verify zero collisions across all generated addresses",
                 "Analyze distribution patterns and statistical properties"
@@ -405,62 +405,62 @@ class ExperimentRunner:
         try:
             # Try to import and run the experiment module
             if experiment_id == "EXP-01":
-                from fractalstat.exp01_geometric_collision import EXP01_GeometricCollision
+                from fractalsemantics.exp01_geometric_collision import EXP01_GeometricCollision
                 exp = EXP01_GeometricCollision()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-02":
-                from fractalstat.exp02_retrieval_efficiency import EXP02_RetrievalEfficiency
+                from fractalsemantics.exp02_retrieval_efficiency import EXP02_RetrievalEfficiency
                 exp = EXP02_RetrievalEfficiency()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-03":
-                from fractalstat.exp03_coordinate_entropy import EXP03_CoordinateEntropy
+                from fractalsemantics.exp03_coordinate_entropy import EXP03_CoordinateEntropy
                 exp = EXP03_CoordinateEntropy()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-04":
-                from fractalstat.exp04_fractal_scaling import EXP04_FractalScaling
+                from fractalsemantics.exp04_fractal_scaling import EXP04_FractalScaling
                 exp = EXP04_FractalScaling()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-05":
-                from fractalstat.exp05_compression_expansion import EXP05_CompressionExpansion
+                from fractalsemantics.exp05_compression_expansion import EXP05_CompressionExpansion
                 exp = EXP05_CompressionExpansion()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-06":
-                from fractalstat.exp06_entanglement_detection import EXP06_EntanglementDetection
+                from fractalsemantics.exp06_entanglement_detection import EXP06_EntanglementDetection
                 exp = EXP06_EntanglementDetection()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-07":
-                from fractalstat.exp07_luca_bootstrap import EXP07_LUCABootstrap
+                from fractalsemantics.exp07_luca_bootstrap import EXP07_LUCABootstrap
                 exp = EXP07_LUCABootstrap()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-08":
-                from fractalstat.exp08_self_organizing_memory import EXP08_SelfOrganizingMemory
+                from fractalsemantics.exp08_self_organizing_memory import EXP08_SelfOrganizingMemory
                 exp = EXP08_SelfOrganizingMemory()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-09":
-                from fractalstat.exp09_memory_pressure import EXP09_MemoryPressure
+                from fractalsemantics.exp09_memory_pressure import EXP09_MemoryPressure
                 exp = EXP09_MemoryPressure()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-10":
-                from fractalstat.exp10_multidimensional_query import EXP10_MultiDimensionalQuery
+                from fractalsemantics.exp10_multidimensional_query import EXP10_MultiDimensionalQuery
                 exp = EXP10_MultiDimensionalQuery()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-11":
-                from fractalstat.exp11_dimension_cardinality import EXP11_DimensionCardinality
+                from fractalsemantics.exp11_dimension_cardinality import EXP11_DimensionCardinality
                 exp = EXP11_DimensionCardinality()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
             elif experiment_id == "EXP-12":
-                from fractalstat.exp12_benchmark_comparison import EXP12_BenchmarkComparison
+                from fractalsemantics.exp12_benchmark_comparison import EXP12_BenchmarkComparison
                 exp = EXP12_BenchmarkComparison()
                 result = exp.run_experiment(quick_mode=quick_mode)
                 
@@ -488,7 +488,7 @@ class ExperimentRunner:
         try:
             # Construct command to run the experiment
             cmd = [
-                sys.executable, "-m", "fractalstat.fractalstat_experiments",
+                sys.executable, "-m", "fractalsemantics.fractalsemantics_experiments",
                 "--experiment", experiment_id
             ]
             

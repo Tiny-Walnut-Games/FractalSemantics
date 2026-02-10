@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script for the FractalStat HTML Web Application.
+Test script for the FractalSemantics HTML Web Application.
 
 This script validates that the web application components work correctly
 and provides a demonstration of the educational features.
@@ -191,7 +191,7 @@ def run_quick_demo():
 
 def main():
     """Main test function."""
-    print("🧪 FractalStat Web Application Test Suite")
+    print("🧪 FractalSemantics Web Application Test Suite")
     print("=" * 50)
     
     tests = [

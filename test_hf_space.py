@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script for FractalStat Hugging Face Space
+Test script for FractalSemantics Hugging Face Space
 
 This script validates that the Hugging Face Space application can be imported
 and that all dependencies are working correctly.
@@ -44,23 +44,23 @@ def test_imports():
         else:
             print("✗ Pandas not available")
 
-        # Test FractalStat modules
+        # Test FractalSemantics modules
         try:
-            if importlib.util.find_spec("fractalstat.fractalstat_experiments"):
-                print("✓ FractalStat experiments available")
+            if importlib.util.find_spec("fractalsemantics.fractalsemantics_experiments"):
+                print("✓ FractalSemantics experiments available")
             else:
-                print("✗ FractalStat experiments not available")
+                print("✗ FractalSemantics experiments not available")
         except Exception:
-            print("✗ FractalStat experiments check failed")
+            print("✗ FractalSemantics experiments check failed")
 
         try:
             import importlib.util
-            if importlib.util.find_spec("fractalstat.config"):
-                print("✓ FractalStat config available")
+            if importlib.util.find_spec("fractalsemantics.config"):
+                print("✓ FractalSemantics config available")
             else:
-                print("✗ FractalStat config not available")
+                print("✗ FractalSemantics config not available")
         except Exception:
-            print("✗ FractalStat config check failed")
+            print("✗ FractalSemantics config check failed")
 
         # Test app module
         try:
@@ -199,7 +199,7 @@ def test_gradio_interface():
 def main():
     """Run all tests."""
     print("=" * 60)
-    print("FRACTALSTAT HUGGING FACE SPACE - VALIDATION TESTS")
+    print("FRACTALSEMANTICS HUGGING FACE SPACE - VALIDATION TESTS")
     print("=" * 60)
     
     tests = [
@@ -232,7 +232,7 @@ def main():
         print("❌ Some tests failed. Please fix the issues before deployment.")
         print("\nCommon issues and solutions:")
         print("- Import errors: Install missing dependencies with pip")
-        print("- Module not found: Ensure all FractalStat files are present")
+        print("- Module not found: Ensure all FractalSemantics files are present")
         print("- Chart errors: Install matplotlib and related visualization libraries")
     
     print("=" * 60)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FractalStat Hard Memory Server Stress Test
+FractalSemantics Hard Memory Server Stress Test
 
 Real MCP server stress testing comparing neurodivergent-memory vs standard memory servers.
 Performs actual operations on live servers with comprehensive benchmarking.
@@ -609,7 +609,7 @@ class HardMemoryStressTest:
             return f"Hard stress test failed: {e}"
 
 async def main():
-    print("FractalStat HARD Memory Server Stress Test")
+    print("FractalSemantics HARD Memory Server Stress Test")
     print("==========================================")
 
     # Create and run the comprehensive stress test

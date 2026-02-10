@@ -1,4 +1,4 @@
-# FractalStat Hugging Face Space - Deployment Guide
+# FractalSemantics Hugging Face Space - Deployment Guide
 
 ## Quick Deployment
 
@@ -31,16 +31,16 @@
 
 Required files for deployment:
 ```
-fractalstat-hf-space/
+fractalsemantics-hf-space/
 ├── app.py                    # Main application
 ├── requirements_hf.txt       # Dependencies
 ├── app.yaml                  # Hugging Face configuration
 ├── README_HF_SPACE.md        # Documentation
 ├── setup_hf_space.py         # Setup utility
-└── fractalstat/              # Experiment modules
+└── fractalsemantics/              # Experiment modules
     ├── __init__.py
-    ├── fractalstat_experiments.py
-    ├── fractalstat_entity.py
+    ├── fractalsemantics_experiments.py
+    ├── fractalsemantics_entity.py
     └── config/
         └── __init__.py
 ```
@@ -48,7 +48,7 @@ fractalstat-hf-space/
 ## Troubleshooting
 
 ### Import Errors
-- Ensure all FractalStat modules are uploaded
+- Ensure all FractalSemantics modules are uploaded
 - Check Python version compatibility (3.8+)
 - Verify dependencies are installed
 

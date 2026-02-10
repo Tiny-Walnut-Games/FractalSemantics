@@ -1,9 +1,9 @@
-"""FractalStat.
+"""FractalSemantics.
 
 A Complete validation suite for multi-dimensional addressing-systems.
 ===============
 A comprehensive suite of tests to ensure reliability, performance,
-and robustness of the FractalStat multi-dimensional addressing system.
+and robustness of the FractalSemantics multi-dimensional addressing system.
 
     8-dimensional addressing space for all entities with 100% expressivity.
 
@@ -18,16 +18,16 @@ and robustness of the FractalStat multi-dimensional addressing system.
       8. Alignment: Social/coordination dynamics (NEW - 100% expressivity boost)
 """
 
-from fractalstat.dynamic_enum import Realm, Horizon, Polarity, Alignment
-from fractalstat.fractalstat_entity import FractalStatCoordinates, FractalStatEntity
-from fractalstat.fractalstat_entity import BitChain
-from fractalstat.fractalstat_rag_bridge import FractalStatRAGBridge
+from fractalsemantics.dynamic_enum import Realm, Horizon, Polarity, Alignment
+from fractalsemantics.fractalsemantics_entity import FractalSemanticsCoordinates, FractalSemanticsEntity
+from fractalsemantics.fractalsemantics_entity import BitChain
+from fractalsemantics.fractalsemantics_rag_bridge import FractalSemanticsRAGBridge
 
 __version__ = "0.1.0"
 __author__ = "Tiny Walnut Games"
 
 # ============================================================================
-# 8D FractalStat Dimension Constants for API Consistency
+# 8D FractalSemantics Dimension Constants for API Consistency
 # ============================================================================
 
 # Dimension Names (for consistent API usage across the project)
@@ -41,7 +41,7 @@ DIMENSIONALITY = "dimensionality"
 ALIGNMENT = "alignment"
 
 # Dimension Order (for consistent iteration/serialization)
-FRACTALSTAT_DIMENSIONS = [
+FRACTALSEMANTICS_DIMENSIONS = [
     REALM,
     LINEAGE,
     ADJACENCY,
@@ -70,13 +70,13 @@ __all__ = [
     "ALIGNMENT",
 
     # Dimension List
-    "FRACTALSTAT_DIMENSIONS",
+    "FRACTALSEMANTICS_DIMENSIONS",
 
     # Classes
-    "FractalStatCoordinates",
-    "FractalStatEntity",
+    "FractalSemanticsCoordinates",
+    "FractalSemanticsEntity",
     "BitChain",
 
     # RAG Bridge
-    "FractalStatRAGBridge",
+    "FractalSemanticsRAGBridge",
 ]

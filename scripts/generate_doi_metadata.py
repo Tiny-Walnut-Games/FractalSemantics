@@ -10,7 +10,7 @@ from pathlib import Path
 def generate_doi_metadata(version: str) -> dict:
     """Generate metadata for DOI registration (Zenodo/Figshare format)."""
     metadata = {
-        "title": "FractalStat: A 7-Dimensional Addressing System for Fractal Information Spaces",
+        "title": "FractalSemantics: A 7-Dimensional Addressing System for Fractal Information Spaces",
         "version": version,
         "upload_type": "software",
         "publication_date": datetime.now().strftime("%Y-%m-%d"),
@@ -22,8 +22,8 @@ def generate_doi_metadata(version: str) -> dict:
             }
         ],
         "description": (
-            "FractalStat is a research package containing 10 validation experiments "
-            "that prove the FractalStat addressing system works at scale. FractalStat is a "
+            "FractalSemantics is a research package containing 10 validation experiments "
+            "that prove the FractalSemantics addressing system works at scale. FractalSemantics is a "
             "7-dimensional coordinate system for uniquely addressing data in fractal "
             "information spaces. The 7 dimensions are: Realm, Lineage, Adjacency, "
             "Horizon, Resonance, Velocity, and Density."
@@ -36,13 +36,13 @@ def generate_doi_metadata(version: str) -> dict:
             "7-dimensional",
             "information-retrieval",
             "semantic-search",
-            "FractalStat",
+            "FractalSemantics",
             "RAG",
             "vector-database",
         ],
         "related_identifiers": [
             {
-                "identifier": "https://gitlab.com/tiny-walnut-games/fractalstat",
+                "identifier": "https://gitlab.com/tiny-walnut-games/fractalsemantics",
                 "relation": "isSupplementTo",
                 "resource_type": "software",
             }
@@ -51,7 +51,7 @@ def generate_doi_metadata(version: str) -> dict:
         "references": [],
         "notes": (
             "This software package includes 10 comprehensive validation experiments "
-            "demonstrating the effectiveness of the FractalStat 7-dimensional addressing system."
+            "demonstrating the effectiveness of the FractalSemantics 7-dimensional addressing system."
         ),
     }
     return metadata
@@ -61,7 +61,7 @@ def generate_citation_cff(version: str) -> str:
     """Generate CITATION.cff content."""
     cff = f"""cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "FractalStat: A 7-Dimensional Addressing System for Fractal Information Spaces"
+title: "FractalSemantics: A 7-Dimensional Addressing System for Fractal Information Spaces"
 version: {version}
 date-released: {datetime.now().strftime("%Y-%m-%d")}
 authors:
@@ -69,7 +69,7 @@ authors:
     given-names: "[Your First Name]"
     affiliation: "Tiny Walnut Games"
     orcid: "[Your ORCID if available]"
-repository-code: "https://gitlab.com/tiny-walnut-games/fractalstat"
+repository-code: "https://gitlab.com/tiny-walnut-games/fractalsemantics"
 license: MIT
 keywords:
   - fractal
@@ -77,7 +77,7 @@ keywords:
   - 7-dimensional
   - information-retrieval
   - semantic-search
-  - FractalStat
+  - FractalSemantics
 """
     return cff
 

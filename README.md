@@ -1,15 +1,15 @@
-# FractalStat - FractalStat Validation Experiments
+# FractalSemantics - FractalSemantics Validation Experiments
 
-- **A complete validation suite for the FractalStat 8-dimensional addressing system**
+- **A complete validation suite for the FractalSemantics 8-dimensional addressing system**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 
-> 🔬 **Recent Discovery (Nov 2025):** EXP-11 testing confirms **8 dimensions are optimal** and superior to the original 7-dimension design. See [!5](https://gitlab.com/tiny-walnut-games/fractalstat/-/merge_requests/5) for details. EXP-01 validation results remain valid as they are dimension-count agnostic. FractalStat implementation complete.
+> 🔬 **Recent Discovery (Nov 2025):** EXP-11 testing confirms **8 dimensions are optimal** and superior to the original 7-dimension design. See [!5](https://gitlab.com/tiny-walnut-games/fractalsemantics/-/merge_requests/5) for details. EXP-01 validation results remain valid as they are dimension-count agnostic. FractalSemantics implementation complete.
 
-## What is FractalStat?
+## What is FractalSemantics?
 
-FractalStat is a research package containing **12 validation experiments** that prove the FractalStat (previously known as FractalStat internally) addressing system works at scale. FractalStat expands FractalStat from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
+FractalSemantics is a research package containing **12 validation experiments** that prove the FractalSemantics (previously known as FractalSemantics internally) addressing system works at scale. FractalSemantics expands FractalSemantics from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
 
 **The 8 Dimensions:**
 
@@ -38,7 +38,7 @@ FractalStat is a research package containing **12 validation experiments** that 
 | **EXP-09** | Concurrency | Thread-safe queries | [Success] PASS |
 | **EXP-10** | Bob the Skeptic | Anti-hallucination | [Success] PASS |
 | **EXP-11** | Dimension Cardinality | Optimal dimension count analysis | [Success] PASS |
-| **EXP-12** | Benchmark Comparison | FractalStat vs. common systems | [Success] PASS |
+| **EXP-12** | Benchmark Comparison | FractalSemantics vs. common systems | [Success] PASS |
 
 ## EXP-01: Address Uniqueness Test
 
@@ -71,7 +71,7 @@ EXP-01 has been rewritten to illustrate how increasing the number of dimensions 
 
 ```bash
 # Run all experiments (includes EXP-01)
-python -m fractalstat.fractalstat_experiments
+python -m fractalsemantics.fractalsemantics_experiments
 
 # Archive results with metadata
 python scripts/archive_exp01_results.py
@@ -85,12 +85,12 @@ python scripts/generate_exp01_figures.py
 If you use EXP-01 results in your research, please cite:
 
 ```bibtex
-@software{fractalstat_exp01,
-  title = {FractalStat EXP-01: Address Uniqueness Test},
+@software{fractalsemantics_exp01,
+  title = {FractalSemantics EXP-01: Address Uniqueness Test},
   author = {[Authors]},
   year = {2024},
   version = {1.0.0},
-  url = {https://gitlab.com/tiny-walnut-games/fractalstat}
+  url = {https://gitlab.com/tiny-walnut-games/fractalsemantics}
 }
 ```
 
@@ -104,12 +104,12 @@ pip install -r requirements.txt
 pip install -e .
 
 # Run experiments
-python -m fractalstat.fractalstat_experiments
+python -m fractalsemantics.fractalsemantics_experiments
 ```
 
 ### ARM/Raspberry Pi Setup
 
-FractalStat works on ARM architectures, but PyTorch installation may require special handling:
+FractalSemantics works on ARM architectures, but PyTorch installation may require special handling:
 
 ```bash
 # For Raspberry Pi (ARM64) - Install PyTorch first
@@ -120,18 +120,18 @@ pip install -r requirements.txt
 pip install -e .
 
 # Run experiments (may be slower on ARM without GPU)
-python -m fractalstat.fractalstat_experiments
+python -m fractalsemantics.fractalsemantics_experiments
 ```
 
 **ARM Considerations:**
 
 - Some experiments (EXP-08 LLM integration) may be slower without GPU acceleration
 - Memory usage can be high - 4GB+ RAM recommended
-- All core FractalStat functionality works identically across architectures
+- All core FractalSemantics functionality works identically across architectures
 
 ## Experiment Configuration
 
-FractalStat uses **feature flags** to configure experiments. This allows you to:
+FractalSemantics uses **feature flags** to configure experiments. This allows you to:
 
 - Run experiments with different parameters without code changes
 - Use environment-specific configurations (dev, ci, production)
@@ -139,30 +139,30 @@ FractalStat uses **feature flags** to configure experiments. This allows you to:
 
 ### Configuration Files
 
-- `fractalstat/config/experiments.toml` - Default configuration for all experiments
-- `fractalstat/config/experiments.dev.toml` - Development overrides (quick modes, smaller samples)
-- `fractalstat/config/experiments.ci.toml` - CI/CD overrides (balanced for pipeline speed)
+- `fractalsemantics/config/experiments.toml` - Default configuration for all experiments
+- `fractalsemantics/config/experiments.dev.toml` - Development overrides (quick modes, smaller samples)
+- `fractalsemantics/config/experiments.ci.toml` - CI/CD overrides (balanced for pipeline speed)
 
 ### Using Different Environments
 
 ```bash
 # Use development config (fast iteration)
-export FRACTALSTAT_ENV=dev
-python -m fractalstat.fractalstat_experiments
+export FRACTALSEMANTICS_ENV=dev
+python -m fractalsemantics.fractalsemantics_experiments
 
 # Use CI config (balanced testing)
-export FRACTALSTAT_ENV=ci
-python -m fractalstat.exp04_fractal_scaling
+export FRACTALSEMANTICS_ENV=ci
+python -m fractalsemantics.exp04_fractal_scaling
 
 # Use production config (full validation)
-export FRACTALSTAT_ENV=production
-python -m fractalstat.exp05_compression_expansion
+export FRACTALSEMANTICS_ENV=production
+python -m fractalsemantics.exp05_compression_expansion
 ```
 
 ### Example Configuration
 
 ```toml
-# fractalstat/config/experiments.toml
+# fractalsemantics/config/experiments.toml
 [experiments]
 enabled = ["EXP-01", "EXP-02", "EXP-03", "EXP-04", "EXP-05", 
            "EXP-06", "EXP-07", "EXP-08", "EXP-09", "EXP-10",
@@ -182,7 +182,7 @@ scales = [1000, 10000, 100000]
 ### Programmatic Access
 
 ```python
-from fractalstat.config import ExperimentConfig
+from fractalsemantics.config import ExperimentConfig
 
 config = ExperimentConfig()
 
@@ -193,7 +193,7 @@ if config.is_enabled("EXP-01"):
     # Run experiment...
 ```
 
-For more details, see `fractalstat/config/feature_flags.py`.
+For more details, see `fractalsemantics/config/feature_flags.py`.
 
 ## License
 

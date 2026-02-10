@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-FractalStat Easy Installation Script
+FractalSemantics Easy Installation Script
 
-This script provides an automated way to install FractalStat with platform-specific optimizations.
+This script provides an automated way to install FractalSemantics with platform-specific optimizations.
 It handles dependency installation, platform detection, and common troubleshooting scenarios.
 """
 
@@ -14,8 +14,8 @@ import sys
 from pathlib import Path
 
 
-class FractalStatInstaller:
-    """Automated installer for FractalStat with platform-specific optimizations."""
+class FractalSemanticsInstaller:
+    """Automated installer for FractalSemantics with platform-specific optimizations."""
 
     def __init__(self):
         self.system = platform.system().lower()
@@ -162,9 +162,9 @@ class FractalStatInstaller:
 
         self.run_command(pytorch_cmd, "Installing PyTorch", check=False)
 
-    def install_fractalstat(self, dev=False, minimal=False):
-        """Install FractalStat dependencies."""
-        print("🎯 Installing FractalStat dependencies...")
+    def install_fractalsemantics(self, dev=False, minimal=False):
+        """Install FractalSemantics dependencies."""
+        print("🎯 Installing FractalSemantics dependencies...")
 
         if minimal:
             # Install only core dependencies
@@ -221,7 +221,7 @@ class FractalStatInstaller:
                     ], f"Installing dev dependency {dep}")
 
     def test_installation(self):
-        """Test that FractalStat dependencies were installed correctly."""
+        """Test that FractalSemantics dependencies were installed correctly."""
         print("🧪 Testing installation...")
 
         try:
@@ -230,15 +230,15 @@ class FractalStatInstaller:
                 str(self.venv_python), '-c', 'import pydantic, numpy, click; print("Core dependencies imported successfully!")'
             ], "Testing core dependencies")
 
-            # Test that the fractalstat module can be imported (by adding current dir to path)
+            # Test that the fractalsemantics module can be imported (by adding current dir to path)
             self.run_command([
                 str(self.venv_python), '-c', '''
 import sys
 sys.path.insert(0, ".")
-import fractalstat
-print("FractalStat modules imported successfully!")
+import fractalsemantics
+print("FractalSemantics modules imported successfully!")
 '''
-            ], "Testing FractalStat modules")
+            ], "Testing FractalSemantics modules")
 
             print("✅ Installation test passed!")
             return True
@@ -255,27 +255,27 @@ print("FractalStat modules imported successfully!")
         venv_rel_path = self.venv_path.relative_to(self.project_root)
 
         launcher_content = f'''#!/bin/bash
-# FractalStat Launcher Script
+# FractalSemantics Launcher Script
 
-echo "🚀 Starting FractalStat..."
+echo "🚀 Starting FractalSemantics..."
 
 # Activate virtual environment
 source {venv_rel_path}/bin/activate
 
 # Set environment based on first argument
 if [ "$1" = "dev" ]; then
-    export FRACTALSTAT_ENV=dev
+    export FRACTALSEMANTICS_ENV=dev
     echo "Using development configuration (faster, smaller samples)"
 elif [ "$1" = "ci" ]; then
-    export FRACTALSTAT_ENV=ci
+    export FRACTALSEMANTICS_ENV=ci
     echo "Using CI configuration"
 else
-    export FRACTALSTAT_ENV=production
+    export FRACTALSEMANTICS_ENV=production
     echo "Using production configuration"
 fi
 
 # Run experiments
-python -m fractalstat.fractalstat_experiments
+python -m fractalsemantics.fractalsemantics_experiments
 '''
 
         launcher_path = self.project_root / 'run_experiments.sh'
@@ -291,7 +291,7 @@ python -m fractalstat.fractalstat_experiments
     def show_post_installation_info(self, platform_info):
         """Show post-installation information."""
         print("\n" + "="*60)
-        print("🎉 FractalStat Installation Complete!")
+        print("🎉 FractalSemantics Installation Complete!")
         print("="*60)
 
         print("\n📚 Quick Start:")
@@ -299,8 +299,8 @@ python -m fractalstat.fractalstat_experiments
         print("  ./run_experiments.sh        # Full production mode")
 
         print("\n🧪 Test Individual Experiments:")
-        print("  source venv/bin/activate && python -m fractalstat.exp01_geometric_collision")
-        print("  source venv/bin/activate && python -m fractalstat.exp02_retrieval_efficiency")
+        print("  source venv/bin/activate && python -m fractalsemantics.exp01_geometric_collision")
+        print("  source venv/bin/activate && python -m fractalsemantics.exp02_retrieval_efficiency")
 
         print("\n🐍 Virtual Environment:")
         print("  All dependencies are installed in a virtual environment (venv/)")
@@ -317,18 +317,18 @@ python -m fractalstat.fractalstat_experiments
         print("\n📖 Documentation:")
         print("  - Installation Guide: INSTALL.md")
         print("  - Experiment Details: docs/")
-        print("  - Configuration: fractalstat/config/")
+        print("  - Configuration: fractalsemantics/config/")
 
         print("\n🔧 Troubleshooting:")
         print("  - Check logs for error messages")
         print("  - Use 'dev' mode for memory-constrained systems")
         print("  - See INSTALL.md for detailed troubleshooting")
 
-        print("\n✨ Happy experimenting with FractalStat!")
+        print("\n✨ Happy experimenting with FractalSemantics!")
 
     def run(self, args):
         """Main installation workflow."""
-        print("🎯 FractalStat Automated Installer")
+        print("🎯 FractalSemantics Automated Installer")
         print("="*50)
 
         # Preliminary checks
@@ -345,7 +345,7 @@ python -m fractalstat.fractalstat_experiments
         if not args.minimal:
             self.install_pytorch(platform_info)
 
-        self.install_fractalstat(dev=args.dev, minimal=args.minimal)
+        self.install_fractalsemantics(dev=args.dev, minimal=args.minimal)
 
         # Post-installation
         self.create_launcher_script(platform_info)
@@ -362,7 +362,7 @@ python -m fractalstat.fractalstat_experiments
 def main():
     """Command-line interface."""
     parser = argparse.ArgumentParser(
-        description="Automated installer for FractalStat",
+        description="Automated installer for FractalSemantics",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -409,7 +409,7 @@ For Raspberry Pi:
         sys.exit(1)
 
     # Run installer
-    installer = FractalStatInstaller()
+    installer = FractalSemanticsInstaller()
     installer.run(args)
 
 

@@ -13,7 +13,7 @@ class TestExp07Extended:
 
     def test_run_comprehensive_test_execution(self):
         """run_comprehensive_test should execute full test."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         results = tester.run_comprehensive_test()
@@ -24,7 +24,7 @@ class TestExp07Extended:
 
     def test_save_results_file_io(self):
         """Results should be saveable to file."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapResult
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapResult
 
         result = LUCABootstrapResult(status="PASS", results={"test": "data"})
 
@@ -42,7 +42,7 @@ class TestExp07Extended:
 
     def test_error_handling_in_bootstrap_cycles(self):
         """Bootstrap should handle errors gracefully."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
 
@@ -57,7 +57,7 @@ class TestExp07Extended:
 
     def test_main_entry_point(self):
         """Main entry point should execute successfully."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         results = tester.run_comprehensive_test()
@@ -67,7 +67,7 @@ class TestExp07Extended:
 
     def test_expand_signature_all_values(self):
         """_expand_signature should handle all signature values."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
 
@@ -83,7 +83,7 @@ class TestExp07Extended:
 
     def test_luca_encoding_completeness(self):
         """LUCA encoding should preserve essential information."""
-        from fractalstat.exp07_luca_bootstrap import (
+        from fractalsemantics.exp07_luca_bootstrap import (
             LUCABootstrapTester,
             TestBitChain,
         )
@@ -109,7 +109,7 @@ class TestExp07Extended:
 
     def test_bootstrap_reconstruction_accuracy(self):
         """Bootstrap should accurately reconstruct entities."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         original = tester.create_test_entities(num_entities=5)
@@ -126,7 +126,7 @@ class TestExp07Extended:
 
     def test_fractal_properties_validation(self):
         """Fractal properties should be validated correctly."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         entities = tester.create_test_entities(num_entities=10)
@@ -141,7 +141,7 @@ class TestExp07Extended:
 
     def test_comparison_with_mismatched_counts(self):
         """Comparison should handle mismatched entity counts."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         original = tester.create_test_entities(num_entities=5)
@@ -155,7 +155,7 @@ class TestExp07Extended:
 
     def test_luca_state_hash_consistency(self):
         """LUCA state hash should be consistent for same input."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         entities = tester.create_test_entities(num_entities=5)

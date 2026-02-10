@@ -5,13 +5,13 @@ Goal: Prove The Seed connects to your storage system
 
 What it tests:
 - Take real documents from your RAG (HuggingFace NPC dialogue)
-- Generate FractalStat addresses for each
-- Retrieve via FractalStat addresses + semantic queries
+- Generate FractalSemantics addresses for each
+- Retrieve via FractalSemantics addresses + semantic queries
 - Verify both methods find correct documents
 
 Expected Result:
 - All documents addressable
-- Hybrid retrieval works (FractalStat + semantic)
+- Hybrid retrieval works (FractalSemantics + semantic)
 - No conflicts with existing RAG
 """
 
@@ -42,7 +42,7 @@ class RAGTestResult:
 
 
 class RAGIntegrationTester:
-    """Test RAG integration with FractalStat system."""
+    """Test RAG integration with FractalSemantics system."""
 
     def __init__(self, api_base_url: str = "http://localhost:8000"):
         self.api_base_url = api_base_url
@@ -157,19 +157,19 @@ class RAGIntegrationTester:
         }
 
     def test_hybrid_retrieval(self) -> Dict[str, Any]:
-        """Test hybrid FractalStat + semantic retrieval."""
+        """Test hybrid FractalSemantics + semantic retrieval."""
         hybrid_queries = [
             {
                 "query_id": "hybrid_test_1",
                 "semantic": "find wisdom about resilience",
                 "weight_semantic": 0.6,
-                "weight_fractalstat": 0.4,
+                "weight_fractalsemantics": 0.4,
             },
             {
                 "query_id": "hybrid_test_2",
                 "semantic": "the nature of consciousness",
                 "weight_semantic": 0.6,
-                "weight_fractalstat": 0.4,
+                "weight_fractalsemantics": 0.4,
             },
         ]
 
@@ -184,7 +184,7 @@ class RAGIntegrationTester:
                         "semantic_query": query["semantic"],
                         "use_hybrid": True,
                         "weight_semantic": query["weight_semantic"],
-                        "weight_fractalstat": query["weight_fractalstat"],
+                        "weight_fractalsemantics": query["weight_fractalsemantics"],
                     },
                     timeout=10,
                 )
@@ -198,7 +198,7 @@ class RAGIntegrationTester:
                             "query_id": query["query_id"],
                             "semantic": query["semantic"],
                             "weight_semantic": query["weight_semantic"],
-                            "weight_fractalstat": query["weight_fractalstat"],
+                            "weight_fractalsemantics": query["weight_fractalsemantics"],
                             "results_count": result_count,
                             "success": True,  # Hybrid queries succeeding is the win
                             "execution_time_ms": data.get("execution_time_ms", 0),
@@ -213,7 +213,7 @@ class RAGIntegrationTester:
                             "query_id": query["query_id"],
                             "semantic": query["semantic"],
                             "weight_semantic": query["weight_semantic"],
-                            "weight_fractalstat": query["weight_fractalstat"],
+                            "weight_fractalsemantics": query["weight_fractalsemantics"],
                             "results_count": 0,
                             "success": False,
                             "error": f"HTTP {response.status_code}",
@@ -226,7 +226,7 @@ class RAGIntegrationTester:
                         "query_id": query["query_id"],
                         "semantic": query["semantic"],
                         "weight_semantic": query["weight_semantic"],
-                        "weight_fractalstat": query["weight_fractalstat"],
+                        "weight_fractalsemantics": query["weight_fractalsemantics"],
                         "results_count": 0,
                         "success": False,
                         "error": str(e),
@@ -321,7 +321,7 @@ class RAGIntegrationTester:
         )
 
         # Test hybrid retrieval
-        print("\n3. Testing hybrid FractalStat + semantic retrieval...")
+        print("\n3. Testing hybrid FractalSemantics + semantic retrieval...")
         hybrid_results = self.test_hybrid_retrieval()
         print(
             f"   Hybrid queries: {hybrid_results['successful_queries']}/{

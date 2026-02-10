@@ -7,11 +7,11 @@ This workflow addresses the issue of large files (>1000 lines) that become diffi
 ## Current Large File Analysis
 
 **Files exceeding 1000 lines:**
-- `fractalstat/exp20_vector_field_derivation.py` (1,367 lines)
-- `fractalstat/exp03_coordinate_entropy.py` (1,075 lines)
-- `fractalstat/exp19_orbital_equivalence.py` (1,054 lines)
-- `fractalstat/exp10_multidimensional_query.py` (1,027 lines)
-- `fractalstat/exp06_entanglement_detection.py` (1,019 lines)
+- `fractalsemantics/exp20_vector_field_derivation.py` (1,367 lines)
+- `fractalsemantics/exp03_coordinate_entropy.py` (1,075 lines)
+- `fractalsemantics/exp19_orbital_equivalence.py` (1,054 lines)
+- `fractalsemantics/exp10_multidimensional_query.py` (1,027 lines)
+- `fractalsemantics/exp06_entanglement_detection.py` (1,019 lines)
 
 ## Workflow Implementation
 
@@ -40,7 +40,7 @@ expXX_main_functionality.py (core logic, <500 lines)
 
 **Example Structure for exp20:**
 ```
-fractalstat/exp20_vector_field_derivation/
+fractalsemantics/exp20_vector_field_derivation/
 ├── __init__.py
 ├── main.py (core vector field logic)
 ├── coordinate_systems.py (coordinate transformations)

@@ -5,12 +5,12 @@ Comprehensive tests for EXP-01: Address Uniqueness Test
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from fractalstat.exp01_geometric_collision import (
+from fractalsemantics.exp01_geometric_collision import (
     EXP01_GeometricCollisionResistance,
     EXP01_Result,
     save_results,
 )
-from fractalstat.fractalstat_experiments import generate_random_bitchain
+from fractalsemantics.fractalsemantics_experiments import generate_random_bitchain
 
 
 class TestEXP01Result:
@@ -213,9 +213,9 @@ class TestSaveResults:
             "results": [],
         }
 
-        with patch("fractalstat.exp01_geometric_collision.Path") as mock_path, \
-             patch("fractalstat.exp01_geometric_collision.open", create=True) as mock_open, \
-             patch("fractalstat.exp01_geometric_collision.json.dump"):
+        with patch("fractalsemantics.exp01_geometric_collision.Path") as mock_path, \
+             patch("fractalsemantics.exp01_geometric_collision.open", create=True) as mock_open, \
+             patch("fractalsemantics.exp01_geometric_collision.json.dump"):
             mock_results_dir = MagicMock()
             mock_path.return_value.resolve.return_value.parent = MagicMock()
             mock_path.return_value.resolve.return_value.parent.__truediv__ = (
@@ -246,9 +246,9 @@ class TestSaveResults:
             "results": [],
         }
 
-        with patch("fractalstat.exp01_geometric_collision.Path") as mock_path, \
-             patch("fractalstat.exp01_geometric_collision.open", create=True) as mock_open, \
-             patch("fractalstat.exp01_geometric_collision.json.dump"):
+        with patch("fractalsemantics.exp01_geometric_collision.Path") as mock_path, \
+             patch("fractalsemantics.exp01_geometric_collision.open", create=True) as mock_open, \
+             patch("fractalsemantics.exp01_geometric_collision.json.dump"):
             mock_results_dir = MagicMock()
             mock_path.return_value.resolve.return_value.parent = MagicMock()
             mock_path.return_value.resolve.return_value.parent.__truediv__ = (
@@ -281,7 +281,7 @@ class TestMainEntryPoint:
 
         mock_config.get.side_effect = mock_get
 
-        with patch("fractalstat.config.ExperimentConfig", return_value=mock_config):
+        with patch("fractalsemantics.config.ExperimentConfig", return_value=mock_config):
             exp = EXP01_GeometricCollisionResistance(
                 sample_size=mock_config.get("EXP-01", "sample_size", 50000),
             )
@@ -291,7 +291,7 @@ class TestMainEntryPoint:
     def test_main_without_config(self):
         """Main should fallback to defaults when config unavailable."""
         with patch(
-            "fractalstat.config.ExperimentConfig",
+            "fractalsemantics.config.ExperimentConfig",
             side_effect=Exception("Config not found"),
         ):
             exp = EXP01_GeometricCollisionResistance()

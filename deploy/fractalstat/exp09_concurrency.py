@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import numpy as np
 
-from fractalstat.exp08_llm_integration import LLMIntegrationDemo
+from fractalsemantics.exp08_llm_integration import LLMIntegrationDemo
 
 
 @dataclass
@@ -88,7 +88,7 @@ class ConcurrencyTester:
 
         def embed_chain(bit_chain: Any) -> Dict[str, Any]:
             """Embed a single bit chain."""
-            embedding = self.llm_demo.embed_fractalstat_address(bit_chain)
+            embedding = self.llm_demo.embed_fractalsemantics_address(bit_chain)
             return {
                 "bit_chain_id": bit_chain.bit_chain_id,
                 "embedding": embedding,
@@ -138,18 +138,18 @@ class ConcurrencyTester:
 
         return results
 
-    def run_concurrent_fractalstat_extraction(
+    def run_concurrent_fractalsemantics_extraction(
         self, embeddings: List[np.ndarray], num_workers: int | None = None
     ) -> List[Dict[str, Any]]:  # type: ignore[misc]
         """
-        Extract FractalStat coordinates from embeddings concurrently.
+        Extract FractalSemantics coordinates from embeddings concurrently.
 
         Args:
             embeddings: List of embedding vectors
             num_workers: Number of concurrent workers
 
         Returns:
-            List of FractalStat coordinate dictionaries
+            List of FractalSemantics coordinate dictionaries
         """
         if num_workers is None:
             num_workers = self.num_workers
@@ -157,8 +157,8 @@ class ConcurrencyTester:
         results = []
 
         def extract_coords(embedding: np.ndarray) -> Dict[str, Any]:
-            """Extract FractalStat coordinates from single embedding."""
-            return self.llm_demo.extract_fractalstat_from_embedding(embedding)
+            """Extract FractalSemantics coordinates from single embedding."""
+            return self.llm_demo.extract_fractalsemantics_from_embedding(embedding)
 
         with ThreadPoolExecutor(max_workers=num_workers) as executor:
             futures = {executor.submit(extract_coords, emb): emb for emb in embeddings}
@@ -254,9 +254,9 @@ class ConcurrencyTester:
         print("Running concurrent enhancements...")
         enhancement_throughput = self.run_throughput_test(bit_chains, num_workers)
 
-        print("Running concurrent FractalStat extraction...")
+        print("Running concurrent FractalSemantics extraction...")
         embeddings = [r["embedding"] for r in embedding_results]
-        extraction_results = self.run_concurrent_fractalstat_extraction(
+        extraction_results = self.run_concurrent_fractalsemantics_extraction(
             embeddings, num_workers
         )
 
@@ -279,7 +279,7 @@ class ConcurrencyTester:
             "num_workers": num_workers,
             "embedding_throughput": embedding_throughput,
             "enhancement_throughput": enhancement_throughput,
-            "fractalstat_extraction_throughput": {
+            "fractalsemantics_extraction_throughput": {
                 "completed_queries": len(extraction_results),
                 "throughput_qps": round(len(extraction_results) / 2, 2),
             },
@@ -319,7 +319,7 @@ class ConcurrencyTester:
 def main():
     """Run concurrency test."""
     print("=" * 70)
-    print("FRACTALSTAT EXP-09: Concurrency & Thread Safety Test")
+    print("FRACTALSEMANTICS EXP-09: Concurrency & Thread Safety Test")
     print("=" * 70)
 
     from dataclasses import dataclass as dc
@@ -334,7 +334,7 @@ def main():
     # Create test entities
     bit_chains = [
         TestBitChain(
-            bit_chain_id=f"FractalStat-CONCUR-{i:03d}",
+            bit_chain_id=f"FractalSemantics-CONCUR-{i:03d}",
             content=f"Concurrent test entity {i} with unique properties",
             realm="companion" if i % 2 == 0 else "badge",
             luminosity=0.5 + (i * 0.05),
@@ -369,10 +369,10 @@ def main():
         } queries)"
     )
 
-    fractalstat_tp = report["results"]["fractalstat_extraction_throughput"]
+    fractalsemantics_tp = report["results"]["fractalsemantics_extraction_throughput"]
     print(
-        f"  FractalStat Extraction: {fractalstat_tp['throughput_qps']} qps ({
-            fractalstat_tp['completed_queries']
+        f"  FractalSemantics Extraction: {fractalsemantics_tp['throughput_qps']} qps ({
+            fractalsemantics_tp['completed_queries']
         } queries)"
     )
 

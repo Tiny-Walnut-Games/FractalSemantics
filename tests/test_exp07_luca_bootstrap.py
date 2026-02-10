@@ -11,7 +11,7 @@ class TestTestBitChain:
 
     def test_test_bitchain_initialization(self):
         """TestBitChain should initialize with default values."""
-        from fractalstat.exp07_luca_bootstrap import TestBitChain
+        from fractalsemantics.exp07_luca_bootstrap import TestBitChain
 
         bc = TestBitChain()
         assert bc is not None
@@ -21,7 +21,7 @@ class TestTestBitChain:
 
     def test_test_bitchain_custom_values(self):
         """TestBitChain should accept custom initialization values."""
-        from fractalstat.exp07_luca_bootstrap import TestBitChain
+        from fractalsemantics.exp07_luca_bootstrap import TestBitChain
 
         bc = TestBitChain(
             content="Test content",
@@ -37,7 +37,7 @@ class TestTestBitChain:
 
     def test_test_bitchain_to_dict(self):
         """TestBitChain should convert to dictionary."""
-        from fractalstat.exp07_luca_bootstrap import TestBitChain
+        from fractalsemantics.exp07_luca_bootstrap import TestBitChain
 
         bc = TestBitChain(content="test", lineage=2)
         bc_dict = bc.to_dict()
@@ -49,7 +49,7 @@ class TestTestBitChain:
 
     def test_test_bitchain_to_json(self):
         """TestBitChain should convert to JSON string."""
-        from fractalstat.exp07_luca_bootstrap import TestBitChain
+        from fractalsemantics.exp07_luca_bootstrap import TestBitChain
 
         bc = TestBitChain(content="json test")
         json_str = bc.to_json()
@@ -58,15 +58,15 @@ class TestTestBitChain:
         parsed = json.loads(json_str)
         assert parsed["content"] == "json test"
 
-    def test_test_bitchain_fractalstat_address(self):
-        """TestBitChain should generate FractalStat address."""
-        from fractalstat.exp07_luca_bootstrap import TestBitChain
+    def test_test_bitchain_fractalsemantics_address(self):
+        """TestBitChain should generate FractalSemantics address."""
+        from fractalsemantics.exp07_luca_bootstrap import TestBitChain
 
         bc = TestBitChain(lineage=3, realm="data", horizon="emergence")
-        address = bc.get_fractalstat_address()
+        address = bc.get_fractalsemantics_address()
 
         assert isinstance(address, str)
-        assert address.startswith("FractalStat-")
+        assert address.startswith("FractalSemantics-")
         assert "003" in address
 
 
@@ -75,7 +75,7 @@ class TestLUCABootstrapResult:
 
     def test_result_initialization(self):
         """LUCABootstrapResult should initialize with defaults."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapResult
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapResult
 
         result = LUCABootstrapResult()
         assert result.experiment == "EXP-07"
@@ -84,7 +84,7 @@ class TestLUCABootstrapResult:
 
     def test_result_to_dict(self):
         """LUCABootstrapResult should serialize to dict."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapResult
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapResult
 
         result = LUCABootstrapResult(
             status="PASS",
@@ -102,7 +102,7 @@ class TestLUCABootstrapTester:
 
     def test_tester_initialization(self):
         """LUCABootstrapTester should initialize."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         assert tester is not None
@@ -110,7 +110,7 @@ class TestLUCABootstrapTester:
 
     def test_create_test_entities(self):
         """create_test_entities should generate entities with lineage."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         entities = tester.create_test_entities(num_entities=5)
@@ -120,7 +120,7 @@ class TestLUCABootstrapTester:
 
     def test_entities_have_varied_properties(self):
         """Created entities should have varied realms and horizons."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         entities = tester.create_test_entities(num_entities=10)
@@ -133,7 +133,7 @@ class TestLUCABootstrapTester:
 
     def test_compute_luca_encoding(self):
         """compute_luca_encoding should create minimal form."""
-        from fractalstat.exp07_luca_bootstrap import (
+        from fractalsemantics.exp07_luca_bootstrap import (
             LUCABootstrapTester,
             TestBitChain,
         )
@@ -154,7 +154,7 @@ class TestLUCABootstrapTester:
 
     def test_compress_to_luca(self):
         """compress_to_luca should create LUCA state."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         entities = tester.create_test_entities(num_entities=5)
@@ -169,7 +169,7 @@ class TestLUCABootstrapTester:
 
     def test_luca_state_compression_ratio(self):
         """LUCA state should track compression ratio."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         entities = tester.create_test_entities(num_entities=3)
@@ -181,7 +181,7 @@ class TestLUCABootstrapTester:
 
     def test_bootstrap_from_luca(self):
         """bootstrap_from_luca should reconstruct entities."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         original = tester.create_test_entities(num_entities=5)
@@ -195,7 +195,7 @@ class TestLUCABootstrapTester:
 
     def test_compare_entities(self):
         """compare_entities should match original and bootstrapped."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         original = tester.create_test_entities(num_entities=5)
@@ -210,7 +210,7 @@ class TestLUCABootstrapTester:
 
     def test_comparison_tracks_matches(self):
         """Comparison should count matching attributes."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         original = tester.create_test_entities(num_entities=3)
@@ -225,7 +225,7 @@ class TestLUCABootstrapTester:
 
     def test_test_fractal_properties(self):
         """test_fractal_properties should verify self-similarity."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         entities = tester.create_test_entities(num_entities=5)
@@ -238,7 +238,7 @@ class TestLUCABootstrapTester:
 
     def test_test_luca_continuity(self):
         """test_luca_continuity should verify lineage integrity."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         original = tester.create_test_entities(num_entities=5)
@@ -254,7 +254,7 @@ class TestLUCABootstrapIntegration:
 
     def test_full_bootstrap_cycle(self):
         """Full cycle: create → compress → bootstrap → compare."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
 
@@ -269,7 +269,7 @@ class TestLUCABootstrapIntegration:
 
     def test_bootstrap_preserves_lineage(self):
         """Bootstrap should preserve lineage through compression."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         original = tester.create_test_entities(num_entities=10)
@@ -283,7 +283,7 @@ class TestLUCABootstrapIntegration:
 
     def test_luca_acts_as_recovery_point(self):
         """LUCA should enable system recovery after compression."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
 
@@ -303,7 +303,7 @@ class TestErrorHandling:
 
     def test_bootstrap_with_corrupt_encoding(self):
         """Test bootstrap resilience with corrupted LUCA encoding."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester, TestBitChain
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester, TestBitChain
 
         tester = LUCABootstrapTester()
         entity = TestBitChain(content="test", lineage=1)
@@ -325,7 +325,7 @@ class TestErrorHandling:
 
     def test_empty_entity_list(self):
         """Test behavior with empty entity lists."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
 
@@ -341,7 +341,7 @@ class TestErrorHandling:
 
     def test_large_scale_bootstrap(self):
         """Test bootstrap with larger entity sets."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
 
@@ -359,7 +359,7 @@ class TestErrorHandling:
 
     def test_lineage_preservation_under_stress(self):
         """Test lineage integrity under repeated bootstrap cycles."""
-        from fractalstat.exp07_luca_bootstrap import LUCABootstrapTester
+        from fractalsemantics.exp07_luca_bootstrap import LUCABootstrapTester
 
         tester = LUCABootstrapTester()
         original = tester.create_test_entities(num_entities=20)

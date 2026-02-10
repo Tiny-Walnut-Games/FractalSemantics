@@ -7,17 +7,17 @@
 
 ## Abstract
 
-This document describes the methodology for EXP-03, which quantifies the entropy contribution of each FractalStat dimension to the coordinate space. Unlike the previous collision-based approach, this entropy-based method measures information content directly in the coordinate space before hashing, providing deeper insights into semantic disambiguation power.
+This document describes the methodology for EXP-03, which quantifies the entropy contribution of each FractalSemantics dimension to the coordinate space. Unlike the previous collision-based approach, this entropy-based method measures information content directly in the coordinate space before hashing, providing deeper insights into semantic disambiguation power.
 
 ## Hypothesis
 
-**Primary Hypothesis**: Each FractalStat dimension contributes measurable entropy to the coordinate space. Removing or omitting a dimension reduces entropy and semantic clarity, even if hash collisions remain at 0%.
+**Primary Hypothesis**: Each FractalSemantics dimension contributes measurable entropy to the coordinate space. Removing or omitting a dimension reduces entropy and semantic clarity, even if hash collisions remain at 0%.
 
 **Secondary Hypothesis**: Dimensions with higher entropy contribution are more critical for semantic disambiguation.
 
 **Null Hypothesis**: Some dimensions contribute negligible entropy (<5% reduction when removed) and could be considered optional.
 
-## FractalStat 8 Dimensions
+## FractalSemantics 8 Dimensions
 
 The eight dimensions under test:
 
@@ -299,7 +299,7 @@ To verify reproducibility:
 
 **Type**: Horizontal bar chart  
 **X-axis**: Entropy Reduction (%)  
-**Y-axis**: FractalStat Dimensions  
+**Y-axis**: FractalSemantics Dimensions  
 **Colors**: Green (>5%), Orange (≤5%)  
 **Threshold Line**: Red dashed line at 5%
 
@@ -340,7 +340,7 @@ To verify reproducibility:
 2. **Mutual Information**: Quantify dimension dependencies
 3. **Conditional Entropy**: Entropy of dimension given others
 4. **Dimension Subsets**: Test all 2^7 = 128 combinations
-5. **FractalStat Testing**: Evaluate 8th dimension candidates
+5. **FractalSemantics Testing**: Evaluate 8th dimension candidates
 
 ### Research Questions
 
@@ -359,11 +359,11 @@ To verify reproducibility:
 
 3. MacKay, D. J. (2003). *Information Theory, Inference, and Learning Algorithms*. Cambridge University Press.
 
-### FractalStat System
+### FractalSemantics System
 
-1. FractalStat Issue #3: EXP-03 Coordinate Space Entropy Test
-2. FractalStat Issue #37: Collision detection at lower dimensions
-3. FractalStat EXP-11: Dimension Cardinality Analysis
+1. FractalSemantics Issue #3: EXP-03 Coordinate Space Entropy Test
+2. FractalSemantics Issue #37: Collision detection at lower dimensions
+3. FractalSemantics EXP-11: Dimension Cardinality Analysis
 
 ## Appendix A: Coordinate Examples
 

@@ -1,12 +1,12 @@
-# FractalStat Interactive Experiments - Hugging Face Space
+# FractalSemantics Interactive Experiments - Hugging Face Space
 
 ## Overview
 
-Welcome to the FractalStat Interactive Experiments platform! This Hugging Face Space provides a web-based interface for running and visualizing the 12 validation experiments that prove the FractalStat 8-dimensional addressing system works at scale.
+Welcome to the FractalSemantics Interactive Experiments platform! This Hugging Face Space provides a web-based interface for running and visualizing the 12 validation experiments that prove the FractalSemantics 8-dimensional addressing system works at scale.
 
-### What is FractalStat?
+### What is FractalSemantics?
 
-FractalStat is a research package containing **12 validation experiments** that prove the FractalStat addressing system works at scale. FractalStat expands FractalStat from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
+FractalSemantics is a research package containing **12 validation experiments** that prove the FractalSemantics addressing system works at scale. FractalSemantics expands FractalSemantics from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
 
 **The 8 Dimensions:**
 - **Realm** - Domain classification (data, narrative, system, etc.)
@@ -61,7 +61,7 @@ FractalStat is a research package containing **12 validation experiments** that 
 | **EXP-09** | Concurrency | Thread-safe queries | [Success] PASS |
 | **EXP-10** | Bob the Skeptic | Anti-hallucination | [Success] PASS |
 | **EXP-11** | Dimension Cardinality | Optimal dimension count analysis | [Success] PASS |
-| **EXP-12** | Benchmark Comparison | FractalStat vs. common systems | [Success] PASS |
+| **EXP-12** | Benchmark Comparison | FractalSemantics vs. common systems | [Success] PASS |
 
 ## Getting Started
 
@@ -175,7 +175,7 @@ python app.py
 
 To add a new experiment:
 
-1. Create the experiment module in `fractalstat/`
+1. Create the experiment module in `fractalsemantics/`
 2. Add experiment information to `EXPERIMENT_INFO` dictionary in `app.py`
 3. Ensure the experiment follows the standard interface used by `run_single_experiment`
 
@@ -196,7 +196,7 @@ The application can be customized by modifying:
    - `app.py` - Main application
    - `requirements_hf.txt` - Dependencies
    - `app.yaml` - Configuration
-   - `fractalstat/` - Experiment modules
+   - `fractalsemantics/` - Experiment modules
 3. **Configure**: Set the Space to use the `app.py` file as the main entry point
 4. **Deploy**: Hugging Face will automatically build and deploy the application
 
@@ -223,7 +223,7 @@ CMD ["python", "app.py"]
 
 ### Common Issues
 
-1. **Import Errors**: Ensure all FractalStat modules are properly installed
+1. **Import Errors**: Ensure all FractalSemantics modules are properly installed
 2. **Memory Issues**: Increase memory allocation in `app.yaml`
 3. **Timeout Errors**: Increase timeout values for long-running experiments
 4. **Visualization Issues**: Check matplotlib and plotly installations
@@ -262,7 +262,7 @@ For support and questions:
 
 - **GitHub Issues**: Report bugs and feature requests
 - **Documentation**: Check this README for setup and usage information
-- **Community**: Join discussions about FractalStat and addressing systems
+- **Community**: Join discussions about FractalSemantics and addressing systems
 
 ## Acknowledgments
 
@@ -273,4 +273,4 @@ This project builds upon research in:
 - Hash-based addressing systems
 - Self-organizing memory networks
 
-Special thanks to the contributors who developed the original FractalStat experiments and mathematical foundations.
+Special thanks to the contributors who developed the original FractalSemantics experiments and mathematical foundations.
