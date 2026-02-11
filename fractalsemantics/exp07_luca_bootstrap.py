@@ -17,14 +17,32 @@ Expected Result:
 - LUCA acts as stable bootstrap origin
 """
 
+import hashlib
 import json
 import time
 import uuid
-import hashlib
-from datetime import datetime, timezone
-from typing import Dict, List, Any, Tuple, Optional
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+# Import progress communication
+from fractalsemantics.progress_comm import create_progress_reporter
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # Import FractalSemantics components
 
@@ -73,9 +91,7 @@ class TestBitChain:
         """Generate FractalSemantics-like address."""
         return (
             f"FractalSemantics-{self.realm[0].upper()}-{self.lineage:03d}-"
-            f"50-{self.horizon[0].upper()}-50-{self.polarity[0].upper()}-{
-                self.dimensionality
-            }"
+            f"50-{self.horizon[0].upper()}-50-{self.polarity[0].upper()}-{self.dimensionality}"
         )
 
 
@@ -229,9 +245,7 @@ class LUCABootstrapTester:
                     horizon=self._expand_signature(luca_encoding["horizon_sig"]),
                     polarity=self._expand_signature(luca_encoding["polarity_sig"]),
                     dimensionality=luca_encoding["dimensionality"],
-                    metadata={
-                        key: None for key in luca_encoding.get("metadata_keys", [])
-                    },
+                    metadata=dict.fromkeys(luca_encoding.get("metadata_keys", [])),
                 )
 
                 bootstrapped_entities.append(entity)
@@ -359,7 +373,7 @@ class LUCABootstrapTester:
 
         # Test LUCA traceability: all entities have valid lineage
         lineages = [e.lineage for e in entities]
-        if not all(0 <= lineage for lineage in lineages):
+        if not all(lineage >= 0 for lineage in lineages):
             fractal_tests["luca_traceability"] = False
         details["lineages"] = sorted(set(lineages))
 
@@ -458,22 +472,25 @@ class LUCABootstrapTester:
         print("EXP-07: LUCA Bootstrap Test")
         print("Testing: Can we reliably reconstruct system from LUCA?")
         print("=" * 70)
+        
+        # Send subprocess status message
+        send_subprocess_status("EXP-07", "Initialization", "Starting LUCA bootstrap test")
 
         start_time = time.time()
 
         # Phase 1: Create test entities
         print("\n [1/6] Creating test entities...")
+        send_subprocess_progress("EXP-07", 10, 100, "Creating test entities")
         original_entities = self.create_test_entities(1000000)
         print(f"      Created {len(original_entities)} test entities")
         for i, e in enumerate(original_entities[:3]):
             print(
-                f"        - Entity {i}: lineage={e.lineage}, realm={e.realm}, address={
-                    e.get_fractalsemantics_address()
-                }"
+                f"        - Entity {i}: lineage={e.lineage}, realm={e.realm}, address={e.get_fractalsemantics_address()}"
             )
 
         # Phase 2: Compress to LUCA
         print("\n [2/6] Compressing to LUCA state...")
+        send_subprocess_progress("EXP-07", 20, 100, "Compressing to LUCA state")
         luca_state = self.compress_to_luca(original_entities)
         print(f"      OK Compression ratio: {luca_state['compression_ratio']:.2f}x")
         print(f"      OK Original size: {luca_state['total_original_size']} bytes")
@@ -481,19 +498,19 @@ class LUCABootstrapTester:
 
         # Phase 3: Bootstrap from LUCA
         print("\n[3/6] Bootstrapping from LUCA state...")
+        send_subprocess_progress("EXP-07", 40, 100, "Bootstrapping from LUCA state")
         bootstrapped_entities, expansion_success = self.bootstrap_from_luca(luca_state)
         success_rate = (
             sum(expansion_success) / len(expansion_success) if expansion_success else 0
         )
         print(
-            f"      OK Bootstrapped {len(bootstrapped_entities)}/{
-                len(original_entities)
-            } entities"
+            f"      OK Bootstrapped {len(bootstrapped_entities)}/{len(original_entities)} entities"
         )
         print(f"      OK Success rate: {success_rate:.1%}")
 
         # Phase 4: Compare entities
         print("\n[4/6] Comparing original and bootstrapped entities...")
+        send_subprocess_progress("EXP-07", 60, 100, "Comparing entities")
         comparison = self.compare_entities(original_entities, bootstrapped_entities)
         print(f"      OK Entity recovery rate: {comparison['entity_recovery_rate']:.1%}")
         print(
@@ -501,27 +518,26 @@ class LUCABootstrapTester:
         )
         print(f"      OK Realm recovery rate: {comparison['realm_recovery_rate']:.1%}")
         print(
-            f"      OK Dimensionality recovery rate: {
-                comparison['dimensionality_recovery_rate']:.1%}"
+            f"      OK Dimensionality recovery rate: {comparison['dimensionality_recovery_rate']:.1%}"
         )
         if comparison["information_loss_detected"]:
             print("      WARN Information loss detected!")
 
         # Phase 5: Test fractal properties
         print("\n[5/6] Testing fractal properties...")
+        send_subprocess_progress("EXP-07", 80, 100, "Testing fractal properties")
         fractal_tests = self.test_fractal_properties(original_entities)
         print(f"      OK Self-similarity: {fractal_tests['self_similarity']}")
         print(f"      OK Scale invariance: {fractal_tests['scale_invariance']}")
         print(f"      OK Recursive structure: {fractal_tests['recursive_structure']}")
         print(f"      OK LUCA traceability: {fractal_tests['luca_traceability']}")
         print(
-            f"      OK Lineage depth: {
-                fractal_tests['details'].get('lineage_depth', 'unknown')
-            }"
+            f"      OK Lineage depth: {fractal_tests['details'].get('lineage_depth', 'unknown')}"
         )
 
         # Phase 6: Test LUCA continuity
         print("\n[6/6] Testing LUCA continuity and entity health...")
+        send_subprocess_progress("EXP-07", 90, 100, "Testing LUCA continuity")
         continuity = self.test_luca_continuity(original_entities)
         print(f"      OK Bootstrap cycles: {continuity['bootstraps_performed']}")
         print(f"      OK Bootstrap failures: {continuity['bootstrap_failures']}")

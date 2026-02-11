@@ -1,0 +1,29 @@
+# GUI Application Requirements for FractalSemantics
+# Install these dependencies to run the GUI application
+
+# Core GUI Framework
+streamlit>=1.28.0
+streamlit-autorefresh>=0.0.1
+
+# Data Visualization
+plotly>=5.17.0
+pandas>=2.0.0
+
+# Core FractalSemantics Dependencies (already in main requirements.txt)
+pydantic>=2.0.0
+numpy>=1.20.0
+click>=8.1.0
+tomli>=2.0.0
+torch>=2.0.0
+transformers>=4.30.0
+sentence-transformers>=2.2.0
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# Optional: For enhanced PDF export (install separately if needed)
+# reportlab>=4.0.0
+# weasyprint>=60.0
+
+# Optional: For enhanced data analysis
+# matplotlib>=3.7.0
+# seaborn>=0.12.0

@@ -27,12 +27,32 @@ Success Criteria:
 """
 
 import json
-import sys
 import secrets
-from typing import Dict, List, Tuple, Any, Optional
-from dataclasses import dataclass, asdict
-from pathlib import Path
+import sys
+import time
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import tqdm
+
+from fractalsemantics.progress_comm import ProgressReporter
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 secure_random = secrets.SystemRandom()
 
@@ -109,7 +129,7 @@ class EXP01_GeometricCollisionResistance:
         return range_size**dimension
 
     def _generate_coordinate(self, dimension: int, seed: int) -> Tuple[int, ...]:
-        """Generate a uniform coordinate tuple for given dimension."""        
+        """Generate a uniform coordinate tuple for given dimension."""
 
         secure_random.seed(seed)
         min_val, max_val = self.DIMENSION_RANGES[dimension]
@@ -131,10 +151,28 @@ class EXP01_GeometricCollisionResistance:
         print(f"Testing dimensions: {', '.join(f'{d}D' for d in self.dimensions)}")
         print()
 
+        # Send progress message for experiment start
+        try:
+            progress = ProgressReporter("EXP-01")
+            progress.status("Initialization", "Starting geometric collision resistance test")
+            
+            # Send subprocess progress message
+            send_subprocess_status("EXP-01", "Initialization", "Starting geometric collision resistance test")
+        except:
+            pass  # Ignore if progress communication is not available
+
         all_validated = True
 
-        for dimension in self.dimensions:
+        for i, dimension in enumerate(self.dimensions):
+            progress_percent = (i / len(self.dimensions)) * 100
             print(f"Testing {dimension}D coordinate space...")
+
+            # Send progress message for dimension start
+            try:
+                progress = ProgressReporter("EXP-01")
+                progress.status(f"Testing {dimension}D", f"Generating {self.sample_size:,} coordinates")
+            except:
+                pass
 
             # Calculate theoretical coordinate space
             coord_space_size = self._calculate_coordinate_space_size(dimension)
@@ -144,11 +182,26 @@ class EXP01_GeometricCollisionResistance:
             coordinates = set()
             collisions = 0
 
-            for i in range(self.sample_size):
-                coord = self._generate_coordinate(dimension, i)
+            # Progress tracking for coordinate generation
+            progress_interval = max(1, self.sample_size // 10)  # Update every 10%
+
+            for j in range(self.sample_size):
+                coord = self._generate_coordinate(dimension, j)
                 if coord in coordinates:
                     collisions += 1
                 coordinates.add(coord)
+
+                # Send progress update every 10%
+                if j % progress_interval == 0 and j > 0:
+                    coord_progress = progress_percent + (j / self.sample_size) * (100 / len(self.dimensions))
+                    try:
+                        progress = ProgressReporter("EXP-01")
+                        progress.update(coord_progress, f"{dimension}D Generation", f"Generated {j:,}/{self.sample_size:,} coordinates")
+                        
+                        # Send subprocess progress message
+                        send_subprocess_progress("EXP-01", coord_progress, f"{dimension}D Generation", f"Generated {j:,}/{self.sample_size:,} coordinates")
+                    except:
+                        pass
 
             unique_coords = len(coordinates)
             collision_rate = collisions / self.sample_size if self.sample_size > 0 else 0.0
@@ -188,6 +241,16 @@ class EXP01_GeometricCollisionResistance:
             )
             print(f"      Status: {status}")
             print()
+
+        # Send completion progress message
+        try:
+            progress = ProgressReporter("EXP-01")
+            progress.complete("Geometric collision resistance test completed")
+            
+            # Send subprocess completion message
+            send_subprocess_completion("EXP-01", all_validated, f"Geometric validation {'passed' if all_validated else 'failed'}")
+        except:
+            pass
 
         print(f"{'=' * 80}")
         print("GEOMETRIC VALIDATION SUMMARY")

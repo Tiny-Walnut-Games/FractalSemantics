@@ -24,16 +24,32 @@ Success Criteria:
 """
 
 import json
-import time
-import secrets
-import sys
 import random
-import numpy as np
+import secrets
+import statistics
+import sys
+import time
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, field
-import statistics
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 secure_random = secrets.SystemRandom()
 
@@ -404,7 +420,7 @@ def run_hierarchical_gravity_test_for_element(
         cohesion_by_distance[hierarchical_distance]['falloff']['measurements'].append(falloff_cohesion)
 
     # Calculate statistics for each hierarchical distance
-    for h_dist in cohesion_by_distance.keys():
+    for h_dist in cohesion_by_distance:
         # Natural cohesion stats
         natural_vals = cohesion_by_distance[h_dist]['natural']['measurements']
         cohesion_by_distance[h_dist]['natural'].update({
@@ -464,6 +480,10 @@ def run_fractal_gravity_experiment_v2(
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
+    # Send initial status update
+    if is_subprocess_communication_enabled():
+        send_subprocess_status("EXP-13", "starting", "Starting fractal gravity experiment")
+
     print("\n" + "=" * 70)
     print("EXP-13 v2: FRACTAL GRAVITY WITHOUT FALLOFF (REDESIGNED)")
     print("=" * 70)
@@ -475,8 +495,13 @@ def run_fractal_gravity_experiment_v2(
     element_results = {}
     all_measurements = []
 
-    for element_type in elements_to_test:
+    for i, element_type in enumerate(elements_to_test):
         try:
+            # Send progress update
+            if is_subprocess_communication_enabled():
+                progress_percent = (i + 1) / len(elements_to_test) * 100
+                send_subprocess_progress("EXP-13", progress_percent, "Element Testing", f"Testing {element_type}", "info")
+
             result = run_hierarchical_gravity_test_for_element(
                 element_type, max_hierarchy_depth, interaction_samples
             )
@@ -514,6 +539,16 @@ def run_fractal_gravity_experiment_v2(
         universal_falloff_mechanism=universal_falloff_mechanism,
         mass_fractal_density_correlation=mass_fractal_density_correlation,
     )
+
+    # Send completion message
+    if is_subprocess_communication_enabled():
+        send_subprocess_completion("EXP-13", fractal_no_falloff_confirmed and universal_falloff_mechanism, {
+            "message": f"Fractal gravity experiment completed with {len(elements_to_test)} elements",
+            "elements_tested": len(elements_to_test),
+            "total_duration": overall_end - overall_start,
+            "fractal_no_falloff_confirmed": fractal_no_falloff_confirmed,
+            "universal_falloff_mechanism": universal_falloff_mechanism
+        })
 
     return results
 
@@ -654,6 +689,10 @@ if __name__ == "__main__":
         elements_to_test = ["gold", "nickel", "copper"]
         population_size = 5  # Max hierarchy depth, not number of entities
         interaction_samples = 1000
+
+    # Ensure elements_to_test is always a list
+    if elements_to_test is None:
+        elements_to_test = ["gold", "nickel", "copper"]
 
     try:
         results = run_fractal_gravity_experiment(

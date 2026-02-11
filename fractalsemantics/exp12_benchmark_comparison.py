@@ -19,23 +19,38 @@ Validates:
 Status: Phase 2 validation experiment
 """
 
-import json
 import hashlib
+import json
+import secrets
+import statistics
+import sys
 import time
 import uuid
-import sys
-import secrets
+from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict, field
-import statistics
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # Reuse canonical serialization from Phase 1
 from fractalsemantics.fractalsemantics_experiments import (
+    BitChain,
     canonical_serialize,
     compute_address_hash,
-    BitChain,
     generate_random_bitchain,
 )
 
@@ -493,6 +508,10 @@ class BenchmarkComparisonExperiment:
         start_time = datetime.now(timezone.utc).isoformat()
         overall_start = time.time()
 
+        # Send initial status update
+        if is_subprocess_communication_enabled():
+            send_subprocess_status("EXP-12", "starting", "Starting benchmark comparison")
+
         print("\n" + "=" * 80)
         print("EXP-12: BENCHMARK COMPARISON")
         print("=" * 80)
@@ -507,8 +526,13 @@ class BenchmarkComparisonExperiment:
         print("-" * 80)
 
         # Benchmark each system
-        for system_name in self.benchmark_systems:
+        for i, system_name in enumerate(self.benchmark_systems):
             try:
+                # Send progress update
+                if is_subprocess_communication_enabled():
+                    progress_percent = (i + 1) / len(self.benchmark_systems) * 100
+                    send_subprocess_progress("EXP-12", progress_percent, "System Benchmarking", f"Benchmarking {system_name}", "info")
+
                 system = self._create_system(system_name)
                 bench_result = self._benchmark_system(system, test_scale)
                 self.results.append(bench_result)
@@ -722,6 +746,16 @@ class BenchmarkComparisonExperiment:
                 f"RESULT: [INFO] BENCHMARK ANALYSIS COMPLETE (score: {fractalsemantics_score:.3f})"
             )
         print("=" * 80)
+
+        # Send completion message
+        if is_subprocess_communication_enabled():
+            send_subprocess_completion("EXP-12", success, {
+                "message": f"Benchmark comparison completed with FractalSemantics score {fractalsemantics_score:.3f}",
+                "fractalsemantics_score": fractalsemantics_score,
+                "total_duration": overall_end - overall_start,
+                "best_system": best_overall.system_name,
+                "systems_tested": len(self.benchmark_systems)
+            })
 
         return result, success
 

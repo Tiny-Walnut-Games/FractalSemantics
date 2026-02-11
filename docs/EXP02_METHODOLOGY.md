@@ -267,7 +267,7 @@ This is a computational performance experiment with no human subjects, personal 
 
 - **Input**: Randomly generated bit-chains (deterministic seeds)
 - **Output**: Latency measurements, statistical summaries
-- **Storage**: `fractalsemantics/results/exp02_retrieval_efficiency_[timestamp].json`
+- **Storage**: `results/exp02_retrieval_efficiency_[timestamp].json`
 
 ### Data Retention
 

@@ -18,10 +18,27 @@ Status: Phase 1 Mathematical Validation COMPLETE; proceeding with Phase 2 robust
 """
 
 import math
-from typing import Dict, List, Tuple, Set, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Set, Tuple
 
+# Import progress communication
+from fractalsemantics.progress_comm import create_progress_reporter
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # ============================================================================
 # COMPONENT 1: POLARITY RESONANCE
@@ -546,8 +563,8 @@ class EntanglementDetector:
 def save_results(results: Dict, output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     import json
-    from pathlib import Path
     from datetime import datetime, timezone
+    from pathlib import Path
 
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -573,6 +590,9 @@ def main() -> bool:
 
     print(" RUNNING EXP-06: 10 ITERATIONS OF ENTANGLEMENT DETECTION")
     print("=" * 80)
+    
+    # Send subprocess status message
+    send_subprocess_status("EXP-06", "Initialization", "Starting entanglement detection experiment with 10 iterations")
 
     successful_runs = 0
     all_precisions = []
@@ -663,8 +683,8 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
     Returns:
         Tuple of (results_dict, success_boolean)
     """
-    import time
     import random
+    import time
     # from fractalsemantics.fractalsemantics_entity import generate_random_bitchain
 
     print("=" * 80)
@@ -673,6 +693,9 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
     print(f"Sample size: {sample_size} bit-chains")
     print(f"Detection threshold: {threshold}")
     print()
+
+    # Send subprocess status message
+    send_subprocess_status("EXP-06", "Initialization", "Starting entanglement detection validation experiment")
 
     # Create ground truth entangled pairs - SIMULATING ENTITY "HOPPING" ACROSS REALMS
     print("Creating synthetic cross-realm entity entanglement...")
@@ -697,6 +720,9 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
     bitchains = []
 
     print(f"Creating {num_groups} entangled entity groups across realms...")
+    
+    # Send progress update
+    send_subprocess_progress("EXP-06", 10, 100, "Generating synthetic entangled entities")
 
     for group_idx in range(num_groups):
         # Create a group of bit-chains representing the same entity in different realms
@@ -761,22 +787,26 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
             pair_example = pairs_list[0]
             bc1_id: str = pair_example[0]
             bc2_id: str = pair_example[1]
-        bc1 = next(bc for bc in bitchains if bc["id"] == bc1_id)
-        bc2 = next(bc for bc in bitchains if bc["id"] == bc2_id)
+            
+            bc1 = next(bc for bc in bitchains if bc["id"] == bc1_id)
+            bc2 = next(bc for bc in bitchains if bc["id"] == bc2_id)
 
-        score_obj = compute_entanglement_score(bc1, bc2)
-        print("DEBUG - Known entangled pair:")
-        print(f"  Pair: {bc1_id} <-> {bc2_id}")
-        print(f"  Realms: {bc1['coordinates']['realm']} vs {bc2['coordinates']['realm']}")
-        print(f"  Lineage: {bc1['coordinates']['lineage']} <=> {bc2['coordinates']['lineage']}")
-        print(f"  Density: {bc1['coordinates']['density']:.3f} <=> {bc2['coordinates']['density']:.3f}")
-        print(f"  Score components: P={score_obj.polarity_resonance:.3f}, R={score_obj.realm_affinity:.3f}, A={score_obj.adjacency_overlap:.3f}, L={score_obj.luminosity_proximity:.3f}, ell={score_obj.lineage_affinity:.3f}")
-        print(f"  Total score: {score_obj.total_score:.3f} (threshold: {threshold})")
-        print()
+            score_obj = compute_entanglement_score(bc1, bc2)
+            print("DEBUG - Known entangled pair:")
+            print(f"  Pair: {bc1_id} <-> {bc2_id}")
+            print(f"  Realms: {bc1['coordinates']['realm']} vs {bc2['coordinates']['realm']}")
+            print(f"  Lineage: {bc1['coordinates']['lineage']} <=> {bc2['coordinates']['lineage']}")
+            print(f"  Density: {bc1['coordinates']['density']:.3f} <=> {bc2['coordinates']['density']:.3f}")
+            print(f"  Score components: P={score_obj.polarity_resonance:.3f}, R={score_obj.realm_affinity:.3f}, A={score_obj.adjacency_overlap:.3f}, L={score_obj.luminosity_proximity:.3f}, ell={score_obj.lineage_affinity:.3f}")
+            print(f"  Total score: {score_obj.total_score:.3f} (threshold: {threshold})")
+            print()
 
     # Run entanglement detection
     print("Running entanglement detection...")
     start_time = time.time()
+    
+    # Send progress update
+    send_subprocess_progress("EXP-06", 50, 100, "Running entanglement detection algorithm")
 
     detector = EntanglementDetector(threshold=threshold)
     detected_pairs = detector.detect(bitchains)
@@ -791,6 +821,9 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
 
     # Compute validation metrics
     print("Computing validation metrics...")
+    
+    # Send progress update
+    send_subprocess_progress("EXP-06", 80, 100, "Computing validation metrics")
 
     # Normalize detected pairs to match true pairs format
     detected_normalized = set()

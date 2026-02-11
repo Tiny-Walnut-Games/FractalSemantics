@@ -15,14 +15,30 @@ Success Criteria:
 """
 
 import json
+import statistics
 import sys
 import time
-import numpy as np
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass
-import statistics
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # Import fractal hierarchy from EXP-13
 from fractalsemantics.exp13_fractal_gravity import (
@@ -595,6 +611,10 @@ def run_atomic_fractal_mapping_experiment_v2(
     print(f"Testing elements: {', '.join(elements_to_test)}")
     print()
 
+    # Send initial status update
+    if is_subprocess_communication_enabled():
+        send_subprocess_status("EXP-14", "starting", "Starting atomic fractal mapping experiment")
+
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
@@ -636,6 +656,13 @@ def run_atomic_fractal_mapping_experiment_v2(
     depth_accuracy = sum(structure_validation["depth_matches"]) / len(structure_validation["depth_matches"]) if structure_validation["depth_matches"] else 0
     branching_accuracy = sum(structure_validation["branching_matches"]) / len(structure_validation["branching_matches"]) if structure_validation["branching_matches"] else 0
     exponential_consistency = sum(structure_validation["exponential_growth"]) / len(structure_validation["exponential_growth"]) if structure_validation["exponential_growth"] else 0
+
+    # Initialize variables to avoid unbound errors
+    mean_error = 0.0
+    std_error = 0.0
+    max_error = 0.0
+    min_error = 0.0
+    correlation = 1.0
 
     # Calculate density prediction statistics
     if density_errors:
@@ -768,8 +795,13 @@ if __name__ == "__main__":
         shell_data = get_electron_shell_data()
         elements_to_test = list(shell_data.keys())
 
+    # Ensure elements_to_test is always a list
+    if elements_to_test is None:
+        shell_data = get_electron_shell_data()
+        elements_to_test = list(shell_data.keys())
+
     try:
-        results = run_atomic_fractal_mapping_experiment(elements_to_test)
+        results = run_atomic_fractal_mapping_experiment_v2(elements_to_test)
         output_file = save_results(results)
 
         print("\n" + "=" * 80)

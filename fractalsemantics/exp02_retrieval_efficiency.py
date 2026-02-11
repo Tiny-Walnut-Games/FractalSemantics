@@ -21,17 +21,36 @@ Success Criteria:
 - Latency scales logarithmically or better
 """
 
+import gc
 import json
+import secrets
 import sys
 import time
-import secrets
-import gc
-import psutil  # type: ignore[import-untyped]
-from pathlib import Path
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from typing import Dict, List, Tuple, Any, Optional
-from dataclasses import dataclass, asdict
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import psutil  # type: ignore[import-untyped]
+
 from fractalsemantics.fractalsemantics_entity import generate_random_bitchain
+from fractalsemantics.progress_comm import ProgressReporter
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
+
 secure_random = secrets.SystemRandom()
 
 try:
@@ -111,6 +130,16 @@ class EXP02_RetrievalEfficiency:
         print("Includes: warmup, memory pressure, cache simulation")
         print()
 
+        # Send progress message for experiment start
+        try:
+            progress = ProgressReporter("EXP-02")
+            progress.status("Initialization", "Starting retrieval efficiency test")
+            
+            # Send subprocess progress message
+            send_subprocess_status("EXP-02", "Initialization", "Starting retrieval efficiency test")
+        except:
+            pass  # Ignore if progress communication is not available
+
         all_success = True
         # Updated thresholds for scaled experiments - more lenient for larger scales
         thresholds = {
@@ -120,8 +149,17 @@ class EXP02_RetrievalEfficiency:
             1000000000000: 5.0 # 1T: 5.0ms target
         }
 
-        for scale in self.scales:
+        for i, scale in enumerate(self.scales):
+            progress_percent = (i / len(self.scales)) * 100
             print(f"Testing scale: {scale:,} bit-chains")
+
+            # Send progress message for scale start
+            try:
+                progress = ProgressReporter("EXP-02")
+                progress.status(f"Scale {scale:,}", f"Testing {scale:,} bit-chains")
+            except:
+                pass  # Ignore if progress communication is not available
+
             start_time = time.time()
 
             # 1. Generate bit-chains with realistic data storage
@@ -201,7 +239,10 @@ class EXP02_RetrievalEfficiency:
             # Mix of query patterns to simulate real-world usage
             query_patterns = self._generate_query_patterns(addresses, self.query_count)
 
-            for query_addr in query_patterns:
+            # Progress tracking for query execution
+            progress_interval = max(1, self.query_count // 10)  # Update every 10%
+
+            for query_idx, query_addr in enumerate(query_patterns):
                 total_queries += 1
 
                 start = time.perf_counter()
@@ -217,6 +258,18 @@ class EXP02_RetrievalEfficiency:
                 elapsed = (time.perf_counter() - start) * 1000  # Convert to ms
 
                 latencies.append(elapsed)
+
+                # Send progress update every 10%
+                if query_idx % progress_interval == 0 and query_idx > 0:
+                    query_progress = progress_percent + (query_idx / self.query_count) * (100 / len(self.scales))
+                    try:
+                        progress = ProgressReporter("EXP-02")
+                        progress.update(query_progress, f"{scale:,} Scale", f"Executed {query_idx:,}/{self.query_count:,} queries")
+                        
+                        # Send subprocess progress message
+                        send_subprocess_progress("EXP-02", query_progress, f"{scale:,} Scale", f"Executed {query_idx:,}/{self.query_count:,} queries")
+                    except:
+                        pass
 
             # 6. Compute enhanced statistics
             latencies.sort()
@@ -269,6 +322,17 @@ class EXP02_RetrievalEfficiency:
             print("OVERALL RESULT: ALL PASS")
         else:
             print("OVERALL RESULT: SOME FAILED")
+
+        # Send completion progress message
+        try:
+            progress = ProgressReporter("EXP-02")
+            progress.complete("Retrieval efficiency test completed")
+            
+            # Send subprocess completion message
+            send_subprocess_completion("EXP-02", all_success, f"Retrieval efficiency {'passed' if all_success else 'failed'}")
+        except:
+            pass  # Ignore if progress communication is not available
+
         return self.results, all_success
 
     def _generate_query_patterns(self, addresses: List[str], query_count: int) -> List[str]:

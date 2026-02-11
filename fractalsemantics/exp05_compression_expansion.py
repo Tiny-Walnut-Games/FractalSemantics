@@ -15,26 +15,44 @@ Validates:
 Status: Phase 2 validation experiment
 """
 
-import json
 import hashlib
+import json
+import statistics
+import sys
 import time
 import uuid
-import sys
-from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
-import statistics
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from fractalsemantics.dynamic_enum import Alignment, Polarity
+from fractalsemantics.fractalsemantics_entity import Coordinates
 
 # Reuse canonical serialization from Phase 1
 from fractalsemantics.fractalsemantics_experiments import (
-    canonical_serialize,
     BitChain,
+    canonical_serialize,
     generate_random_bitchain,
 )
-from fractalsemantics.dynamic_enum import Polarity, Alignment
-from fractalsemantics.fractalsemantics_entity import Coordinates
 
+# Import progress communication
+from fractalsemantics.progress_comm import create_progress_reporter
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # ============================================================================
 # EXP-05 DATA STRUCTURES
@@ -636,6 +654,9 @@ def run_compression_expansion_test(
 
     _print_experiment_header(num_bitchains)
 
+    # Send subprocess status message
+    send_subprocess_status("EXP-05", "Initialization", f"Starting compression/expansion test with {num_bitchains} bit-chains")
+
     pipeline = CompressionPipeline()
     compression_paths = _compress_bitchains(pipeline, num_bitchains)
 
@@ -720,6 +741,10 @@ if __name__ == "__main__":
         print("=" * 80)
         print(f"Results: {output_file}")
         print()
+        
+        # Send subprocess completion message
+        success = results.is_lossless and all(p.provenance_chain_complete and p.narrative_preserved for p in results.compression_paths)
+        send_subprocess_completion("EXP-05", success, f"Compression/expansion test completed with {results.num_bitchains_tested} bit-chains tested")
 
     except Exception as e:
         print(f"\n[FAIL] EXPERIMENT FAILED: {e}")

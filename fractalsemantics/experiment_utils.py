@@ -6,10 +6,8 @@ such as random bit-chain generation and other shared testing functionality.
 """
 
 import secrets
-from typing import List
 from datetime import datetime, timezone
-
-
+from typing import List
 
 # Use cryptographically secure random number generator
 secure_random = secrets.SystemRandom()
@@ -35,6 +33,7 @@ def compute_shannon_entropy(coordinates: List[str]) -> float:
         Shannon entropy in bits
     """
     from collections import Counter
+
     import numpy as np
 
     if not coordinates:

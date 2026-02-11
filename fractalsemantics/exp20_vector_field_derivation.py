@@ -29,18 +29,34 @@ BREAKTHROUGH CONFIRMED:
 """
 
 import json
-import time
+import math
 import secrets
+import statistics
 import sys
-import numpy as np
+import time
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Callable
-from dataclasses import dataclass, field
-import math
-import statistics
+from typing import Callable, Dict, List, Optional, Tuple
+
+import numpy as np
 
 secure_random = secrets.SystemRandom()
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # ============================================================================
 # VECTOR FIELD DERIVATION APPROACHES
@@ -484,7 +500,7 @@ def create_continuous_vector_field(
     scalar_magnitude: float,
     grid_resolution: int = 50,
     field_bounds: float = 2e11  # 2 AU in meters
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Create a continuous 3D vector field from discrete fractal interactions.
 
@@ -934,6 +950,11 @@ def test_vector_field_approaches(
     """
     print(f"Testing vector field approaches on {system_name} system...")
 
+    # Send subprocess communication if enabled
+    if is_subprocess_communication_enabled():
+        send_subprocess_status("EXP-20: Vector Field Derivation", f"Testing {system_name} system")
+        send_subprocess_progress("EXP-20", 0, 100, "Initializing vector field derivation test")
+
     # Create fractal entities
     if system_name == "Earth-Sun":
         orbiting_body, central_body = create_earth_sun_fractal_entities()
@@ -945,8 +966,12 @@ def test_vector_field_approaches(
 
     results = {}
 
-    for approach in derivation_system.approaches:
+    for i, approach in enumerate(derivation_system.approaches):
+        progress_percent = int((i + 1) / len(derivation_system.approaches) * 100)
         print(f"  Testing {approach.name} approach...")
+
+        if is_subprocess_communication_enabled():
+            send_subprocess_progress("EXP-20", progress_percent, 100, f"Testing {approach.name} approach")
 
         # Phase 1: Derive vector field
         start_time = time.time()
@@ -1005,6 +1030,15 @@ def test_vector_field_approaches(
         print(f"    Period accuracy: {result.period_accuracy:.6f}")
         print(f"    Position correlation: {result.position_correlation:.6f}")
         print(f"    Status: {'SUCCESS' if approach_successful else 'FAILED'}")
+
+    # Send completion status
+    if is_subprocess_communication_enabled():
+        successful_approaches = sum(1 for result in results.values() if result.approach_successful)
+        if successful_approaches > 0:
+            send_subprocess_status("EXP-20: Vector Field Derivation", f"SUCCESS - {successful_approaches} approaches successful")
+        else:
+            send_subprocess_status("EXP-20: Vector Field Derivation", "PARTIAL - No approaches fully successful")
+        send_subprocess_progress("EXP-20", 100, 100, "Vector field derivation test completed")
 
     return results
 
@@ -1360,8 +1394,6 @@ if __name__ == "__main__":
         traceback.print_exc()
         sys.exit(1)
         print(f"\nEXPERIMENT FAILED: {e}")
-        import traceback
-        import traceback
         import traceback
         sys.exit(1)
         import traceback

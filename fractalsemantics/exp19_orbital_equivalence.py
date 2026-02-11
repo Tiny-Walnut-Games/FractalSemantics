@@ -28,16 +28,32 @@ Postulates:
 """
 
 import json
-import time
 import secrets
+import statistics
 import sys
-import numpy as np
+import time
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
-from dataclasses import dataclass, field
-import statistics
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
 from scipy.integrate import odeint
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 secure_random = secrets.SystemRandom()
 
@@ -261,7 +277,7 @@ class FractalOrbitalSystem:
     bodies: List[FractalBody]
     central_body: FractalBody
     max_hierarchy_depth: int
-    cohesion_constant: float  # Base cohesion strength
+    cohesion_constant: float = 1.0  # Base cohesion strength
 
     def get_hierarchical_distance(self, body1: FractalBody, body2: FractalBody) -> float:
         """
@@ -745,6 +761,11 @@ def run_orbital_equivalence_test(
     print(f"Simulation time: {simulation_time / (365.25 * 24 * 3600):.2f} years")
     print(f"Time steps: {time_steps}")
 
+    # Send subprocess communication if enabled
+    if is_subprocess_communication_enabled():
+        send_subprocess_status("EXP-19: Orbital Equivalence", f"Testing {system_name} system")
+        send_subprocess_progress("EXP-19", 0, 100, "Initializing orbital equivalence test")
+
     # Create both representations of the system
     if system_name == "Earth-Sun":
         classical_system, fractal_system = create_earth_sun_system()
@@ -774,16 +795,22 @@ def run_orbital_equivalence_test(
         density_product = earth_fractal.fractal_density * sun_fractal.fractal_density
 
         # Solve for cohesion_constant: force = cohesion_constant * density_product / dist^2
-        fractal_system.cohesion_constant = gravitational_force / (density_product / (hierarchical_dist ** 2))
+        fractal_system.cohesion_constant = float(gravitational_force / (density_product / (hierarchical_dist ** 2)))
 
     # Run classical simulation
     print("Running classical orbital simulation...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-19", 20, 100, "Running classical orbital simulation")
+
     classical_trajectories = simulate_orbital_trajectory(
         classical_system, simulation_time, time_steps, G
     )
 
     # Run fractal simulation
     print("Running fractal cohesion simulation...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-19", 40, 100, "Running fractal cohesion simulation")
+
     # Convert time to normalized units for fractal simulation
     fractal_time_span = simulation_time / (365.25 * 24 * 3600)  # Years
     fractal_trajectories = simulate_fractal_trajectory(
@@ -808,6 +835,8 @@ def run_orbital_equivalence_test(
     # Test with perturbation if requested
     if include_perturbation:
         print("Testing perturbation response...")
+        if is_subprocess_communication_enabled():
+            send_subprocess_progress("EXP-19", 60, 100, "Testing perturbation response")
 
         # Add perturbation at halfway point
         perturbation_time = simulation_time / 2
@@ -863,6 +892,14 @@ def run_orbital_equivalence_test(
     print(f"Trajectory similarity: {test_results.average_trajectory_similarity:.6f}")
     print(f"Orbital period match: {test_results.average_orbital_period_match:.6f}")
     print(f"Equivalence confirmed: {'YES' if test_results.equivalence_confirmed else 'NO'}")
+
+    # Send completion status
+    if is_subprocess_communication_enabled():
+        if test_results.equivalence_confirmed:
+            send_subprocess_status("EXP-19: Orbital Equivalence", f"SUCCESS - {system_name} equivalence confirmed")
+        else:
+            send_subprocess_status("EXP-19: Orbital Equivalence", f"PARTIAL - {system_name} equivalence not confirmed")
+        send_subprocess_progress("EXP-19", 100, 100, "Orbital equivalence test completed")
 
     return test_results
 

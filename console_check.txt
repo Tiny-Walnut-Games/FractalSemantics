@@ -1,1 +1,0 @@
-Please check the browser console to see the current state. The experiment should be completing soon.

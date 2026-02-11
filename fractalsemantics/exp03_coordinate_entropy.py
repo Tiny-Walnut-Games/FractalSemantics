@@ -34,23 +34,50 @@ the coordinate space BEFORE hashing, providing a more nuanced understanding of h
 each dimension contributes to semantic disambiguation, even when collisions are zero.
 """
 
-from typing import Dict, List, Tuple, Any, Optional
-from dataclasses import dataclass, asdict
-from pathlib import Path
-from datetime import datetime, timezone
-from collections import Counter
-import json
-import sys
 import hashlib
-import uuid
+import json
 import secrets
+import sys
+import uuid
+from collections import Counter
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 
-from fractalsemantics.dynamic_enum import Realm, Horizon, Polarity, Alignment
-from fractalsemantics.dynamic_enum import REALM_REGISTRY, HORIZON_REGISTRY, POLARITY_REGISTRY, ALIGNMENT_REGISTRY
-from fractalsemantics.fractalsemantics_entity import BitChain, Coordinates
-from fractalsemantics.fractalsemantics_entity import FractalSemanticsCoordinates
+from fractalsemantics.dynamic_enum import (
+    ALIGNMENT_REGISTRY,
+    HORIZON_REGISTRY,
+    POLARITY_REGISTRY,
+    REALM_REGISTRY,
+    Alignment,
+    Horizon,
+    Polarity,
+    Realm,
+)
+from fractalsemantics.fractalsemantics_entity import (
+    BitChain,
+    Coordinates,
+    FractalSemanticsCoordinates,
+)
+from fractalsemantics.progress_comm import ProgressReporter
 
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # Use cryptographically secure random number generator
 secure_random = secrets.SystemRandom()
@@ -677,6 +704,16 @@ class EXP03_CoordinateEntropy:
         print(f"Random seed: {self.random_seed} (for reproducibility)")
         print()
 
+        # Send progress message for experiment start
+        try:
+            progress = ProgressReporter("EXP-03")
+            progress.status("Initialization", "Starting coordinate entropy test")
+            
+            # Send subprocess progress message
+            send_subprocess_status("EXP-03", "Initialization", "Starting coordinate entropy test")
+        except:
+            pass  # Ignore if progress communication is not available
+
         # Generate bit-chains once for all tests
         print("Generating bit-chains...")
         generation_start = time.time()
@@ -732,9 +769,17 @@ class EXP03_CoordinateEntropy:
         all_success = True
 
         for i, removed_dim in enumerate(self.FractalSemantics_DIMENSIONS, 1):
+            _percent = (i / len(self.FractalSemantics_DIMENSIONS)) * 100
             print("=" * 70)
             print(f"ABLATION: Remove '{removed_dim}' ({i}/8)")
             print("=" * 70)
+
+            # Send progress message for dimension ablation
+            try:
+                progress = ProgressReporter("EXP-03")
+                progress.status(f"Ablation {removed_dim}", f"Testing entropy without {removed_dim}")
+            except:
+                pass  # Ignore if progress communication is not available
 
             dim_start = time.time()
             # Get dimensions without the removed one
@@ -840,6 +885,13 @@ class EXP03_CoordinateEntropy:
             print("[Warn]  RESULT: Some dimensions may be optional")
             print("   (not all show measurable entropy reduction when removed)")
 
+        # Send completion progress message
+        try:
+            progress = ProgressReporter("EXP-03")
+            progress.complete("Coordinate entropy test completed")
+        except:
+            pass  # Ignore if progress communication is not available
+
         return self.results, bool(all_success)
 
     def get_summary(self) -> Dict[str, Any]:
@@ -909,9 +961,7 @@ def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> 
                 return str(obj)  # fallback for other numpy types
         elif isinstance(obj, bool):
             return bool(obj)
-        elif isinstance(obj, (int, float)):
-            return obj
-        elif isinstance(obj, str):
+        elif isinstance(obj, (int, float)) or isinstance(obj, str):
             return obj
         elif isinstance(obj, dict):
             return {k: make_serializable(v) for k, v in obj.items()}
