@@ -16,13 +16,29 @@ Success Criteria:
 """
 
 import json
+import statistics
 import sys
 import time
-import numpy as np
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any, Optional
-import statistics
+from typing import Any, Dict, Optional
+
+import numpy as np
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # Import fractal components
 from fractalsemantics.exp13_fractal_gravity import (
@@ -33,9 +49,9 @@ from fractalsemantics.exp17_thermodynamic_validation import (
     ThermodynamicState,
     create_fractal_region,
     validate_first_law,
+    validate_fractal_void_density,
     validate_second_law,
     validate_zeroth_law,
-    validate_fractal_void_density,
 )
 
 secure_random = np.random.RandomState(42)
@@ -55,10 +71,11 @@ def measure_fractal_energy_with_falloff(hierarchy: FractalHierarchy,
     all_nodes = hierarchy.get_all_nodes()
 
     # Sample cohesion energies with falloff applied
-    sampled_pairs = secure_random.choice(len(all_nodes), size=min(1000, len(all_nodes)), replace=False)
+    sample_size = min(1000, len(all_nodes))
+    sampled_indices = secure_random.choice(len(all_nodes), size=sample_size, replace=False)
 
-    for i in sampled_pairs:
-        for j in sampled_pairs:
+    for i in sampled_indices:
+        for j in sampled_indices:
             if i != j:
                 node_a = all_nodes[i]
                 node_b = all_nodes[j]
@@ -133,12 +150,14 @@ def measure_fractal_temperature_with_falloff(hierarchy: FractalHierarchy,
 
     # Sample interaction strengths with falloff applied
     sample_size = min(100, len(all_nodes))
-    sampled_nodes = secure_random.choice(all_nodes, size=sample_size, replace=False)
+    sampled_indices = secure_random.choice(len(all_nodes), size=sample_size, replace=False)
 
     interaction_strengths = []
-    for node_a in sampled_nodes:
-        for node_b in sampled_nodes:
-            if node_a != node_b:
+    for i in sampled_indices:
+        for j in sampled_indices:
+            if i != j:
+                node_a = all_nodes[i]
+                node_b = all_nodes[j]
                 cohesion = compute_natural_cohesion(node_a, node_b, hierarchy)
                 hierarchical_distance = hierarchy.get_hierarchical_distance(node_a, node_b)
                 falloff_factor = 1.0 / ((hierarchical_distance + 1) ** falloff_exponent)
@@ -212,21 +231,35 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Dict
     print(f"Testing thermodynamic behavior with falloff exponent: {falloff_exponent}")
     print()
 
+    # Send subprocess communication if enabled
+    if is_subprocess_communication_enabled():
+        send_subprocess_status("EXP-18: Falloff Thermodynamics", "Starting falloff injection experiment")
+        send_subprocess_progress("EXP-18", 0, 100, "Initializing experiment")
+
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
     # Create test fractal systems
     print("Creating test fractal systems...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-18", 10, 100, "Creating test fractal systems")
+
     void_hierarchy = FractalHierarchy.build("void_test", max_depth=3, branching_factor=2)
     dense_hierarchy = FractalHierarchy.build("dense_test", max_depth=5, branching_factor=5)
 
     # Measure thermodynamic states WITHOUT falloff
     print("Measuring thermodynamic properties WITHOUT falloff...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-18", 20, 100, "Measuring properties without falloff")
+
     void_state_no_falloff = create_fractal_region(void_hierarchy, "void")
     dense_state_no_falloff = create_fractal_region(dense_hierarchy, "dense")
 
     # Measure thermodynamic states WITH falloff
     print(f"Measuring thermodynamic properties WITH falloff (exponent={falloff_exponent})...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-18", 30, 100, f"Measuring properties with falloff (exponent={falloff_exponent})")
+
     void_state_with_falloff = create_fractal_region_with_falloff(void_hierarchy, "void", falloff_exponent)
     dense_state_with_falloff = create_fractal_region_with_falloff(dense_hierarchy, "dense", falloff_exponent)
 
@@ -237,6 +270,9 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Dict
 
     # Simulate evolution with falloff
     print("Simulating fractal evolution WITH falloff...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-18", 40, 100, "Simulating fractal evolution")
+
     energy_history_no_falloff = [void_state_no_falloff.total_energy, dense_state_no_falloff.total_energy]
     entropy_history_no_falloff = [void_state_no_falloff.entropy_estimate, dense_state_no_falloff.entropy_estimate]
 
@@ -276,6 +312,9 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Dict
 
     # Validate thermodynamic laws WITHOUT falloff
     print("Validating thermodynamic laws WITHOUT falloff...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-18", 60, 100, "Validating laws without falloff")
+
     validations_no_falloff = []
 
     first_law_no_falloff = validate_first_law(energy_history_no_falloff)
@@ -296,6 +335,9 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Dict
 
     # Validate thermodynamic laws WITH falloff
     print("Validating thermodynamic laws WITH falloff...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-18", 80, 100, "Validating laws with falloff")
+
     validations_with_falloff = []
 
     first_law_with_falloff = validate_first_law(energy_history_with_falloff)
@@ -328,6 +370,14 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Dict
 
     overall_end = time.time()
     end_time = datetime.now(timezone.utc).isoformat()
+
+    # Send completion status
+    if is_subprocess_communication_enabled():
+        if improvement > 0:
+            send_subprocess_status("EXP-18: Falloff Thermodynamics", f"SUCCESS - {improvement} improvement in validations")
+        else:
+            send_subprocess_status("EXP-18: Falloff Thermodynamics", f"NO IMPROVEMENT - {improvement} change in validations")
+        send_subprocess_progress("EXP-18", 100, 100, "Experiment completed")
 
     # Success criteria: falloff injection improves thermodynamic behavior
     success = passed_with_falloff > passed_no_falloff

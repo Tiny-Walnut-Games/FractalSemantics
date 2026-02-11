@@ -23,26 +23,27 @@ Status: Experimental - Issue #37 investigation
 """
 
 import json
-import time
-import sys
-from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict, field
-from pathlib import Path
 import secrets
+import sys
+import time
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+from fractalsemantics.dynamic_enum import Alignment, Polarity
 
 # Import core components
 from fractalsemantics.fractalsemantics_entity import (
-    compute_address_hash,
+    ALIGNMENT_LIST,
+    ENTITY_TYPES,
+    HORIZONS,
+    POLARITY_LIST,
+    REALMS,
     BitChain,
     Coordinates,
-    REALMS,
-    HORIZONS,
-    ENTITY_TYPES,
-    POLARITY_LIST,
-    ALIGNMENT_LIST,
+    compute_address_hash,
 )
-from fractalsemantics.dynamic_enum import Polarity, Alignment
 
 secure_random = secrets.SystemRandom()
 

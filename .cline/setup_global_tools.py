@@ -7,85 +7,85 @@ It provides a comprehensive development environment with automated tools
 for code quality, security, and project management.
 """
 
-import os
-import sys
-import subprocess
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 
 class GlobalToolsSetup:
     """Setup class for global tools."""
-    
+
     def __init__(self):
         self.cline_dir = Path.home() / ".cline"
         self.workflows_dir = self.cline_dir / "global_workflows"
         self.hooks_dir = self.cline_dir / "global_hooks"
         self.skills_dir = self.cline_dir / "global_skills"
-        
+
         # Tools to install
         self.required_tools = [
             "ruff",
             "black",
-            "mypy", 
+            "mypy",
             "pytest",
             "pre-commit",
             "safety",
             "bandit"
         ]
-    
+
     def setup_directories(self):
         """Create required directories."""
         print("📁 Creating global tools directories...")
-        
+
         directories = [self.cline_dir, self.workflows_dir, self.hooks_dir, self.skills_dir]
-        
+
         for directory in directories:
             directory.mkdir(parents=True, exist_ok=True)
             print(f"   ✓ Created {directory}")
-    
+
     def install_required_tools(self):
         """Install required development tools."""
         print("🔧 Installing required development tools...")
-        
+
         for tool in self.required_tools:
             try:
                 print(f"   Installing {tool}...")
-                subprocess.run([sys.executable, "-m", "pip", "install", tool], 
+                subprocess.run([sys.executable, "-m", "pip", "install", tool],
                              check=True, capture_output=True)
                 print(f"   ✓ {tool} installed successfully")
             except subprocess.CalledProcessError as e:
                 print(f"   ⚠ Failed to install {tool}: {e}")
-    
+
     def setup_git_integration(self):
         """Setup Git integration for global hooks."""
         print("🪝 Setting up Git integration...")
-        
+
         # Create global Git hooks directory
         git_hooks_dir = Path.home() / ".git-hooks"
         git_hooks_dir.mkdir(exist_ok=True)
-        
+
         # Create global pre-commit hook
         pre_commit_hook = git_hooks_dir / "pre-commit"
-        pre_commit_hook.write_text(f"""#!/bin/bash
+        pre_commit_hook.write_text("""#!/bin/bash
 # Global Cline pre-commit hook
 PYTHONPATH=~/.cline:$PYTHONPATH python3 ~/.cline/global_hooks/pre_commit_hook.py run "$@"
 """)
         pre_commit_hook.chmod(0o755)
-        
+
         # Configure Git to use global hooks
         try:
-            subprocess.run(["git", "config", "--global", "core.hooksPath", str(git_hooks_dir)], 
+            subprocess.run(["git", "config", "--global", "core.hooksPath", str(git_hooks_dir)],
                          check=True, capture_output=True)
             print("   ✓ Global Git hooks configured")
         except subprocess.CalledProcessError:
             print("   ⚠ Could not configure global Git hooks (not in a Git repository)")
-    
+
     def create_global_config(self):
         """Create global configuration file."""
         print("⚙️  Creating global configuration...")
-        
+
         config = {
             "global_tools": {
                 "version": "1.0.0",
@@ -105,7 +105,7 @@ PYTHONPATH=~/.cline:$PYTHONPATH python3 ~/.cline/global_hooks/pre_commit_hook.py
             "python_dev_workflow": {
                 "default_tool_versions": {
                     "black": "latest",
-                    "ruff": "latest", 
+                    "ruff": "latest",
                     "mypy": "latest",
                     "pytest": "latest"
                 },
@@ -152,22 +152,22 @@ PYTHONPATH=~/.cline:$PYTHONPATH python3 ~/.cline/global_hooks/pre_commit_hook.py
                 }
             }
         }
-        
+
         config_file = self.cline_dir / "global_config.json"
         with open(config_file, 'w') as f:
             json.dump(config, f, indent=2)
-        
+
         print(f"   ✓ Global configuration saved to {config_file}")
-    
+
     def create_shell_aliases(self):
         """Create shell aliases for easy access."""
         print("🔗 Creating shell aliases...")
-        
+
         aliases = {
             "bash": self.cline_dir / ".bash_aliases",
             "zsh": self.cline_dir / ".zsh_aliases"
         }
-        
+
         alias_content = """
 # Cline Global Tools Aliases
 alias cline-workflows="python3 ~/.cline/global_workflows/python_dev_workflow.py"
@@ -177,34 +177,34 @@ alias cline-analyze="python3 ~/.cline/global_skills/project_analyzer.py"
 alias cline-hook="python3 ~/.cline/global_hooks/pre_commit_hook.py"
 alias cline-setup="python3 ~/.cline/setup_global_tools.py"
 """
-        
+
         for shell, alias_file in aliases.items():
             with open(alias_file, 'w') as f:
                 f.write(alias_content)
-            
+
             print(f"   ✓ Created {shell} aliases in {alias_file}")
-        
+
         # Add to shell configuration
         shell_configs = {
             "bash": Path.home() / ".bashrc",
             "zsh": Path.home() / ".zshrc"
         }
-        
+
         for shell, config_file in shell_configs.items():
             if config_file.exists():
-                with open(config_file, 'r') as f:
+                with open(config_file) as f:
                     content = f.read()
-                
+
                 alias_import = f'source ~/.cline/.{shell}_aliases'
                 if alias_import not in content:
                     with open(config_file, 'a') as f:
                         f.write(f'\n# Cline Global Tools\n{alias_import}\n')
                     print(f"   ✓ Added alias import to {config_file}")
-    
+
     def create_completion_scripts(self):
         """Create shell completion scripts."""
         print("🔄 Creating shell completion scripts...")
-        
+
         # Bash completion
         bash_completion = self.cline_dir / "cline_completion.bash"
         bash_completion.write_text("""#!/bin/bash
@@ -249,7 +249,7 @@ complete -F _cline_completion cline-review
 complete -F _cline_completion cline-analyze
 complete -F _cline_completion cline-hook
 """)
-        
+
         # Zsh completion
         zsh_completion = self.cline_dir / "cline_completion.zsh"
         zsh_completion.write_text("""#compdef cline-workflows cline-git cline-review cline-analyze cline-hook
@@ -289,15 +289,15 @@ compdef _cline_completion cline-review
 compdef _cline_completion cline-analyze
 compdef _cline_completion cline-hook
 """)
-        
+
         print(f"   ✓ Created bash completion: {bash_completion}")
         print(f"   ✓ Created zsh completion: {zsh_completion}")
-    
+
     def create_documentation(self):
         """Create comprehensive documentation."""
         print("📚 Creating documentation...")
-        
-        docs_content = f"""# Cline Global Tools
+
+        docs_content = """# Cline Global Tools
 
 This directory contains global workflows, hooks, and skills for Cline that enhance your development experience.
 
@@ -428,18 +428,18 @@ To add new tools:
 
 This project is licensed under the MIT License.
 """
-        
+
         docs_file = self.cline_dir / "README.md"
         with open(docs_file, 'w') as f:
             f.write(docs_content)
-        
+
         print(f"   ✓ Created documentation: {docs_file}")
-    
+
     def run_setup(self):
         """Run the complete setup process."""
         print("🚀 Starting Cline Global Tools Setup")
         print("=" * 50)
-        
+
         try:
             self.setup_directories()
             self.install_required_tools()
@@ -448,14 +448,14 @@ This project is licensed under the MIT License.
             self.create_shell_aliases()
             self.create_completion_scripts()
             self.create_documentation()
-            
+
             print("\n✅ Setup completed successfully!")
             print("\n📋 Next steps:")
             print("1. Reload your shell configuration: source ~/.bashrc (or ~/.zshrc)")
             print("2. Test the tools: cline-setup --help")
             print("3. Configure your projects with .cline-* config files")
             print("4. Start using the tools in your projects!")
-            
+
         except Exception as e:
             print(f"\n❌ Setup failed: {e}")
             sys.exit(1)
@@ -474,7 +474,7 @@ Options:
   --dry-run  Show what would be installed without making changes
 """)
         sys.exit(0)
-    
+
     setup = GlobalToolsSetup()
     setup.run_setup()
 

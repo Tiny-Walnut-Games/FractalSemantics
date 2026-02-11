@@ -17,19 +17,34 @@ Status: Phase 2 validation experiment
 """
 
 import json
-import time
-import sys
 import secrets
-from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict, field
 import statistics
+import sys
+import time
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # Reuse canonical serialization from Phase 1
 from fractalsemantics.fractalsemantics_experiments import (
-    compute_address_hash,
     BitChain,
+    compute_address_hash,
     generate_random_bitchain,
 )
 
@@ -267,9 +282,9 @@ class EXP11_DimensionCardinality:
 
         for dim in dimensions:
             score += weights.get(dim, 0.0)
-            
+
         # Bonus points for using bitchains for actual analysis
-        
+
         # Bonus for actual coordinate analysis
         if len(bitchains) > 0:
             # Analyze coordinate variance across bitchains
@@ -279,10 +294,10 @@ class EXP11_DimensionCardinality:
             realm_count = len(set(bc.coordinates.realm for bc in bitchains))
             lineage_variance = len(set(bc.coordinates.lineage for bc in bitchains))
             adjacency_complexity = sum(len(bc.coordinates.adjacency) for bc in bitchains) / len(bitchains)
-            
+
             # Bonus based on actual coordinate diversity
-            diversity_bonus = min(0.1, (realm_count / len(REALMS)) * 0.05 + 
-                                      (lineage_variance / 100) * 0.03 + 
+            diversity_bonus = min(0.1, (realm_count / len(REALMS)) * 0.05 +
+                                      (lineage_variance / 100) * 0.03 +
                                       (adjacency_complexity / 5) * 0.02)
             score += diversity_bonus
 
@@ -383,6 +398,10 @@ class EXP11_DimensionCardinality:
         start_time = datetime.now(timezone.utc).isoformat()
         overall_start = time.time()
 
+        # Send initial status update
+        if is_subprocess_communication_enabled():
+            send_subprocess_status("EXP-11", "starting", "Initializing dimension cardinality analysis")
+
         print("\n" + "=" * 80)
         print("EXP-11: DIMENSION CARDINALITY ANALYSIS")
         print("=" * 80)
@@ -395,8 +414,13 @@ class EXP11_DimensionCardinality:
         print("-" * 80)
 
         # Test each dimension count
-        for dim_count in self.dimension_counts:
+        for i, dim_count in enumerate(self.dimension_counts):
             print(f"\nTesting {dim_count} dimensions:")
+
+            # Send progress update
+            if is_subprocess_communication_enabled():
+                progress_percent = (i + 1) / len(self.dimension_counts) * 100
+                send_subprocess_progress("EXP-11", progress_percent, "Dimension Testing", f"Testing {dim_count} dimensions", "info")
 
             # Run multiple iterations and average results
             iteration_results = []
@@ -540,9 +564,7 @@ class EXP11_DimensionCardinality:
             )
         else:
             major_findings.append(
-                f"[WARN] 7 dimensions may not be optimal (best: {
-                    optimal_result.dimension_count
-                })"
+                f"[WARN] 7 dimensions may not be optimal (best: {optimal_result.dimension_count})"
             )
 
         # Collision rate analysis
@@ -580,8 +602,7 @@ class EXP11_DimensionCardinality:
         # Semantic expressiveness
         if seven_dim:
             major_findings.append(
-                f"Semantic expressiveness at 7 dims: {
-                    seven_dim.semantic_expressiveness_score:.1%}"
+                f"Semantic expressiveness at 7 dims: {seven_dim.semantic_expressiveness_score:.1%}"
             )
 
         print()
@@ -627,6 +648,15 @@ class EXP11_DimensionCardinality:
                 f"(optimal: {optimal_result.dimension_count} dimensions)"
             )
         print("=" * 80)
+
+        # Send completion message
+        if is_subprocess_communication_enabled():
+            send_subprocess_completion("EXP-11", success, {
+                "message": f"Dimension cardinality analysis completed with optimal {optimal_result.dimension_count} dimensions",
+                "optimal_dimension_count": optimal_result.dimension_count,
+                "collision_rate": optimal_result.collision_rate,
+                "total_duration": overall_end - overall_start
+            })
 
         return result, success
 

@@ -7,11 +7,12 @@ Additional entries can be registered dynamically.
 """
 
 from __future__ import annotations
-from typing import Dict, List, Any, Optional
-from enum import Enum
-from dataclasses import dataclass, field
-import threading
+
 import logging
+import threading
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 # Type checking imports removed since we use standard Enum classes
 logger = logging.getLogger(__name__)

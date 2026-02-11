@@ -24,17 +24,33 @@ SUCCESS CRITERIA:
 """
 
 import json
-import time
-import secrets
-import sys
+import math
 import random
-import numpy as np
+import secrets
+import statistics
+import sys
+import time
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional
-from dataclasses import dataclass, field
-import math
-import statistics
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # Import from EXP-13 for fractal hierarchy
 from fractalsemantics.exp13_fractal_gravity import (
@@ -43,6 +59,199 @@ from fractalsemantics.exp13_fractal_gravity import (
 )
 
 # Import from EXP-20 for vector field approaches
+try:
+    from fractalsemantics.exp20_vector_field_derivation import (
+        FractalEntity,
+        VectorFieldApproach,
+        compute_force_vector_via_branching,
+        create_earth_sun_fractal_entities,
+        integrate_orbit_with_vector_field,
+    )
+except ImportError:
+    # Fallback: define minimal versions needed for distance mapping
+    import numpy as np
+
+    @dataclass
+    class FractalEntity:
+        """Entity with fractal properties for vector field derivation."""
+
+        name: str
+        position: np.ndarray  # [x, y, z] in meters
+        velocity: np.ndarray  # [vx, vy, vz] in m/s
+        mass: float  # kg
+        fractal_density: float  # Fractal complexity measure
+        hierarchical_depth: int  # Depth in fractal hierarchy
+        branching_factor: int  # Branching complexity
+
+        def __repr__(self):
+            return f"Entity({self.name}, depth={self.hierarchical_depth}, branching={self.branching_factor})"
+
+    @dataclass
+    class VectorFieldApproach:
+        """A vector field derivation approach."""
+
+        name: str
+        function: callable
+        description: str
+
+        def derive_force(self, entity_a: FractalEntity, entity_b: FractalEntity,
+                        scalar_magnitude: float) -> np.ndarray:
+            """Derive force vector using this approach."""
+            return self.function(entity_a, entity_b, scalar_magnitude)
+
+    def compute_force_vector_via_branching(
+        entity_a: FractalEntity,
+        entity_b: FractalEntity,
+        scalar_magnitude: float
+    ) -> np.ndarray:
+        """
+        Original approach: Simple attractive force with no branching modulation.
+
+        Direction: Always attractive toward central body
+        Magnitude: Just the scalar magnitude (distance dependence applied elsewhere)
+
+        Args:
+            entity_a, entity_b: The two entities
+            scalar_magnitude: Base force magnitude from scalar cohesion
+
+        Returns:
+            Force vector on entity_a due to entity_b (attractive)
+        """
+        r_vector = entity_b.position - entity_a.position  # Points from A to B
+        r_distance = np.linalg.norm(r_vector)
+
+        if r_distance == 0:
+            return np.zeros(3)
+
+        # Direction: ALWAYS attractive toward central body
+        direction = r_vector / r_distance
+
+        # Magnitude: Just use scalar magnitude directly (no branching modulation)
+        directional_magnitude = scalar_magnitude
+
+        return directional_magnitude * direction
+
+    def create_earth_sun_fractal_entities() -> Tuple[FractalEntity, FractalEntity]:
+        """Create Earth-Sun system with fractal properties."""
+
+        # Sun parameters (from EXP-14 and EXP-13)
+        sun = FractalEntity(
+            name="Sun",
+            position=np.array([0.0, 0.0, 0.0]),
+            velocity=np.array([0.0, 0.0, 0.0]),
+            mass=1.989e30,  # kg
+            fractal_density=1.0,  # Reference density
+            hierarchical_depth=7,  # Deep hierarchy (stellar)
+            branching_factor=25  # High branching (fusion processes)
+        )
+
+        # Earth parameters
+        earth = FractalEntity(
+            name="Earth",
+            position=np.array([1.496e11, 0.0, 0.0]),  # 1 AU
+            velocity=np.array([0.0, 2.978e4, 0.0]),   # ~30 km/s orbital velocity
+            mass=5.972e24,  # kg
+            fractal_density=0.333,  # Less complex than Sun
+            hierarchical_depth=4,   # Planetary depth
+            branching_factor=11    # Moderate branching (geological processes)
+        )
+
+        return earth, sun
+
+    def integrate_orbit_with_vector_field(
+        entity_a: FractalEntity,
+        entity_b: FractalEntity,
+        vector_approach: VectorFieldApproach,
+        scalar_magnitude: float,
+        time_span: float,
+        time_steps: int = 1000
+    ) -> Any:
+        """
+        Simplified orbital integration for distance mapping validation.
+
+        Args:
+            entity_a, entity_b: The two orbiting entities
+            vector_approach: Which vector derivation approach to use
+            scalar_magnitude: Base force magnitude at reference distance
+            time_span: Total integration time
+            time_steps: Number of time steps
+
+        Returns:
+            Simplified trajectory object
+        """
+        dt = time_span / time_steps
+        times = np.linspace(0, time_span, time_steps)
+
+        # Reference distance (1 AU for Earth-Sun)
+        reference_distance = 1.496e11  # meters
+
+        # Initial conditions
+        positions = [entity_a.position.copy()]
+        velocities = [entity_a.velocity.copy()]
+        energies = []
+
+        current_pos = entity_a.position.copy()
+        current_vel = entity_a.velocity.copy()
+
+        for i in range(1, time_steps):
+            # Calculate current distance from central body
+            r_vector = entity_b.position - current_pos
+            current_distance = np.linalg.norm(r_vector)
+
+            # Calculate force magnitude with inverse-square falloff
+            # F = F_ref * (r_ref / r)^2
+            if current_distance > 0:
+                distance_factor = (reference_distance / current_distance) ** 2
+                effective_magnitude = scalar_magnitude * distance_factor
+            else:
+                effective_magnitude = scalar_magnitude
+
+            # Create temporary entities for force calculation
+            temp_a = FractalEntity(
+                name=entity_a.name,
+                position=current_pos,
+                velocity=current_vel,
+                mass=entity_a.mass,
+                fractal_density=entity_a.fractal_density,
+                hierarchical_depth=entity_a.hierarchical_depth,
+                branching_factor=entity_a.branching_factor
+            )
+
+            # Derive force vector with distance-dependent magnitude
+            force_vector = vector_approach.derive_force(temp_a, entity_b, float(effective_magnitude))
+
+            # Calculate acceleration
+            acceleration = force_vector / entity_a.mass
+
+            # Verlet integration (more stable than Euler)
+            new_pos = current_pos + current_vel * dt + 0.5 * acceleration * dt**2
+            new_acc = acceleration  # Simplified - would recalculate at new position
+
+            new_vel = current_vel + 0.5 * (acceleration + new_acc) * dt
+
+            # Store results
+            positions.append(new_pos.copy())
+            velocities.append(new_vel.copy())
+
+            # Calculate energy (kinetic + potential approximation)
+            kinetic = 0.5 * entity_a.mass * np.linalg.norm(current_vel)**2
+            r = current_distance
+            potential = -scalar_magnitude * reference_distance**2 * entity_b.mass / (r**2) if r > 0 else 0
+            energies.append(kinetic + potential)
+
+            # Update for next iteration
+            current_pos = new_pos
+            current_vel = new_vel
+
+        # Return simplified trajectory object
+        class SimplifiedTrajectory:
+            def __init__(self, positions, velocities, energies, mass):
+                self.positions = positions
+                self.velocities = velocities
+                self.energies = energies
+                self.mass = mass
+
+        return SimplifiedTrajectory(positions, velocities, energies, entity_a.mass)
 
 secure_random = secrets.SystemRandom()
 
@@ -360,7 +569,7 @@ class DistanceMappingAnalysis:
             self.correlation_coefficient = 0.0
 
         # Overall mapping quality (0-1 scale)
-        self.mapping_quality = min(1.0, self.correlation_coefficient)
+        self.mapping_quality = min(1.0, float(self.correlation_coefficient))
 
 
 @dataclass

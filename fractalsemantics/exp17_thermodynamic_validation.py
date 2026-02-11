@@ -16,14 +16,30 @@ Success Criteria:
 """
 
 import json
+import statistics
 import sys
 import time
-import numpy as np
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
-from dataclasses import dataclass
-import statistics
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 # Import fractal components
 from fractalsemantics.exp13_fractal_gravity import (
@@ -153,10 +169,11 @@ def measure_fractal_energy(hierarchy: FractalHierarchy) -> float:
     all_nodes = hierarchy.get_all_nodes()
 
     # Sum cohesion energies across all node pairs (sampled for efficiency)
-    sampled_pairs = secure_random.choice(len(all_nodes), size=min(1000, len(all_nodes)), replace=False)
+    sample_size = min(1000, len(all_nodes))
+    sampled_indices = secure_random.choice(len(all_nodes), size=sample_size, replace=False)
 
-    for i in sampled_pairs:
-        for j in sampled_pairs:
+    for i in sampled_indices:
+        for j in sampled_indices:
             if i != j:
                 node_a = all_nodes[i]
                 node_b = all_nodes[j]
@@ -182,7 +199,8 @@ def measure_fractal_temperature(hierarchy: FractalHierarchy) -> float:
 
     # Sample interaction strengths
     sample_size = min(100, len(all_nodes))
-    sampled_nodes = secure_random.choice(all_nodes, size=sample_size, replace=False)
+    sampled_indices = secure_random.choice(len(all_nodes), size=sample_size, replace=False)
+    sampled_nodes = [all_nodes[i] for i in sampled_indices]
 
     interaction_strengths = []
     for node_a in sampled_nodes:
@@ -392,16 +410,26 @@ def run_thermodynamic_validation_experiment() -> Dict[str, Any]:
     print("Testing if fractal simulations satisfy thermodynamic equations...")
     print()
 
+    # Send subprocess communication if enabled
+    if is_subprocess_communication_enabled():
+        send_subprocess_status("EXP-17: Thermodynamic Validation", "Starting thermodynamic validation experiment")
+        send_subprocess_progress("EXP-17", 0, 100, "Initializing experiment")
+
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
     # Create test fractal systems
     print("Creating test fractal systems...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-17", 10, 100, "Creating test fractal systems")
+
     void_hierarchy = FractalHierarchy.build("void_test", max_depth=3, branching_factor=2)
     dense_hierarchy = FractalHierarchy.build("dense_test", max_depth=5, branching_factor=5)
 
     # Measure thermodynamic states
     print("Measuring thermodynamic properties...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-17", 20, 100, "Measuring thermodynamic properties")
 
     void_state = create_fractal_region(void_hierarchy, "void")
     dense_state = create_fractal_region(dense_hierarchy, "dense")
@@ -411,6 +439,8 @@ def run_thermodynamic_validation_experiment() -> Dict[str, Any]:
 
     # Simulate evolution (simplified)
     print("Simulating fractal evolution...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-17", 30, 100, "Simulating fractal evolution")
 
     # Track energy and entropy over "time steps"
     energy_history = [void_state.total_energy, dense_state.total_energy]
@@ -439,6 +469,8 @@ def run_thermodynamic_validation_experiment() -> Dict[str, Any]:
 
     # Validate thermodynamic laws
     print("Validating thermodynamic laws...")
+    if is_subprocess_communication_enabled():
+        send_subprocess_progress("EXP-17", 60, 100, "Validating thermodynamic laws")
 
     validations = []
 
@@ -469,6 +501,15 @@ def run_thermodynamic_validation_experiment() -> Dict[str, Any]:
 
     overall_end = time.time()
     end_time = datetime.now(timezone.utc).isoformat()
+
+    # Send completion status
+    if is_subprocess_communication_enabled():
+        success_rate = passed_validations / total_validations if total_validations > 0 else 0
+        if overall_success:
+            send_subprocess_status("EXP-17: Thermodynamic Validation", f"SUCCESS - {passed_validations}/{total_validations} validations passed")
+        else:
+            send_subprocess_status("EXP-17: Thermodynamic Validation", f"PARTIAL - {passed_validations}/{total_validations} validations passed")
+        send_subprocess_progress("EXP-17", 100, 100, "Experiment completed")
 
     results = {
         "experiment": "EXP-17",

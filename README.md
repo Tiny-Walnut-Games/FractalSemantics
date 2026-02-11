@@ -96,6 +96,8 @@ If you use EXP-01 results in your research, please cite:
 
 ## Quick Start
 
+### Command Line Interface
+
 ```bash
 # Install dependencies
 pip install -r requirements.txt
@@ -106,6 +108,31 @@ pip install -e .
 # Run experiments
 python -m fractalsemantics.fractalsemantics_experiments
 ```
+
+### GUI Application (Recommended)
+
+For an interactive experience with real-time visualization and educational content:
+
+```bash
+# Install GUI dependencies
+pip install -r gui_requirements.txt
+
+# Launch the GUI application
+python launch_gui.py
+
+# Or run directly with Streamlit
+streamlit run gui_app.py
+```
+
+**GUI Features:**
+- 📊 Interactive dashboard with real-time experiment monitoring
+- 📈 Advanced data visualizations with Plotly charts
+- 📚 Educational content and mathematical explanations
+- 🔬 Batch experiment management and configuration
+- ⚙️ Export options (JSON, CSV, PDF)
+- 🎯 Real-time progress tracking and performance metrics
+
+For detailed GUI documentation, see [GUI_README.md](GUI_README.md).
 
 ### ARM/Raspberry Pi Setup
 

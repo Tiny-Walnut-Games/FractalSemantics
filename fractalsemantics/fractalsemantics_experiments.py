@@ -18,46 +18,49 @@ Usage:
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 # Re-export functions and classes that moved to separate modules during refactoring
 # plus constants from the main package for backward compatibility
 try:
-    from fractalsemantics.fractalsemantics_entity import (
-        FractalSemanticsCoordinates,
-        Coordinates,
-        BitChain,
-        canonical_serialize,
-        compute_address_hash,
-        generate_random_bitchain,
-        REALMS,
-        HORIZONS,
-        POLARITY_LIST,
-        ALIGNMENT_LIST,
-        ENTITY_TYPES,
-    )
     # Import constants from main package
-    from fractalsemantics import POLARITY, ALIGNMENT
+    from fractalsemantics import ALIGNMENT, POLARITY
 
     # Import experiment result classes and enums
     from fractalsemantics.exp01_geometric_collision import (
-        EXP01_Result,
         EXP01_GeometricCollisionResistance,
+        EXP01_Result,
     )
     from fractalsemantics.exp02_retrieval_efficiency import (
         EXP02_Result,
         EXP02_RetrievalEfficiency,
     )
     from fractalsemantics.exp03_coordinate_entropy import (
-        EXP03_Result,
         EXP03_CoordinateEntropy,
+        EXP03_Result,
     )
+    
+    # Note: Many experiment files don't have main classes, they use functions instead
+    # Only import classes that actually exist
     from fractalsemantics.experiment_utils import (
+        Capability,
+        DataClass,
         normalize_float,
         normalize_timestamp,
         sort_json_keys,
-        DataClass,
-        Capability,
+    )
+    from fractalsemantics.fractalsemantics_entity import (
+        ALIGNMENT_LIST,
+        ENTITY_TYPES,
+        HORIZONS,
+        POLARITY_LIST,
+        REALMS,
+        BitChain,
+        Coordinates,
+        FractalSemanticsCoordinates,
+        canonical_serialize,
+        compute_address_hash,
+        generate_random_bitchain,
     )
 
 except ImportError as e:
@@ -159,7 +162,7 @@ def run_single_experiment(module_name: str, display_name: str) -> Dict[str, Any]
             # Check for status indicators in the output
             stdout_text = result.stdout.strip() if result.stdout else ""
             stderr_text = result.stderr.strip() if result.stderr else ""
-            
+
             # Look for status indicators in the output
             success_indicators = [
                 "[OK]", "[Success]",
@@ -171,10 +174,10 @@ def run_single_experiment(module_name: str, display_name: str) -> Dict[str, Any]
                 "EXP-20 COMPLETE", "BREAKTHROUGH CONFIRMED", "SUCCESS: Fractal systems satisfy thermodynamic laws"
             ]
             failure_indicators = ["[FAIL] EXPERIMENT FAILED", "[Error]", "EXPERIMENT FAILED"]
-            
+
             has_success_indicator = any(indicator in stdout_text for indicator in success_indicators)
             has_failure_indicator = any(indicator in stdout_text for indicator in failure_indicators)
-            
+
             # Determine success
             if has_failure_indicator:
                 success = False

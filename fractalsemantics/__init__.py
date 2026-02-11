@@ -18,9 +18,12 @@ and robustness of the FractalSemantics multi-dimensional addressing system.
       8. Alignment: Social/coordination dynamics (NEW - 100% expressivity boost)
 """
 
-from fractalsemantics.dynamic_enum import Realm, Horizon, Polarity, Alignment
-from fractalsemantics.fractalsemantics_entity import FractalSemanticsCoordinates, FractalSemanticsEntity
-from fractalsemantics.fractalsemantics_entity import BitChain
+from fractalsemantics.dynamic_enum import Alignment, Horizon, Polarity, Realm
+from fractalsemantics.fractalsemantics_entity import (
+    BitChain,
+    FractalSemanticsCoordinates,
+    FractalSemanticsEntity,
+)
 
 __version__ = "0.1.0"
 __author__ = "Tiny Walnut Games"

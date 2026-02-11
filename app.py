@@ -15,13 +15,13 @@ Features:
 - Hugging Face Space deployment with automatic scaling
 """
 
-import os
 import json
-import threading
+import os
 import queue
-from datetime import datetime
-from typing import Dict, Any, List, Tuple
+import threading
 import traceback
+from datetime import datetime
+from typing import Any, Dict, List, Tuple
 
 import gradio as gr
 
@@ -34,8 +34,12 @@ except ImportError:
     print("Warning: matplotlib not available, charts will be disabled")
 
 # Import FractalSemantics modules
-from fractalsemantics.fractalsemantics_experiments import run_single_experiment, EXPERIMENTS
 from fractalsemantics.config import ExperimentConfig
+from fractalsemantics.fractalsemantics_experiments import (
+    EXPERIMENTS,
+    run_single_experiment,
+)
+
 
 # Global state management
 class ExperimentState:
@@ -399,7 +403,7 @@ def update_experiment_status():
         status = "Ready"
         progress = 0
         message = experiment_state.status_message
-    
+
     return status, progress, message
 
 def run_experiment_thread(experiment_name: str):
@@ -409,45 +413,45 @@ def run_experiment_thread(experiment_name: str):
         experiment_state.current_experiment = experiment_name
         experiment_state.progress = 0
         experiment_state.status_message = f"Starting {experiment_name}..."
-        
+
         # Get experiment info
         if experiment_name in EXPERIMENT_INFO:
             display_name = EXPERIMENT_INFO[experiment_name]['title']
         else:
             display_name = experiment_name
-        
+
         # Find the experiment in the list
         experiment_module = None
         for module, name in EXPERIMENTS:
             if module == experiment_name:
                 experiment_module = module
                 break
-        
+
         if experiment_module:
             # Run the experiment
             experiment_state.status_message = f"Executing {display_name}..."
             experiment_state.progress = 25
-            
+
             result = run_single_experiment(experiment_module, display_name)
-            
+
             experiment_state.progress = 75
             experiment_state.status_message = f"Processing results for {display_name}..."
-            
+
             # Store results
             experiment_state.results[experiment_name] = result
-            
+
             experiment_state.progress = 100
             experiment_state.status_message = f"Completed {display_name}"
-            
+
         else:
             experiment_state.status_message = f"Experiment {experiment_name} not found"
             experiment_state.results[experiment_name] = {"success": False, "error": "Experiment not found"}
-    
+
     except Exception as e:
         experiment_state.status_message = f"Error in {experiment_name}: {str(e)}"
         experiment_state.results[experiment_name] = {"success": False, "error": str(e)}
         traceback.print_exc()
-    
+
     finally:
         experiment_state.is_running = False
         experiment_state.current_experiment = None
@@ -456,7 +460,7 @@ def start_experiment(experiment_name: str):
     """Start running an experiment."""
     if experiment_state.is_running:
         return "Error: Another experiment is already running", 0, "Please wait for the current experiment to complete"
-    
+
     # Start experiment in background thread
     experiment_state.experiment_thread = threading.Thread(
         target=run_experiment_thread,
@@ -464,7 +468,7 @@ def start_experiment(experiment_name: str):
     )
     experiment_state.experiment_thread.daemon = True
     experiment_state.experiment_thread.start()
-    
+
     return "Starting experiment...", 0, "Experiment started in background"
 
 def stop_experiment():
@@ -489,17 +493,17 @@ def get_experiment_results(experiment_name: str):
         stdout = result.get('stdout', '')
         stderr = result.get('stderr', '')
         exit_code = result.get('exit_code', -1)
-        
+
         # Create results text
         results_text = f"Success: {success}\n"
         results_text += f"Exit Code: {exit_code}\n\n"
         results_text += "STDOUT:\n" + stdout + "\n\n"
         if stderr:
             results_text += "STDERR:\n" + stderr + "\n\n"
-        
+
         # Create visualization
         fig = create_results_chart(experiment_name, result)
-        
+
         return results_text, fig
     else:
         return "No results available", None
@@ -516,17 +520,17 @@ def export_results():
         },
         "results": experiment_state.results
     }
-    
+
     # Save to file
     export_file = f"fractalsemantics_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     with open(export_file, 'w') as f:
         json.dump(export_data, f, indent=2, default=str)
-    
+
     return f"Results exported to {export_file}"
 
 def create_gradio_interface():
     """Create the main Gradio interface."""
-    
+
     with gr.Blocks(title="FractalSemantics Interactive Experiments") as demo:
         gr.Markdown("""
         # FractalSemantics Interactive Experiments
@@ -537,7 +541,7 @@ def create_gradio_interface():
         
         FractalSemantics is a research package containing **12 validation experiments** that prove the FractalSemantics addressing system works at scale. FractalSemantics expands FractalSemantics from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
         """)
-        
+
         # Experiment selection and controls
         with gr.Row():
             with gr.Column(scale=2):
@@ -546,85 +550,85 @@ def create_gradio_interface():
                     label="Select Experiment",
                     value="exp01_geometric_collision"
                 )
-                
+
                 with gr.Row():
                     start_btn = gr.Button("Start Experiment", variant="primary")
                     stop_btn = gr.Button("Stop Experiment", variant="secondary")
                     export_btn = gr.Button("Export Results", variant="secondary")
-                
+
                 status_text = gr.Textbox(label="Status", value="Ready to run experiments", interactive=False)
                 progress_bar = gr.Slider(minimum=0, maximum=100, value=0, label="Progress (%)", interactive=False)
-            
+
             with gr.Column(scale=3):
                 # Mathematical explanation panel
                 math_title = gr.Markdown("### Mathematical Foundation")
                 math_content = gr.Markdown(EXPERIMENT_INFO["exp01_geometric_collision"]["educational_content"])
-        
+
         # Results display
         with gr.Row():
             with gr.Column():
                 results_text = gr.Textbox(label="Experiment Results", lines=15, interactive=False)
                 results_chart = gr.Plot(label="Results Visualization")
-            
+
             with gr.Column():
                 gr.Plot(label="Real-time Progress")
-        
+
         # Update mathematical content when experiment changes
         def update_math_content(experiment_name):
             if experiment_name in EXPERIMENT_INFO:
                 info = EXPERIMENT_INFO[experiment_name]
                 return f"### {info['math_concept']}", info['educational_content']
             return "### Mathematical Foundation", "Select an experiment to view its mathematical foundation."
-        
+
         experiment_dropdown.change(
             fn=update_math_content,
             inputs=[experiment_dropdown],
             outputs=[math_title, math_content]
         )
-        
+
         # Experiment control functions
         start_btn.click(
             fn=start_experiment,
             inputs=[experiment_dropdown],
             outputs=[status_text, progress_bar, status_text]
         )
-        
+
         stop_btn.click(
             fn=stop_experiment,
             inputs=[],
             outputs=[status_text, progress_bar, status_text]
         )
-        
+
         # Update results when experiment completes
         def update_results(experiment_name):
             return get_experiment_results(experiment_name)
-        
+
         # Periodic updates for status and progress
         def periodic_update():
             status, progress, message = update_experiment_status()
             return status, progress, message
-        
+
         # Set up periodic updates
         demo.load(
             fn=periodic_update,
             inputs=[],
             outputs=[status_text, progress_bar, status_text]
         )
-        
+
         # Update results when experiment changes
         experiment_dropdown.change(
             fn=update_results,
             inputs=[experiment_dropdown],
             outputs=[results_text, results_chart]
         )
-        
+
         # Export functionality
         export_btn.click(
             fn=export_results,
             inputs=[],
             outputs=[status_text]
         )
-        
+
         # Footer
         gr.Markdown("""
         ---
@@ -632,7 +636,7 @@ def create_gradio_interface():
         All experiments are designed to run safely and provide educational insights into 
         multi-dimensional coordinate systems and their applications.
         """)
-    
+
     return demo
 
 if __name__ == "__main__":

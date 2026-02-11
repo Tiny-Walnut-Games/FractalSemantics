@@ -70,7 +70,7 @@ class FractalSemanticsInstaller:
 
         if self.system == 'linux' and is_arm:
             try:
-                with open('/proc/cpuinfo', 'r') as f:
+                with open('/proc/cpuinfo') as f:
                     cpuinfo = f.read()
                     if 'Raspberry Pi' in cpuinfo:
                         is_raspberry_pi = True

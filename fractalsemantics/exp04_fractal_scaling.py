@@ -10,21 +10,39 @@ Status: Phase 2 validation experiment
 """
 
 import json
-import time
 import secrets
+import statistics
 import sys
+import time
+from collections import defaultdict
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
-from dataclasses import dataclass
-from collections import defaultdict
-import statistics
+from typing import Any, Dict, List, Optional, Tuple
 
 # Reuse canonical serialization from Phase 1
 from fractalsemantics.fractalsemantics_experiments import (
     BitChain,
     generate_random_bitchain,
 )
+
+# Import progress communication
+from fractalsemantics.progress_comm import create_progress_reporter
+
+# Import subprocess communication for enhanced progress reporting
+try:
+    from fractalsemantics.subprocess_comm import (
+        send_subprocess_progress,
+        send_subprocess_status,
+        send_subprocess_completion,
+        is_subprocess_communication_enabled
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 secure_random = secrets.SystemRandom()
 
@@ -174,9 +192,7 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
     collision_count = sum(count - 1 for count in address_map.values() if count > 1)
     collision_rate = collision_count / config.scale if config.scale > 0 else 0.0
     print(
-        f" OK ({unique_addresses} unique, {collision_groups} collision groups, {
-            collision_count
-        } total collisions)"
+        f" OK ({unique_addresses} unique, {collision_groups} collision groups, {collision_count} total collisions)"
     )
 
     # Step 3: Build retrieval index
@@ -192,7 +208,7 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
     )
     retrieval_times = []
 
-    for _ in range(config.num_retrievals):
+    for i, _ in enumerate(range(config.num_retrievals)):
         idx = secure_random.randint(0, len(addresses) - 1)
         target_addr = addresses[idx]
 
@@ -205,6 +221,11 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
             raise RuntimeError(f"Address lookup failed for {target_addr}")
 
         retrieval_times.append((end_lookup - start_lookup) * 1000)  # Convert to ms
+
+        # Report progress every 10% of queries
+        if (i + 1) % (config.num_retrievals // 10) == 0:
+            query_progress = ((i + 1) / config.num_retrievals) * 100
+            print(f" {query_progress:.0f}%", end="", flush=True)
 
     print(" OK")
 
@@ -260,7 +281,7 @@ def analyze_degradation(
 
     if max_collision_rate > 0.0:
         is_fractal = False
-        collision_msg = f"COLLISION DETECTED: Max rate {max_collision_rate * 100:.2f}%"
+        collision_msg = f"COLLISION DETECTED: Max rate {max_collision_rate * 100}%"
     else:
         collision_msg = "OK Zero collisions at all scales"
 
@@ -285,11 +306,9 @@ def analyze_degradation(
 
         if worst_case_ratio > expected_log_ratio * 2:
             is_fractal = False
-            retrieval_msg = f"DEGRADATION WARNING: Latency ratio {
-                worst_case_ratio:.2f}x > expected {expected_log_ratio:.2f}x"
+            retrieval_msg = f"DEGRADATION WARNING: Latency ratio {worst_case_ratio}x > expected {expected_log_ratio}x"
         else:
-            retrieval_msg = f"OK Retrieval latency scales logarithmically ({
-                worst_case_ratio:.2f}x for {scale_ratio:.0f}x scale)"
+            retrieval_msg = f"OK Retrieval latency scales logarithmically ({worst_case_ratio}x for {scale_ratio}x scale)"
 
     return collision_msg, retrieval_msg, is_fractal
 
@@ -304,6 +323,9 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
     Returns:
         Complete results object
     """
+    # Initialize progress reporter
+    progress = create_progress_reporter("EXP-04")
+
     # Load experiment configuration
     try:
         from fractalsemantics.config import ExperimentConfig
@@ -328,9 +350,19 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
     print(f"Mode: {'Quick' if quick_mode else 'Full'} (scales: {scales})")
     print()
 
+    # Report initial progress
+    progress.update(0, "Initialization", f"Starting fractal scaling test with {len(scales)} scales")
+    
+    # Send subprocess progress message
+    send_subprocess_status("EXP-04", "Initialization", f"Starting fractal scaling test with {len(scales)} scales")
+
     scale_results = []
 
-    for scale in scales:
+    for i, scale in enumerate(scales):
+        # Calculate progress percentage
+        progress_percent = (i / len(scales)) * 100
+        progress.update(progress_percent, f"Scale {scale:,}", f"Starting test for {scale:,} bit-chains")
+
         print(f"SCALE: {scale:,} bit-chains")
         print("-" * 70)
 
@@ -344,15 +376,20 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
             result = run_scale_test(scale_config)
             scale_results.append(result)
 
+            # Update progress for completed scale
+            completed_progress = ((i + 1) / len(scales)) * 100
+            progress.update(completed_progress, f"Scale {scale:,} Complete", f"Processed {scale:,} bit-chains successfully")
+            
+            # Send subprocess progress message
+            send_subprocess_progress("EXP-04", completed_progress, f"Scale {scale:,} Complete", f"Processed {scale:,} bit-chains successfully")
+
             # Print summary for this scale
             print(f"  RESULT: {result.num_addresses} unique addresses")
             print(
-                f"          Collisions: {result.collision_count} ({
-                    result.collision_rate * 100:.2f}%)"
+                f"          Collisions: {result.collision_count} ({result.collision_rate * 100:.2f}%)"
             )
             print(
-                f"          Retrieval: mean={result.retrieval_mean_ms:.6f}ms, p95={
-                    result.retrieval_p95_ms:.6f}ms"
+                f"          Retrieval: mean={result.retrieval_mean_ms:.6f}ms, p95={result.retrieval_p95_ms:.6f}ms"
             )
             print(f"          Throughput: {result.addresses_per_second:,.0f} addr/sec")
             print(f"          Valid: {'YES' if result.is_valid() else 'NO'}")
@@ -434,15 +471,15 @@ if __name__ == "__main__":
         print("EXP-04 COMPLETE")
         print("=" * 70)
         print(
-            f"Status: {
-                'PASSED'
-                if all(r.is_valid() for r in results.scale_results)
-                else 'FAILED'
-            }"
+            f"Status: {'PASSED' if all(r.is_valid() for r in results.scale_results) else 'FAILED'}"
         )
         print(f"Fractal: {'YES' if results.is_fractal else 'NO'}")
         print(f"Output: {output_file}")
         print()
+        
+        # Send subprocess completion message
+        success = all(r.is_valid() for r in results.scale_results) and results.is_fractal
+        send_subprocess_completion("EXP-04", success, f"Fractal scaling test completed with {len(results.scale_results)} scales tested")
 
     except Exception as e:
         print(f"\nTEST FAILED: {e}")

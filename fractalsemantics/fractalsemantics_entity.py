@@ -13,20 +13,20 @@ Features:
 - Entanglement detection and management
 """
 
+import hashlib
+import json
+import secrets
+import uuid
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from decimal import ROUND_HALF_EVEN, Decimal
 from enum import Enum
-from typing import Dict, List, Optional, Any, Tuple
 from pathlib import Path
-import json
-import uuid
-import hashlib
-from abc import ABC, abstractmethod
-import secrets
-from decimal import Decimal, ROUND_HALF_EVEN
+from typing import Any, Dict, List, Optional, Tuple
 
 # Import enums from dynamic_enum to avoid circular import
-from fractalsemantics.dynamic_enum import Realm, Horizon, Polarity, Alignment
+from fractalsemantics.dynamic_enum import Alignment, Horizon, Polarity, Realm
 
 
 def _utc_now() -> datetime:
@@ -411,7 +411,7 @@ class FractalSemanticsEntity(ABC):
     @classmethod
     def load_from_file(cls, path: Path) -> "FractalSemanticsEntity":
         """Load entity from JSON file (must know concrete type)"""
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
         entity_type = data.get("entity_type", "unknown")
         raise NotImplementedError(
@@ -763,13 +763,13 @@ def normalize_float(value: float, decimal_places: int = 8) -> str:
 
     # Convert to string with proper formatting - ensure clean decimal
     result = f"{float(quantized):.8f}"
-    
+
     # Strip trailing zeros and unnecessary decimal point
     if "." in result:
         result = result.rstrip("0")
         if result.endswith("."):
             result += "0"
-    
+
     return result
 
 
