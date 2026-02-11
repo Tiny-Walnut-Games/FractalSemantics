@@ -43,10 +43,10 @@ from scipy.integrate import odeint
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available

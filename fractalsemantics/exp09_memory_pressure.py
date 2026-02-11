@@ -43,15 +43,14 @@ from typing import Any, Dict, List, Optional
 import psutil
 
 # Import progress communication
-from fractalsemantics.progress_comm import create_progress_reporter
 
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -171,7 +170,7 @@ class MemoryPressureTester:
     def __init__(self, max_memory_target_mb: int = 1000):
         """
         Initialize memory pressure tester.
-        
+
         Args:
             max_memory_target_mb: Maximum memory target for stress testing
         """
@@ -276,12 +275,12 @@ class MemoryPressureTester:
     def apply_memory_pressure(self, target_mb: int, duration_seconds: int, load_pattern: str = "linear") -> List[MemoryPressureMetrics]:
         """
         Apply controlled memory pressure to the system.
-        
+
         Args:
             target_mb: Target memory usage in megabytes
             duration_seconds: Duration of pressure phase
             load_pattern: Pattern of memory allocation ("linear", "exponential", "spike")
-        
+
         Returns:
             List of memory metrics collected during pressure
         """
@@ -694,7 +693,7 @@ class MemoryPressureExperiment:
     def __init__(self, max_memory_target_mb: int = 1000):
         """
         Initialize experiment.
-        
+
         Args:
             max_memory_target_mb: Maximum memory target for stress testing
         """
@@ -704,7 +703,7 @@ class MemoryPressureExperiment:
     def run(self) -> MemoryPressureResults:
         """
         Run the memory pressure experiment.
-        
+
         Returns:
             Experiment results
         """
@@ -712,7 +711,7 @@ class MemoryPressureExperiment:
         print("EXP-09: FRACTALSEMANTICS PERFORMANCE UNDER MEMORY PRESSURE")
         print("=" * 80)
         print(f"Max memory target: {self.max_memory_target_mb}MB")
-        
+
         # Send subprocess status message
         send_subprocess_status("EXP-09", "Initialization", "Starting memory pressure experiment")
 

@@ -39,10 +39,10 @@ from fractalsemantics.progress_comm import ProgressReporter
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -134,7 +134,7 @@ class EXP02_RetrievalEfficiency:
         try:
             progress = ProgressReporter("EXP-02")
             progress.status("Initialization", "Starting retrieval efficiency test")
-            
+
             # Send subprocess progress message
             send_subprocess_status("EXP-02", "Initialization", "Starting retrieval efficiency test")
         except:
@@ -265,7 +265,7 @@ class EXP02_RetrievalEfficiency:
                     try:
                         progress = ProgressReporter("EXP-02")
                         progress.update(query_progress, f"{scale:,} Scale", f"Executed {query_idx:,}/{self.query_count:,} queries")
-                        
+
                         # Send subprocess progress message
                         send_subprocess_progress("EXP-02", query_progress, f"{scale:,} Scale", f"Executed {query_idx:,}/{self.query_count:,} queries")
                     except:
@@ -327,7 +327,7 @@ class EXP02_RetrievalEfficiency:
         try:
             progress = ProgressReporter("EXP-02")
             progress.complete("Retrieval efficiency test completed")
-            
+
             # Send subprocess completion message
             send_subprocess_completion("EXP-02", all_success, f"Retrieval efficiency {'passed' if all_success else 'failed'}")
         except:

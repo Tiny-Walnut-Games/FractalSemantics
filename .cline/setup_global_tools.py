@@ -8,11 +8,9 @@ for code quality, security, and project management.
 """
 
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
 
 
 class GlobalToolsSetup:
@@ -213,14 +211,14 @@ _cline_completion() {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    
+
     opts="workflows git review analyze hook setup"
-    
+
     if [[ ${COMP_CWORD} -eq 1 ]]; then
         COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
         return 0
     fi
-    
+
     case ${prev} in
         workflows)
             COMPREPLY=($(compgen -W "run check install" -- ${cur}))
@@ -257,7 +255,7 @@ complete -F _cline_completion cline-hook
 _cline_completion() {
     local -a commands
     local -a subcommands
-    
+
     case $words[1] in
         cline-workflows)
             commands=("run" "check" "install")
@@ -275,7 +273,7 @@ _cline_completion() {
             commands=("install" "run" "status" "uninstall")
             ;;
     esac
-    
+
     if [[ $CURRENT -eq 2 ]]; then
         _describe 'commands' commands
     else

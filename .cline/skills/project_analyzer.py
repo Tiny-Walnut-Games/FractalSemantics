@@ -16,10 +16,8 @@ Usage:
 """
 
 import ast
-import hashlib
 import json
 import os
-import re
 import sys
 from collections import defaultdict
 from dataclasses import asdict, dataclass
@@ -212,7 +210,7 @@ class ProjectAnalyzer:
                                     "language": lang
                                 }
 
-                    except Exception as e:
+                    except Exception:
                         # Skip files that can't be read
                         continue
 

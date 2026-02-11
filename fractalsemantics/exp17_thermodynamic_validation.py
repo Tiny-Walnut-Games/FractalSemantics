@@ -29,16 +29,14 @@ import numpy as np
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
     def send_subprocess_progress(*args, **kwargs) -> bool: return False
     def send_subprocess_status(*args, **kwargs) -> bool: return False
-    def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
 
 # Import fractal components
@@ -504,7 +502,7 @@ def run_thermodynamic_validation_experiment() -> Dict[str, Any]:
 
     # Send completion status
     if is_subprocess_communication_enabled():
-        success_rate = passed_validations / total_validations if total_validations > 0 else 0
+        passed_validations / total_validations if total_validations > 0 else 0
         if overall_success:
             send_subprocess_status("EXP-17: Thermodynamic Validation", f"SUCCESS - {passed_validations}/{total_validations} validations passed")
         else:

@@ -14,15 +14,11 @@ Comprehensive project analysis tool that provides insights into:
 import json
 import os
 import re
-import subprocess
 import sys
 from collections import defaultdict
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-
-import toml
-import yaml
+from typing import Any, Dict, List, Optional
 
 
 @dataclass

@@ -32,10 +32,10 @@ from fractalsemantics.progress_comm import create_progress_reporter
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -352,7 +352,7 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
 
     # Report initial progress
     progress.update(0, "Initialization", f"Starting fractal scaling test with {len(scales)} scales")
-    
+
     # Send subprocess progress message
     send_subprocess_status("EXP-04", "Initialization", f"Starting fractal scaling test with {len(scales)} scales")
 
@@ -379,7 +379,7 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
             # Update progress for completed scale
             completed_progress = ((i + 1) / len(scales)) * 100
             progress.update(completed_progress, f"Scale {scale:,} Complete", f"Processed {scale:,} bit-chains successfully")
-            
+
             # Send subprocess progress message
             send_subprocess_progress("EXP-04", completed_progress, f"Scale {scale:,} Complete", f"Processed {scale:,} bit-chains successfully")
 
@@ -476,7 +476,7 @@ if __name__ == "__main__":
         print(f"Fractal: {'YES' if results.is_fractal else 'NO'}")
         print(f"Output: {output_file}")
         print()
-        
+
         # Send subprocess completion message
         success = all(r.is_valid() for r in results.scale_results) and results.is_fractal
         send_subprocess_completion("EXP-04", success, f"Fractal scaling test completed with {len(results.scale_results)} scales tested")

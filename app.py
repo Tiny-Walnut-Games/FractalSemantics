@@ -65,13 +65,13 @@ EXPERIMENT_INFO = {
         "math_concept": "SHA-256 Hashing & 8-Dimensional Coordinate Systems",
         "educational_content": """
         **Mathematical Foundation:**
-        
+
         FractalSemantics uses SHA-256 hashing of canonical serialization to guarantee zero collisions:
-        
+
         ```
         address = SHA256(canonical_serialize(coordinates))
         ```
-        
+
         **8-Dimensional Space:**
         - Realm: Domain classification (data, narrative, system, etc.)
         - Lineage: Generation from LUCA (Last Universal Common Ancestor)
@@ -82,7 +82,7 @@ EXPERIMENT_INFO = {
         - Velocity: Rate of change
         - Density: Compression distance (0.0 to 1.0)
         - Alignment: Value based on alignment map
-        
+
         **Why 8 Dimensions?**
         Each dimension adds exponential capacity to the address space, making collisions mathematically impossible.
         """,
@@ -94,13 +94,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Hash Table Performance & O(1) Complexity",
         "educational_content": """
         **Computational Complexity:**
-        
+
         FractalSemantics achieves O(1) retrieval time through:
-        
+
         ```
         retrieval_time = O(1)  # Constant time lookup
         ```
-        
+
         **Performance Characteristics:**
         - Hash-based indexing provides constant-time access
         - No tree traversal or search algorithms required
@@ -114,13 +114,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Shannon Entropy & Information Theory",
         "educational_content": """
         **Information Theory:**
-        
+
         Each dimension contributes to the total entropy of the address space:
-        
+
         ```
         H(total) = Σ H(dimension_i)
         ```
-        
+
         **Entropy Analysis:**
         - Measures how much information each dimension provides
         - Identifies critical vs. redundant dimensions
@@ -134,13 +134,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Fractal Geometry & Power Law Distributions",
         "educational_content": """
         **Fractal Properties:**
-        
+
         FractalSemantics exhibits self-similar behavior across scales:
-        
+
         ```
         performance(scale) ∝ scale^k  # Power law relationship
         ```
-        
+
         **Scale Invariance:**
         - Performance characteristics remain consistent across different entity counts
         - No degradation in collision resistance or retrieval efficiency
@@ -154,13 +154,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Lossless Compression & Huffman Coding",
         "educational_content": """
         **Compression Algorithms:**
-        
+
         FractalSemantics uses hierarchical compression:
-        
+
         ```
         fragments → clusters → glyphs → mist
         ```
-        
+
         **Lossless Properties:**
         - Each level maintains complete information
         - Compression ratios improve with scale
@@ -174,13 +174,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Cosine Similarity & Semantic Distance",
         "educational_content": """
         **Semantic Analysis:**
-        
+
         Entanglement is measured through coordinate similarity:
-        
+
         ```
         similarity = cos(θ) = (A · B) / (|A| |B|)
         ```
-        
+
         **Entanglement Thresholds:**
         - Related entities have similar coordinate patterns
         - Semantic distance correlates with coordinate distance
@@ -194,13 +194,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Evolutionary Algorithms & Genetic Distance",
         "educational_content": """
         **Evolutionary Principles:**
-        
+
         System reconstruction through lineage expansion:
-        
+
         ```
         LUCA → Generation 1 → Generation 2 → ... → Current State
         ```
-        
+
         **Bootstrap Process:**
         - Single entity contains enough information for full reconstruction
         - Lineage tracking maintains evolutionary relationships
@@ -214,13 +214,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Neural Networks & Self-Organization",
         "educational_content": """
         **Neural Organization:**
-        
+
         Memory self-organization through coordinate clustering:
-        
+
         ```
         cluster_center = mean(coordinates_in_cluster)
         ```
-        
+
         **Small-World Properties:**
         - High clustering coefficient
         - Short path lengths between entities
@@ -234,13 +234,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Memory Management & Resource Optimization",
         "educational_content": """
         **Resource Management:**
-        
+
         Memory optimization strategies:
-        
+
         ```
         memory_usage = f(entities, dimensions, compression)
         ```
-        
+
         **Pressure Testing:**
         - Performance under memory constraints
         - Resource optimization techniques
@@ -254,13 +254,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Multi-Dimensional Indexing & k-d Trees",
         "educational_content": """
         **Query Optimization:**
-        
+
         Multi-dimensional range queries:
-        
+
         ```
         query_time = O(log n)  # Logarithmic complexity
         ```
-        
+
         **Dimensional Pruning:**
         - Eliminates irrelevant dimensions during query
         - Optimizes search space
@@ -274,13 +274,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Dimensional Trade-offs & Optimization",
         "educational_content": """
         **Dimensional Analysis:**
-        
+
         Optimal dimension count determination:
-        
+
         ```
         optimal_dimensions = argmax(expressiveness - complexity)
         ```
-        
+
         **Trade-off Analysis:**
         - Expressiveness vs. computational complexity
         - Storage requirements vs. addressing capacity
@@ -294,13 +294,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Comparative Analysis & Performance Metrics",
         "educational_content": """
         **Benchmarking Methodology:**
-        
+
         Comparative performance analysis:
-        
+
         ```
         relative_performance = system_performance / baseline_performance
         ```
-        
+
         **Comparison Systems:**
         - UUID generation and lookup
         - SHA-256 hashing
@@ -534,11 +534,11 @@ def create_gradio_interface():
     with gr.Blocks(title="FractalSemantics Interactive Experiments") as demo:
         gr.Markdown("""
         # FractalSemantics Interactive Experiments
-        
+
         Welcome to the FractalSemantics validation experiments platform! This interactive interface allows you to run and visualize the 12 validation experiments that prove the FractalSemantics 8-dimensional addressing system works at scale.
-        
+
         ## What is FractalSemantics?
-        
+
         FractalSemantics is a research package containing **12 validation experiments** that prove the FractalSemantics addressing system works at scale. FractalSemantics expands FractalSemantics from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
         """)
 

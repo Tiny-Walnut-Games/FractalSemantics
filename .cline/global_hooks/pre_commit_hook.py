@@ -7,7 +7,6 @@ Can be used with any Git repository to enforce code quality standards.
 """
 
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path

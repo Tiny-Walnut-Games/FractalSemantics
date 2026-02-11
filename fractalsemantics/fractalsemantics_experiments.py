@@ -39,7 +39,7 @@ try:
         EXP03_CoordinateEntropy,
         EXP03_Result,
     )
-    
+
     # Note: Many experiment files don't have main classes, they use functions instead
     # Only import classes that actually exist
     from fractalsemantics.experiment_utils import (

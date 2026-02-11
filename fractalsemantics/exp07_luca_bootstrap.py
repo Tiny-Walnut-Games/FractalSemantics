@@ -27,15 +27,14 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 # Import progress communication
-from fractalsemantics.progress_comm import create_progress_reporter
 
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -472,7 +471,7 @@ class LUCABootstrapTester:
         print("EXP-07: LUCA Bootstrap Test")
         print("Testing: Can we reliably reconstruct system from LUCA?")
         print("=" * 70)
-        
+
         # Send subprocess status message
         send_subprocess_status("EXP-07", "Initialization", "Starting LUCA bootstrap test")
 

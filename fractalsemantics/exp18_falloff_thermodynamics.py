@@ -28,10 +28,9 @@ import numpy as np
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -111,7 +110,7 @@ def measure_fractal_entropy_with_falloff(hierarchy: FractalHierarchy,
 
     # Measure cohesion distribution with falloff applied
     cohesions = []
-    for depth, nodes_at_depth in hierarchy.nodes_by_depth.items():
+    for _, nodes_at_depth in hierarchy.nodes_by_depth.items():
         for node in nodes_at_depth:
             # Sample cohesion with neighboring nodes
             neighbors = [n for n in all_nodes if n != node][:5]  # Sample 5 neighbors

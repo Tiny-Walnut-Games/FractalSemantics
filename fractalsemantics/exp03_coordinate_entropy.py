@@ -67,10 +67,10 @@ from fractalsemantics.progress_comm import ProgressReporter
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -708,7 +708,7 @@ class EXP03_CoordinateEntropy:
         try:
             progress = ProgressReporter("EXP-03")
             progress.status("Initialization", "Starting coordinate entropy test")
-            
+
             # Send subprocess progress message
             send_subprocess_status("EXP-03", "Initialization", "Starting coordinate entropy test")
         except:

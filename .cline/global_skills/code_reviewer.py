@@ -7,14 +7,12 @@ security, performance, and best practices. Can be used across any project.
 """
 
 import ast
-import json
 import os
 import re
-import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -32,6 +30,7 @@ class CodeReviewer:
     """AI-powered code reviewer for multiple languages."""
 
     def __init__(self, project_root: Optional[str] = None):
+        """Initialize the code reviewer with optional project root."""
         self.project_root = Path(project_root or os.getcwd())
         self.issues: List[ReviewIssue] = []
 
@@ -80,7 +79,7 @@ class CodeReviewer:
         try:
             tree = ast.parse(content)
         except SyntaxError as e:
-            self._add_issue("error", "syntax", e.lineno, e.offset or 0,
+            self._add_issue("error", "syntax", e.lineno if e.lineno is not None else 0, e.offset if e.offset is not None else 0,
                           f"Syntax error: {e.msg}")
             return
 
@@ -159,12 +158,11 @@ class CodeReviewer:
                               "Inefficient iteration pattern",
                               "Use enumerate() or direct iteration instead")
 
-            if re.search(r'\.append\(\)', line) in content:
-                # Check for repeated appends in loops
-                if i > 0 and i < len(lines) - 1:
-                    if re.search(r'for\s+', lines[i-1]) or re.search(r'while\s+', lines[i-1]):
-                        self._add_issue("info", "performance", i, 0,
-                                      "Consider using list comprehension for better performance")
+            if (re.search(r'\.append\(\)', line) and re.search(r'\.append\(\)', content) and
+                i > 0 and i < len(lines) - 1 and
+                (re.search(r'for\s+', lines[i-1]) or re.search(r'while\s+', lines[i-1]))):
+                self._add_issue("info", "performance", i, 0,
+                              "Consider using list comprehension for better performance")
 
         # Check for unnecessary string concatenation in loops
         in_loop = False
@@ -224,7 +222,7 @@ class CodeReviewer:
 
         # Check for print statements in production code
         for i, line in enumerate(lines, 1):
-            if re.search(r'\bprint\s*\(', line) and 'test' not in str(file_path).lower():
+            if re.search(r'\bprint\s*\(', line) and 'test' not in self.project_root.name.lower():
                 self._add_issue("info", "best_practice", i, 0,
                               "Print statement in production code",
                               "Use logging instead of print")
@@ -268,7 +266,7 @@ class CodeReviewer:
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 if (node.body and isinstance(node.body[0], ast.Expr) and
-                    isinstance(node.body[0].value, ast.Str)):
+                    isinstance(node.body[0].value, ast.Constant) and isinstance(node.body[0].value.value, str)):
                     continue  # Has docstring
                 else:
                     line_num = node.lineno
@@ -304,30 +302,28 @@ class CodeReviewer:
 
         # Check for inefficient DOM queries in loops
         for i, line in enumerate(lines, 1):
-            if re.search(r'document\.(getElement|querySelector)', line):
-                # Check if this is in a loop (simplified check)
-                if i > 0 and i < len(lines) - 1:
-                    if re.search(r'(for|while)\s*\(.*\)\s*\{', lines[i-1] + lines[i]):
-                        self._add_issue("warning", "performance", i, 0,
-                                      "DOM query in loop is inefficient",
-                                      "Cache DOM elements outside the loop")
+            if (re.search(r'document\.(getElement|querySelector)', line) and
+                i > 0 and i < len(lines) - 1 and
+                re.search(r'(for|while)\s*\(.*\)\s*\{', lines[i-1] + lines[i])):
+                self._add_issue("warning", "performance", i, 0,
+                              "DOM query in loop is inefficient",
+                              "Cache DOM elements outside the loop")
 
     def _check_javascript_style(self, content: str, lines: List[str]):
         """Check JavaScript code style."""
 
         # Check semicolons
         for i, line in enumerate(lines, 1):
-            if line.strip() and not line.strip().startswith('//'):
-                if not line.strip().endswith((';', '{', '}', ':', ',')):
-                    if re.match(r'^\s*(var|let|const|function|if|for|while|return)', line):
-                        self._add_issue("info", "style", i, len(line),
-                                      "Missing semicolon")
+            if (line.strip() and not line.strip().startswith('//') and
+                not line.strip().endswith((';', '{', '}', ':', ',')) and
+                re.match(r'^\s*(var|let|const|function|if|for|while|return)', line)):
+                self._add_issue("info", "style", i, len(line),
+                              "Missing semicolon")
 
     def _review_rust_file(self, file_path: Path, content: str, lines: List[str]):
         """Review Rust files."""
         # Basic Rust review patterns
         self._check_rust_borrowing(content, lines)
-        self._check_rust_performance(content, lines)
 
     def _check_rust_borrowing(self, content: str, lines: List[str]):
         """Check for potential borrowing issues."""
@@ -340,7 +336,6 @@ class CodeReviewer:
         """Review Go files."""
         # Basic Go review patterns
         self._check_go_error_handling(content, lines)
-        self._check_go_performance(content, lines)
 
     def _check_go_error_handling(self, content: str, lines: List[str]):
         """Check for proper error handling."""
@@ -353,32 +348,27 @@ class CodeReviewer:
     def _review_java_file(self, file_path: Path, content: str, lines: List[str]):
         """Review Java files."""
         # Basic Java review patterns
-        self._check_java_naming(content, lines)
-        self._check_java_performance(content, lines)
+        pass
 
     def _review_c_cpp_file(self, file_path: Path, content: str, lines: List[str]):
         """Review C/C++ files."""
         # Basic C/C++ review patterns
-        self._check_c_memory_management(content, lines)
-        self._check_c_security(content, lines)
+        pass
 
     def _review_html_file(self, file_path: Path, content: str, lines: List[str]):
         """Review HTML files."""
         # Basic HTML review patterns
-        self._check_html_accessibility(content, lines)
-        self._check_html_semantics(content, lines)
+        pass
 
     def _review_css_file(self, file_path: Path, content: str, lines: List[str]):
         """Review CSS files."""
         # Basic CSS review patterns
-        self._check_css_performance(content, lines)
-        self._check_css_compatibility(content, lines)
+        pass
 
     def _review_config_file(self, file_path: Path, content: str, lines: List[str]):
         """Review configuration files."""
         # Basic config review patterns
-        self._check_config_secrets(content, lines)
-        self._check_config_structure(content, lines)
+        pass
 
     def _add_issue(self, severity: str, category: str, line: int, column: int, message: str, suggestion: Optional[str] = None):
         """Add an issue to the issues list."""

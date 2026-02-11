@@ -7,19 +7,15 @@ allowing it to run real FractalSemantics experiments with educational output.
 """
 
 import asyncio
-import importlib
 import json
 import os
-import subprocess
 import sys
-import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, List, Optional
+from typing import Any, Optional
 
 import tqdm
-from numpy._core.numeric import full
 
         # Add the fractalsemantics module to the path
 sys.path.insert(0, str(Path(__file__).parent))
@@ -596,28 +592,28 @@ class ExperimentRunner:
 
         # Check for scientific validation failures in the output
         output = result.get("output", "").lower()
-        
+
         # Look for scientific validation failure indicators
         scientific_failures = [
             "experiment success: no",
-            "distance mapping success: no", 
+            "distance mapping success: no",
             "force scaling consistent: no",
             "validation failed",
             "scientific validation failed",
             "not meet scientific criteria",
             "experiment_success: false",
-            "distance_mapping_success: false", 
+            "distance_mapping_success: false",
             "force_scaling_consistent: false"
         ]
-        
+
         # Check if this is an advanced experiment that might have scientific validation failures
         advanced_experiments = ["EXP-16", "EXP-17", "EXP-18", "EXP-19", "EXP-20"]
-        
+
         if experiment_id in advanced_experiments:
             for failure_indicator in scientific_failures:
                 if failure_indicator in output:
                     return "warning"  # Scientific validation failed but experiment ran successfully
-        
+
         # Check specific experiment validation patterns
         if experiment_id == "EXP-16":
             # Check for hierarchical distance mapping validation
@@ -632,25 +628,13 @@ class ExperimentRunner:
                         # If correlations are very low, consider it a partial success
                         if distance_corr < 0.2 and force_corr < 0.2:
                             return "partial_success"
-        
-        elif experiment_id == "EXP-18":
-            # Check for falloff thermodynamics validation
-            if "falloff thermodynamics" in output and "not beneficial" in output:
-                return "warning"
-            elif "falloff_thermodynamics" in output and "not beneficial" in output:
-                return "warning"
-        
-        elif experiment_id == "EXP-19":
-            # Check for orbital equivalence validation
-            if "orbital equivalence" in output and "not properly simulated" in output:
-                return "warning"
-            elif "orbital_equivalence" in output and "not properly simulated" in output:
-                return "warning"
-        
-        elif experiment_id == "EXP-20":
-            # Check for vector field derivation validation
-            if "vector_field_derivation" in output and "validation failed" in output:
-                return "warning"
+
+        elif experiment_id in ["EXP-18", "EXP-19", "EXP-20"] and (
+            (experiment_id == "EXP-18" and "falloff thermodynamics" in output and "not beneficial" in output) or
+            (experiment_id == "EXP-19" and "orbital equivalence" in output and "not properly simulated" in output) or
+            (experiment_id == "EXP-20" and "vector field derivation" in output and "validation failed" in output)
+        ):
+            return "warning"
 
         # Default to success for experiments that ran without technical errors
         return "success"
@@ -848,7 +832,7 @@ class ExperimentRunner:
         print(f"⚡ Execution Mode: {'Parallel' if parallel else 'Sequential'}")
         print("=" * 80)
 
-        # Initialize main progress bar
+            # Initialize main progress bar
         progress_bar = tqdm.tqdm(
             total=total_experiments,
             desc="Running experiments",

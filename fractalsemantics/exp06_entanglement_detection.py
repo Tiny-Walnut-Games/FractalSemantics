@@ -23,15 +23,14 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Import progress communication
-from fractalsemantics.progress_comm import create_progress_reporter
 
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -590,7 +589,7 @@ def main() -> bool:
 
     print(" RUNNING EXP-06: 10 ITERATIONS OF ENTANGLEMENT DETECTION")
     print("=" * 80)
-    
+
     # Send subprocess status message
     send_subprocess_status("EXP-06", "Initialization", "Starting entanglement detection experiment with 10 iterations")
 
@@ -720,7 +719,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
     bitchains = []
 
     print(f"Creating {num_groups} entangled entity groups across realms...")
-    
+
     # Send progress update
     send_subprocess_progress("EXP-06", 10, 100, "Generating synthetic entangled entities")
 
@@ -787,7 +786,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
             pair_example = pairs_list[0]
             bc1_id: str = pair_example[0]
             bc2_id: str = pair_example[1]
-            
+
             bc1 = next(bc for bc in bitchains if bc["id"] == bc1_id)
             bc2 = next(bc for bc in bitchains if bc["id"] == bc2_id)
 
@@ -804,7 +803,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
     # Run entanglement detection
     print("Running entanglement detection...")
     start_time = time.time()
-    
+
     # Send progress update
     send_subprocess_progress("EXP-06", 50, 100, "Running entanglement detection algorithm")
 
@@ -821,7 +820,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
 
     # Compute validation metrics
     print("Computing validation metrics...")
-    
+
     # Send progress update
     send_subprocess_progress("EXP-06", 80, 100, "Computing validation metrics")
 

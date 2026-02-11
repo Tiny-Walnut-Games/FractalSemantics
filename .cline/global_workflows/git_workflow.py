@@ -10,12 +10,11 @@ Comprehensive Git workflow automation including:
 """
 
 import datetime
-import json
 import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 
 class GitWorkflow:
@@ -125,7 +124,7 @@ repos:
             capture_output=True,
             text=True
         )
-        current_branch = result.stdout.strip()
+        result.stdout.strip()
 
         # Create new branch
         branch_name = f"feature/{feature_name}"

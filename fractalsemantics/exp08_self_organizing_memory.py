@@ -43,15 +43,14 @@ from typing import Any, Dict, List, Optional, Tuple
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Import progress communication
-from fractalsemantics.progress_comm import create_progress_reporter
 
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -180,7 +179,7 @@ class SelfOrganizingMemoryNetwork:
     def __init__(self, consolidation_threshold: float = 0.8, forgetting_threshold: float = 0.2):
         """
         Initialize self-organizing memory network.
-        
+
         Args:
             consolidation_threshold: Threshold for memory consolidation
             forgetting_threshold: Threshold for memory forgetting
@@ -205,10 +204,10 @@ class SelfOrganizingMemoryNetwork:
     def add_memory(self, bitchain: BitChain) -> str:
         """
         Add a memory to the self-organizing network.
-        
+
         Args:
             bitchain: BitChain to store as memory
-            
+
         Returns:
             Memory address
         """
@@ -266,7 +265,7 @@ class SelfOrganizingMemoryNetwork:
     def _calculate_semantic_similarity(self, coords1: Dict[str, Any], address2: str) -> float:
         """
         Calculate semantic similarity between coordinates and cluster representative.
-        
+
         Uses FractalSemantics coordinate comparison for semantic similarity.
         """
         if address2 not in self.memories:
@@ -372,7 +371,7 @@ class SelfOrganizingMemoryNetwork:
     def retrieve_memory(self, query_coords: Dict[str, Any]) -> List[Tuple[str, float]]:
         """
         Retrieve memories based on semantic similarity to query coordinates.
-        
+
         Returns list of (address, similarity) tuples sorted by similarity.
         """
         self.total_retrievals += 1
@@ -532,7 +531,7 @@ class SelfOrganizingMemoryExperiment:
     def __init__(self, num_memories: int = 1000, consolidation_threshold: float = 0.8):
         """
         Initialize experiment.
-        
+
         Args:
             num_memories: Number of memories to generate and test
             consolidation_threshold: Threshold for memory consolidation
@@ -547,7 +546,7 @@ class SelfOrganizingMemoryExperiment:
     def run(self) -> SelfOrganizingMemoryResults:
         """
         Run the self-organizing memory experiment.
-        
+
         Returns:
             Experiment results
         """
@@ -555,7 +554,7 @@ class SelfOrganizingMemoryExperiment:
         print("EXP-08: SELF-ORGANIZING MEMORY NETWORKS")
         print("=" * 80)
         print(f"Generating {self.num_memories} memories...")
-        
+
         # Send subprocess status message
         send_subprocess_status("EXP-08", "Initialization", "Starting self-organizing memory experiment")
 

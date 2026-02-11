@@ -5,9 +5,9 @@ Based on actual experiment results structure
 """
 
 import json
-import os
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
+from typing import Any, Dict, List, Tuple
+
 
 def load_experiment_results() -> Dict[str, List[Dict[str, Any]]]:
     """Load all experiment results from the results directory."""
@@ -26,7 +26,7 @@ def load_experiment_results() -> Dict[str, List[Dict[str, Any]]]:
     experiment_latest = {}
     for file_path in sorted(all_files):
         try:
-            with open(file_path, 'r') as f:
+            with open(file_path) as f:
                 data = json.load(f)
                 # Extract experiment name from filename
                 filename = file_path.stem
@@ -413,7 +413,7 @@ def validate_exp07(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
             dimensionality_recovery = comparison.get("dimensionality_recovery_rate", 0)
 
             # Check if all recovery rates are perfect (100%)
-            if (entity_recovery >= 1.0 and lineage_recovery >= 1.0 and 
+            if (entity_recovery >= 1.0 and lineage_recovery >= 1.0 and
                 realm_recovery >= 1.0 and dimensionality_recovery >= 1.0):
                 findings.append("✓ Perfect reconstruction confirmed")
                 findings.append(f"✓ Entity recovery: {entity_recovery:.1%}")
@@ -592,7 +592,7 @@ def validate_exp11(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
         optimal_dims = last_result.get("optimal_dimension_count", 0)
         if optimal_dims > 0:
             findings.append(f"✓ Optimal dimension count determined: {optimal_dims}")
-            findings.append(f"✓ Dimension cardinality analysis successful")
+            findings.append("✓ Dimension cardinality analysis successful")
             metrics["dimension_optimization"] = True
             success = True
         else:
@@ -604,7 +604,7 @@ def validate_exp11(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
         optimal_dims = last_result["optimal_analysis"]["optimal_dimension_count"]
         if optimal_dims > 0:
             findings.append(f"✓ Optimal dimension count determined: {optimal_dims}")
-            findings.append(f"✓ Dimension cardinality analysis successful")
+            findings.append("✓ Dimension cardinality analysis successful")
             metrics["dimension_optimization"] = True
             success = True
         else:
@@ -634,12 +634,12 @@ def validate_exp11b(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dic
         collision_rates = {}
         baseline_collision_rate = 0.0
         stress_collision_rate = 0.0
-        
+
         for test in last_result["test_results"]:
             collision_rate = test.get("collision_rate", 0.0)
             dimension_count = test.get("dimension_count", 0)
             collision_rates[dimension_count] = collision_rate
-            
+
             # Track baseline (full system) vs stress conditions
             if test.get("test_name", "") == "Test 1: Baseline (Full System)":
                 baseline_collision_rate = collision_rate
@@ -664,7 +664,7 @@ def validate_exp11b(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dic
 
         if success:
             findings.append("✓ Dimension stress test completed successfully")
-        
+
     elif "collision_rates" in last_result:
         # Fallback to direct collision_rates field
         max_collision_rate = max(last_result["collision_rates"].values())
@@ -788,12 +788,12 @@ def validate_exp14(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
     """Validate EXP-14: Atomic Fractal Mapping"""
     findings = []
     metrics = {}
-    
+
     if not results:
         return False, ["No results found for EXP-14"], metrics
-    
+
     last_result = results[-1]
-    
+
     # Check specific atomic mapping metrics if available
     if "structure_validation" in last_result:
         validation = last_result["structure_validation"]
@@ -807,7 +807,7 @@ def validate_exp14(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
             depth_accuracy = validation.get("depth_accuracy", 0)
             branching_accuracy = validation.get("branching_accuracy", 0)
             exponential_consistency = validation.get("exponential_consistency", 0)
-            
+
             if depth_accuracy >= 0.9 and branching_accuracy >= 0.9 and exponential_consistency >= 0.9:
                 findings.append(f"✓ Atomic fractal mapping confirmed: depth={depth_accuracy:.3f}, branching={branching_accuracy:.3f}, exponential={exponential_consistency:.3f}")
                 metrics["atomic_mapping"] = True
@@ -820,19 +820,19 @@ def validate_exp14(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
         findings.append("✗ No structure validation data found")
         metrics["atomic_mapping"] = False
         success = False
-    
+
     return success, findings, metrics
 
 def validate_exp15(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
     """Validate EXP-15: Topological Conservation"""
     findings = []
     metrics = {}
-    
+
     if not results:
         return False, ["No results found for EXP-15"], metrics
-    
+
     last_result = results[-1]
-    
+
     # Check specific topological conservation metrics if available
     if "analysis" in last_result:
         analysis = last_result["analysis"]
@@ -865,7 +865,7 @@ def validate_exp15(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
         findings.append("✗ Topological conservation validation failed")
         metrics["topological_conservation"] = False
         success = False
-    
+
     return success, findings, metrics
 
 def validate_exp16(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:

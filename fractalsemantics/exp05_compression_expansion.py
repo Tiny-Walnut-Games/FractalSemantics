@@ -37,15 +37,14 @@ from fractalsemantics.fractalsemantics_experiments import (
 )
 
 # Import progress communication
-from fractalsemantics.progress_comm import create_progress_reporter
 
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -741,7 +740,7 @@ if __name__ == "__main__":
         print("=" * 80)
         print(f"Results: {output_file}")
         print()
-        
+
         # Send subprocess completion message
         success = results.is_lossless and all(p.provenance_chain_complete and p.narrative_preserved for p in results.compression_paths)
         send_subprocess_completion("EXP-05", success, f"Compression/expansion test completed with {results.num_bitchains_tested} bit-chains tested")

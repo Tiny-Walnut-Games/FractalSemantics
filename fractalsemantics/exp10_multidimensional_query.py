@@ -40,10 +40,10 @@ from typing import Any, Dict, List, Optional, Tuple
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -162,7 +162,7 @@ class MultiDimensionalQueryEngine:
     def __init__(self, dataset_size: int = 10000):
         """
         Initialize query engine.
-        
+
         Args:
             dataset_size: Size of the test dataset
         """
@@ -302,11 +302,11 @@ class MultiDimensionalQueryEngine:
     def execute_query(self, query_pattern: QueryPattern, query_id: str) -> QueryResult:
         """
         Execute a multi-dimensional query.
-        
+
         Args:
             query_pattern: Query pattern to execute
             query_id: Unique identifier for this query
-        
+
         Returns:
             Query result with performance metrics
         """
@@ -780,7 +780,7 @@ class MultiDimensionalQueryExperiment:
     def __init__(self, dataset_size: int = 10000):
         """
         Initialize experiment.
-        
+
         Args:
             dataset_size: Size of test dataset
         """
@@ -790,7 +790,7 @@ class MultiDimensionalQueryExperiment:
     def run(self) -> MultiDimensionalQueryResults:
         """
         Run the multi-dimensional query optimization experiment.
-        
+
         Returns:
             Experiment results
         """
@@ -798,7 +798,7 @@ class MultiDimensionalQueryExperiment:
         print("EXP-10: MULTI-DIMENSIONAL QUERY OPTIMIZATION")
         print("=" * 80)
         print(f"Dataset size: {self.dataset_size} bit-chains")
-        
+
         # Send subprocess status message
         send_subprocess_status("EXP-10", "Initialization", "Starting multi-dimensional query optimization experiment")
 

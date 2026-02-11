@@ -29,23 +29,20 @@ Success Criteria:
 import json
 import secrets
 import sys
-import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-
-import tqdm
 
 from fractalsemantics.progress_comm import ProgressReporter
 
 # Import subprocess communication for enhanced progress reporting
 try:
     from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
-        send_subprocess_completion,
-        is_subprocess_communication_enabled
     )
 except ImportError:
     # Fallback if subprocess communication is not available
@@ -155,7 +152,7 @@ class EXP01_GeometricCollisionResistance:
         try:
             progress = ProgressReporter("EXP-01")
             progress.status("Initialization", "Starting geometric collision resistance test")
-            
+
             # Send subprocess progress message
             send_subprocess_status("EXP-01", "Initialization", "Starting geometric collision resistance test")
         except:
@@ -197,7 +194,7 @@ class EXP01_GeometricCollisionResistance:
                     try:
                         progress = ProgressReporter("EXP-01")
                         progress.update(coord_progress, f"{dimension}D Generation", f"Generated {j:,}/{self.sample_size:,} coordinates")
-                        
+
                         # Send subprocess progress message
                         send_subprocess_progress("EXP-01", coord_progress, f"{dimension}D Generation", f"Generated {j:,}/{self.sample_size:,} coordinates")
                     except:
@@ -246,7 +243,7 @@ class EXP01_GeometricCollisionResistance:
         try:
             progress = ProgressReporter("EXP-01")
             progress.complete("Geometric collision resistance test completed")
-            
+
             # Send subprocess completion message
             send_subprocess_completion("EXP-01", all_validated, f"Geometric validation {'passed' if all_validated else 'failed'}")
         except:
