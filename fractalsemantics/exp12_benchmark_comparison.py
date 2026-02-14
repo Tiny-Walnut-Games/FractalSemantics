@@ -29,7 +29,7 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 # Import subprocess communication for enhanced progress reporting
 try:
@@ -47,7 +47,7 @@ except ImportError:
     def is_subprocess_communication_enabled() -> bool: return False
 
 # Reuse canonical serialization from Phase 1
-from fractalsemantics.fractalsemantics_experiments import (
+from fractalsemantics.fractalsemantics_entity import (
     BitChain,
     canonical_serialize,
     compute_address_hash,
@@ -89,7 +89,7 @@ class SystemBenchmarkResult:
     relationship_support: float
     query_flexibility: float
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to serializable dict."""
         return asdict(self)
 
@@ -102,12 +102,12 @@ class BenchmarkComparisonResult:
     end_time: str
     total_duration_seconds: float
     sample_size: int
-    scales_tested: List[int]
+    scales_tested: list[int]
     num_queries: int
-    systems_tested: List[str]
+    systems_tested: list[str]
 
     # Per-system results
-    system_results: List[SystemBenchmarkResult]
+    system_results: list[SystemBenchmarkResult]
 
     # Comparative analysis
     best_collision_rate_system: str
@@ -124,10 +124,10 @@ class BenchmarkComparisonResult:
     fractalsemantics_overall_score: float  # 0.0 to 1.0
 
     # Key findings
-    major_findings: List[str] = field(default_factory=list)
+    major_findings: list[str] = field(default_factory=list)
     fractalsemantics_competitive: bool = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to serializable dict."""
         return {
             "experiment": "EXP-12",
@@ -169,21 +169,21 @@ class BenchmarkSystem:
 
     def __init__(self, name: str):
         self.name = name
-        self.storage: Dict[str, Any] = {}
+        self.storage: dict[str, any] = {}
 
-    def generate_address(self, entity: Any) -> str:
+    def generate_address(self, entity: any) -> str:
         """Generate address/identifier for entity."""
         raise NotImplementedError
 
-    def store(self, address: str, entity: Any) -> None:
+    def store(self, address: str, entity: any) -> None:
         """Store entity at address."""
         self.storage[address] = entity
 
-    def retrieve(self, address: str) -> Optional[Any]:
+    def retrieve(self, address: str) -> Optional[any]:
         """Retrieve entity by address."""
         return self.storage.get(address)
 
-    def get_storage_size(self, entity: Any) -> int:
+    def get_storage_size(self, entity: any) -> int:
         """Get storage size in bytes for entity."""
         return len(json.dumps({"address": "placeholder", "data": str(entity)}))
 
@@ -206,7 +206,7 @@ class UUIDSystem(BenchmarkSystem):
     def __init__(self):
         super().__init__("UUID")
 
-    def generate_address(self, entity: Any) -> str:
+    def generate_address(self, entity: any) -> str:
         """Generate random UUID."""
         return str(uuid.uuid4())
 
@@ -226,7 +226,7 @@ class SHA256System(BenchmarkSystem):
     def __init__(self):
         super().__init__("SHA256")
 
-    def generate_address(self, entity: Any) -> str:
+    def generate_address(self, entity: any) -> str:
         """Generate SHA-256 hash of entity content."""
         if isinstance(entity, BitChain):
             content = canonical_serialize(entity.to_canonical_dict())
@@ -249,9 +249,9 @@ class VectorDBSystem(BenchmarkSystem):
 
     def __init__(self):
         super().__init__("VectorDB")
-        self.embeddings: Dict[str, List[float]] = {}
+        self.embeddings: dict[str, list[float]] = {}
 
-    def generate_address(self, entity: Any) -> str:
+    def generate_address(self, entity: any) -> str:
         """Generate UUID + store embedding."""
         addr = str(uuid.uuid4())
         # Simulate embedding (use entity properties as vector)
@@ -279,9 +279,9 @@ class GraphDBSystem(BenchmarkSystem):
 
     def __init__(self):
         super().__init__("GraphDB")
-        self.edges: Dict[str, List[str]] = {}
+        self.edges: dict[str, list[str]] = {}
 
-    def generate_address(self, entity: Any) -> str:
+    def generate_address(self, entity: any) -> str:
         """Generate UUID + store relationships."""
         addr = str(uuid.uuid4())
         # Simulate edges (use adjacency if available)
@@ -304,9 +304,9 @@ class RDBMSSystem(BenchmarkSystem):
 
     def __init__(self):
         super().__init__("RDBMS")
-        self.indexes: Dict[str, List[str]] = {}
+        self.indexes: dict[str, list[str]] = {}
 
-    def generate_address(self, entity: Any) -> str:
+    def generate_address(self, entity: any) -> str:
         """Generate auto-increment ID + build indexes."""
         addr = str(uuid.uuid4())  # Simulate auto-increment
         # Simulate indexes on key fields
@@ -333,7 +333,7 @@ class FractalSemanticsSystem(BenchmarkSystem):
     def __init__(self):
         super().__init__("FractalSemantics")
 
-    def generate_address(self, entity: Any) -> str:
+    def generate_address(self, entity: any) -> str:
         """Generate FractalSemantics address."""
         if isinstance(entity, BitChain):
             return entity.compute_address()
@@ -371,8 +371,8 @@ class BenchmarkComparisonExperiment:
     def __init__(
         self,
         sample_size: int = 100000,
-        benchmark_systems: Optional[List[str]] = None,
-        scales: Optional[List[int]] = None,
+        benchmark_systems: Optional[list[str]] = None,
+        scales: Optional[list[int]] = None,
         num_queries: int = 1000,
     ):
         """
@@ -380,8 +380,8 @@ class BenchmarkComparisonExperiment:
 
         Args:
             sample_size: Number of entities to test
-            benchmark_systems: List of systems to benchmark
-            scales: List of scales to test
+            benchmark_systems: list of systems to benchmark
+            scales: list of scales to test
             num_queries: Number of retrieval queries per scale
         """
         self.sample_size = sample_size
@@ -395,7 +395,7 @@ class BenchmarkComparisonExperiment:
         ]
         self.scales = scales or [10000, 100000, 1000000]
         self.num_queries = num_queries
-        self.results: List[SystemBenchmarkResult] = []
+        self.results: list[SystemBenchmarkResult] = []
 
     def _create_system(self, system_name: str) -> BenchmarkSystem:
         """Create benchmark system instance."""
@@ -498,12 +498,12 @@ class BenchmarkComparisonExperiment:
             query_flexibility=query_flex,
         )
 
-    def run(self) -> Tuple[BenchmarkComparisonResult, bool]:
+    def run(self) -> tuple[BenchmarkComparisonResult, bool]:
         """
         Run the benchmark comparison.
 
         Returns:
-            Tuple of (results, success)
+            tuple of (results, success)
         """
         start_time = datetime.now(timezone.utc).isoformat()
         overall_start = time.time()

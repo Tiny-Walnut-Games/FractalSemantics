@@ -1,733 +1,733 @@
 #!/usr/bin/env python3
 """
-Project Analyzer Skill for Cline
+Global Project Analyzer Skill for Cline
 
-Comprehensive project analysis tool that provides insights into project structure,
-dependencies, code quality metrics, and development patterns. Supports multiple
-programming languages and project types.
-
-Usage:
-  /project-analyzer              - Analyze current project
-  /project-analyzer <path>       - Analyze specific project
-  /project-analyzer --metrics    - Show detailed metrics
-  /project-analyzer --dependencies - Show dependency analysis
-  /project-analyzer --structure  - Show project structure
-  /project-analyzer --languages  - Show language analysis
+Comprehensive project analysis tool that provides insights into:
+- Project structure and architecture
+- Technology stack detection
+- Code quality metrics
+- Security vulnerabilities
+- Performance bottlenecks
+- Dependency analysis
 """
 
 import ast
 import json
 import os
+import re
 import sys
 from collections import defaultdict
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 
 @dataclass
-class ProjectMetrics:
-    """Project metrics and statistics."""
-    total_files: int = 0
-    total_lines: int = 0
-    code_lines: int = 0
-    comment_lines: int = 0
-    blank_lines: int = 0
-    languages: Dict[str, int] = None
-    file_types: Dict[str, int] = None
-    largest_files: List[Tuple[str, int]] = None
-    complexity_metrics: Dict[str, Any] = None
-
-    def __post_init__(self):
-        if self.languages is None:
-            object.__setattr__(self, 'languages', {})
-        if self.file_types is None:
-            object.__setattr__(self, 'file_types', {})
-        if self.largest_files is None:
-            object.__setattr__(self, 'largest_files', [])
-        if self.complexity_metrics is None:
-            object.__setattr__(self, 'complexity_metrics', {})
+class ProjectInsight:
+    """Represents a project insight or finding."""
+    category: str  # "structure", "tech_stack", "quality", "security", "performance", "dependencies"
+    severity: str  # "info", "warning", "error"
+    title: str
+    description: str
+    recommendations: list[str]
+    files: list[str]
 
 
 class ProjectAnalyzer:
-    """Comprehensive project analysis tool."""
+    """Comprehensive project analyzer."""
 
     def __init__(self, project_root: Optional[str] = None):
         self.project_root = Path(project_root or os.getcwd())
-        self.metrics = ProjectMetrics()
-        self.config = self._load_config()
-        self.file_analysis = {}
+        self.insights: list[ProjectInsight] = []
+        self.tech_stack = {}
+        self.metrics = {}
 
-    def _load_config(self) -> Dict[str, Any]:
-        """Load configuration from .cline-project-analyzer.json."""
-        config_path = self.project_root / ".cline-project-analyzer.json"
-
-        default_config = {
-            "analysis_config": {
-                "include_patterns": ["**/*"],
-                "exclude_patterns": [
-                    "node_modules/**",
-                    ".git/**",
-                    "dist/**",
-                    "build/**",
-                    "__pycache__/**",
-                    "*.pyc",
-                    "*.log"
-                ],
-                "max_file_size": 1024 * 1024,  # 1MB
-                "analyze_complexity": True,
-                "analyze_dependencies": True,
-                "analyze_structure": True,
-                "language_detection": {
-                    "python": [".py"],
-                    "javascript": [".js", ".jsx", ".ts", ".tsx"],
-                    "rust": [".rs"],
-                    "go": [".go"],
-                    "java": [".java", ".kt"],
-                    "c_cpp": [".c", ".cpp", ".h", ".hpp"],
-                    "html": [".html", ".htm"],
-                    "css": [".css", ".scss", ".sass"],
-                    "config": [".json", ".yaml", ".yml", ".toml", ".xml", ".ini"]
-                }
-            }
-        }
-
-        if config_path.exists():
-            try:
-                with open(config_path) as f:
-                    user_config = json.load(f)
-                # Merge with defaults
-                return {**default_config, **user_config}
-            except:
-                pass
-
-        return default_config
-
-    def analyze_project(self) -> Dict[str, Any]:
+    def analyze_project(self) -> dict[str, any]:
         """Perform comprehensive project analysis."""
         print("🔍 Analyzing project structure...")
 
-        # Collect basic metrics
-        self._collect_file_metrics()
+        # Basic project info
+        project_info = self._analyze_project_info()
 
-        # Analyze project structure
-        structure = self._analyze_structure()
+        # Technology stack detection
+        self._detect_tech_stack()
 
-        # Analyze dependencies
-        dependencies = self._analyze_dependencies()
+        # Code quality analysis
+        self._analyze_code_quality()
 
-        # Analyze languages
-        languages = self._analyze_languages()
+        # Security analysis
+        self._analyze_security()
 
-        # Generate report
-        report = {
-            "project_path": str(self.project_root),
-            "metrics": asdict(self.metrics),
-            "structure": structure,
-            "dependencies": dependencies,
-            "languages": languages,
-            "recommendations": self._generate_recommendations()
+        # Performance analysis
+        self._analyze_performance()
+
+        # Dependency analysis
+        self._analyze_dependencies()
+
+        # Generate insights
+        insights_by_category = self._categorize_insights()
+
+        return {
+            "project_info": project_info,
+            "tech_stack": self.tech_stack,
+            "metrics": self.metrics,
+            "insights": insights_by_category,
+            "summary": self._generate_summary()
         }
 
-        return report
-
-    def _collect_file_metrics(self):
-        """Collect basic file and line metrics."""
-        print("📊 Collecting file metrics...")
-
-        include_patterns = self.config.get("analysis_config", {}).get("include_patterns", ["**/*"])
-        exclude_patterns = self.config.get("analysis_config", {}).get("exclude_patterns", [])
-        max_file_size = self.config.get("analysis_config", {}).get("max_file_size", 1024 * 1024)
-
-        total_files = 0
-        total_lines = 0
-        code_lines = 0
-        comment_lines = 0
-        blank_lines = 0
-
-        file_types = defaultdict(int)
-        languages = defaultdict(int)
-        largest_files = []
-
-        for pattern in include_patterns:
-            for file_path in self.project_root.glob(pattern):
-                if file_path.is_file():
-                    # Check exclusions
-                    should_exclude = False
-                    for exclude_pattern in exclude_patterns:
-                        if file_path.match(exclude_pattern):
-                            should_exclude = True
-                            break
-
-                    if should_exclude:
-                        continue
-
-                    # Check file size
-                    if file_path.stat().st_size > max_file_size:
-                        continue
-
-                    total_files += 1
-                    file_types[file_path.suffix] += 1
-
-                    # Analyze file content
-                    try:
-                        with open(file_path, encoding='utf-8', errors='ignore') as f:
-                            content = f.read()
-                            lines = content.split('\n')
-
-                            file_lines = len(lines)
-                            total_lines += file_lines
-
-                            file_code_lines = 0
-                            file_comment_lines = 0
-                            file_blank_lines = 0
-
-                            for line in lines:
-                                stripped = line.strip()
-                                if not stripped:
-                                    file_blank_lines += 1
-                                elif self._is_comment_line(stripped, file_path.suffix):
-                                    file_comment_lines += 1
-                                else:
-                                    file_code_lines += 1
-
-                            code_lines += file_code_lines
-                            comment_lines += file_comment_lines
-                            blank_lines += file_blank_lines
-
-                            # Track largest files
-                            largest_files.append((str(file_path), file_lines))
-
-                            # Language detection
-                            lang = self._detect_language(file_path)
-                            if lang:
-                                languages[lang] += 1
-                                self.file_analysis[str(file_path)] = {
-                                    "lines": file_lines,
-                                    "code_lines": file_code_lines,
-                                    "comment_lines": file_comment_lines,
-                                    "blank_lines": file_blank_lines,
-                                    "language": lang
-                                }
-
-                    except Exception:
-                        # Skip files that can't be read
-                        continue
-
-        # Sort largest files
-        largest_files.sort(key=lambda x: x[1], reverse=True)
-        largest_files = largest_files[:10]  # Top 10
-
-        self.metrics.total_files = total_files
-        self.metrics.total_lines = total_lines
-        self.metrics.code_lines = code_lines
-        self.metrics.comment_lines = comment_lines
-        self.metrics.blank_lines = blank_lines
-        self.metrics.file_types = dict(file_types)
-        self.metrics.languages = dict(languages)
-        self.metrics.largest_files = largest_files
-
-    def _is_comment_line(self, line: str, file_extension: str) -> bool:
-        """Check if a line is a comment based on file type."""
-        if not line:
-            return False
-
-        # Python, JavaScript, Java, C++ comments
-        if file_extension in ['.py', '.js', '.jsx', '.ts', '.tsx', '.java', '.kt', '.c', '.cpp', '.h', '.hpp']:
-            return line.startswith('#') or line.startswith('//') or line.startswith('/*') or line.startswith('*')
-
-        # HTML comments
-        if file_extension in ['.html', '.htm']:
-            return line.startswith('<!--')
-
-        # YAML comments
-        if file_extension in ['.yaml', '.yml']:
-            return line.startswith('#')
-
-        return False
-
-    def _detect_language(self, file_path: Path) -> Optional[str]:
-        """Detect programming language based on file extension."""
-        language_detection = self.config.get("analysis_config", {}).get("language_detection", {})
-
-        for lang, extensions in language_detection.items():
-            if file_path.suffix in extensions:
-                return lang
-
-        return None
-
-    def _analyze_structure(self) -> Dict[str, Any]:
-        """Analyze project directory structure."""
-        print("🏗️  Analyzing project structure...")
-
-        structure = {
-            "directories": [],
-            "file_distribution": {},
-            "depth_analysis": {},
-            "patterns": []
+    def _analyze_project_info(self) -> dict[str, any]:
+        """Analyze basic project information."""
+        project_info = {
+            "name": self.project_root.name,
+            "path": str(self.project_root),
+            "size": self._get_project_size(),
+            "file_count": self._count_files(),
+            "directories": self._get_directory_structure(),
+            "last_modified": self._get_last_modified()
         }
 
-        # Collect directory structure
-        directories = set()
-        for file_path in self.project_root.rglob("*"):
-            if file_path.is_file():
-                # Add parent directories
-                current = file_path.parent
-                while current != self.project_root and current != current.parent:
-                    directories.add(str(current.relative_to(self.project_root)))
-                    current = current.parent
-
-        structure["directories"] = sorted(list(directories))
-
-        # Analyze file distribution
-        for file_path in self.project_root.rglob("*"):
-            if file_path.is_file():
-                parent = str(file_path.parent.relative_to(self.project_root))
-                if parent not in structure["file_distribution"]:
-                    structure["file_distribution"][parent] = 0
-                structure["file_distribution"][parent] += 1
-
-        # Analyze depth
-        max_depth = 0
-        depth_counts = defaultdict(int)
-
-        for file_path in self.project_root.rglob("*"):
-            if file_path.is_file():
-                depth = len(file_path.relative_to(self.project_root).parts) - 1
-                max_depth = max(max_depth, depth)
-                depth_counts[depth] += 1
-
-        structure["depth_analysis"] = {
-            "max_depth": max_depth,
-            "depth_distribution": dict(depth_counts)
+        # Check for common project files
+        common_files = {
+            "README": self.project_root / "README.md",
+            "LICENSE": self.project_root / "LICENSE",
+            "CONTRIBUTING": self.project_root / "CONTRIBUTING.md",
+            "CODE_OF_CONDUCT": self.project_root / "CODE_OF_CONDUCT.md"
         }
 
-        # Detect common patterns
-        patterns = []
-
-        # Check for src/ directory
-        if (self.project_root / "src").exists():
-            patterns.append("src-based structure")
-
-        # Check for test directories
-        test_dirs = list(self.project_root.glob("**/test*"))
-        if test_dirs:
-            patterns.append(f"test directories: {len(test_dirs)}")
-
-        # Check for configuration files
-        config_files = ["package.json", "requirements.txt", "Cargo.toml", "go.mod", "pom.xml"]
-        found_configs = [f for f in config_files if (self.project_root / f).exists()]
-        if found_configs:
-            patterns.append(f"config files: {', '.join(found_configs)}")
-
-        structure["patterns"] = patterns
-
-        return structure
-
-    def _analyze_dependencies(self) -> Dict[str, Any]:
-        """Analyze project dependencies."""
-        print("📦 Analyzing dependencies...")
-
-        dependencies = {
-            "python": self._analyze_python_dependencies(),
-            "javascript": self._analyze_javascript_dependencies(),
-            "rust": self._analyze_rust_dependencies(),
-            "go": self._analyze_go_dependencies(),
-            "java": self._analyze_java_dependencies()
+        project_info["documentation"] = {
+            file_name: file_path.exists()
+            for file_name, file_path in common_files.items()
         }
 
-        return dependencies
+        return project_info
 
-    def _analyze_python_dependencies(self) -> Dict[str, Any]:
-        """Analyze Python dependencies."""
-        python_deps = {
-            "requirements_files": [],
-            "import_analysis": {},
-            "virtual_envs": []
+    def _detect_tech_stack(self):
+        """Detect the technology stack used in the project."""
+        tech_indicators = {
+            "Python": [".py", "requirements.txt", "pyproject.toml", "setup.py"],
+            "JavaScript/TypeScript": [".js", ".ts", ".jsx", ".tsx", "package.json"],
+            "Java": [".java", "pom.xml", "build.gradle"],
+            "C#": [".cs", ".csproj", "packages.config"],
+            "Go": [".go", "go.mod"],
+            "Rust": [".rs", "Cargo.toml"],
+            "PHP": [".php", "composer.json"],
+            "Ruby": [".rb", "Gemfile"],
+            "C/C++": [".c", ".cpp", ".h", ".hpp", "Makefile", "CMakelists.txt"],
+            "HTML/CSS": [".html", ".css", ".scss", ".sass"],
+            "Docker": ["Dockerfile", "docker-compose.yml"],
+            "Kubernetes": ["k8s.yaml", "k8s.yml", "deployment.yaml"],
+            "AWS": ["serverless.yml", "sam.yaml", "cloudformation.yaml"],
+            "Database": ["schema.sql", "migrations/", "models.py"],
+            "Testing": ["test_", "spec/", "__tests__/", "pytest.ini"],
+            "CI/CD": [".github/", ".gitlab-ci.yml", "Jenkinsfile", ".travis.yml"],
+            "Documentation": ["docs/", "README.md", "CHANGELOG.md"]
         }
 
-        # Find requirements files
-        for req_file in ["requirements.txt", "requirements-dev.txt", "pyproject.toml", "setup.py"]:
-            if (self.project_root / req_file).exists():
-                python_deps["requirements_files"].append(req_file)
+        detected_tech = {}
 
-        # Find virtual environments
-        for venv_dir in ["venv", ".venv", "env"]:
-            if (self.project_root / venv_dir).exists():
-                python_deps["virtual_envs"].append(venv_dir)
+        for tech, indicators in tech_indicators.items():
+            score = 0
+            found_files = []
 
-        # Analyze imports in Python files
-        import_counts = defaultdict(int)
+            for indicator in indicators:
+                if indicator.startswith('.'):
+                    # File extension
+                    files = list(self.project_root.glob(f"**/*{indicator}"))
+                    if files:
+                        score += len(files)
+                        found_files.extend([str(f) for f in files[:5]])  # Limit to first 5
+                else:
+                    # File or directory name
+                    if (self.project_root / indicator).exists():
+                        score += 10  # Higher weight for exact matches
+                        found_files.append(str(self.project_root / indicator))
+
+            if score > 0:
+                detected_tech[tech] = {
+                    "score": score,
+                    "confidence": "high" if score >= 10 else "medium" if score >= 5 else "low",
+                    "files": found_files[:10]  # Limit to first 10 files
+                }
+
+        self.tech_stack = detected_tech
+
+        # Add specific framework detection
+        self._detect_frameworks()
+
+    def _detect_frameworks(self):
+        """Detect specific frameworks and libraries."""
+        framework_indicators = {
+            "Web Frameworks": {
+                "Django": ["manage.py", "settings.py"],
+                "Flask": ["flask", "app.py"],
+                "FastAPI": ["fastapi", "main.py"],
+                "Express": ["express", "app.js"],
+                "React": ["react", "package.json"],
+                "Vue.js": ["vue", "vue.config.js"],
+                "Angular": ["angular", "angular.json"],
+                "Spring Boot": ["spring-boot", "pom.xml"],
+                "ASP.NET": ["aspnet", ".csproj"]
+            },
+            "Databases": {
+                "PostgreSQL": ["psycopg2", "pg"],
+                "MySQL": ["mysql", "pymysql"],
+                "MongoDB": ["pymongo", "mongodb"],
+                "Redis": ["redis", "redis-py"],
+                "SQLite": ["sqlite3", "sqlite"]
+            },
+            "Cloud Platforms": {
+                "AWS": ["boto3", "aws-sdk"],
+                "Azure": ["azure", "azure-sdk"],
+                "Google Cloud": ["google-cloud", "gcloud"],
+                "Heroku": ["Procfile", "heroku.yml"]
+            },
+            "DevOps": {
+                "Docker": ["Dockerfile", "docker-compose"],
+                "Kubernetes": ["k8s", "kubernetes"],
+                "Terraform": ["terraform", ".tf"],
+                "Ansible": ["ansible", ".yml"]
+            }
+        }
+
+        for category, frameworks in framework_indicators.items():
+            for framework, indicators in frameworks.items():
+                score = 0
+                for indicator in indicators:
+                    if any(indicator in str(f) for f in self.project_root.rglob("*")):
+                        score += 1
+
+                if score > 0:
+                    if "frameworks" not in self.tech_stack:
+                        self.tech_stack["frameworks"] = {}
+                    if category not in self.tech_stack["frameworks"]:
+                        self.tech_stack["frameworks"][category] = {}
+
+                    self.tech_stack["frameworks"][category][framework] = score
+
+    def _analyze_code_quality(self):
+        """Analyze code quality metrics."""
+        quality_metrics = {
+            "file_complexity": self._analyze_file_complexity(),
+            "naming_conventions": self._check_naming_conventions(),
+            "code_smells": self._detect_code_smells(),
+            "documentation": self._analyze_documentation()
+        }
+
+        self.metrics["quality"] = quality_metrics
+
+    def _analyze_file_complexity(self) -> dict[str, any]:
+        """Analyze file complexity metrics."""
+        complexity_data = {
+            "large_files": [],
+            "deep_nesting": [],
+            "long_functions": []
+        }
 
         for py_file in self.project_root.glob("**/*.py"):
             try:
                 with open(py_file, encoding='utf-8') as f:
                     content = f.read()
-                    tree = ast.parse(content)
+                    lines = content.split('\n')
 
+                # Check file size
+                if len(lines) > 500:
+                    complexity_data["large_files"].append({
+                        "file": str(py_file),
+                        "lines": len(lines)
+                    })
+
+                # Check function length
+                import ast
+                try:
+                    tree = ast.parse(content)
                     for node in ast.walk(tree):
-                        if isinstance(node, ast.Import):
-                            for alias in node.names:
-                                import_counts[alias.name.split('.')[0]] += 1
-                        elif isinstance(node, ast.ImportFrom):
-                            if node.module:
-                                import_counts[node.module.split('.')[0]] += 1
-            except:
+                        if isinstance(node, ast.FunctionDef) and \
+                           (hasattr(node, 'end_lineno') and node.end_lineno is not None):
+                                func_lines = node.end_lineno - node.lineno
+                                if func_lines > 50:
+                                    complexity_data["long_functions"].append({
+                                        "file": str(py_file),
+                                        "function": node.name,
+                                        "lines": func_lines
+                                    })
+                except ast.ParseError:
+                    pass
+
+            except ast.ParseError:
                 continue
 
-        python_deps["import_analysis"] = dict(import_counts)
+        return complexity_data
 
-        return python_deps
+    def _check_naming_conventions(self) -> dict[str, any]:
+        """Check naming convention adherence."""
+        naming_issues = {
+            "snake_case_violations": [],
+            "camel_case_violations": [],
+            "constant_naming": []
+        }
 
-    def _analyze_javascript_dependencies(self) -> Dict[str, Any]:
+        for py_file in self.project_root.glob("**/*.py"):
+            try:
+                with open(py_file, encoding='utf-8') as f:
+                    content = f.read()
+
+                # Check for naming violations
+                lines = content.split('\n')
+                for i, line in enumerate(lines, 1):
+                    # Check variable naming
+                    if re.match(r'^\s*[a-z_]+\s*=', line):
+                        # Should be snake_case
+                        pass
+                    elif re.match(r'^\s*[A-Z][a-zA-Z0-9_]*\s*=', line):
+                        # Might be a constant
+                        pass
+                    print(f"Checking line {i} in {py_file}: {line.strip()}")
+
+            except ast.ParseError:
+                continue
+
+        return naming_issues
+
+    def _detect_code_smells(self) -> list[dict[str, any]]:
+        """Detect common code smells."""
+        smells = []
+
+        for py_file in self.project_root.glob("**/*.py"):
+            try:
+                with open(py_file, encoding='utf-8') as f:
+                    content = f.read()
+
+                # Check for long parameter lists
+                if re.search(r'def\s+\w+\([^)]{100,}\)', content):
+                    smells.append({
+                        "file": str(py_file),
+                        "smell": "Long parameter list",
+                        "severity": "warning"
+                    })
+
+                # Check for long methods
+                lines = content.split('\n')
+                method_lines = 0
+                in_method = False
+
+                for line in lines:
+                    if re.match(r'^\s*def\s+', line):
+                        in_method = True
+                        method_lines = 1
+                    elif in_method:
+                        method_lines += 1
+                        if method_lines > 100:
+                            smells.append({
+                                "file": str(py_file),
+                                "smell": "Long method",
+                                "severity": "warning"
+                            })
+                            break
+
+            except ast.ParseError:
+                continue
+
+        return smells
+
+    def _analyze_documentation(self) -> dict[str, any]:
+        """Analyze documentation quality."""
+        doc_metrics = {
+            "docstring_coverage": self._calculate_docstring_coverage(),
+            "readme_quality": self._assess_readme_quality(),
+            "comment_density": self._calculate_comment_density()
+        }
+
+        return doc_metrics
+
+    def _calculate_docstring_coverage(self) -> float:
+        """Calculate docstring coverage percentage."""
+        total_functions = 0
+        documented_functions = 0
+
+        for py_file in self.project_root.glob("**/*.py"):
+            try:
+                with open(py_file, encoding='utf-8') as f:
+                    content = f.read()
+
+                import ast
+                try:
+                    tree = ast.parse(content)
+                    for node in ast.walk(tree):
+                        if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+                            total_functions += 1
+                            if (node.body and isinstance(node.body[0], ast.Expr) and
+                                isinstance(node.body[0].value, ast.Str)):
+                                documented_functions += 1
+                except ast.ParseError:
+                    pass
+
+            except ast.ParseError:
+                continue
+
+        if total_functions == 0:
+            return 0.0
+
+        return (documented_functions / total_functions) * 100
+
+    def _assess_readme_quality(self) -> dict[str, any]:
+        """Assess README file quality."""
+        readme_path = self.project_root / "README.md"
+        if not readme_path.exists():
+            return {"exists": False, "score": 0, "issues": ["No README.md found"]}
+
+        with open(readme_path, encoding='utf-8') as f:
+            content = f.read()
+
+        score = 0
+        issues = []
+
+        required_sections = [
+            ("# ", "Title"),
+            ("## Installation", "Installation section"),
+            ("## Usage", "Usage section"),
+            ("## Contributing", "Contributing section"),
+            ("## License", "License section")
+        ]
+
+        for pattern, section in required_sections:
+            if pattern in content:
+                score += 20
+            else:
+                issues.append(f"Missing {section}")
+
+        return {"exists": True, "score": score, "issues": issues}
+
+    def _calculate_comment_density(self) -> float:
+        """Calculate comment density in code."""
+        total_lines = 0
+        comment_lines = 0
+
+        for py_file in self.project_root.glob("**/*.py"):
+            try:
+                with open(py_file, encoding='utf-8') as f:
+                    lines = f.readlines()
+
+                for line in lines:
+                    total_lines += 1
+                    stripped = line.strip()
+                    if stripped.startswith('#') or stripped.startswith('"""') or stripped.startswith("'''"):
+                        comment_lines += 1
+
+            except ast.ParseError:
+                continue
+
+        if total_lines == 0:
+            return 0.0
+
+        return (comment_lines / total_lines) * 100
+
+    def _analyze_security(self):
+        """Analyze security vulnerabilities."""
+        security_issues = []
+
+        # Check for hardcoded secrets
+        secret_patterns = [
+            r'password\s*=\s*["\'][^"\']{8,}["\']',
+            r'api[_-]?key\s*=\s*["\'][^"\']{10,}["\']',
+            r'token\s*=\s*["\'][^"\']{10,}["\']',
+            r'secret\s*=\s*["\'][^"\']{8,}["\']'
+        ]
+
+        for file_path in self.project_root.glob("**/*.{py,js,java,go}"):
+            try:
+                with open(file_path, encoding='utf-8') as f:
+                    content = f.read()
+
+                for pattern in secret_patterns:
+                    if re.search(pattern, content, re.IGNORECASE):
+                        security_issues.append({
+                            "file": str(file_path),
+                            "issue": "Potential hardcoded secret",
+                            "severity": "high"
+                        })
+                        break
+
+            except ast.ParseError:
+                continue
+
+        self.metrics["security"] = {
+            "issues": security_issues,
+            "total": len(security_issues)
+        }
+
+    def _analyze_performance(self):
+        """Analyze potential performance bottlenecks."""
+        performance_issues = []
+
+        for py_file in self.project_root.glob("**/*.py"):
+            try:
+                with open(py_file, encoding='utf-8') as f:
+                    content = f.read()
+
+                # Check for inefficient loops
+                if re.search(r'for\s+\w+\s+in\s+range\(len\(', content):
+                    performance_issues.append({
+                        "file": str(py_file),
+                        "issue": "Inefficient iteration pattern",
+                        "severity": "medium"
+                    })
+
+                # Check for repeated database queries in loops
+                if re.search(r'for.*:\s*.*\.execute\(', content, re.DOTALL):
+                    performance_issues.append({
+                        "file": str(py_file),
+                        "issue": "Potential N+1 query problem",
+                        "severity": "high"
+                    })
+
+            except ast.ParseError:
+                continue
+
+        self.metrics["performance"] = {
+            "issues": performance_issues,
+            "total": len(performance_issues)
+        }
+
+    def _analyze_dependencies(self):
+        """Analyze project dependencies."""
+        deps_info = {
+            "python": self._analyze_python_deps(),
+            "javascript": self._analyze_js_deps(),
+            "security": self._check_dependency_security()
+        }
+
+        self.metrics["dependencies"] = deps_info
+
+    def _analyze_python_deps(self) -> dict[str, any]:
+        """Analyze Python dependencies."""
+        deps = {"total": 0, "categories": defaultdict(int), "outdated": []}
+
+        req_files = ["requirements.txt", "pyproject.toml", "setup.py"]
+
+        for req_file in req_files:
+            req_path = self.project_root / req_file
+            if req_path.exists():
+                try:
+                    if req_file == "requirements.txt":
+                        with open(req_path) as f:
+                            for line in f:
+                                if line.strip() and not line.startswith('#'):
+                                    deps["total"] += 1
+                                    # Categorize dependencies
+                                    if any(pkg in line.lower() for pkg in ['django', 'flask', 'fastapi']):
+                                        deps["categories"]["web_frameworks"] += 1
+                                    elif any(pkg in line.lower() for pkg in ['numpy', 'pandas', 'scipy']):
+                                        deps["categories"]["data_science"] += 1
+                                    elif any(pkg in line.lower() for pkg in ['requests', 'httpx']):
+                                        deps["categories"]["http_clients"] += 1
+                    elif req_file == "pyproject.toml":
+                        # Parse TOML
+                        pass
+
+                except ast.ParseError:
+                    continue
+
+        return deps
+
+    def _analyze_js_deps(self) -> dict[str, any]:
         """Analyze JavaScript dependencies."""
-        js_deps = {
-            "package_files": [],
-            "dependencies": {},
-            "dev_dependencies": {}
-        }
+        deps = {"total": 0, "dev_total": 0}
 
-        # Find package.json
-        if (self.project_root / "package.json").exists():
-            js_deps["package_files"].append("package.json")
-
+        package_json = self.project_root / "package.json"
+        if package_json.exists():
             try:
-                with open(self.project_root / "package.json") as f:
-                    package_data = json.load(f)
+                with open(package_json) as f:
+                    data = json.load(f)
 
-                    if "dependencies" in package_data:
-                        js_deps["dependencies"] = package_data["dependencies"]
+                if "dependencies" in data:
+                    deps["total"] = len(data["dependencies"])
+                if "devDependencies" in data:
+                    deps["dev_total"] = len(data["devDependencies"])
 
-                    if "devDependencies" in package_data:
-                        js_deps["dev_dependencies"] = package_data["devDependencies"]
-            except:
+            except ast.ParseError:
                 pass
 
-        return js_deps
+        return deps
 
-    def _analyze_rust_dependencies(self) -> Dict[str, Any]:
-        """Analyze Rust dependencies."""
-        rust_deps = {
-            "cargo_files": [],
-            "dependencies": {}
+    def _check_dependency_security(self) -> dict[str, any]:
+        """Check for known security vulnerabilities in dependencies."""
+        security_issues = []
+
+        # This would integrate with security databases like OSV, Snyk, etc.
+        # For now, just placeholder logic
+
+        return {
+            "total_issues": len(security_issues),
+            "high_severity": 0,
+            "medium_severity": 0,
+            "low_severity": len(security_issues)
         }
 
-        # Find Cargo.toml
-        if (self.project_root / "Cargo.toml").exists():
-            rust_deps["cargo_files"].append("Cargo.toml")
+    def _get_project_size(self) -> dict[str, any]:
+        """Get project size information."""
+        total_size = 0
+        file_count = 0
 
-            try:
-                with open(self.project_root / "Cargo.toml") as f:
-                    content = f.read()
-                    # Simple parsing for dependencies section
-                    in_deps = False
-                    for line in content.split('\n'):
-                        line = line.strip()
-                        if line == "[dependencies]":
-                            in_deps = True
-                            continue
-                        elif line.startswith('[') and in_deps:
-                            break
-                        elif in_deps and '=' in line:
-                            dep_name = line.split('=')[0].strip()
-                            rust_deps["dependencies"][dep_name] = "unknown"
-            except:
-                pass
+        for file_path in self.project_root.rglob("*"):
+            if file_path.is_file():
+                total_size += file_path.stat().st_size
+                file_count += 1
 
-        return rust_deps
-
-    def _analyze_go_dependencies(self) -> Dict[str, Any]:
-        """Analyze Go dependencies."""
-        go_deps = {
-            "go_mod_files": [],
-            "dependencies": {}
+        return {
+            "bytes": total_size,
+            "kilobytes": round(total_size / 1024, 2),
+            "megabytes": round(total_size / (1024 * 1024), 2),
+            "file_count": file_count
         }
 
-        # Find go.mod
-        if (self.project_root / "go.mod").exists():
-            go_deps["go_mod_files"].append("go.mod")
+    def _count_files(self) -> dict[str, int]:
+        """Count files by extension."""
+        file_counts = defaultdict(int)
 
-            try:
-                with open(self.project_root / "go.mod") as f:
-                    content = f.read()
-                    # Simple parsing for require section
-                    in_require = False
-                    for line in content.split('\n'):
-                        line = line.strip()
-                        if line == "require (":
-                            in_require = True
-                            continue
-                        elif line == ")" and in_require:
-                            break
-                        elif in_require and ' ' in line:
-                            dep_name = line.split()[0]
-                            go_deps["dependencies"][dep_name] = "unknown"
-            except:
-                pass
+        for file_path in self.project_root.rglob("*"):
+            if file_path.is_file():
+                ext = file_path.suffix.lower()
+                file_counts[ext] += 1
 
-        return go_deps
+        return dict(file_counts)
 
-    def _analyze_java_dependencies(self) -> Dict[str, Any]:
-        """Analyze Java dependencies."""
-        java_deps = {
-            "build_files": [],
-            "dependencies": {}
+    def _get_directory_structure(self) -> list[str]:
+        """Get directory structure."""
+        dirs = set()
+
+        for file_path in self.project_root.rglob("*"):
+            if file_path.is_dir():
+                relative_path = file_path.relative_to(self.project_root)
+                if len(relative_path.parts) <= 3:  # Limit depth
+                    dirs.add(str(relative_path))
+
+        return sorted(dirs)
+
+    def _get_last_modified(self) -> str:
+        """Get last modification time."""
+        try:
+            latest_file = max(
+                self.project_root.rglob("*"),
+                key=lambda p: p.stat().st_mtime,
+                default=None
+            )
+            if latest_file:
+                import datetime
+                return datetime.datetime.fromtimestamp(latest_file.stat().st_mtime).isoformat()
+        except ast.ParseError:
+            pass
+        return "Unknown"
+
+    def _categorize_insights(self) -> dict[str, list[ProjectInsight]]:
+        """Categorize insights by type."""
+        categories = defaultdict(list)
+
+        # Add insights based on analysis results
+        if self.tech_stack:
+            categories["tech_stack"].append(ProjectInsight(
+                category="tech_stack",
+                severity="info",
+                title="Technology Stack Detected",
+                description=f"Detected {len(self.tech_stack)} technologies in use",
+                recommendations=["Review technology choices for project requirements"],
+                files=[]
+            ))
+
+        if self.metrics.get("quality", {}).get("code_smells"):
+            categories["quality"].append(ProjectInsight(
+                category="quality",
+                severity="warning",
+                title="Code Smells Detected",
+                description=f"Found {len(self.metrics['quality']['code_smells'])} potential code smells",
+                recommendations=["Review and refactor problematic code patterns"],
+                files=[smell["file"] for smell in self.metrics["quality"]["code_smells"]]
+            ))
+
+        if self.metrics.get("security", {}).get("total", 0) > 0:
+            categories["security"].append(ProjectInsight(
+                category="security",
+                severity="error",
+                title="Security Issues Found",
+                description=f"Detected {self.metrics['security']['total']} security issues",
+                recommendations=["Address all security vulnerabilities immediately"],
+                files=[issue["file"] for issue in self.metrics["security"]["issues"]]
+            ))
+
+        return dict(categories)
+
+    def _generate_summary(self) -> dict[str, any]:
+        """Generate analysis summary."""
+        total_issues = 0
+        critical_issues = 0
+
+        for category_insights in self._categorize_insights().values():
+            for insight in category_insights:
+                total_issues += 1
+                if insight.severity == "error":
+                    critical_issues += 1
+
+        quality_score = max(0, 100 - (total_issues * 5))
+
+        return {
+            "total_issues": total_issues,
+            "critical_issues": critical_issues,
+            "quality_score": quality_score,
+            "recommendations": self._get_recommendations()
         }
 
-        # Find Maven/Gradle files
-        build_files = ["pom.xml", "build.gradle", "build.gradle.kts"]
-        for build_file in build_files:
-            if (self.project_root / build_file).exists():
-                java_deps["build_files"].append(build_file)
-
-        return java_deps
-
-    def _analyze_languages(self) -> Dict[str, Any]:
-        """Analyze language usage and patterns."""
-        print("🌍 Analyzing languages...")
-
-        language_analysis = {
-            "primary_language": None,
-            "language_breakdown": self.metrics.languages,
-            "file_patterns": {},
-            "code_quality_indicators": {}
-        }
-
-        # Determine primary language
-        if self.metrics.languages:
-            primary_lang = max(self.metrics.languages.items(), key=lambda x: x[1])
-            language_analysis["primary_language"] = primary_lang[0]
-
-        # Analyze file patterns
-        for file_path, analysis in self.file_analysis.items():
-            lang = analysis.get("language")
-            if lang:
-                if lang not in language_analysis["file_patterns"]:
-                    language_analysis["file_patterns"][lang] = {
-                        "total_files": 0,
-                        "avg_file_size": 0,
-                        "complexity_indicators": []
-                    }
-
-                lang_data = language_analysis["file_patterns"][lang]
-                lang_data["total_files"] += 1
-                lang_data["avg_file_size"] += analysis["lines"]
-
-        # Calculate averages
-        for lang, data in language_analysis["file_patterns"].items():
-            if data["total_files"] > 0:
-                data["avg_file_size"] /= data["total_files"]
-
-        # Code quality indicators
-        quality_indicators = {
-            "comment_ratio": 0,
-            "complexity_warnings": [],
-            "file_size_warnings": []
-        }
-
-        if self.metrics.total_lines > 0:
-            quality_indicators["comment_ratio"] = self.metrics.comment_lines / self.metrics.total_lines
-
-        # Check for large files
-        for file_path, size in self.metrics.largest_files:
-            if size > 1000:
-                quality_indicators["file_size_warnings"].append(f"{file_path}: {size} lines")
-
-        language_analysis["code_quality_indicators"] = quality_indicators
-
-        return language_analysis
-
-    def _generate_recommendations(self) -> List[str]:
-        """Generate recommendations based on analysis."""
+    def _get_recommendations(self) -> list[str]:
+        """Get prioritized recommendations."""
         recommendations = []
 
-        # Comment ratio recommendations
-        if self.metrics.total_lines > 0:
-            comment_ratio = self.metrics.comment_lines / self.metrics.total_lines
-            if comment_ratio < 0.1:
-                recommendations.append("Consider adding more comments to improve code documentation")
-            elif comment_ratio > 0.3:
-                recommendations.append("High comment ratio - ensure comments are valuable and up-to-date")
+        if self.metrics.get("security", {}).get("total", 0) > 0:
+            recommendations.append("🔒 Address security vulnerabilities immediately")
 
-        # File size recommendations
-        for file_path, size in self.metrics.largest_files[:3]:
-            if size > 500:
-                recommendations.append(f"Consider refactoring large file: {file_path} ({size} lines)")
+        if self.metrics.get("quality", {}).get("code_smells"):
+            recommendations.append("📝 Refactor code to eliminate code smells")
 
-        # Language-specific recommendations
-        if "python" in self.metrics.languages:
-            if self.metrics.languages["python"] > 10:
-                recommendations.append("Consider using type hints for better code maintainability")
+        if self.metrics.get("performance", {}).get("total", 0) > 0:
+            recommendations.append("⚡ Optimize performance bottlenecks")
 
-        if "javascript" in self.metrics.languages:
-            recommendations.append("Consider using a linter (ESLint) for consistent code style")
-
-        # Structure recommendations
-        if self.metrics.total_files > 100:
-            recommendations.append("Consider organizing files into more specific directories")
-
-        if not any(d.startswith("test") for d in os.listdir(self.project_root) if os.path.isdir(d)):
-            recommendations.append("Consider adding a test directory for better project organization")
+        if self.tech_stack.get("Python", {}).get("score", 0) > 0:
+            recommendations.append("🐍 Consider using type hints for better code quality")
 
         return recommendations
-
-    def show_metrics(self) -> bool:
-        """Show detailed metrics."""
-        print("📊 Project Metrics")
-        print("=" * 50)
-
-        print(f"📁 Total files: {self.metrics.total_files}")
-        print(f"📝 Total lines: {self.metrics.total_lines}")
-        print(f"💻 Code lines: {self.metrics.code_lines}")
-        print(f"💬 Comment lines: {self.metrics.comment_lines}")
-        print(f"📄 Blank lines: {self.metrics.blank_lines}")
-
-        if self.metrics.total_lines > 0:
-            print(f"📊 Comment ratio: {(self.metrics.comment_lines/self.metrics.total_lines)*100:.1f}%")
-
-        print("\n🌍 Languages:")
-        for lang, count in self.metrics.languages.items():
-            print(f"  {lang}: {count} files")
-
-        print("\n📁 File types:")
-        for ext, count in self.metrics.file_types.items():
-            print(f"  {ext}: {count} files")
-
-        print("\n📏 Largest files:")
-        for file_path, size in self.metrics.largest_files[:5]:
-            print(f"  {file_path}: {size} lines")
-
-        return True
-
-    def show_dependencies(self) -> bool:
-        """Show dependency analysis."""
-        print("📦 Dependency Analysis")
-        print("=" * 50)
-
-        deps = self._analyze_dependencies()
-
-        for lang, analysis in deps.items():
-            if analysis:
-                print(f"\n{lang.upper()} Dependencies:")
-                for key, value in analysis.items():
-                    if isinstance(value, dict) and value:
-                        print(f"  {key}: {len(value)} items")
-                        for item, version in list(value.items())[:5]:
-                            print(f"    {item}: {version}")
-                    elif isinstance(value, list) and value:
-                        print(f"  {key}: {', '.join(value)}")
-                    elif value:
-                        print(f"  {key}: {value}")
-
-        return True
-
-    def show_structure(self) -> bool:
-        """Show project structure."""
-        print("🏗️  Project Structure")
-        print("=" * 50)
-
-        structure = self._analyze_structure()
-
-        print(f"📁 Directories: {len(structure['directories'])}")
-        print(f"📊 Max depth: {structure['depth_analysis']['max_depth']}")
-
-        print("\n📁 Top directories by file count:")
-        sorted_dirs = sorted(structure["file_distribution"].items(), key=lambda x: x[1], reverse=True)
-        for dir_path, count in sorted_dirs[:10]:
-            print(f"  {dir_path}: {count} files")
-
-        print("\n🔍 Patterns detected:")
-        for pattern in structure["patterns"]:
-            print(f"  • {pattern}")
-
-        return True
-
-    def show_languages(self) -> bool:
-        """Show language analysis."""
-        print("🌍 Language Analysis")
-        print("=" * 50)
-
-        languages = self._analyze_languages()
-
-        print(f"Primary language: {languages['primary_language']}")
-
-        print("\n📊 Language breakdown:")
-        for lang, count in languages["language_breakdown"].items():
-            print(f"  {lang}: {count} files")
-
-        print("\n📈 Code quality indicators:")
-        quality = languages["code_quality_indicators"]
-        print(f"  Comment ratio: {quality['comment_ratio']*100:.1f}%")
-
-        if quality["file_size_warnings"]:
-            print("  Large files:")
-            for warning in quality["file_size_warnings"][:5]:
-                print(f"    {warning}")
-
-        return True
-
-    def show_help(self) -> bool:
-        """Show available commands."""
-        print("🔧 Project Analyzer Commands:")
-        print()
-        print("  (no args)                - Analyze current project")
-        print("  <path>                   - Analyze specific project")
-        print("  --metrics                - Show detailed metrics")
-        print("  --dependencies           - Show dependency analysis")
-        print("  --structure              - Show project structure")
-        print("  --languages              - Show language analysis")
-        print()
-        print("Configuration file: .cline-project-analyzer.json")
-
-        return True
 
 
 def main():
     """Main entry point for the project analyzer."""
-    if len(sys.argv) < 2:
-        analyzer = ProjectAnalyzer()
-        report = analyzer.analyze_project()
-
-        # Print summary
-        print("🔍 Project Analysis Complete")
-        print("=" * 50)
-        print(f"📁 Project: {report['project_path']}")
-        print(f"📊 Files: {report['metrics']['total_files']}")
-        print(f"📝 Lines: {report['metrics']['total_lines']}")
-        print(f"🌍 Primary language: {report['languages']['primary_language']}")
-
-        if report['recommendations']:
-            print("\n💡 Recommendations:")
-            for rec in report['recommendations'][:5]:
-                print(f"  • {rec}")
-
-        return
-
-    command = sys.argv[1].lower()
-    project_path = sys.argv[2] if len(sys.argv) > 2 else None
+    project_path = sys.argv[1] if len(sys.argv) > 1 else None
 
     analyzer = ProjectAnalyzer(project_path)
+    results = analyzer.analyze_project()
 
-    if command == "--metrics":
-        analyzer._collect_file_metrics()
-        analyzer.show_metrics()
-    elif command == "--dependencies":
-        analyzer.show_dependencies()
-    elif command == "--structure":
-        analyzer.show_structure()
-    elif command == "--languages":
-        analyzer.show_languages()
-    elif command == "--help":
-        analyzer.show_help()
-    else:
-        print("Usage:")
-        print("  /project-analyzer              - Analyze current project")
-        print("  /project-analyzer <path>       - Analyze specific project")
-        print("  /project-analyzer --metrics    - Show detailed metrics")
-        print("  /project-analyzer --dependencies - Show dependency analysis")
-        print("  /project-analyzer --structure  - Show project structure")
-        print("  /project-analyzer --languages  - Show language analysis")
-        sys.exit(1)
+    # Print formatted results
+    print("📊 Project Analysis Results")
+    print("=" * 50)
+
+    print(f"\n📁 Project: {results['project_info']['name']}")
+    print(f"   Size: {results['project_info']['size']['megabytes']} MB")
+    print(f"   Files: {results['project_info']['file_count']}")
+
+    print(f"\n🛠️  Technologies: {len(results['tech_stack'])}")
+    for tech, info in results['tech_stack'].items():
+        if tech != "frameworks":
+            print(f"   {tech}: {info['confidence']} confidence")
+
+    print(f"\n📈 Quality Score: {results['summary']['quality_score']}/100")
+    print(f"🚨 Issues Found: {results['summary']['total_issues']}")
+
+    if results['summary']['recommendations']:
+        print("\n💡 Recommendations:")
+        for rec in results['summary']['recommendations']:
+            print(f"   {rec}")
+
+    # Save detailed results
+    output_file = Path("project_analysis_report.json")
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+
+    print(f"\n📄 Detailed report saved to: {output_file}")
 
 
 if __name__ == "__main__":

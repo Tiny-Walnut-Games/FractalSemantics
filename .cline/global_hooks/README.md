@@ -9,6 +9,7 @@ This directory contains global hooks that can be used across all Cline workspace
 A comprehensive pre-commit hook that runs quality checks before allowing commits. This hook ensures code quality, security, and consistency across your projects.
 
 **Features:**
+
 - **Code Quality Checks**: Runs Ruff, Black, and MyPy for Python projects
 - **Security Scanning**: Uses Safety and Bandit for security analysis
 - **File Validation**: Checks file sizes, naming conventions, and content
@@ -17,6 +18,7 @@ A comprehensive pre-commit hook that runs quality checks before allowing commits
 - **Multi-language Support**: Handles Python, JavaScript, and other file types
 
 **Usage:**
+
 ```bash
 # Install as Git hook
 python ~/.cline/global_hooks/pre_commit_hook.py install
@@ -32,6 +34,7 @@ python ~/.cline/global_hooks/pre_commit_hook.py uninstall
 ```
 
 **Installation Options:**
+
 - **Git Hook**: Installs as a Git pre-commit hook
 - **Pre-commit Framework**: Integrates with pre-commit.com framework
 - **Manual**: Can be run manually or integrated into CI/CD
@@ -142,7 +145,7 @@ Hooks can leverage MCP servers for enhanced capabilities:
 
 ## Best Practices
 
-### Hook Configuration
+### - Hook Configuration
 
 1. **Start Simple**: Begin with basic checks and add complexity gradually
 2. **Respect Project Configs**: Use existing project configuration files
@@ -163,21 +166,25 @@ Hooks can leverage MCP servers for enhanced capabilities:
 ### Common Issues
 
 **Hook Not Running:**
+
 - Check Git hook installation: `ls -la .git/hooks/pre-commit`
 - Verify hook is executable: `chmod +x .git/hooks/pre-commit`
 - Check Git configuration: `git config core.hooksPath`
 
 **Tool Not Found:**
+
 - Ensure tools are installed in the environment
 - Check PATH includes tool locations
 - Verify virtual environment activation
 
 **Configuration Issues:**
+
 - Check JSON syntax in configuration files
 - Verify file paths and permissions
 - Test with minimal configuration first
 
 **Performance Issues:**
+
 - Exclude large files and directories
 - Use incremental checking when possible
 - Consider running only essential checks

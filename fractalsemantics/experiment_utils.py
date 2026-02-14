@@ -7,7 +7,7 @@ such as random bit-chain generation and other shared testing functionality.
 
 import secrets
 from datetime import datetime, timezone
-from typing import List
+from typing import list
 
 # Use cryptographically secure random number generator
 secure_random = secrets.SystemRandom()
@@ -16,7 +16,7 @@ secure_random = secrets.SystemRandom()
 
 
 
-def compute_shannon_entropy(coordinates: List[str]) -> float:
+def compute_shannon_entropy(coordinates: list[str]) -> float:
     """
     Compute Shannon entropy of a list of coordinate representations.
 
@@ -27,7 +27,7 @@ def compute_shannon_entropy(coordinates: List[str]) -> float:
     discrimination between different entities.
 
     Args:
-        coordinates: List of coordinate string representations
+        coordinates: list of coordinate string representations
 
     Returns:
         Shannon entropy in bits
@@ -53,7 +53,7 @@ def compute_shannon_entropy(coordinates: List[str]) -> float:
     return entropy
 
 
-def compute_adjacency_score(tags1: List[str], tags2: List[str]) -> float:
+def compute_adjacency_score(tags1: list[str], tags2: list[str]) -> float:
     """
     Compute adjacency score between two sets of tags.
 
@@ -138,9 +138,8 @@ def normalize_timestamp(dt=None):
         return str(dt)
 
     # Convert to UTC if timezone-aware, otherwise assume UTC
-    if hasattr(dt, 'utctimetuple'):
-        if dt.tzinfo is not None:
-            dt = dt.astimezone(timezone.utc)
+    if hasattr(dt, 'utctimetuple') and dt.tzinfo is not None:
+        dt = dt.astimezone(timezone.utc)
 
     return dt.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
 
@@ -150,7 +149,7 @@ def sort_json_keys(obj):
     Recursively sort dictionary keys for deterministic JSON serialization.
 
     Args:
-        obj: Dictionary, list, or primitive to sort
+        obj: dictionary, list, or primitive to sort
 
     Returns:
         Object with sorted dictionary keys

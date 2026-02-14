@@ -11,6 +11,7 @@ Comprehensive project analysis tool that provides insights into:
 - Dependency analysis
 """
 
+import ast
 import json
 import os
 import re
@@ -18,7 +19,7 @@ import sys
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 @dataclass
@@ -28,8 +29,8 @@ class ProjectInsight:
     severity: str  # "info", "warning", "error"
     title: str
     description: str
-    recommendations: List[str]
-    files: List[str]
+    recommendations: list[str]
+    files: list[str]
 
 
 class ProjectAnalyzer:
@@ -37,11 +38,11 @@ class ProjectAnalyzer:
 
     def __init__(self, project_root: Optional[str] = None):
         self.project_root = Path(project_root or os.getcwd())
-        self.insights: List[ProjectInsight] = []
+        self.insights: list[ProjectInsight] = []
         self.tech_stack = {}
         self.metrics = {}
 
-    def analyze_project(self) -> Dict[str, Any]:
+    def analyze_project(self) -> dict[str, any]:
         """Perform comprehensive project analysis."""
         print("🔍 Analyzing project structure...")
 
@@ -74,7 +75,7 @@ class ProjectAnalyzer:
             "summary": self._generate_summary()
         }
 
-    def _analyze_project_info(self) -> Dict[str, Any]:
+    def _analyze_project_info(self) -> dict[str, any]:
         """Analyze basic project information."""
         project_info = {
             "name": self.project_root.name,
@@ -111,7 +112,7 @@ class ProjectAnalyzer:
             "Rust": [".rs", "Cargo.toml"],
             "PHP": [".php", "composer.json"],
             "Ruby": [".rb", "Gemfile"],
-            "C/C++": [".c", ".cpp", ".h", ".hpp", "Makefile", "CMakeLists.txt"],
+            "C/C++": [".c", ".cpp", ".h", ".hpp", "Makefile", "CMakelists.txt"],
             "HTML/CSS": [".html", ".css", ".scss", ".sass"],
             "Docker": ["Dockerfile", "docker-compose.yml"],
             "Kubernetes": ["k8s.yaml", "k8s.yml", "deployment.yaml"],
@@ -214,7 +215,7 @@ class ProjectAnalyzer:
 
         self.metrics["quality"] = quality_metrics
 
-    def _analyze_file_complexity(self) -> Dict[str, Any]:
+    def _analyze_file_complexity(self) -> dict[str, any]:
         """Analyze file complexity metrics."""
         complexity_data = {
             "large_files": [],
@@ -240,24 +241,23 @@ class ProjectAnalyzer:
                 try:
                     tree = ast.parse(content)
                     for node in ast.walk(tree):
-                        if isinstance(node, ast.FunctionDef):
-                            if hasattr(node, 'end_lineno') and node.end_lineno is not None:
-                                func_lines = node.end_lineno - node.lineno
-                                if func_lines > 50:
-                                    complexity_data["long_functions"].append({
-                                        "file": str(py_file),
-                                        "function": node.name,
+                        if isinstance(node, ast.FunctionDef) and hasattr(node, 'end_lineno') and node.end_lineno is not None:
+                            func_lines = node.end_lineno - node.lineno
+                            if func_lines > 50:
+                                complexity_data["long_functions"].append({
+                                    "file": str(py_file),
+                                    "function": node.name,
                                         "lines": func_lines
                                     })
-                except:
+                except ast.ParseError:
                     pass
 
-            except:
+            except ast.ParseError:
                 continue
 
         return complexity_data
 
-    def _check_naming_conventions(self) -> Dict[str, Any]:
+    def _check_naming_conventions(self) -> dict[str, any]:
         """Check naming convention adherence."""
         naming_issues = {
             "snake_case_violations": [],
@@ -272,7 +272,7 @@ class ProjectAnalyzer:
 
                 # Check for naming violations
                 lines = content.split('\n')
-                for i, line in enumerate(lines, 1):
+                for _i, line in enumerate(lines, 1):
                     # Check variable naming
                     if re.match(r'^\s*[a-z_]+\s*=', line):
                         # Should be snake_case
@@ -281,12 +281,12 @@ class ProjectAnalyzer:
                         # Might be a constant
                         pass
 
-            except:
+            except ast.ParseError:
                 continue
 
         return naming_issues
 
-    def _detect_code_smells(self) -> List[Dict[str, Any]]:
+    def _detect_code_smells(self) -> list[dict[str, any]]:
         """Detect common code smells."""
         smells = []
 
@@ -296,7 +296,7 @@ class ProjectAnalyzer:
                     content = f.read()
 
                 # Check for long parameter lists
-                if re.search(r'def\s+\w+\([^)]{100,}\)', content):
+                if re.search(r'def\s+\w+([^)]{100,}\)', content):
                     smells.append({
                         "file": str(py_file),
                         "smell": "Long parameter list",
@@ -322,12 +322,12 @@ class ProjectAnalyzer:
                             })
                             break
 
-            except:
+            except ast.ParseError:
                 continue
 
         return smells
 
-    def _analyze_documentation(self) -> Dict[str, Any]:
+    def _analyze_documentation(self) -> dict[str, any]:
         """Analyze documentation quality."""
         doc_metrics = {
             "docstring_coverage": self._calculate_docstring_coverage(),
@@ -354,12 +354,12 @@ class ProjectAnalyzer:
                         if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
                             total_functions += 1
                             if (node.body and isinstance(node.body[0], ast.Expr) and
-                                isinstance(node.body[0].value, ast.Str)):
+                                isinstance(node.body[0].value, ast.Constant) and isinstance(node.body[0].value.value, str)):
                                 documented_functions += 1
-                except:
+                except ast.ParseError:
                     pass
 
-            except:
+            except ast.ParseError:
                 continue
 
         if total_functions == 0:
@@ -367,7 +367,7 @@ class ProjectAnalyzer:
 
         return (documented_functions / total_functions) * 100
 
-    def _assess_readme_quality(self) -> Dict[str, Any]:
+    def _assess_readme_quality(self) -> dict[str, any]:
         """Assess README file quality."""
         readme_path = self.project_root / "README.md"
         if not readme_path.exists():
@@ -411,7 +411,7 @@ class ProjectAnalyzer:
                     if stripped.startswith('#') or stripped.startswith('"""') or stripped.startswith("'''"):
                         comment_lines += 1
 
-            except:
+            except ast.ParseError:
                 continue
 
         if total_lines == 0:
@@ -445,7 +445,7 @@ class ProjectAnalyzer:
                         })
                         break
 
-            except:
+            except ast.ParseError:
                 continue
 
         self.metrics["security"] = {
@@ -478,7 +478,7 @@ class ProjectAnalyzer:
                         "severity": "high"
                     })
 
-            except:
+            except ast.ParseError:
                 continue
 
         self.metrics["performance"] = {
@@ -496,7 +496,7 @@ class ProjectAnalyzer:
 
         self.metrics["dependencies"] = deps_info
 
-    def _analyze_python_deps(self) -> Dict[str, Any]:
+    def _analyze_python_deps(self) -> dict[str, any]:
         """Analyze Python dependencies."""
         deps = {"total": 0, "categories": defaultdict(int), "outdated": []}
 
@@ -522,12 +522,12 @@ class ProjectAnalyzer:
                         # Parse TOML
                         pass
 
-                except:
+                except ast.ParseError:
                     continue
 
         return deps
 
-    def _analyze_js_deps(self) -> Dict[str, Any]:
+    def _analyze_js_deps(self) -> dict[str, any]:
         """Analyze JavaScript dependencies."""
         deps = {"total": 0, "dev_total": 0}
 
@@ -542,12 +542,12 @@ class ProjectAnalyzer:
                 if "devDependencies" in data:
                     deps["dev_total"] = len(data["devDependencies"])
 
-            except:
+            except ast.ParseError:
                 pass
 
         return deps
 
-    def _check_dependency_security(self) -> Dict[str, Any]:
+    def _check_dependency_security(self) -> dict[str, any]:
         """Check for known security vulnerabilities in dependencies."""
         security_issues = []
 
@@ -561,7 +561,7 @@ class ProjectAnalyzer:
             "low_severity": len(security_issues)
         }
 
-    def _get_project_size(self) -> Dict[str, Any]:
+    def _get_project_size(self) -> dict[str, any]:
         """Get project size information."""
         total_size = 0
         file_count = 0
@@ -578,7 +578,7 @@ class ProjectAnalyzer:
             "file_count": file_count
         }
 
-    def _count_files(self) -> Dict[str, int]:
+    def _count_files(self) -> dict[str, int]:
         """Count files by extension."""
         file_counts = defaultdict(int)
 
@@ -589,7 +589,7 @@ class ProjectAnalyzer:
 
         return dict(file_counts)
 
-    def _get_directory_structure(self) -> List[str]:
+    def _get_directory_structure(self) -> list[str]:
         """Get directory structure."""
         dirs = set()
 
@@ -599,7 +599,7 @@ class ProjectAnalyzer:
                 if len(relative_path.parts) <= 3:  # Limit depth
                     dirs.add(str(relative_path))
 
-        return sorted(list(dirs))
+        return sorted(dirs)
 
     def _get_last_modified(self) -> str:
         """Get last modification time."""
@@ -612,11 +612,11 @@ class ProjectAnalyzer:
             if latest_file:
                 import datetime
                 return datetime.datetime.fromtimestamp(latest_file.stat().st_mtime).isoformat()
-        except:
+        except ast.ParseError:
             pass
         return "Unknown"
 
-    def _categorize_insights(self) -> Dict[str, List[ProjectInsight]]:
+    def _categorize_insights(self) -> dict[str, list[ProjectInsight]]:
         """Categorize insights by type."""
         categories = defaultdict(list)
 
@@ -653,7 +653,7 @@ class ProjectAnalyzer:
 
         return dict(categories)
 
-    def _generate_summary(self) -> Dict[str, Any]:
+    def _generate_summary(self) -> dict[str, any]:
         """Generate analysis summary."""
         total_issues = 0
         critical_issues = 0
@@ -673,7 +673,7 @@ class ProjectAnalyzer:
             "recommendations": self._get_recommendations()
         }
 
-    def _get_recommendations(self) -> List[str]:
+    def _get_recommendations(self) -> list[str]:
         """Get prioritized recommendations."""
         recommendations = []
 
@@ -694,10 +694,7 @@ class ProjectAnalyzer:
 
 def main():
     """Main entry point for the project analyzer."""
-    if len(sys.argv) > 1:
-        project_path = sys.argv[1]
-    else:
-        project_path = None
+    project_path = sys.argv[1] if len(sys.argv) > 1 else None
 
     analyzer = ProjectAnalyzer(project_path)
     results = analyzer.analyze_project()

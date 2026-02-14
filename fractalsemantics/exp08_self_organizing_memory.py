@@ -37,7 +37,7 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 # Add the current directory to Python path to allow direct imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -74,7 +74,7 @@ class MemoryCluster:
 
     cluster_id: str
     representative_address: str
-    member_addresses: List[str] = field(default_factory=list)
+    member_addresses: list[str] = field(default_factory=list)
     semantic_cohesion: float = 0.0  # 0.0 to 1.0
     activity_level: float = 0.0     # Memory usage frequency
     last_accessed: float = 0.0      # Timestamp
@@ -105,11 +105,11 @@ class MemoryNode:
     """Individual memory node in the self-organizing network."""
 
     address: str
-    content: Dict[str, Any]
-    coordinates: Dict[str, Any]
+    content: dict[str, any]
+    coordinates: dict[str, any]
     activation_count: int = 0
     last_accessed: float = 0.0
-    semantic_neighbors: List[str] = field(default_factory=list)
+    semantic_neighbors: list[str] = field(default_factory=list)
     cluster_id: Optional[str] = None
 
 
@@ -159,7 +159,7 @@ class SelfOrganizingMemoryResults:
         if self.timestamp == "":
             self.timestamp = datetime.now(timezone.utc).isoformat()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to dictionary."""
         return asdict(self)
 
@@ -188,13 +188,13 @@ class SelfOrganizingMemoryNetwork:
         self.forgetting_threshold = forgetting_threshold
 
         # Memory storage
-        self.memories: Dict[str, MemoryNode] = {}
-        self.clusters: Dict[str, MemoryCluster] = {}
-        self.forgetting_log: List[ForgettingEvent] = []
+        self.memories: dict[str, MemoryNode] = {}
+        self.clusters: dict[str, MemoryCluster] = {}
+        self.forgetting_log: list[ForgettingEvent] = []
 
         # Self-organization tracking
-        self.access_pattern: Dict[str, List[float]] = defaultdict(list)
-        self.semantic_graph: Dict[str, List[Tuple[str, float]]] = defaultdict(list)
+        self.access_pattern: dict[str, list[float]] = defaultdict(list)
+        self.semantic_graph: dict[str, list[tuple[str, float]]] = defaultdict(list)
 
         # Performance metrics
         self.total_retrievals = 0
@@ -262,7 +262,7 @@ class SelfOrganizingMemoryNetwork:
         # Update cluster properties
         self._update_cluster_properties(best_cluster)
 
-    def _calculate_semantic_similarity(self, coords1: Dict[str, Any], address2: str) -> float:
+    def _calculate_semantic_similarity(self, coords1: dict[str, any], address2: str) -> float:
         """
         Calculate semantic similarity between coordinates and cluster representative.
 
@@ -353,7 +353,7 @@ class SelfOrganizingMemoryNetwork:
         # Find semantic neighbors
         neighbors = []
 
-        for other_addr, other_node in self.memories.items():
+        for other_addr, _other_node in self.memories.items():
             if other_addr == node.address:
                 continue
 
@@ -368,7 +368,7 @@ class SelfOrganizingMemoryNetwork:
         # Update graph
         self.semantic_graph[node.address] = neighbors[:5]
 
-    def retrieve_memory(self, query_coords: Dict[str, Any]) -> List[Tuple[str, float]]:
+    def retrieve_memory(self, query_coords: dict[str, any]) -> list[tuple[str, float]]:
         """
         Retrieve memories based on semantic similarity to query coordinates.
 
@@ -377,7 +377,7 @@ class SelfOrganizingMemoryNetwork:
         self.total_retrievals += 1
 
         results = []
-        for address, node in self.memories.items():
+        for address, _node in self.memories.items():
             similarity = self._calculate_semantic_similarity(query_coords, address)
             if similarity > 0.1:  # Minimum similarity threshold
                 results.append((address, similarity))
@@ -391,7 +391,7 @@ class SelfOrganizingMemoryNetwork:
 
         return results
 
-    def retrieve_semantic_neighbors(self, address: str) -> List[Tuple[str, float]]:
+    def retrieve_semantic_neighbors(self, address: str) -> list[tuple[str, float]]:
         """Retrieve semantic neighbors of a memory."""
         self.semantic_retrievals += 1
         return self.semantic_graph.get(address, [])
@@ -456,7 +456,7 @@ class SelfOrganizingMemoryNetwork:
 
         return forgotten_count
 
-    def get_network_metrics(self) -> Dict[str, float]:
+    def get_network_metrics(self) -> dict[str, float]:
         """Get comprehensive network metrics."""
         if not self.memories:
             return {}

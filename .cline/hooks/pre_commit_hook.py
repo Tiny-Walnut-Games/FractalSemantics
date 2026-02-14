@@ -1,35 +1,41 @@
 #!/usr/bin/env python3
 """
-Pre-Commit Hook for Cline
+Global Pre-Commit Hook for Cline
 
-Comprehensive pre-commit hook that runs quality checks before allowing commits.
-Supports multiple programming languages and integrates with existing development workflows.
-
-Usage:
-  /pre-commit-hook              - Show available commands
-  /pre-commit-hook setup        - Setup pre-commit hook for current repository
-  /pre-commit-hook check        - Run quality checks on staged files
-  /pre-commit-hook config       - Show configuration
+A comprehensive pre-commit hook that runs quality checks before allowing commits.
+Can be used with any Git repository to enforce code quality standards.
 """
 
+import ast
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional, dict, list
 
 
 class PreCommitHook:
     """Comprehensive pre-commit hook for code quality."""
 
-    def __init__(self, project_root: Optional[str] = None):
-        self.project_root = Path(project_root or os.getcwd())
+    def __init__(self):
+        self.repo_root = self._get_repo_root()
         self.config = self._load_config()
 
-    def _load_config(self) -> Dict[str, Any]:
-        """Load configuration from .cline-pre-commit.json."""
-        config_path = self.project_root / ".cline-pre-commit.json"
+    def _get_repo_root(self) -> Path:
+        """Get the root directory of the Git repository."""
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--show-toplevel"],
+                capture_output=True,
+                text=True
+            )
+            return Path(result.stdout.strip())
+        except ast.ParseError:
+            return Path.cwd()
+
+    def _load_config(self) -> dict[str, any]:
+        """Load configuration from .cline-pre-commit.json or use defaults."""
+        config_path = self.repo_root / ".cline-pre-commit.json"
 
         default_config = {
             "enabled_checks": [
@@ -37,49 +43,33 @@ class PreCommitHook:
                 "formatting",
                 "type_checking",
                 "security",
-                "tests",
-                "commit_message"
+                "tests"
             ],
             "linting": {
-                "tools": ["ruff", "flake8", "eslint"],
-                "fail_on_warning": True,
-                "file_patterns": ["*.py", "*.js", "*.ts"]
+                "tools": ["ruff", "flake8"],
+                "fail_on_warning": True
             },
             "formatting": {
-                "tools": ["black", "isort", "prettier"],
-                "check_only": True,
-                "file_patterns": ["*.py", "*.js", "*.ts", "*.css", "*.scss"]
+                "tools": ["black", "isort"],
+                "check_only": True
             },
             "type_checking": {
-                "tools": ["mypy", "typescript"],
-                "strict": False,
-                "file_patterns": ["*.py", "*.ts"]
+                "tools": ["mypy"],
+                "strict": False
             },
             "security": {
-                "tools": ["bandit", "safety", "npm-audit"],
-                "fail_on_warning": True,
-                "file_patterns": ["*.py", "package.json", "requirements.txt"]
+                "tools": ["bandit", "safety"],
+                "fail_on_warning": True
             },
             "tests": {
-                "tools": ["pytest", "jest"],
-                "run_on_changed_files": True,
-                "file_patterns": ["test_*.py", "*.test.js", "*.spec.ts"]
-            },
-            "commit_message": {
-                "max_length": 72,
-                "require_body": False,
-                "allowed_types": ["feat", "fix", "docs", "style", "refactor", "test", "chore"]
+                "tools": ["pytest"],
+                "run_on_changed_files": True
             },
             "file_patterns": {
                 "python": ["*.py"],
                 "javascript": ["*.js", "*.ts", "*.jsx", "*.tsx"],
                 "rust": ["*.rs"],
-                "go": ["*.go"],
-                "java": ["*.java", "*.kt"],
-                "c_cpp": ["*.c", "*.cpp", "*.h", "*.hpp"],
-                "html": ["*.html", "*.htm"],
-                "css": ["*.css", "*.scss", "*.sass"],
-                "config": ["*.json", "*.yaml", "*.yml", "*.toml"]
+                "go": ["*.go"]
             }
         }
 
@@ -89,12 +79,12 @@ class PreCommitHook:
                     user_config = json.load(f)
                 # Merge with defaults
                 return {**default_config, **user_config}
-            except:
+            except ast.ParseError:
                 pass
 
         return default_config
 
-    def _get_staged_files(self) -> List[Path]:
+    def _get_staged_files(self) -> list[Path]:
         """Get list of staged files that will be committed."""
         try:
             result = subprocess.run(
@@ -106,18 +96,18 @@ class PreCommitHook:
             files = []
             for file_path in result.stdout.strip().split('\n'):
                 if file_path:
-                    files.append(self.project_root / file_path)
+                    files.append(self.repo_root / file_path)
 
             return files
-        except:
+        except ast.ParseError:
             return []
 
-    def _get_changed_python_files(self) -> List[Path]:
+    def _get_changed_python_files(self) -> list[Path]:
         """Get list of changed Python files."""
         staged_files = self._get_staged_files()
         return [f for f in staged_files if f.suffix == '.py']
 
-    def _run_command(self, cmd: List[str], description: str, cwd: Optional[Path] = None) -> bool:
+    def _run_command(self, cmd: list[str], description: str, cwd: Optional[Path] = None) -> bool:
         """Run a command and return success status."""
         print(f"🔧 {description}")
         print(f"   Command: {' '.join(cmd)}")
@@ -125,7 +115,7 @@ class PreCommitHook:
         try:
             result = subprocess.run(
                 cmd,
-                cwd=cwd or self.project_root,
+                cwd=cwd or self.repo_root,
                 check=False,
                 capture_output=True,
                 text=True
@@ -336,7 +326,7 @@ class PreCommitHook:
             lines = message.split('\n')
             first_line = lines[0]
 
-            if len(first_line) > self.config.get("commit_message", {}).get("max_length", 72):
+            if len(first_line) > 72:
                 print(f"   ⚠️  First line too long ({len(first_line)} chars, max 72)")
                 return False
 
@@ -347,66 +337,9 @@ class PreCommitHook:
             print("   ✅ Commit message format looks good")
             return True
 
-        except:
+        except ast.ParseError:
             print("   ⚠️  Could not check commit message")
             return True
-
-    def setup_hook(self) -> bool:
-        """Setup pre-commit hook for current repository."""
-        print("🔧 Setting up pre-commit hook...")
-
-        # Create hook file
-        hook_content = """#!/bin/bash
-# Cline Pre-Commit Hook
-cline run /pre-commit-hook check
-"""
-
-        hooks_dir = self.project_root / ".git" / "hooks"
-        hooks_dir.mkdir(exist_ok=True)
-
-        hook_file = hooks_dir / "pre-commit"
-        with open(hook_file, 'w') as f:
-            f.write(hook_content)
-
-        # Make executable
-        os.chmod(hook_file, 0o755)
-
-        print(f"   ✅ Created pre-commit hook at {hook_file}")
-        print("   💡 The hook will run automatically on git commit")
-
-        return True
-
-    def show_config(self) -> bool:
-        """Show current configuration."""
-        print("🔧 Pre-Commit Hook Configuration:")
-        print()
-
-        print("  Enabled Checks:")
-        for check in self.config.get("enabled_checks", []):
-            print(f"    - {check}")
-
-        print()
-        print("  Linting:")
-        linting = self.config.get("linting", {})
-        print(f"    Tools: {', '.join(linting.get('tools', []))}")
-        print(f"    Fail on warning: {linting.get('fail_on_warning', True)}")
-
-        print()
-        print("  Formatting:")
-        formatting = self.config.get("formatting", {})
-        print(f"    Tools: {', '.join(formatting.get('tools', []))}")
-        print(f"    Check only: {formatting.get('check_only', True)}")
-
-        print()
-        print("  Security:")
-        security = self.config.get("security", {})
-        print(f"    Tools: {', '.join(security.get('tools', []))}")
-        print(f"    Fail on warning: {security.get('fail_on_warning', True)}")
-
-        print()
-        print("Configuration file: .cline-pre-commit.json")
-
-        return True
 
     def run_all_checks(self) -> bool:
         """Run all enabled checks."""
@@ -447,47 +380,20 @@ cline run /pre-commit-hook check
 
         return all_passed
 
-    def show_help(self) -> bool:
-        """Show available commands."""
-        print("🔧 Pre-Commit Hook Commands:")
-        print()
-        print("  setup        - Setup pre-commit hook for current repository")
-        print("  check        - Run quality checks on staged files")
-        print("  config       - Show configuration")
-        print()
-        print("Configuration file: .cline-pre-commit.json")
-
-        return True
-
 
 def main():
     """Main entry point for the pre-commit hook."""
-    if len(sys.argv) < 2:
-        hook = PreCommitHook()
-        success = hook.show_help()
-        sys.exit(0 if success else 1)
+    hook = PreCommitHook()
+    success = hook.run_all_checks()
 
-    command = sys.argv[1].lower()
+    if not success:
+        print("\n💡 Tips:")
+        print("  - Run 'black .' to auto-format your code")
+        print("  - Run 'ruff check .' to see linting issues")
+        print("  - Run 'mypy .' to check type annotations")
+        print("  - Use 'git add .' to stage your fixes")
 
-    if command == "setup":
-        hook = PreCommitHook()
-        success = hook.setup_hook()
-        sys.exit(0 if success else 1)
-    elif command == "check":
-        hook = PreCommitHook()
-        success = hook.run_all_checks()
-        sys.exit(0 if success else 1)
-    elif command == "config":
-        hook = PreCommitHook()
-        success = hook.show_config()
-        sys.exit(0 if success else 1)
-    else:
-        print("Usage:")
-        print("  /pre-commit-hook              - Show available commands")
-        print("  /pre-commit-hook setup        - Setup pre-commit hook for current repository")
-        print("  /pre-commit-hook check        - Run quality checks on staged files")
-        print("  /pre-commit-hook config       - Show configuration")
-        sys.exit(1)
+    sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":

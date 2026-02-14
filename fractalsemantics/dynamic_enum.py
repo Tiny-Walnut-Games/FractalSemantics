@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Dynamic Enum System for FractalSemantics
 
@@ -12,7 +13,6 @@ import logging
 import threading
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
 
 # Type checking imports removed since we use standard Enum classes
 logger = logging.getLogger(__name__)
@@ -52,9 +52,9 @@ class EnumEntry:
     """
     name: str
     value: str
-    description: Optional[str] = None
+    description: str | None = None
     is_core: bool = False
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict = field(default_factory=dict)
 
     def __post_init__(self):
         """Validate entry after initialization."""
@@ -75,19 +75,19 @@ class DynamicEnumRegistry:
     - Validation and deduplication
     """
 
-    def __init__(self, name: str, core_entries: List[EnumEntry], immutable_count: Optional[int] = None):
+    def __init__(self, name: str, core_entries: list[EnumEntry], immutable_count: int | None = None):
         """
         Initialize registry with core entries.
 
         Args:
             name: Name of the enum registry
-            core_entries: List of core entries (these become immutable)
+            core_entries: list of core entries (these become immutable)
             immutable_count: Number of entries from start that are immutable.
                            If None, uses len(core_entries)
         """
         self.name = name
         self._lock = threading.RLock()
-        self._entries: Dict[str, EnumEntry] = {}
+        self._entries: dict[str, EnumEntry] = {}
         self._immutable_count = immutable_count if immutable_count is not None else len(core_entries)
 
         # Register core entries
@@ -156,7 +156,7 @@ class DynamicEnumRegistry:
 
             self._register_entry(entry)
 
-    def register_entries(self, entries: List[EnumEntry]) -> None:
+    def register_entries(self, entries: list[EnumEntry]) -> None:
         """
         Register multiple entries atomically.
 
@@ -181,22 +181,22 @@ class DynamicEnumRegistry:
             for entry in entries:
                 self._register_entry(entry)
 
-    def get_entry(self, name: str) -> Optional[EnumEntry]:
+    def get_entry(self, name: str) -> EnumEntry | None:
         """Get an entry by name."""
         with self._lock:
             return self._entries.get(name)
 
-    def get_entries(self) -> List[EnumEntry]:
+    def get_entries(self) -> list[EnumEntry]:
         """Get all entries sorted by name."""
         with self._lock:
             return sorted(self._entries.values(), key=lambda e: e.name)
 
-    def get_core_entries(self) -> List[EnumEntry]:
+    def get_core_entries(self) -> list[EnumEntry]:
         """Get only core (immutable) entries."""
         with self._lock:
             return [entry for entry in self._entries.values() if entry.is_core]
 
-    def get_registered_entries(self) -> List[EnumEntry]:
+    def get_registered_entries(self) -> list[EnumEntry]:
         """Get only dynamically registered entries."""
         with self._lock:
             return [entry for entry in self._entries.values() if not entry.is_core]
@@ -382,22 +382,22 @@ def register_alignment_entry(entry: EnumEntry) -> None:
     # This function is kept for API compatibility
 
 
-def get_realm_entry(name: str) -> Optional[EnumEntry]:
+def get_realm_entry(name: str) -> EnumEntry | None:
     """Get realm entry metadata."""
     return REALM_REGISTRY.get_entry(name)
 
 
-def get_horizon_entry(name: str) -> Optional[EnumEntry]:
+def get_horizon_entry(name: str) -> EnumEntry | None:
     """Get horizon entry metadata."""
     return HORIZON_REGISTRY.get_entry(name)
 
 
-def get_polarity_entry(name: str) -> Optional[EnumEntry]:
+def get_polarity_entry(name: str) -> EnumEntry | None:
     """Get polarity entry metadata."""
     return POLARITY_REGISTRY.get_entry(name)
 
 
-def get_alignment_entry(name: str) -> Optional[EnumEntry]:
+def get_alignment_entry(name: str) -> EnumEntry | None:
     """Get alignment entry metadata."""
     return ALIGNMENT_REGISTRY.get_entry(name)
 

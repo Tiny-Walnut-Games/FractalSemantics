@@ -9,6 +9,7 @@ This directory contains global skills that can be used across all Cline workspac
 An AI-powered code reviewer that provides comprehensive feedback on code quality, security, performance, and best practices.
 
 **Features:**
+
 - **Security Analysis**: Detects hardcoded secrets, SQL injection, XSS vulnerabilities
 - **Performance Review**: Identifies inefficient loops, string concatenation, N+1 queries
 - **Code Style**: Checks line length, trailing whitespace, naming conventions
@@ -16,6 +17,7 @@ An AI-powered code reviewer that provides comprehensive feedback on code quality
 - **Multi-language Support**: Python, JavaScript/TypeScript, Rust, Go, Java, C/C++, HTML/CSS
 
 **Usage:**
+
 ```bash
 # Review single file
 python ~/.cline/global_skills/code_reviewer.py src/main.py
@@ -28,6 +30,7 @@ python ~/.cline/global_skills/code_reviewer.py . /path/to/project
 ```
 
 **Output:**
+
 - Detailed issue reports with severity levels
 - Specific line numbers and suggestions
 - Categorized by error, warning, and info
@@ -38,6 +41,7 @@ python ~/.cline/global_skills/code_reviewer.py . /path/to/project
 Comprehensive project analysis tool that provides insights into project structure, technology stack, and code quality.
 
 **Features:**
+
 - **Technology Stack Detection**: Automatically detects languages, frameworks, and tools
 - **Code Quality Metrics**: Analyzes complexity, naming conventions, code smells
 - **Security Analysis**: Scans for hardcoded secrets and vulnerabilities
@@ -46,6 +50,7 @@ Comprehensive project analysis tool that provides insights into project structur
 - **Documentation Assessment**: Evaluates README quality and docstring coverage
 
 **Usage:**
+
 ```bash
 # Analyze current project
 python ~/.cline/global_skills/project_analyzer.py
@@ -55,6 +60,7 @@ python ~/.cline/global_skills/project_analyzer.py /path/to/project
 ```
 
 **Output:**
+
 - Technology stack confidence scores
 - Quality score (0-100)
 - Issue categorization and recommendations
@@ -179,7 +185,7 @@ Description of what this skill does.
 
 import sys
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import dict, list, any
 
 
 def main():
@@ -211,14 +217,17 @@ if __name__ == "__main__":
 ### Common Issues
 
 **Permission Errors:**
+
 - Ensure scripts are executable: `chmod +x script.py`
 - Check file permissions in `~/.cline/global_skills/`
 
 **Import Errors:**
+
 - Verify Python path includes the skills directory
 - Check for missing dependencies
 
 **Configuration Issues:**
+
 - Ensure JSON configuration files are valid
 - Check file paths and permissions
 

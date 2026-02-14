@@ -34,6 +34,7 @@ the coordinate space BEFORE hashing, providing a more nuanced understanding of h
 each dimension contributes to semantic disambiguation, even when collisions are zero.
 """
 
+import contextlib
 import hashlib
 import json
 import secrets
@@ -43,7 +44,7 @@ from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 import numpy as np
 
@@ -74,10 +75,14 @@ try:
     )
 except ImportError:
     # Fallback if subprocess communication is not available
-    def send_subprocess_progress(*args, **kwargs) -> bool: return False
-    def send_subprocess_status(*args, **kwargs) -> bool: return False
-    def send_subprocess_completion(*args, **kwargs) -> bool: return False
-    def is_subprocess_communication_enabled() -> bool: return False
+    def send_subprocess_progress(*args, **kwargs) -> bool:
+        return False
+    def send_subprocess_status(*args, **kwargs) -> bool:
+        return False
+    def send_subprocess_completion(*args, **kwargs) -> bool:
+        return False
+    def is_subprocess_communication_enabled() -> bool:
+        return False
 
 # Use cryptographically secure random number generator
 secure_random = secrets.SystemRandom()
@@ -153,7 +158,7 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
     Coordinate Ranges (enforced by FractalSemantics specification):
     - realm: One of 7 domains (data, narrative, system, faculty, event, pattern, void)
     - lineage: Positive integer (generation count from LUCA)
-    - adjacency: List of UUIDs (relational neighbors)
+    - adjacency: list of UUIDs (relational neighbors)
     - horizon: One of 5 lifecycle stages (genesis, emergence, peak, decay, crystallization)
     - luminosity: Activity level (0-100) (new - replaced resonance)
     - polarity: One of 12 types (6 companion + 6 badge + neutral) (new - replaced velocity)
@@ -272,7 +277,7 @@ def generate_random_bitchain(seed: Optional[int] = None) -> BitChain:
 class EXP03_Result:
     """Results from EXP-03 coordinate entropy test."""
 
-    dimensions_used: List[str]
+    dimensions_used: list[str]
     sample_size: int
     shannon_entropy: float  # Shannon entropy of coordinate space
     normalized_entropy: float  # Normalized to [0, 1]
@@ -285,7 +290,7 @@ class EXP03_Result:
     semantic_disambiguation_score: float  # How well dimensions separate entities
     meets_threshold: bool  # >5% expressiveness contribution
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to JSON-serializable dictionary"""
         result = asdict(self)
         # Ensure all values are JSON-serializable
@@ -371,10 +376,10 @@ class EXP03_CoordinateEntropy:
         """
         self.sample_size = sample_size
         self.random_seed = random_seed
-        self.results: List[EXP03_Result] = []
+        self.results: list[EXP03_Result] = []
         self.baseline_entropy: Optional[float] = None
 
-    def compute_shannon_entropy(self, coordinates: List[str]) -> float:
+    def compute_shannon_entropy(self, coordinates: list[str]) -> float:
         """
         Compute Shannon entropy of a list of coordinate representations.
 
@@ -385,7 +390,7 @@ class EXP03_CoordinateEntropy:
         discrimination between different entities.
 
         Args:
-            coordinates: List of coordinate string representations
+            coordinates: list of coordinate string representations
 
         Returns:
             Shannon entropy in bits
@@ -432,7 +437,7 @@ class EXP03_CoordinateEntropy:
         return min(1.0, entropy / max_entropy)
 
     def compute_semantic_disambiguation_score(
-        self, coordinates: List[str], num_unique: int
+        self, coordinates: list[str], num_unique: int
     ) -> float:
         """
         Compute semantic disambiguation score.
@@ -445,7 +450,7 @@ class EXP03_CoordinateEntropy:
         A high score indicates good semantic separation.
 
         Args:
-            coordinates: List of coordinate string representations
+            coordinates: list of coordinate string representations
             num_unique: Number of unique coordinates
 
         Returns:
@@ -476,7 +481,7 @@ class EXP03_CoordinateEntropy:
 
         return score
 
-    def extract_coordinates(self, bitchains: List, dimensions: List[str]) -> List[str]:
+    def extract_coordinates(self, bitchains: list, dimensions: list[str]) -> list[str]:
         """
         Extract coordinate representations from bit-chains using specified dimensions.
 
@@ -485,11 +490,11 @@ class EXP03_CoordinateEntropy:
         with different dimension subsets.
 
         Args:
-            bitchains: List of BitChain objects
-            dimensions: List of dimension names to include
+            bitchains: list of BitChain objects
+            dimensions: list of dimension names to include
 
         Returns:
-            List of coordinate string representations
+            list of coordinate string representations
         """
         coordinates = []
 
@@ -514,7 +519,7 @@ class EXP03_CoordinateEntropy:
 
         return coordinates
 
-    def compute_individual_contribution(self, dimension_name: str, bitchains: List) -> float:
+    def compute_individual_contribution(self, dimension_name: str, bitchains: list) -> float:
         """
         Compute individual dimension contribution vs theoretical maximum.
 
@@ -524,7 +529,7 @@ class EXP03_CoordinateEntropy:
 
         Args:
             dimension_name: Name of the dimension to evaluate
-            bitchains: List of BitChain objects
+            bitchains: list of BitChain objects
 
         Returns:
             Contribution score [0, 100] (percentage of theoretical maximum)
@@ -562,7 +567,7 @@ class EXP03_CoordinateEntropy:
 
         return min(100.0, (actual_entropy / theoretical_max) * 100.0)
 
-    def compute_relative_contribution(self, dimension_name: str, bitchains: List, baseline_entropy: float) -> float:
+    def compute_relative_contribution(self, dimension_name: str, bitchains: list, baseline_entropy: float) -> float:
         """
         Compute relative contribution using Shapley additive approach.
 
@@ -572,7 +577,7 @@ class EXP03_CoordinateEntropy:
 
         Args:
             dimension_name: Name of the dimension to evaluate
-            bitchains: List of BitChain objects
+            bitchains: list of BitChain objects
             baseline_entropy: Full 7D system entropy
 
         Returns:
@@ -600,7 +605,7 @@ class EXP03_CoordinateEntropy:
             # If there's an issue with the calculation, return baseline entropy share
             return 100.0 / len(self.FractalSemantics_DIMENSIONS)
 
-    def compute_complementary_contribution(self, dimension_name: str, bitchains: List) -> float:
+    def compute_complementary_contribution(self, dimension_name: str, bitchains: list) -> float:
         """
         Compute complementary contribution (unique discriminatory information).
 
@@ -609,7 +614,7 @@ class EXP03_CoordinateEntropy:
 
         Args:
             dimension_name: Name of the dimension to evaluate
-            bitchains: List of BitChain objects
+            bitchains: list of BitChain objects
 
         Returns:
             Complementary contribution score [0, 100]
@@ -640,9 +645,9 @@ class EXP03_CoordinateEntropy:
     def compute_expressiveness_contribution(
         self,
         dimension_name: str,
-        bitchains: List,
+        bitchains: list,
         baseline_entropy: float
-    ) -> Tuple[float, float, float, float]:
+    ) -> tuple[float, float, float, float]:
         """
         Compute comprehensive expressiveness contribution composite score.
 
@@ -656,11 +661,11 @@ class EXP03_CoordinateEntropy:
 
         Args:
             dimension_name: Name of the dimension to evaluate
-            bitchains: List of BitChain objects
+            bitchains: list of BitChain objects
             baseline_entropy: Full system entropy
 
         Returns:
-            Tuple of (composite_score, individual_contrib, relative_contrib, complementary_contrib)
+            tuple of (composite_score, individual_contrib, relative_contrib, complementary_contrib)
         """
         individual = self.compute_individual_contribution(dimension_name, bitchains) / 100.0  # Normalize to [0,1]
         relative = self.compute_relative_contribution(dimension_name, bitchains, baseline_entropy) / 100.0  # [0,1]
@@ -687,12 +692,12 @@ class EXP03_CoordinateEntropy:
             complementary * 100.0
         )
 
-    def run(self) -> Tuple[List[EXP03_Result], bool]:
+    def run(self) -> tuple[list[EXP03_Result], bool]:
         """
         Run the coordinate entropy test.
 
         Returns:
-            Tuple of (results list, overall success boolean)
+            tuple of (results list, overall success boolean)
         """
         import time
 
@@ -704,15 +709,9 @@ class EXP03_CoordinateEntropy:
         print(f"Random seed: {self.random_seed} (for reproducibility)")
         print()
 
-        # Send progress message for experiment start
-        try:
-            progress = ProgressReporter("EXP-03")
-            progress.status("Initialization", "Starting coordinate entropy test")
-
-            # Send subprocess progress message
-            send_subprocess_status("EXP-03", "Initialization", "Starting coordinate entropy test")
-        except:
-            pass  # Ignore if progress communication is not available
+        # Send progress message for experiment start (use 0.0 progress instead of status)
+        with contextlib.suppress(Exception):
+            send_subprocess_status("EXP-03", 0.0, "Initialization", "Starting coordinate entropy test")
 
         # Generate bit-chains once for all tests
         print("Generating bit-chains...")
@@ -769,17 +768,14 @@ class EXP03_CoordinateEntropy:
         all_success = True
 
         for i, removed_dim in enumerate(self.FractalSemantics_DIMENSIONS, 1):
-            _percent = (i / len(self.FractalSemantics_DIMENSIONS)) * 100
+            progress_percent = (i / len(self.FractalSemantics_DIMENSIONS)) * 100
             print("=" * 70)
             print(f"ABLATION: Remove '{removed_dim}' ({i}/8)")
             print("=" * 70)
 
-            # Send progress message for dimension ablation
-            try:
-                progress = ProgressReporter("EXP-03")
-                progress.status(f"Ablation {removed_dim}", f"Testing entropy without {removed_dim}")
-            except:
-                pass  # Ignore if progress communication is not available
+            # Send progress message for dimension ablation with actual progress percentage
+            with contextlib.suppress(Exception):
+                send_subprocess_progress("EXP-03", progress_percent, f"Ablation {removed_dim}", f"Testing entropy without {removed_dim}")
 
             dim_start = time.time()
             # Get dimensions without the removed one
@@ -886,15 +882,13 @@ class EXP03_CoordinateEntropy:
             print("   (not all show measurable entropy reduction when removed)")
 
         # Send completion progress message
-        try:
+        with contextlib.suppress(Exception):
             progress = ProgressReporter("EXP-03")
             progress.complete("Coordinate entropy test completed")
-        except:
-            pass  # Ignore if progress communication is not available
 
         return self.results, bool(all_success)
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, any]:
         """Get summary statistics."""
         return {
             "sample_size": self.sample_size,
@@ -908,12 +902,12 @@ class EXP03_CoordinateEntropy:
             "results": [r.to_dict() for r in self.results],
         }
 
-    def generate_visualization_data(self) -> Dict[str, Any]:
+    def generate_visualization_data(self) -> dict[str, any]:
         """
         Generate data for entropy contribution visualization.
 
         Returns:
-            Dictionary with visualization data for plotting
+            dictionary with visualization data for plotting
         """
         if len(self.results) < 2:
             return {}
@@ -933,11 +927,11 @@ class EXP03_CoordinateEntropy:
             "dimensions": dimensions,
             "entropy_reductions": entropy_reductions,
             "baseline_entropy": self.baseline_entropy,
-            "threshold": 5.0,
+            "threshold": 0.05,  # Use 0.05% instead of 5.0% to match actual data scale
         }
 
 
-def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> str:
+def save_results(results: dict[str, any], output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -961,7 +955,7 @@ def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> 
                 return str(obj)  # fallback for other numpy types
         elif isinstance(obj, bool):
             return bool(obj)
-        elif isinstance(obj, (int, float)) or isinstance(obj, str):
+        elif isinstance(obj, (int, float, str)):
             return obj
         elif isinstance(obj, dict):
             return {k: make_serializable(v) for k, v in obj.items()}
@@ -984,7 +978,7 @@ def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> 
 
 
 def plot_entropy_contributions(
-    viz_data: Dict[str, Any], output_file: Optional[str] = None
+    viz_data: dict[str, any], output_file: Optional[str] = None
 ):
     """
     Generate entropy contribution visualization.
@@ -997,7 +991,7 @@ def plot_entropy_contributions(
     """
     try:
         import matplotlib.pyplot as plt
-    except ImportError:
+    except ImportError as e:
         print("[Warn]  matplotlib not available - skipping visualization")
         return
 
@@ -1075,14 +1069,12 @@ if __name__ == "__main__":
     sample_size = 100000  # Default fallback
     random_seed = 42      # Default fallback
 
-    try:
+    with contextlib.suppress(Exception):
         from fractalsemantics.config import ExperimentConfig
 
         config = ExperimentConfig()
         sample_size = config.get("EXP-03", "sample_size", 100000)
         random_seed = config.get("EXP-03", "random_seed", 42)
-    except Exception:
-        pass  # Use defaults
 
     # Override based on command-line arguments (always check these)
     if "--quick" in sys.argv:
@@ -1120,6 +1112,4 @@ if __name__ == "__main__":
         import traceback
 
         traceback.print_exc()
-        sys.exit(1)
-        sys.exit(1)
         sys.exit(1)

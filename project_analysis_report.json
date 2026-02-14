@@ -1,0 +1,799 @@
+{
+  "project_info": {
+    "name": "fractalsemantics",
+    "path": "fractalsemantics",
+    "size": {
+      "bytes": 1504508,
+      "kilobytes": 1469.25,
+      "megabytes": 1.43,
+      "file_count": 67
+    },
+    "file_count": {
+      ".py": 38,
+      ".toml": 3,
+      ".pyc": 26
+    },
+    "directories": [
+      "__pycache__",
+      "config",
+      "config\\__pycache__",
+      "embeddings"
+    ],
+    "last_modified": "2026-02-14T07:32:49.523274",
+    "documentation": {
+      "README": false,
+      "LICENSE": false,
+      "CONTRIBUTING": false,
+      "CODE_OF_CONDUCT": false
+    }
+  },
+  "tech_stack": {
+    "Python": {
+      "score": 38,
+      "confidence": "high",
+      "files": [
+        "fractalsemantics\\dynamic_enum.py",
+        "fractalsemantics\\exp01_geometric_collision.py",
+        "fractalsemantics\\exp02_retrieval_efficiency.py",
+        "fractalsemantics\\exp03_coordinate_entropy.py",
+        "fractalsemantics\\exp04_fractal_scaling.py"
+      ]
+    }
+  },
+  "metrics": {
+    "quality": {
+      "file_complexity": {
+        "large_files": [
+          {
+            "file": "fractalsemantics\\exp03_coordinate_entropy.py",
+            "lines": 1116
+          },
+          {
+            "file": "fractalsemantics\\exp05_compression_expansion.py",
+            "lines": 754
+          },
+          {
+            "file": "fractalsemantics\\exp06_entanglement_detection.py",
+            "lines": 1059
+          },
+          {
+            "file": "fractalsemantics\\exp07_luca_bootstrap.py",
+            "lines": 668
+          },
+          {
+            "file": "fractalsemantics\\exp08_self_organizing_memory.py",
+            "lines": 797
+          },
+          {
+            "file": "fractalsemantics\\exp09_memory_pressure.py",
+            "lines": 933
+          },
+          {
+            "file": "fractalsemantics\\exp10_multidimensional_query.py",
+            "lines": 1051
+          },
+          {
+            "file": "fractalsemantics\\exp11b_dimension_stress_test.py",
+            "lines": 634
+          },
+          {
+            "file": "fractalsemantics\\exp11_dimension_cardinality.py",
+            "lines": 735
+          },
+          {
+            "file": "fractalsemantics\\exp12_benchmark_comparison.py",
+            "lines": 847
+          },
+          {
+            "file": "fractalsemantics\\exp13_fractal_gravity.py",
+            "lines": 743
+          },
+          {
+            "file": "fractalsemantics\\exp14_atomic_fractal_mapping.py",
+            "lines": 836
+          },
+          {
+            "file": "fractalsemantics\\exp15_topological_conservation.py",
+            "lines": 993
+          },
+          {
+            "file": "fractalsemantics\\exp16_hierarchical_distance_mapping.py",
+            "lines": 1072
+          },
+          {
+            "file": "fractalsemantics\\exp17_thermodynamic_validation.py",
+            "lines": 638
+          },
+          {
+            "file": "fractalsemantics\\exp18_falloff_thermodynamics.py",
+            "lines": 526
+          },
+          {
+            "file": "fractalsemantics\\exp19_orbital_equivalence.py",
+            "lines": 1094
+          },
+          {
+            "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+            "lines": 1404
+          },
+          {
+            "file": "fractalsemantics\\exp21_earth_moon_sun.py",
+            "lines": 990
+          },
+          {
+            "file": "fractalsemantics\\experiment_runner.py",
+            "lines": 1732
+          },
+          {
+            "file": "fractalsemantics\\fractalsemantics_entity.py",
+            "lines": 891
+          },
+          {
+            "file": "fractalsemantics\\progress_comm.py",
+            "lines": 539
+          }
+        ],
+        "deep_nesting": [],
+        "long_functions": [
+          {
+            "file": "fractalsemantics\\exp01_geometric_collision.py",
+            "function": "run",
+            "lines": 154
+          },
+          {
+            "file": "fractalsemantics\\exp02_retrieval_efficiency.py",
+            "function": "run",
+            "lines": 224
+          },
+          {
+            "file": "fractalsemantics\\exp03_coordinate_entropy.py",
+            "function": "generate_random_bitchain",
+            "lines": 142
+          },
+          {
+            "file": "fractalsemantics\\exp03_coordinate_entropy.py",
+            "function": "plot_entropy_contributions",
+            "lines": 84
+          },
+          {
+            "file": "fractalsemantics\\exp03_coordinate_entropy.py",
+            "function": "run",
+            "lines": 194
+          },
+          {
+            "file": "fractalsemantics\\exp04_fractal_scaling.py",
+            "function": "run_scale_test",
+            "lines": 99
+          },
+          {
+            "file": "fractalsemantics\\exp04_fractal_scaling.py",
+            "function": "run_fractal_scaling_test",
+            "lines": 113
+          },
+          {
+            "file": "fractalsemantics\\exp05_compression_expansion.py",
+            "function": "run_compression_expansion_test",
+            "lines": 51
+          },
+          {
+            "file": "fractalsemantics\\exp05_compression_expansion.py",
+            "function": "compress_bitchain",
+            "lines": 189
+          },
+          {
+            "file": "fractalsemantics\\exp05_compression_expansion.py",
+            "function": "_reconstruct_from_mist",
+            "lines": 87
+          },
+          {
+            "file": "fractalsemantics\\exp06_entanglement_detection.py",
+            "function": "compute_polarity_vector",
+            "lines": 66
+          },
+          {
+            "file": "fractalsemantics\\exp06_entanglement_detection.py",
+            "function": "compute_entanglement_score",
+            "lines": 72
+          },
+          {
+            "file": "fractalsemantics\\exp06_entanglement_detection.py",
+            "function": "main",
+            "lines": 80
+          },
+          {
+            "file": "fractalsemantics\\exp06_entanglement_detection.py",
+            "function": "run_experiment",
+            "lines": 226
+          },
+          {
+            "file": "fractalsemantics\\exp06_entanglement_detection.py",
+            "function": "compute_validation_metrics",
+            "lines": 67
+          },
+          {
+            "file": "fractalsemantics\\exp08_self_organizing_memory.py",
+            "function": "_calculate_semantic_similarity",
+            "lines": 52
+          },
+          {
+            "file": "fractalsemantics\\exp08_self_organizing_memory.py",
+            "function": "run",
+            "lines": 113
+          },
+          {
+            "file": "fractalsemantics\\exp09_memory_pressure.py",
+            "function": "__init__",
+            "lines": 53
+          },
+          {
+            "file": "fractalsemantics\\exp09_memory_pressure.py",
+            "function": "run",
+            "lines": 98
+          },
+          {
+            "file": "fractalsemantics\\exp10_multidimensional_query.py",
+            "function": "run",
+            "lines": 122
+          },
+          {
+            "file": "fractalsemantics\\exp11b_dimension_stress_test.py",
+            "function": "_generate_bitchain_with_constraints",
+            "lines": 72
+          },
+          {
+            "file": "fractalsemantics\\exp11b_dimension_stress_test.py",
+            "function": "_run_stress_test",
+            "lines": 68
+          },
+          {
+            "file": "fractalsemantics\\exp11b_dimension_stress_test.py",
+            "function": "run",
+            "lines": 114
+          },
+          {
+            "file": "fractalsemantics\\exp11_dimension_cardinality.py",
+            "function": "_calculate_semantic_expressiveness",
+            "lines": 62
+          },
+          {
+            "file": "fractalsemantics\\exp11_dimension_cardinality.py",
+            "function": "_test_dimension_count",
+            "lines": 77
+          },
+          {
+            "file": "fractalsemantics\\exp11_dimension_cardinality.py",
+            "function": "run",
+            "lines": 270
+          },
+          {
+            "file": "fractalsemantics\\exp12_benchmark_comparison.py",
+            "function": "_benchmark_system",
+            "lines": 82
+          },
+          {
+            "file": "fractalsemantics\\exp12_benchmark_comparison.py",
+            "function": "run",
+            "lines": 259
+          },
+          {
+            "file": "fractalsemantics\\exp13_fractal_gravity.py",
+            "function": "run_hierarchical_gravity_test_for_element",
+            "lines": 103
+          },
+          {
+            "file": "fractalsemantics\\exp13_fractal_gravity.py",
+            "function": "run_fractal_gravity_experiment_v2",
+            "lines": 94
+          },
+          {
+            "file": "fractalsemantics\\exp13_fractal_gravity.py",
+            "function": "_calculate_pattern_consistency",
+            "lines": 52
+          },
+          {
+            "file": "fractalsemantics\\exp14_atomic_fractal_mapping.py",
+            "function": "get_electron_shell_data",
+            "lines": 413
+          },
+          {
+            "file": "fractalsemantics\\exp14_atomic_fractal_mapping.py",
+            "function": "run_atomic_fractal_mapping_experiment_v2",
+            "lines": 160
+          },
+          {
+            "file": "fractalsemantics\\exp15_topological_conservation.py",
+            "function": "compute_topological_invariants",
+            "lines": 76
+          },
+          {
+            "file": "fractalsemantics\\exp15_topological_conservation.py",
+            "function": "integrate_orbit_with_topological_tracking",
+            "lines": 75
+          },
+          {
+            "file": "fractalsemantics\\exp15_topological_conservation.py",
+            "function": "test_topological_conservation_in_orbit",
+            "lines": 69
+          },
+          {
+            "file": "fractalsemantics\\exp15_topological_conservation.py",
+            "function": "run_exp15_topological_conservation_experiment",
+            "lines": 90
+          },
+          {
+            "file": "fractalsemantics\\exp15_topological_conservation.py",
+            "function": "save_results",
+            "lines": 59
+          },
+          {
+            "file": "fractalsemantics\\exp15_topological_conservation.py",
+            "function": "integrate_orbit_with_vector_field",
+            "lines": 95
+          },
+          {
+            "file": "fractalsemantics\\exp16_hierarchical_distance_mapping.py",
+            "function": "test_embedding_strategy",
+            "lines": 67
+          },
+          {
+            "file": "fractalsemantics\\exp16_hierarchical_distance_mapping.py",
+            "function": "run_exp16_distance_mapping_experiment",
+            "lines": 123
+          },
+          {
+            "file": "fractalsemantics\\exp16_hierarchical_distance_mapping.py",
+            "function": "save_results",
+            "lines": 56
+          },
+          {
+            "file": "fractalsemantics\\exp16_hierarchical_distance_mapping.py",
+            "function": "embed_hierarchy",
+            "lines": 52
+          },
+          {
+            "file": "fractalsemantics\\exp16_hierarchical_distance_mapping.py",
+            "function": "integrate_orbit_with_vector_field",
+            "lines": 95
+          },
+          {
+            "file": "fractalsemantics\\exp17_thermodynamic_validation.py",
+            "function": "run_thermodynamic_validation_experiment",
+            "lines": 175
+          },
+          {
+            "file": "fractalsemantics\\exp18_falloff_thermodynamics.py",
+            "function": "run_falloff_thermodynamics_experiment",
+            "lines": 242
+          },
+          {
+            "file": "fractalsemantics\\exp19_orbital_equivalence.py",
+            "function": "simulate_orbital_trajectory",
+            "lines": 103
+          },
+          {
+            "file": "fractalsemantics\\exp19_orbital_equivalence.py",
+            "function": "simulate_fractal_trajectory",
+            "lines": 77
+          },
+          {
+            "file": "fractalsemantics\\exp19_orbital_equivalence.py",
+            "function": "run_orbital_equivalence_test",
+            "lines": 163
+          },
+          {
+            "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+            "function": "integrate_orbit_with_vector_field",
+            "lines": 93
+          },
+          {
+            "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+            "function": "create_continuous_vector_field",
+            "lines": 69
+          },
+          {
+            "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+            "function": "verify_inverse_square_law",
+            "lines": 61
+          },
+          {
+            "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+            "function": "test_vector_field_approaches",
+            "lines": 106
+          },
+          {
+            "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+            "function": "compute_newtonian_trajectory",
+            "lines": 57
+          },
+          {
+            "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+            "function": "validate_inverse_square_law_for_approach",
+            "lines": 57
+          },
+          {
+            "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+            "function": "run_exp20_vector_field_derivation",
+            "lines": 115
+          },
+          {
+            "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+            "function": "save_results",
+            "lines": 60
+          },
+          {
+            "file": "fractalsemantics\\exp21_earth_moon_sun.py",
+            "function": "derive_fractal_force_vector_branching",
+            "lines": 119
+          },
+          {
+            "file": "fractalsemantics\\exp21_earth_moon_sun.py",
+            "function": "integrate_hierarchical_orbits",
+            "lines": 120
+          },
+          {
+            "file": "fractalsemantics\\exp21_earth_moon_sun.py",
+            "function": "create_earth_moon_sun_system",
+            "lines": 124
+          },
+          {
+            "file": "fractalsemantics\\exp21_earth_moon_sun.py",
+            "function": "run_exp21_earth_moon_sun_test",
+            "lines": 125
+          },
+          {
+            "file": "fractalsemantics\\exp21_earth_moon_sun.py",
+            "function": "save_results",
+            "lines": 52
+          },
+          {
+            "file": "fractalsemantics\\experiment_runner.py",
+            "function": "main",
+            "lines": 204
+          },
+          {
+            "file": "fractalsemantics\\experiment_runner.py",
+            "function": "_load_experiment_configs",
+            "lines": 224
+          },
+          {
+            "file": "fractalsemantics\\experiment_runner.py",
+            "function": "_get_mathematical_concepts",
+            "lines": 136
+          },
+          {
+            "file": "fractalsemantics\\experiment_runner.py",
+            "function": "_get_experiment_steps",
+            "lines": 158
+          },
+          {
+            "file": "fractalsemantics\\experiment_runner.py",
+            "function": "_generate_batch_summary",
+            "lines": 94
+          },
+          {
+            "file": "fractalsemantics\\fractalsemantics_entity.py",
+            "function": "generate_random_bitchain",
+            "lines": 54
+          },
+          {
+            "file": "fractalsemantics\\fractalsemantics_entity.py",
+            "function": "render_zoom_level",
+            "lines": 93
+          },
+          {
+            "file": "fractalsemantics\\fractalsemantics_experiments.py",
+            "function": "run_single_experiment",
+            "lines": 71
+          },
+          {
+            "file": "fractalsemantics\\fractalsemantics_experiments.py",
+            "function": "run_all_experiments",
+            "lines": 77
+          },
+          {
+            "file": "fractalsemantics\\fractalsemantics_experiments.py",
+            "function": "main",
+            "lines": 79
+          },
+          {
+            "file": "fractalsemantics\\progress_comm.py",
+            "function": "_send_message",
+            "lines": 53
+          },
+          {
+            "file": "fractalsemantics\\subprocess_comm.py",
+            "function": "send_progress",
+            "lines": 54
+          },
+          {
+            "file": "fractalsemantics\\embeddings\\sentence_transformer_provider.py",
+            "function": "embed_batch",
+            "lines": 57
+          },
+          {
+            "file": "fractalsemantics\\embeddings\\sentence_transformer_provider.py",
+            "function": "compute_fractalsemantics_from_embedding",
+            "lines": 94
+          }
+        ]
+      },
+      "naming_conventions": {
+        "snake_case_violations": [],
+        "camel_case_violations": [],
+        "constant_naming": []
+      },
+      "code_smells": [
+        {
+          "file": "fractalsemantics\\dynamic_enum.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp01_geometric_collision.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp02_retrieval_efficiency.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp03_coordinate_entropy.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp03_coordinate_entropy.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp04_fractal_scaling.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp05_compression_expansion.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp06_entanglement_detection.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp06_entanglement_detection.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp07_luca_bootstrap.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp08_self_organizing_memory.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp10_multidimensional_query.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp11b_dimension_stress_test.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp11b_dimension_stress_test.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp11_dimension_cardinality.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp11_dimension_cardinality.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp12_benchmark_comparison.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp12_benchmark_comparison.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp13_fractal_gravity.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp13_fractal_gravity.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp14_atomic_fractal_mapping.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp15_topological_conservation.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp15_topological_conservation.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp16_hierarchical_distance_mapping.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp16_hierarchical_distance_mapping.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp17_thermodynamic_validation.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp17_thermodynamic_validation.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp18_falloff_thermodynamics.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp18_falloff_thermodynamics.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp19_orbital_equivalence.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp19_orbital_equivalence.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp20_vector_field_derivation.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp21_earth_moon_sun.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\exp21_earth_moon_sun.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\experiment_runner.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\experiment_runner.py",
+          "smell": "Long method",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\fractalsemantics_entity.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\progress_comm.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        },
+        {
+          "file": "fractalsemantics\\subprocess_comm.py",
+          "smell": "Long parameter list",
+          "severity": "warning"
+        }
+      ],
+      "documentation": {
+        "docstring_coverage": 82.45161290322581,
+        "readme_quality": {
+          "exists": false,
+          "score": 0,
+          "issues": [
+            "No README.md found"
+          ]
+        },
+        "comment_density": 12.132043734230445
+      }
+    },
+    "security": {
+      "issues": [],
+      "total": 0
+    },
+    "performance": {
+      "issues": [
+        {
+          "file": "fractalsemantics\\exp06_entanglement_detection.py",
+          "issue": "Inefficient iteration pattern",
+          "severity": "medium"
+        },
+        {
+          "file": "fractalsemantics\\exp11_dimension_cardinality.py",
+          "issue": "Inefficient iteration pattern",
+          "severity": "medium"
+        },
+        {
+          "file": "fractalsemantics\\exp19_orbital_equivalence.py",
+          "issue": "Inefficient iteration pattern",
+          "severity": "medium"
+        }
+      ],
+      "total": 3
+    },
+    "dependencies": {
+      "python": {
+        "total": 0,
+        "categories": {},
+        "outdated": []
+      },
+      "javascript": {
+        "total": 0,
+        "dev_total": 0
+      },
+      "security": {
+        "total_issues": 0,
+        "high_severity": 0,
+        "medium_severity": 0,
+        "low_severity": 0
+      }
+    }
+  },
+  "insights": {
+    "tech_stack": [
+      "ProjectInsight(category='tech_stack', severity='info', title='Technology Stack Detected', description='Detected 1 technologies in use', recommendations=['Review technology choices for project requirements'], files=[])"
+    ],
+    "quality": [
+      "ProjectInsight(category='quality', severity='warning', title='Code Smells Detected', description='Found 40 potential code smells', recommendations=['Review and refactor problematic code patterns'], files=['fractalsemantics\\\\dynamic_enum.py', 'fractalsemantics\\\\exp01_geometric_collision.py', 'fractalsemantics\\\\exp02_retrieval_efficiency.py', 'fractalsemantics\\\\exp03_coordinate_entropy.py', 'fractalsemantics\\\\exp03_coordinate_entropy.py', 'fractalsemantics\\\\exp04_fractal_scaling.py', 'fractalsemantics\\\\exp05_compression_expansion.py', 'fractalsemantics\\\\exp06_entanglement_detection.py', 'fractalsemantics\\\\exp06_entanglement_detection.py', 'fractalsemantics\\\\exp07_luca_bootstrap.py', 'fractalsemantics\\\\exp08_self_organizing_memory.py', 'fractalsemantics\\\\exp10_multidimensional_query.py', 'fractalsemantics\\\\exp11b_dimension_stress_test.py', 'fractalsemantics\\\\exp11b_dimension_stress_test.py', 'fractalsemantics\\\\exp11_dimension_cardinality.py', 'fractalsemantics\\\\exp11_dimension_cardinality.py', 'fractalsemantics\\\\exp12_benchmark_comparison.py', 'fractalsemantics\\\\exp12_benchmark_comparison.py', 'fractalsemantics\\\\exp13_fractal_gravity.py', 'fractalsemantics\\\\exp13_fractal_gravity.py', 'fractalsemantics\\\\exp14_atomic_fractal_mapping.py', 'fractalsemantics\\\\exp15_topological_conservation.py', 'fractalsemantics\\\\exp15_topological_conservation.py', 'fractalsemantics\\\\exp16_hierarchical_distance_mapping.py', 'fractalsemantics\\\\exp16_hierarchical_distance_mapping.py', 'fractalsemantics\\\\exp17_thermodynamic_validation.py', 'fractalsemantics\\\\exp17_thermodynamic_validation.py', 'fractalsemantics\\\\exp18_falloff_thermodynamics.py', 'fractalsemantics\\\\exp18_falloff_thermodynamics.py', 'fractalsemantics\\\\exp19_orbital_equivalence.py', 'fractalsemantics\\\\exp19_orbital_equivalence.py', 'fractalsemantics\\\\exp20_vector_field_derivation.py', 'fractalsemantics\\\\exp20_vector_field_derivation.py', 'fractalsemantics\\\\exp21_earth_moon_sun.py', 'fractalsemantics\\\\exp21_earth_moon_sun.py', 'fractalsemantics\\\\experiment_runner.py', 'fractalsemantics\\\\experiment_runner.py', 'fractalsemantics\\\\fractalsemantics_entity.py', 'fractalsemantics\\\\progress_comm.py', 'fractalsemantics\\\\subprocess_comm.py'])"
+    ]
+  },
+  "summary": {
+    "total_issues": 2,
+    "critical_issues": 0,
+    "quality_score": 90,
+    "recommendations": [
+      "\ud83d\udcdd Refactor code to eliminate code smells",
+      "\u26a1 Optimize performance bottlenecks",
+      "\ud83d\udc0d Consider using type hints for better code quality"
+    ]
+  }
+}

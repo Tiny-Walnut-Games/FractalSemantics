@@ -27,13 +27,19 @@ Usage:
     progress.complete("Analysis complete!")
 """
 
+import ast
+import builtins
+import contextlib
 import json
+import os
 import sys
+import tempfile
 import threading
 import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from pathlib import Path
+from typing import Optional
 
 
 @dataclass
@@ -45,7 +51,7 @@ class ProgressMessage:
     progress_percent: float
     stage: str
     message: str
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[dict[str, any]] = None
     message_type: str = "progress"  # progress, status, warning, error, complete
 
     def to_json(self) -> str:
@@ -81,6 +87,12 @@ class ProgressReporter:
         self._last_message_time = 0.0
         self._min_message_interval = 0.1  # Minimum 100ms between messages
 
+        # Check for progress file path from environment
+        self._progress_file = None
+        progress_file_env = os.environ.get("FRACTALSEMANTICS_PROGRESS_FILE")
+        if progress_file_env:
+            self._progress_file = Path(progress_file_env)
+
     def _should_send_message(self) -> bool:
         """Check if enough time has passed since last message."""
         current_time = time.time()
@@ -91,13 +103,15 @@ class ProgressReporter:
 
     def _send_message(self, message: ProgressMessage) -> bool:
         """
-        Send progress message to stderr.
+        Send progress message to stderr and optionally to file.
 
         Returns:
             True if message was sent successfully, False otherwise
         """
         if not self.enabled:
             return False
+
+        success = False
 
         try:
             # Use a special marker to identify progress messages
@@ -108,24 +122,42 @@ class ProgressReporter:
                 sys.stderr.write(json_line)
                 sys.stderr.flush()
 
-            return True
+            success = True
 
         except (OSError, BrokenPipeError):
             # Communication failed (e.g., stderr closed, pipe broken)
             # This is expected when experiments run independently
-            return False
+            pass
         except Exception:
             # Other unexpected errors - log but don't crash the experiment
             try:
                 with self._lock:
                     sys.stderr.write("__PROGRESS_ERROR__: Failed to send progress message\n")
                     sys.stderr.flush()
-            except:
+            except ast.ParseError:
                 pass
-            return False
+
+        # Also write to file if configured
+        if self._progress_file:
+            try:
+                progress_data = {
+                    "experiment_id": message.experiment_id,
+                    "progress": message.progress_percent,
+                    "stage": message.stage,
+                    "message": message.message,
+                    "timestamp": message.timestamp,
+                    "message_type": message.message_type
+                }
+                if write_progress_to_file(self._progress_file, progress_data):
+                    success = True
+            except Exception:
+                # Silently fail - don't crash experiment for progress reporting
+                pass
+
+        return success
 
     def update(self, progress_percent: float, stage: str, message: str = "",
-               metadata: Optional[Dict[str, Any]] = None) -> bool:
+               metadata: Optional[dict[str, any]] = None) -> bool:
         """
         Report progress update.
 
@@ -156,7 +188,7 @@ class ProgressReporter:
 
         return self._send_message(message_obj)
 
-    def status(self, stage: str, message: str, metadata: Optional[Dict[str, Any]] = None) -> bool:
+    def status(self, stage: str, message: str, metadata: Optional[dict[str, any]] = None) -> bool:
         """
         Report a status update (non-progress message).
 
@@ -183,7 +215,7 @@ class ProgressReporter:
 
         return self._send_message(message_obj)
 
-    def warning(self, stage: str, message: str, metadata: Optional[Dict[str, Any]] = None) -> bool:
+    def warning(self, stage: str, message: str, metadata: Optional[dict[str, any]] = None) -> bool:
         """
         Report a warning message.
 
@@ -210,7 +242,7 @@ class ProgressReporter:
 
         return self._send_message(message_obj)
 
-    def error(self, stage: str, message: str, metadata: Optional[Dict[str, Any]] = None) -> bool:
+    def error(self, stage: str, message: str, metadata: Optional[dict[str, any]] = None) -> bool:
         """
         Report an error message.
 
@@ -238,7 +270,7 @@ class ProgressReporter:
         return self._send_message(message_obj)
 
     def complete(self, message: str = "Experiment completed",
-                 metadata: Optional[Dict[str, Any]] = None) -> bool:
+                 metadata: Optional[dict[str, any]] = None) -> bool:
         """
         Report experiment completion.
 
@@ -315,6 +347,96 @@ def is_progress_message(line: str) -> bool:
     return line.startswith("__PROGRESS__:")
 
 
+def write_progress_to_file(progress_file: Path, progress_data: dict) -> bool:
+    """
+    Write progress data to file atomically.
+
+    Uses temp file + rename pattern to ensure atomic writes and prevent corruption.
+
+    Args:
+        progress_file: Path to the progress file
+        progress_data: Dictionary containing progress information
+
+    Returns:
+        True if write was successful, False otherwise
+    """
+    try:
+        # Ensure directory exists
+        progress_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write to temporary file first
+        temp_fd, temp_path = tempfile.mkstemp(
+            dir=progress_file.parent,
+            prefix=".progress_",
+            suffix=".json.tmp"
+        )
+
+        try:
+            # Write JSON data to temp file
+            with os.fdopen(temp_fd, 'w', encoding='utf-8') as f:
+                json.dump(progress_data, f, ensure_ascii=False, indent=2)
+                f.flush()
+                os.fsync(f.fileno())  # Ensure data is written to disk
+
+            # Atomically rename temp file to target file
+            # On Windows, need to remove target first if it exists
+            if os.name == 'nt' and progress_file.exists():
+                os.replace(temp_path, str(progress_file))
+            else:
+                os.rename(temp_path, str(progress_file))
+
+            return True
+
+        except Exception:
+            # Clean up temp file on error
+            with contextlib.suppress(builtins.BaseException):
+                os.unlink(temp_path)
+            raise
+
+    except Exception:
+        # Silently fail - progress reporting should not crash experiments
+        return False
+
+
+def read_progress_from_file(progress_file: Path) -> Optional[dict]:
+    """
+    Read progress data from file.
+
+    Args:
+        progress_file: Path to the progress file
+
+    Returns:
+        Dictionary containing progress data, or None if file doesn't exist or can't be read
+    """
+    try:
+        if not progress_file.exists():
+            return None
+
+        with open(progress_file, encoding='utf-8') as f:
+            return json.load(f)
+
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def clear_progress_file(progress_file: Path) -> bool:
+    """
+    Clear the progress file.
+
+    Args:
+        progress_file: Path to the progress file
+
+    Returns:
+        True if file was cleared, False otherwise
+    """
+    try:
+        if progress_file.exists():
+            progress_file.unlink()
+        return True
+    except Exception:
+        return False
+
+
 # Convenience functions for backward compatibility and ease of use
 
 def create_progress_reporter(experiment_id: str, enabled: bool = True) -> ProgressReporter:
@@ -334,7 +456,7 @@ def create_progress_reporter(experiment_id: str, enabled: bool = True) -> Progre
 
 
 def report_progress(experiment_id: str, progress_percent: float, stage: str,
-                   message: str = "", metadata: Optional[Dict[str, Any]] = None) -> bool:
+                   message: str = "", metadata: Optional[dict[str, any]] = None) -> bool:
     """
     Convenience function to report progress without creating a reporter instance.
 
@@ -356,7 +478,7 @@ def report_progress(experiment_id: str, progress_percent: float, stage: str,
 
 
 def report_status(experiment_id: str, stage: str, message: str,
-                 metadata: Optional[Dict[str, Any]] = None) -> bool:
+                 metadata: Optional[dict[str, any]] = None) -> bool:
     """
     Convenience function to report a status message.
 
@@ -374,7 +496,7 @@ def report_status(experiment_id: str, stage: str, message: str,
 
 
 def report_completion(experiment_id: str, message: str = "Experiment completed",
-                     metadata: Optional[Dict[str, Any]] = None) -> bool:
+                     metadata: Optional[dict[str, any]] = None) -> bool:
     """
     Convenience function to report experiment completion.
 

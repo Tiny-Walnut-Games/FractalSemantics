@@ -21,7 +21,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional, dict, list
 
 import numpy as np
 
@@ -113,7 +113,7 @@ class ShellBasedFractalMapping:
 # EXP-14 v2: ELECTRON SHELL DATA LOOKUP
 # ============================================================================
 
-def get_electron_shell_data() -> Dict[str, ElectronConfiguration]:
+def get_electron_shell_data() -> dict[str, ElectronConfiguration]:
     """
     Get electron shell configurations for elements.
 
@@ -538,7 +538,7 @@ def get_electron_shell_data() -> Dict[str, ElectronConfiguration]:
 # EXP-14 v2: SHELL-BASED EXPERIMENT IMPLEMENTATION
 # ============================================================================
 
-def create_shell_based_fractal_mapping(element: str, shell_data: Dict[str, ElectronConfiguration]) -> ShellBasedFractalMapping:
+def create_shell_based_fractal_mapping(element: str, shell_data: dict[str, ElectronConfiguration]) -> ShellBasedFractalMapping:
     """
     Create a shell-based mapping from electron configuration to fractal structure.
 
@@ -591,8 +591,8 @@ def create_shell_based_fractal_mapping(element: str, shell_data: Dict[str, Elect
 
 
 def run_atomic_fractal_mapping_experiment_v2(
-    elements_to_test: List[str] = None
-) -> Dict[str, Any]:
+    elements_to_test: list[str] = None
+) -> dict[str, any]:
     """
     Run EXP-14 v2: Shell-Based Atomic-Fractal Mapping.
 
@@ -626,7 +626,7 @@ def run_atomic_fractal_mapping_experiment_v2(
         "exponential_growth": []
     }
 
-    print("Electron Shell → Fractal Structure Mapping:")
+    print("Electron Shell to Fractal Structure Mapping:")
     print("-" * 90)
     print(f"{'Element':<10} {'Config':<15} {'Shells':<7} {'Valence':<8} {'Depth':<6} {'Branch':<7} {'Nodes':<8} {'D=S':<5} {'B~V':<5}")
     print("-" * 90)
@@ -646,7 +646,7 @@ def run_atomic_fractal_mapping_experiment_v2(
             if len(config_short) > 14:
                 config_short = config_short[:11] + "..."
 
-            print(f"{element:<10} {config_short:<15} {mapping.electron_config.shell_count:<7} {mapping.electron_config.valence_electrons:<8} {mapping.fractal_depth:<6} {mapping.branching_factor:<7} {mapping.total_nodes:<8} {'✓' if mapping.depth_matches_shells else '✗':<5} {'✓' if mapping.branching_matches_valence else '✗':<5}")
+            print(f"{element:<10} {config_short:<15} {mapping.electron_config.shell_count:<7} {mapping.electron_config.valence_electrons:<8} {mapping.fractal_depth:<6} {mapping.branching_factor:<7} {mapping.total_nodes:<8} {'Y' if mapping.depth_matches_shells else 'N':<5} {'Y' if mapping.branching_matches_valence else 'N':<5}")
 
         except Exception as e:
             print(f"{element:<10} ERROR: {str(e)[:20]}")
@@ -754,7 +754,7 @@ def run_atomic_fractal_mapping_experiment_v2(
 
 
 # Backward compatibility
-def run_atomic_fractal_mapping_experiment(elements_to_test: List[str] = None) -> Dict[str, Any]:
+def run_atomic_fractal_mapping_experiment(elements_to_test: list[str] = None) -> dict[str, any]:
     """Run EXP-14 v2 (shell-based mapping)."""
     return run_atomic_fractal_mapping_experiment_v2(elements_to_test)
 
@@ -763,7 +763,7 @@ def run_atomic_fractal_mapping_experiment(elements_to_test: List[str] = None) ->
 # CLI & RESULTS PERSISTENCE
 # ============================================================================
 
-def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> str:
+def save_results(results: dict[str, any], output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -813,18 +813,20 @@ if __name__ == "__main__":
         print(f"Output: {output_file}")
 
         if results["success_criteria"]["passed"]:
-            print("\n🎉 SUCCESS: Electron shell structure maps perfectly to fractal hierarchy!")
+            print("\nSUCCESS: Electron shell structure maps perfectly to fractal hierarchy!")
             print("   This confirms that atomic structure IS fractal in nature.")
-            print("   ✓ All elements have depth = shell count")
-            print("   ✓ Branching correlates with valence electrons")
-            print("   ✓ Node growth follows exponential pattern")
+            print("   Y All elements have depth = shell count")
+            print("   Y Branching correlates with valence electrons")
+            print("   Y Node growth follows exponential pattern")
         else:
-            print("\n❌ STRUCTURE MAPPING NEEDS REFINEMENT")
-            print("   Some elements don't follow shell → fractal mapping.")
+            print("\nSTRUCTURE MAPPING NEEDS REFINEMENT")
+            print("   Some elements don't follow shell to fractal mapping.")
             print(f"   Depth accuracy: {results['structure_validation']['depth_accuracy']:.1%}")
             print(f"   Branching accuracy: {results['structure_validation']['branching_accuracy']:.1%}")
 
         print()
+
+        sys.exit(0 if results["success_criteria"]["passed"] else 1)
 
     except Exception as e:
         print(f"\nEXPERIMENT FAILED: {e}")

@@ -24,14 +24,14 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional, dict, list
 
 from fractalsemantics.dynamic_enum import Alignment, Polarity
-from fractalsemantics.fractalsemantics_entity import Coordinates
 
 # Reuse canonical serialization from Phase 1
-from fractalsemantics.fractalsemantics_experiments import (
+from fractalsemantics.fractalsemantics_entity import (
     BitChain,
+    Coordinates,
     canonical_serialize,
     generate_random_bitchain,
 )
@@ -65,7 +65,7 @@ class CompressionStage:
     stage_name: str  # "original", "fragments", "cluster", "glyph", "mist"
     size_bytes: int
     record_count: int
-    key_metadata: Dict[str, Any]  # What survives at this stage
+    key_metadata: dict[str, any]  # What survives at this stage
     luminosity: float  # Activity level / heat
     provenance_intact: bool
 
@@ -80,12 +80,12 @@ class BitChainCompressionPath:
 
     original_bitchain: BitChain
     original_address: str
-    original_fractalsemantics_dict: Dict[str, Any]
+    original_fractalsemantics_dict: dict[str, any]
     original_serialized_size: int
     original_luminosity: float
 
     # Stages
-    stages: List[CompressionStage] = field(default_factory=list)
+    stages: list[CompressionStage] = field(default_factory=list)
 
     # Reconstruction attempt
     reconstructed_address: Optional[str] = None
@@ -98,7 +98,7 @@ class BitChainCompressionPath:
     narrative_preserved: bool = False
     provenance_chain_complete: bool = False
 
-    def calculate_stats(self) -> Dict[str, Any]:
+    def calculate_stats(self) -> dict[str, any]:
         """Compute summary statistics for this compression path."""
         result = {
             "original_realm": self.original_fractalsemantics_dict.get("realm"),
@@ -129,7 +129,7 @@ class CompressionExperimentResults:
     num_bitchains_tested: int
 
     # Per-bitchain paths
-    compression_paths: List[BitChainCompressionPath]
+    compression_paths: list[BitChainCompressionPath]
 
     # Aggregate statistics
     avg_compression_ratio: float
@@ -141,9 +141,9 @@ class CompressionExperimentResults:
 
     # Overall validation
     is_lossless: bool
-    major_findings: List[str] = field(default_factory=list)
+    major_findings: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to serializable dict."""
         return {
             "experiment": "EXP-05",
@@ -389,7 +389,7 @@ class CompressionPipeline:
         return path
 
     def _reconstruct_from_mist(
-        self, path: BitChainCompressionPath, mist: Dict[str, Any]
+        self, path: BitChainCompressionPath, mist: dict[str, any]
     ) -> BitChainCompressionPath:
         """Attempt to reconstruct FractalSemantics coordinates from mist form."""
         try:
@@ -494,9 +494,9 @@ def _print_experiment_header(num_bitchains: int):
     print()
 
 
-def _compress_bitchains(pipeline: CompressionPipeline, num_bitchains: int) -> List[BitChainCompressionPath]:
+def _compress_bitchains(pipeline: CompressionPipeline, num_bitchains: int) -> list[BitChainCompressionPath]:
     """Compress specified number of bit-chains and return paths."""
-    compression_paths: List[BitChainCompressionPath] = []
+    compression_paths: list[BitChainCompressionPath] = []
 
     print("Compressing bit-chains...")
     print("-" * 80)
@@ -513,7 +513,7 @@ def _compress_bitchains(pipeline: CompressionPipeline, num_bitchains: int) -> Li
     return compression_paths
 
 
-def _print_sample_paths(compression_paths: List[BitChainCompressionPath]):
+def _print_sample_paths(compression_paths: list[BitChainCompressionPath]):
     """Print detailed sample compression paths."""
     if not compression_paths:
         return
@@ -542,7 +542,7 @@ def _print_sample_paths(compression_paths: List[BitChainCompressionPath]):
         print(f"  Narrative: {'[Y]' if path.narrative_preserved else '[N]'}")
 
 
-def _compute_aggregate_metrics(compression_paths: List[BitChainCompressionPath]) -> Dict[str, float]:
+def _compute_aggregate_metrics(compression_paths: list[BitChainCompressionPath]) -> dict[str, float]:
     """Compute aggregate statistics from compression paths."""
     compression_ratios = [p.final_compression_ratio for p in compression_paths]
     luminosity_decay_ratios = [
@@ -565,7 +565,7 @@ def _compute_aggregate_metrics(compression_paths: List[BitChainCompressionPath])
     }
 
 
-def _print_aggregate_metrics(metrics: Dict[str, float]):
+def _print_aggregate_metrics(metrics: dict[str, float]):
     """Print aggregate metrics to console."""
     print()
     print("=" * 80)
@@ -581,7 +581,7 @@ def _print_aggregate_metrics(metrics: Dict[str, float]):
     print()
 
 
-def _determine_losslessness(metrics: Dict[str, float]) -> bool:
+def _determine_losslessness(metrics: dict[str, float]) -> bool:
     """Determine if system meets losslessness criteria."""
     return (
         metrics["percent_provenance"] == 100.0
@@ -590,7 +590,7 @@ def _determine_losslessness(metrics: Dict[str, float]) -> bool:
     )
 
 
-def _generate_major_findings(metrics: Dict[str, float], compression_paths: List[BitChainCompressionPath]) -> List[str]:
+def _generate_major_findings(metrics: dict[str, float], compression_paths: list[BitChainCompressionPath]) -> list[str]:
     """Generate major findings based on metrics."""
     findings = []
 
@@ -623,7 +623,7 @@ def _generate_major_findings(metrics: Dict[str, float], compression_paths: List[
     return findings
 
 
-def _print_losslessness_analysis(is_lossless: bool, major_findings: List[str]):
+def _print_losslessness_analysis(is_lossless: bool, major_findings: list[str]):
     """Print final losslessness analysis."""
     print("=" * 80)
     print("LOSSLESSNESS ANALYSIS")

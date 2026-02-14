@@ -6,7 +6,7 @@ Simple TF-IDF based embeddings for offline operation
 import math
 import re
 from collections import Counter
-from typing import Any, Dict, List, Optional, Set
+from typing import Optional
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 
@@ -14,14 +14,14 @@ from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 class LocalEmbeddingProvider(EmbeddingProvider):
     """Local TF-IDF based embedding provider for fallback scenarios."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[dict[str, any]] = None):
         super().__init__(config)
-        self.vocabulary: Set[str] = set()
+        self.vocabulary: set[str] = set()
         self.document_frequency: Counter[str] = Counter()
         self.total_documents = 0
         self.vector_dimension = config.get("dimension", 128) if config else 128
 
-    def embed_text(self, text: str) -> List[float]:
+    def embed_text(self, text: str) -> list[float]:
         """Generate TF-IDF based embedding for text."""
         tokens = self._tokenize(text)
         self._update_vocabulary(tokens)
@@ -31,7 +31,7 @@ class LocalEmbeddingProvider(EmbeddingProvider):
 
         return self._normalize_vector(tfidf_vector)
 
-    def embed_batch(self, texts: List[str]) -> List[List[float]]:
+    def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """Generate embeddings for multiple texts."""
         all_tokens = []
         for text in texts:
@@ -57,7 +57,7 @@ class LocalEmbeddingProvider(EmbeddingProvider):
         """Get embedding dimension."""
         return self.vector_dimension
 
-    def _tokenize(self, text: str) -> List[str]:
+    def _tokenize(self, text: str) -> list[str]:
         """Simple tokenization."""
         text = text.lower()
         tokens = re.findall(r"\b\w+\b", text)
@@ -88,7 +88,7 @@ class LocalEmbeddingProvider(EmbeddingProvider):
 
         return tokens
 
-    def _update_vocabulary(self, tokens: List[str], update_df: bool = True):
+    def _update_vocabulary(self, tokens: list[str], update_df: bool = True):
         """Update vocabulary and document frequency."""
         self.vocabulary.update(tokens)
 
@@ -98,7 +98,7 @@ class LocalEmbeddingProvider(EmbeddingProvider):
             for token in unique_tokens:
                 self.document_frequency[token] += 1
 
-    def _calculate_tf(self, tokens: List[str]) -> Dict[str, float]:
+    def _calculate_tf(self, tokens: list[str]) -> dict[str, float]:
         """Calculate term frequency."""
         token_count = len(tokens)
         if token_count == 0:
@@ -107,7 +107,7 @@ class LocalEmbeddingProvider(EmbeddingProvider):
         tf_dict = Counter(tokens)
         return {token: count / token_count for token, count in tf_dict.items()}
 
-    def _calculate_tfidf(self, tf_vector: Dict[str, float]) -> Dict[str, float]:
+    def _calculate_tfidf(self, tf_vector: dict[str, float]) -> dict[str, float]:
         """Calculate TF-IDF vector."""
         tfidf_vector = {}
 
@@ -118,9 +118,9 @@ class LocalEmbeddingProvider(EmbeddingProvider):
 
         return tfidf_vector
 
-    def _normalize_vector(self, tfidf_vector: Dict[str, float]) -> List[float]:
+    def _normalize_vector(self, tfidf_vector: dict[str, float]) -> list[float]:
         """Convert to fixed-dimension normalized vector."""
-        vocab_list = sorted(list(self.vocabulary))
+        vocab_list = sorted(self.vocabulary)
 
         if len(vocab_list) > self.vector_dimension:
             vocab_list = vocab_list[: self.vector_dimension]

@@ -6,10 +6,10 @@ Based on actual experiment results structure
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, dict, list, tuple
 
 
-def load_experiment_results() -> Dict[str, List[Dict[str, Any]]]:
+def load_experiment_results() -> dict[str, list[dict[str, any]]]:
     """Load all experiment results from the results directory."""
     results_dir = Path(__file__).parent / "results"
     experiment_results = {}
@@ -52,11 +52,11 @@ def load_experiment_results() -> Dict[str, List[Dict[str, Any]]]:
     # Convert to the expected format (list with single most recent result)
     for exp_name, (timestamp, data, file_path) in experiment_latest.items():
         experiment_results[exp_name] = [data]
-        print(f"  {exp_name}: Using most recent result from {file_path.name}")
+        print(f" {timestamp}-{exp_name}: Using most recent result from {file_path.name}")
 
     return experiment_results
 
-def analyze_experiment_results(results: Dict[str, List[Dict[str, Any]]]) -> Dict[str, Any]:
+def analyze_experiment_results(results: dict[str, list[dict[str, any]]]) -> dict[str, any]:
     """Analyze all experiment results and generate summary statistics."""
 
     analysis = {
@@ -92,7 +92,8 @@ def analyze_experiment_results(results: Dict[str, List[Dict[str, Any]]]) -> Dict
         "exp17": validate_exp17,
         "exp18": validate_exp18,
         "exp19": validate_exp19,
-        "exp20": validate_exp20
+        "exp20": validate_exp20,
+        "exp21": validate_exp21
     }
 
     print(f"Analyzing {len(results)} experiments...")
@@ -147,7 +148,7 @@ def analyze_experiment_results(results: Dict[str, List[Dict[str, Any]]]) -> Dict
 
     return analysis
 
-def validate_exp01(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp01(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-01: Address Uniqueness (Geometric Collision Resistance)"""
     findings = []
     metrics = {}
@@ -180,7 +181,7 @@ def validate_exp01(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
     success = metrics.get("collision_resistance", False)
     return success, findings, metrics
 
-def validate_exp02(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp02(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-02: Retrieval Efficiency"""
     findings = []
     metrics = {}
@@ -214,7 +215,7 @@ def validate_exp02(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
     success = metrics.get("retrieval_efficiency", False)
     return success, findings, metrics
 
-def validate_exp03(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp03(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-03: Coordinate Entropy"""
     findings = []
     metrics = {}
@@ -248,7 +249,7 @@ def validate_exp03(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
     success = metrics.get("semantic_diversity", False)
     return success, findings, metrics
 
-def validate_exp04(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp04(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-04: Fractal Scaling"""
     findings = []
     metrics = {}
@@ -294,7 +295,7 @@ def validate_exp04(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp05(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp05(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-05: Compression Expansion"""
     findings = []
     metrics = {}
@@ -333,7 +334,7 @@ def validate_exp05(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp06(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp06(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-06: Entanglement Detection"""
     findings = []
     metrics = {}
@@ -387,7 +388,7 @@ def validate_exp06(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp07(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp07(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-07: Luca Bootstrap"""
     findings = []
     metrics = {}
@@ -436,7 +437,7 @@ def validate_exp07(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp08(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp08(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-08: Self-Organizing Memory"""
     findings = []
     metrics = {}
@@ -483,7 +484,7 @@ def validate_exp08(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp09(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp09(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-09: Memory Pressure"""
     findings = []
     metrics = {}
@@ -530,7 +531,7 @@ def validate_exp09(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp10(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp10(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-10: Multidimensional Query"""
     findings = []
     metrics = {}
@@ -577,7 +578,7 @@ def validate_exp10(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp11(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp11(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-11: Dimension Cardinality"""
     findings = []
     metrics = {}
@@ -618,7 +619,7 @@ def validate_exp11(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp11b(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp11b(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-11b: Dimension Stress Test"""
     findings = []
     metrics = {}
@@ -684,7 +685,7 @@ def validate_exp11b(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dic
 
     return success, findings, metrics
 
-def validate_exp12(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp12(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-12: Benchmark Comparison"""
     findings = []
     metrics = {}
@@ -722,7 +723,7 @@ def validate_exp12(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
     success = metrics.get("semantic_superiority", False) and metrics.get("overall_performance", False)
     return success, findings, metrics
 
-def validate_exp13(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp13(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-13: Fractal Gravity"""
     findings = []
     metrics = {}
@@ -784,7 +785,7 @@ def validate_exp13(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp14(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp14(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-14: Atomic Fractal Mapping"""
     findings = []
     metrics = {}
@@ -823,7 +824,7 @@ def validate_exp14(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp15(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp15(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-15: Topological Conservation"""
     findings = []
     metrics = {}
@@ -868,7 +869,7 @@ def validate_exp15(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp16(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp16(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-16: Hierarchical Distance Mapping"""
     findings = []
     metrics = {}
@@ -879,9 +880,9 @@ def validate_exp16(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
     last_result = results[-1]
 
     # Check specific distance mapping metrics if available
-    if "analysis" in last_result and "distance_mapping_success" in last_result["analysis"]:
-        distance_mapping_success = last_result["analysis"].get("distance_mapping_success", False)
-        if distance_mapping_success:
+    if "analysis" in last_result and "hierarchical_to_euclidean_mapping_confirmed" in last_result["analysis"]:
+        mapping_confirmed = last_result["analysis"].get("hierarchical_to_euclidean_mapping_confirmed", False)
+        if mapping_confirmed:
             findings.append("✓ Distance mapping confirmed - hierarchical to Euclidean mapping validated")
             metrics["distance_mapping"] = True
             success = True
@@ -889,10 +890,10 @@ def validate_exp16(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
             findings.append("✗ Distance mapping failed - hierarchical structure not properly mapped")
             metrics["distance_mapping"] = False
             success = False
-    elif "distance_mapping_success" in last_result:
+    elif "hierarchical_to_euclidean_mapping_confirmed" in last_result:
         # Fallback to top-level field
-        distance_mapping_success = last_result.get("distance_mapping_success", False)
-        if distance_mapping_success:
+        mapping_confirmed = last_result.get("hierarchical_to_euclidean_mapping_confirmed", False)
+        if mapping_confirmed:
             findings.append("✓ Distance mapping confirmed - hierarchical to Euclidean mapping validated")
             metrics["distance_mapping"] = True
             success = True
@@ -907,7 +908,7 @@ def validate_exp16(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp17(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp17(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-17: Thermodynamic Validation"""
     findings = []
     metrics = {}
@@ -947,7 +948,7 @@ def validate_exp17(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp18(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp18(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-18: Falloff Thermodynamics"""
     findings = []
     metrics = {}
@@ -986,7 +987,7 @@ def validate_exp18(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp19(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp19(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-19: Orbital Equivalence"""
     findings = []
     metrics = {}
@@ -1003,6 +1004,7 @@ def validate_exp19(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
         for system_name, system_data in last_result["system_results"].items():
             if system_data.get("equivalence_confirmed", False):
                 equivalence_confirmed = True
+                print(f"✓ Orbital equivalence confirmed for system: {system_name}")
                 break
 
         if equivalence_confirmed:
@@ -1031,7 +1033,7 @@ def validate_exp19(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def validate_exp20(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict[str, Any]]:
+def validate_exp20(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
     """Validate EXP-20: Vector Field Derivation"""
     findings = []
     metrics = {}
@@ -1052,6 +1054,17 @@ def validate_exp20(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
             findings.append("✗ Vector field derivation failed - force emergence not confirmed")
             metrics["vector_field_derivation"] = False
             success = False
+    elif "analysis" in last_result and "vector_field_derivation_successful" in last_result["analysis"]:
+        # Fallback to nested analysis field
+        derivation_successful = last_result["analysis"].get("vector_field_derivation_successful", False)
+        if derivation_successful:
+            findings.append("✓ Vector field derivation confirmed - force emergence validated")
+            metrics["vector_field_derivation"] = True
+            success = True
+        else:
+            findings.append("✗ Vector field derivation failed - force emergence not confirmed")
+            metrics["vector_field_derivation"] = False
+            success = False
     else:
         findings.append("✗ Vector field derivation validation failed")
         metrics["vector_field_derivation"] = False
@@ -1059,7 +1072,52 @@ def validate_exp20(results: List[Dict[str, Any]]) -> Tuple[bool, List[str], Dict
 
     return success, findings, metrics
 
-def generate_summary_report(analysis: Dict[str, Any]) -> str:
+def validate_exp21(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+    """Validate EXP-21: Unified Physics"""
+    findings = []
+    metrics = {}
+
+    if not results:
+        return False, ["No results found for EXP-21"], metrics
+
+    last_result = results[-1]
+
+    # Check specific unified physics validation metrics if available
+    if "analysis" in last_result:
+        analysis = last_result["analysis"]
+        if "unified_physics_confirmed" in analysis:
+            unified_physics_confirmed = analysis.get("unified_physics_confirmed", False)
+            if unified_physics_confirmed:
+                findings.append("✓ Unified physics confirmed - all forces unified under fractal semantics")
+                metrics["unified_physics"] = True
+                success = True
+            else:
+                findings.append("✗ Unified physics failed - forces not properly unified")
+                metrics["unified_physics"] = False
+                success = False
+        else:
+            findings.append("✗ Unified physics validation failed - no confirmation data")
+            metrics["unified_physics"] = False
+            success = False
+    elif "unified_physics_confirmed" in last_result:
+        # Fallback to top-level field
+        unified_physics_confirmed = last_result.get("unified_physics_confirmed", False)
+        if unified_physics_confirmed:
+            findings.append("✓ Unified physics confirmed - all forces unified under fractal semantics")
+            metrics["unified_physics"] = True
+            success = True
+        else:
+            findings.append("✗ Unified physics failed - forces not properly unified")
+            metrics["unified_physics"] = False
+            success = False
+    else:
+        findings.append("✗ Unified physics validation failed")
+        metrics["unified_physics"] = False
+        success = False
+
+    return success, findings, metrics
+
+def generate_summary_report(analysis: dict[str, any]) -> str:
     """Generate a comprehensive summary report."""
 
     report = []
@@ -1125,7 +1183,7 @@ def generate_summary_report(analysis: Dict[str, Any]) -> str:
         report.append("- Collision resistance mechanisms")
         report.append("- Retrieval performance optimization")
         report.append("- Fractal scaling consistency")
-
+        report.append("- Unified physics validation")
     report.append("")
     report.append("RECOMMENDATIONS")
     report.append("-" * 40)
@@ -1169,7 +1227,7 @@ def main():
 
     # Save report
     report_file = Path(__file__).parent / "comprehensive_experiment_analysis.txt"
-    with open(report_file, 'w') as f:
+    with open(report_file, 'w', encoding='utf-8') as f:
         f.write(report)
 
     print(f"\nReport saved to: {report_file}")

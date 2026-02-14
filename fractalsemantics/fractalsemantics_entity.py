@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 from decimal import ROUND_HALF_EVEN, Decimal
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 # Import enums from dynamic_enum to avoid circular import
 from fractalsemantics.dynamic_enum import Alignment, Horizon, Polarity, Realm
@@ -99,7 +99,7 @@ class FractalSemanticsCoordinates:
             alignment=alignment_map[parts[8]],
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to dictionary for JSON serialization"""
         return {
             "realm": self.realm.value,
@@ -126,9 +126,9 @@ class LifecycleEvent:
     timestamp: datetime
     event_type: str  # "birth", "evolution", "mint", etc.
     description: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         return {
             "timestamp": self.timestamp.isoformat(),
             "event_type": self.event_type,
@@ -165,7 +165,7 @@ class FractalSemanticsEntity(ABC):
     fractalsemantics: Optional[FractalSemanticsCoordinates] = None
 
     # Legacy Fields (backward compatibility)
-    legacy_data: Dict[str, Any] = field(default_factory=dict)
+    legacy_data: dict[str, any] = field(default_factory=dict)
     migration_source: Optional[str] = None  # "pet", "badge", etc.
 
     # NFT Status
@@ -175,13 +175,13 @@ class FractalSemanticsEntity(ABC):
     nft_metadata_ipfs: Optional[str] = None
 
     # Entanglement
-    entangled_entities: List[str] = field(default_factory=list)
-    entanglement_strength: List[float] = field(default_factory=list)
+    entangled_entities: list[str] = field(default_factory=list)
+    entanglement_strength: list[float] = field(default_factory=list)
 
     # Temporal
     created_at: datetime = field(default_factory=_utc_now)
     last_activity: datetime = field(default_factory=_utc_now)
-    lifecycle_events: List[LifecycleEvent] = field(default_factory=list)
+    lifecycle_events: list[LifecycleEvent] = field(default_factory=list)
 
     # Owner/User
     owner_id: str = ""
@@ -209,11 +209,11 @@ class FractalSemanticsEntity(ABC):
         """
 
     @abstractmethod
-    def to_collectible_card_data(self) -> Dict[str, Any]:
+    def to_collectible_card_data(self) -> dict[str, any]:
         """Convert entity to collectible card display format"""
 
     @abstractmethod
-    def validate_hybrid_encoding(self) -> Tuple[bool, str]:
+    def validate_hybrid_encoding(self) -> tuple[bool, str]:
         """
         Validate that FractalSemantics coordinates correctly encode legacy data.
         Returns (is_valid, error_message_or_empty_string)
@@ -227,7 +227,7 @@ class FractalSemanticsEntity(ABC):
         self,
         event_type: str,
         description: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: Optional[dict[str, any]] = None,
     ):
         """Record a lifecycle event"""
         event = LifecycleEvent(
@@ -239,7 +239,7 @@ class FractalSemanticsEntity(ABC):
         self.lifecycle_events.append(event)
         self.last_activity = event.timestamp
 
-    def get_event_history(self, limit: Optional[int] = None) -> List[LifecycleEvent]:
+    def get_event_history(self, limit: Optional[int] = None) -> list[LifecycleEvent]:
         """Get lifecycle events, optionally limited to most recent"""
         events = sorted(self.lifecycle_events, key=lambda e: e.timestamp, reverse=True)
         return events[:limit] if limit else events
@@ -272,7 +272,7 @@ class FractalSemanticsEntity(ABC):
                 "entanglement_removed", f"Untangled from {other_entity_id}"
             )
 
-    def get_entanglements(self) -> List[Tuple[str, float]]:
+    def get_entanglements(self) -> list[tuple[str, float]]:
         """Get all entangled entities with strength"""
         return list(zip(self.entangled_entities, self.entanglement_strength))
 
@@ -298,7 +298,7 @@ class FractalSemanticsEntity(ABC):
             raise ValueError("fractalsemantics coordinates must be initialized")
         return self.fractalsemantics.lineage
 
-    def get_luca_trace(self) -> Dict[str, Any]:
+    def get_luca_trace(self) -> dict[str, any]:
         """
         Get path back to LUCA bootstrap origin.
         In a real system, this would trace parent entities.
@@ -319,7 +319,7 @@ class FractalSemanticsEntity(ABC):
     # NFT Integration
     # ========================================================================
 
-    def prepare_for_minting(self) -> Dict[str, Any]:
+    def prepare_for_minting(self) -> dict[str, any]:
         """
         Generate NFT metadata for minting.
         Returns ERC-721/ERC-1155 compatible metadata object.
@@ -379,7 +379,7 @@ class FractalSemanticsEntity(ABC):
     # Serialization
     # ========================================================================
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert entity to dictionary for JSON storage"""
         return {
             "entity_id": self.entity_id,
@@ -423,7 +423,7 @@ class FractalSemanticsEntity(ABC):
     # Display Levels
     # ========================================================================
 
-    def render_zoom_level(self, level: int) -> Dict[str, Any]:
+    def render_zoom_level(self, level: int) -> dict[str, any]:
         """
         Render entity at specific zoom level.
 
@@ -518,11 +518,11 @@ class FractalSemanticsEntity(ABC):
                 "luca_trace": self.get_luca_trace(),
             }
 
-    def _get_realm_details(self) -> Dict[str, Any]:
+    def _get_realm_details(self) -> dict[str, any]:
         """Override in subclasses to provide realm-specific details"""
         return {}
 
-    def _get_alignment_details(self) -> Dict[str, Any]:
+    def _get_alignment_details(self) -> dict[str, any]:
         """Get alignment-based social/coordination analysis"""
         if self.fractalsemantics is None:
             return {}
@@ -550,7 +550,7 @@ class FractalSemanticsEntity(ABC):
             "social_dynamics": self._analyze_social_dynamics(),
         }
 
-    def _analyze_social_dynamics(self) -> Dict[str, Any]:
+    def _analyze_social_dynamics(self) -> dict[str, any]:
         """Analyze social interaction patterns based on entanglement and alignment"""
         if self.fractalsemantics is None:
             return {}
@@ -597,13 +597,13 @@ class FractalSemanticsEntity(ABC):
 # ============================================================================
 
 
-def hash_for_coordinates(data: Dict[str, Any]) -> str:
+def hash_for_coordinates(data: dict[str, any]) -> str:
     """Deterministic hashing for coordinate assignment"""
     json_str = json.dumps(data, sort_keys=True)
     return hashlib.sha256(json_str.encode()).hexdigest()
 
 
-def compute_adjacency_score(tags1: List[str], tags2: List[str]) -> float:
+def compute_adjacency_score(tags1: list[str], tags2: list[str]) -> float:
     """
     Compute adjacency (similarity) score between two tag sets.
     Returns 0-100 score.
@@ -623,7 +623,7 @@ def compute_adjacency_score(tags1: List[str], tags2: List[str]) -> float:
 class DataClass(Enum):
     """Data sensitivity classification."""
 
-    PUBLIC = "PUBLIC"  # Anyone can read
+    PUBLIC = "PUBLIC"  # anyone can read
     SENSITIVE = "SENSITIVE"  # Authenticated users, role-based
     PII = "PII"  # Owner-only, requires 2FA
 
@@ -643,14 +643,14 @@ class Coordinates:
 
     realm: str  # Domain: data, narrative, system, faculty, event, pattern, void, temporal
     lineage: int  # Generation from LUCA
-    adjacency: List[str]  # Relational neighbors (append-only)
+    adjacency: list[str]  # Relational neighbors (append-only)
     horizon: str  # Lifecycle stage
     luminosity: float  # 0-100 activity level
     polarity: Polarity  # pyright: ignore[reportInvalidTypeForm] # Resonance/affinity type
     dimensionality: int  # 0+ fractal depth
     alignment: Alignment  # pyright: ignore[reportInvalidTypeForm] # Social alignment dynamics - NEW DIMENSION
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to dictionary for JSON serialization"""
         return {
             "realm": self.realm,
@@ -682,11 +682,11 @@ class BitChain:
     realm: str  # Domain classification
     coordinates: Coordinates  # FractalSemantics 8D position
     created_at: str  # ISO8601 UTC timestamp
-    state: Dict[str, Any]  # Mutable state data
+    state: dict[str, any]  # Mutable state data
 
     # Security fields (Phase 1)
     data_classification: DataClass = DataClass.PUBLIC
-    access_control_list: List[str] = field(default_factory=lambda: ["owner"])
+    access_control_list: list[str] = field(default_factory=lambda: ["owner"])
     owner_id: Optional[str] = None
     encryption_key_id: Optional[str] = None
 
@@ -694,7 +694,7 @@ class BitChain:
         """Normalize timestamps."""
         self.created_at = normalize_timestamp(self.created_at)
 
-    def to_canonical_dict(self) -> Dict[str, Any]:
+    def to_canonical_dict(self) -> dict[str, any]:
         """Convert to canonical form for hashing."""
         return {
             "created_at": self.created_at,
@@ -753,9 +753,8 @@ def normalize_float(value: float, decimal_places: int = 8) -> str:
     """
     Normalize floating point to 8 decimal places using banker's rounding.
     """
-    if isinstance(value, float):
-        if value != value or value == float("inf") or value == float("-inf"):
-            raise ValueError(f"NaN and Inf not allowed: {value}")
+    if isinstance(value, float) and (value != value or value == float("inf") or value == float("-inf")):
+        raise ValueError(f"NaN and Inf not allowed: {value}")
 
     # Use Decimal for precise rounding
     d = Decimal(str(value))
@@ -790,7 +789,7 @@ def normalize_timestamp(ts: Optional[str] = None) -> str:
     return now.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
 
-def sort_json_keys(obj: Any) -> Any:
+def sort_json_keys(obj: any) -> any:
     """
     Recursively sort all JSON object keys in ASCII order (case-sensitive).
     """
@@ -802,7 +801,7 @@ def sort_json_keys(obj: Any) -> Any:
         return obj
 
 
-def canonical_serialize(data: Dict[str, Any]) -> str:
+def canonical_serialize(data: dict[str, any]) -> str:
     """
     Serialize to canonical form for deterministic hashing.
     Handles enum objects by converting them to string values.
@@ -826,7 +825,7 @@ def canonical_serialize(data: Dict[str, Any]) -> str:
     return canonical
 
 
-def compute_address_hash(data: Dict[str, Any]) -> str:
+def compute_address_hash(data: dict[str, any]) -> str:
     """
     Compute SHA-256 hash of canonical serialization.
     """

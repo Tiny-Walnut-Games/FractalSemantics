@@ -1,6 +1,6 @@
 # FractalSemantics Installation Guide
 
-**Complete validation suite for the STAT7 7-dimensional addressing system**
+- **Complete validation suite for the STAT7 7-dimensional addressing system**
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -27,12 +27,14 @@ python -m fractalsemantics.fractalsemantics_experiments
 ## System Requirements
 
 ### Minimum Requirements
+
 - **Python**: 3.9 or higher
 - **RAM**: 2GB (4GB recommended)
 - **Disk**: 2GB free space
 - **OS**: Linux, macOS, or Windows
 
 ### Recommended Requirements
+
 - **Python**: 3.11+
 - **RAM**: 8GB+
 - **Disk**: 10GB+ free space
@@ -114,6 +116,7 @@ pip install -e .
 ### Raspberry Pi Troubleshooting
 
 #### Memory Issues
+
 If you encounter memory errors:
 
 ```bash
@@ -126,6 +129,7 @@ python -m fractalsemantics.exp01_geometric_collision
 ```
 
 #### PyTorch Installation Issues
+
 ```bash
 # If PyTorch installation fails, try the nightly build
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cpu
@@ -136,6 +140,7 @@ pip install pydantic numpy fastapi uvicorn click tomli
 ```
 
 #### Alternative: Use Pre-built Wheels
+
 ```bash
 # For Raspberry Pi OS 64-bit
 pip install torch==2.0.1+cpu torchvision==0.15.2+cpu torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cpu
@@ -242,7 +247,7 @@ FractalSemantics uses TOML configuration files in `fractalsemantics/config/`:
 ### Core Dependencies
 
 | Package | Version | Purpose |
-|---------|---------|---------|
+| --------- | --------- | --------- |
 | `pydantic` | >=2.0.0 | Data validation and serialization |
 | `numpy` | >=1.20.0 | Numerical computing |
 | `click` | >=8.1.0 | Command-line interface |
@@ -251,7 +256,7 @@ FractalSemantics uses TOML configuration files in `fractalsemantics/config/`:
 ### ML Dependencies (Optional)
 
 | Package | Version | Purpose |
-|---------|---------|---------|
+| --------- | --------- | --------- |
 | `torch` | >=2.0.0 | PyTorch framework |
 | `transformers` | >=4.30.0 | Hugging Face models |
 | `sentence-transformers` | >=2.2.0 | Text embeddings |
@@ -261,7 +266,7 @@ FractalSemantics uses TOML configuration files in `fractalsemantics/config/`:
 ### Development Dependencies
 
 | Package | Version | Purpose |
-|---------|---------|---------|
+| --------- | --------- | --------- |
 | `pytest` | >=7.0.0 | Testing framework |
 | `black` | >=22.0.0 | Code formatting |
 | `ruff` | >=0.1.0 | Fast linter |
@@ -272,6 +277,7 @@ FractalSemantics uses TOML configuration files in `fractalsemantics/config/`:
 ### Common Issues
 
 #### Import Errors
+
 ```bash
 # Reinstall in development mode
 pip install -e .
@@ -281,6 +287,7 @@ python -c "import sys; print(sys.path)"
 ```
 
 #### Memory Errors
+
 ```bash
 # Use development configuration
 export FRACTALSEMANTICS_ENV=dev
@@ -290,6 +297,7 @@ python -m fractalsemantics.exp08_llm_integration --batch-size 1
 ```
 
 #### PyTorch CUDA Issues
+
 ```bash
 # Check CUDA availability
 python -c "import torch; print(torch.cuda.is_available())"
@@ -299,6 +307,7 @@ export USE_CUDA=0
 ```
 
 #### Permission Errors
+
 ```bash
 # Use virtual environment
 python -m venv fractalsemantics_env
@@ -332,11 +341,13 @@ python -m fractalsemantics.fractalsemantics_experiments --profile
 ## Running Experiments
 
 ### All Experiments
+
 ```bash
 python -m fractalsemantics.fractalsemantics_experiments
 ```
 
 ### Individual Experiments
+
 ```bash
 # Geometric collision test
 python -m fractalsemantics.exp01_geometric_collision
@@ -349,6 +360,7 @@ python -m fractalsemantics.exp03_coordinate_entropy
 ```
 
 ### Development Mode (Faster)
+
 ```bash
 export FRACTALSEMANTICS_ENV=dev
 python -m fractalsemantics.fractalsemantics_experiments
@@ -357,6 +369,7 @@ python -m fractalsemantics.fractalsemantics_experiments
 ## Docker Development
 
 ### Development Container
+
 ```dockerfile
 FROM python:3.11-slim
 
@@ -370,6 +383,7 @@ CMD ["python", "-m", "fractalsemantics.fractalsemantics_experiments"]
 ```
 
 ### Raspberry Pi Docker
+
 ```dockerfile
 FROM balenalib/raspberrypi3-64-python:latest
 
@@ -383,6 +397,7 @@ CMD ["python", "-m", "fractalsemantics.exp01_geometric_collision"]
 ## Testing Installation
 
 ### Basic Test
+
 ```bash
 python -c "
 import fractalsemantics
@@ -394,6 +409,7 @@ print(f'✅ Environment: {config.get_environment()}')
 ```
 
 ### Full Test Suite
+
 ```bash
 # Run all tests
 pytest
@@ -418,4 +434,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**Happy experimenting with FractalSemantics! 🚀**
+- **Happy experimenting with FractalSemantics! 🚀**

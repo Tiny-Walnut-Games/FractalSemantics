@@ -9,12 +9,13 @@ Comprehensive Git workflow automation including:
 - Release management
 """
 
+import ast
 import datetime
 import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional, list
 
 
 class GitWorkflow:
@@ -34,10 +35,10 @@ class GitWorkflow:
                 text=True
             )
             return result.returncode == 0
-        except:
+        except ast.ParseError:
             return False
 
-    def _run_command(self, cmd: List[str], description: str) -> bool:
+    def _run_command(self, cmd: list[str], description: str) -> bool:
         """Run a command and return success status."""
         print(f"🔧 {description}")
         print(f"   Command: {' '.join(cmd)}")
@@ -285,7 +286,7 @@ repos:
             "Fetching and pruning remotes"
         )
 
-        # List merged branches
+        # list merged branches
         result = subprocess.run(
             ["git", "branch", "--merged"],
             cwd=self.repo_path,

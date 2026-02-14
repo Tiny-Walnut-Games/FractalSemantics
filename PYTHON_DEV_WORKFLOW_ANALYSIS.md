@@ -7,6 +7,7 @@ The Python development workflow has been analyzed for the FractalSemantics proje
 ## Current Status
 
 ### ✅ **Strengths**
+
 - **Well-structured workflow**: The workflow includes comprehensive checks for code quality, security, testing, and documentation
 - **Tool integration**: Properly configured with modern Python development tools (ruff, black, mypy, pytest)
 - **Virtual environment support**: Handles both system Python and virtual environments
@@ -16,18 +17,21 @@ The Python development workflow has been analyzed for the FractalSemantics proje
 ### ❌ **Issues Identified**
 
 #### 1. Code Quality Issues (930 errors found)
+
 - **Ruff violations**: 930 linting errors across the codebase
 - **Black formatting**: 67 files need reformatting
 - **MyPy type checking**: Multiple type annotation issues
-- **Deprecated typing imports**: Using `typing.Dict` and `typing.List` instead of built-in types
+- **Deprecated typing imports**: Using `typing.dict` and `typing.list` instead of built-in types
 
 #### 2. Configuration Gaps
+
 - **Missing workflow config**: No `.cline-workflow-config.json` file found
 - **Inconsistent tool versions**: Some tools may have version conflicts
 - **Skip steps not configured**: No ability to selectively skip workflow steps
 
 #### 3. Code Quality Problems
-- **Bare except clauses**: Multiple `except:` statements without specific exception types
+
+- **Bare except clauses**: Multiple `except ast.ParseError:` statements without specific exception types
 - **Type annotation issues**: Inconsistent use of typing annotations
 - **Import organization**: Some files have import order issues
 - **Whitespace problems**: Empty lines with whitespace
@@ -37,6 +41,7 @@ The Python development workflow has been analyzed for the FractalSemantics proje
 ### 1. **Immediate Actions Required**
 
 #### Fix Code Quality Issues
+
 ```bash
 # Fix formatting issues
 black .
@@ -49,7 +54,9 @@ mypy . --show-error-codes
 ```
 
 #### Create Workflow Configuration
+
 Create `.cline-workflow-config.json`:
+
 ```json
 {
   "dev_requirements": [
@@ -77,10 +84,12 @@ Create `.cline-workflow-config.json`:
 ### 2. **Code Quality Improvements**
 
 #### Update Type Annotations
+
 Replace deprecated typing imports:
+
 ```python
 # Before
-from typing import Dict, List, Optional
+from typing import dict, list, Optional
 
 # After
 from typing import Optional
@@ -88,12 +97,14 @@ from typing import Optional
 ```
 
 #### Fix Exception Handling
+
 Replace bare except clauses:
+
 ```python
 # Before
 try:
     # code
-except:
+except ast.ParseError:
     pass
 
 # After
@@ -105,7 +116,9 @@ except Exception as e:
 ```
 
 #### Add Type Annotations
+
 Ensure all functions have proper type hints:
+
 ```python
 def function_name(param: str) -> bool:
     """Function description."""
@@ -115,7 +128,9 @@ def function_name(param: str) -> bool:
 ### 3. **Workflow Optimization**
 
 #### Add Pre-commit Hooks
+
 Enhance the existing pre-commit hook configuration:
+
 ```yaml
 # .pre-commit-config.yaml
 repos:
@@ -135,7 +150,9 @@ repos:
 ```
 
 #### CI/CD Integration
+
 Update `.gitlab-ci.yml` to include workflow checks:
+
 ```yaml
 stages:
   - quality
@@ -161,7 +178,9 @@ test:
 ### 4. **Documentation Updates**
 
 #### Update README.md
+
 Add development workflow section:
+
 ```markdown
 ## Development Workflow
 
@@ -179,11 +198,12 @@ python .cline/workflows/python_dev_workflow.py
 ```
 
 To run specific checks:
+
 ```bash
 python .cline/workflows/python_dev_workflow.py check
 ```
-```
 
+```none
 ## Implementation Plan
 
 ### Phase 1: Immediate Fixes (Priority: High)
@@ -243,6 +263,7 @@ python .cline/workflows/python_dev_workflow.py docs
 ```
 
 ### Manual Tool Commands
+
 ```bash
 # Code formatting
 black .

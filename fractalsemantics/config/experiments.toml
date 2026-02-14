@@ -5,7 +5,7 @@
 # For development or CI/CD, use experiments.dev.toml or experiments.ci.toml overrides.
 
 [experiments]
-# List of enabled experiments (EXP-01 through EXP-13, EXP-21 through EXP-25)
+# list of enabled experiments (EXP-01 through EXP-13, EXP-21 through EXP-25)
 enabled = [
     "EXP-01",
     "EXP-02",
@@ -18,6 +18,7 @@ enabled = [
     "EXP-09",
     "EXP-10",
     "EXP-11",
+    "EXP-11b",
     "EXP-12",
     "EXP-13",
     "EXP-14",
@@ -26,7 +27,8 @@ enabled = [
     "EXP-17",
     "EXP-18",
     "EXP-19",
-    "EXP-20"
+    "EXP-20",
+    "EXP-21"
 ]
 
 # EXP-01: Address Uniqueness Test
@@ -123,6 +125,15 @@ sample_size = 100000        # Bit-chains to test per dimension count (fits RAM)
 dimension_counts = [3, 4, 5, 6, 7, 8, 9, 10]  # Dimension counts to test
 test_iterations = 10        # Number of iterations per dimension count (increased for statistical significance)
 
+# EXP-11b: Dimension Cardinality Stress Test
+# Tests system performance and stability under extreme dimension counts (e.g., 2 or 20 dimensions)
+[experiments.EXP-11b]
+name = "Dimension Cardinality Stress Test"
+enabled = true
+sample_size = 100000        # Bit-chains to test per dimension count (fits RAM)
+dimension_counts = [2, 12]  # Extreme dimension counts to test
+test_iterations = 10        # Number of iterations per dimension count (increased for statistical significance
+
 # EXP-12: Benchmark Comparison
 # Compares FractalSemantics/FractalSemantics against common systems
 [experiments.EXP-12]
@@ -206,3 +217,11 @@ enabled = true
 sample_size = 100000        # Number of structures to test (fits RAM)
 vector_field_types = ["electric", "magnetic", "gravitational"]  # Vector field types to test
 test_iterations = 10        # Number of iterations per field type (increased for statistical significance)
+
+# EXP-21: Earth, Moon, and Sun Simulation
+# Tests whether FractalSemantics can simulate the Earth-Moon-Sun system with accurate orbital mechanics and gravitational interactions.
+[experiments.EXP-21]
+name = "Earth, Moon, and Sun Simulation"
+enabled = true
+simulation_duration_days = 365  # Simulate one year of interactions
+time_step_seconds = 3600        # Time step for simulation (1 hour)

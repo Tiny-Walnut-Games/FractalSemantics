@@ -35,7 +35,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 from scipy.integrate import odeint
@@ -80,7 +80,7 @@ class OrbitalSystem:
     """Classical orbital system (e.g., Solar System, binary stars)."""
 
     name: str
-    bodies: List[CelestialBody]
+    bodies: list[CelestialBody]
     central_body: CelestialBody  # Usually the most massive body
 
     def __post_init__(self):
@@ -140,7 +140,7 @@ def simulate_orbital_trajectory(
     time_span: float,
     time_steps: int = 1000,
     G: float = 6.67430e-11
-) -> Dict[str, Any]:
+) -> dict[str, any]:
     """
     Simulate orbital trajectories using classical Newtonian mechanics.
 
@@ -151,7 +151,7 @@ def simulate_orbital_trajectory(
         G: Gravitational constant
 
     Returns:
-        Dictionary with trajectory data for all bodies
+        dictionary with trajectory data for all bodies
     """
     dt = time_span / time_steps
     times = np.linspace(0, time_span, time_steps)
@@ -252,7 +252,7 @@ class FractalBody:
     name: str
     fractal_density: float  # Maps to mass (higher density = more massive)
     hierarchical_depth: int  # Maps to orbital distance (deeper = farther)
-    tree_address: List[int]  # Hierarchical position in fractal tree
+    tree_address: list[int]  # Hierarchical position in fractal tree
 
     # Derived orbital properties
     @property
@@ -274,7 +274,7 @@ class FractalOrbitalSystem:
     """Fractal representation of an orbital system."""
 
     name: str
-    bodies: List[FractalBody]
+    bodies: list[FractalBody]
     central_body: FractalBody
     max_hierarchy_depth: int
     cohesion_constant: float = 1.0  # Base cohesion strength
@@ -334,7 +334,7 @@ def simulate_fractal_trajectory(
     system: FractalOrbitalSystem,
     time_span: float,
     time_steps: int = 1000
-) -> Dict[str, Any]:
+) -> dict[str, any]:
     """
     Simulate orbital trajectories using fractal cohesion mechanics.
 
@@ -344,7 +344,7 @@ def simulate_fractal_trajectory(
         time_steps: Number of time steps
 
     Returns:
-        Dictionary with trajectory data for all bodies
+        dictionary with trajectory data for all bodies
     """
     dt = time_span / time_steps
     times = np.linspace(0, time_span, time_steps)
@@ -398,6 +398,8 @@ def simulate_fractal_trajectory(
                 positions.append([x, y, 0.0])
                 velocities.append([vx, vy, 0.0])
 
+                print(f"Step {t}/{time_steps}: pos=({x:.2e}, {y:.2e}), vel=({vx:.2e}, {vy:.2e}), acc=({acc[0]:.2e}, {acc[1]:.2e})")
+
         trajectories[body.name] = {
             'times': times.tolist(),
             'positions': positions,
@@ -417,9 +419,9 @@ class TrajectoryComparison:
     """Comparison between classical and fractal trajectory predictions."""
 
     body_name: str
-    classical_positions: List[List[float]]
-    fractal_positions: List[List[float]]
-    times: List[float]
+    classical_positions: list[list[float]]
+    fractal_positions: list[list[float]]
+    times: list[float]
 
     # Comparison metrics
     position_correlation: float = field(init=False)
@@ -537,9 +539,9 @@ class OrbitalEquivalenceTest:
     """Results from testing orbital equivalence between frameworks."""
 
     system_name: str
-    classical_trajectories: Dict[str, Any]
-    fractal_trajectories: Dict[str, Any]
-    comparisons: Dict[str, TrajectoryComparison]
+    classical_trajectories: dict[str, any]
+    fractal_trajectories: dict[str, any]
+    comparisons: dict[str, TrajectoryComparison]
 
     # Overall equivalence metrics
     average_position_correlation: float = field(init=False)
@@ -580,7 +582,7 @@ class OrbitalEquivalenceTest:
 # KNOWN ORBITAL SYSTEMS SETUP
 # ============================================================================
 
-def create_earth_sun_system() -> Tuple[OrbitalSystem, FractalOrbitalSystem]:
+def create_earth_sun_system() -> tuple[OrbitalSystem, FractalOrbitalSystem]:
     """Create Earth-Sun system in both classical and fractal representations."""
 
     # Classical representation
@@ -632,7 +634,7 @@ def create_earth_sun_system() -> Tuple[OrbitalSystem, FractalOrbitalSystem]:
     return classical_system, fractal_system
 
 
-def create_solar_system() -> Tuple[OrbitalSystem, FractalOrbitalSystem]:
+def create_solar_system() -> tuple[OrbitalSystem, FractalOrbitalSystem]:
     """Create simplified Solar System in both representations."""
 
     # Classical representation (inner planets only for simplicity)
@@ -687,7 +689,7 @@ def add_rogue_planet_perturbation(
     classical_system: OrbitalSystem,
     fractal_system: FractalOrbitalSystem,
     perturbation_time: float
-) -> Tuple[OrbitalSystem, FractalOrbitalSystem]:
+) -> tuple[OrbitalSystem, FractalOrbitalSystem]:
     """
     Add a rogue planet perturbation to both systems.
 
@@ -819,7 +821,7 @@ def run_orbital_equivalence_test(
 
     # Compare trajectories
     comparisons = {}
-    for body_name in classical_trajectories.keys():
+    for body_name in classical_trajectories:
         if body_name in fractal_trajectories:
             classical_pos = classical_trajectories[body_name]['positions']
             fractal_pos = fractal_trajectories[body_name]['positions']
@@ -856,7 +858,7 @@ def run_orbital_equivalence_test(
         )
 
         # Compare perturbation responses
-        for body_name in perturbed_classical_traj.keys():
+        for body_name in perturbed_classical_traj:
             if body_name in perturbed_fractal_traj and body_name != "Rogue Planet":
                 # Extend original trajectories with perturbed segments
                 orig_classical = classical_trajectories[body_name]['positions']
@@ -917,11 +919,11 @@ class EXP19_Results:
     total_duration_seconds: float
 
     # Test configurations
-    systems_tested: List[str]
+    systems_tested: list[str]
     include_perturbation: bool
 
     # Results for each system
-    system_results: Dict[str, OrbitalEquivalenceTest]
+    system_results: dict[str, OrbitalEquivalenceTest]
 
     # Cross-system analysis
     gravitational_constant_derived: bool  # Can we derive G from fractal parameters?

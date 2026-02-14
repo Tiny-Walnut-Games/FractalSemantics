@@ -37,7 +37,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Optional
 
 import numpy as np
 
@@ -341,7 +341,7 @@ class VectorFieldDerivationSystem:
         ]
 
     def derive_all_vectors(self, entity_a: FractalEntity, entity_b: FractalEntity,
-                          scalar_magnitude: float) -> List[VectorFieldResult]:
+                          scalar_magnitude: float) -> list[VectorFieldResult]:
         """Derive force vectors using all approaches."""
         results = []
 
@@ -378,9 +378,9 @@ class OrbitalTrajectory:
 
     approach_name: str
     times: np.ndarray
-    positions: List[np.ndarray]  # List of [x,y,z] positions
-    velocities: List[np.ndarray]  # List of [vx,vy,vz] velocities
-    energies: List[float]  # Total energy at each time step
+    positions: list[np.ndarray]  # list of [x,y,z] positions
+    velocities: list[np.ndarray]  # list of [vx,vy,vz] velocities
+    energies: list[float]  # Total energy at each time step
 
     # Trajectory quality metrics
     trajectory_similarity: float = field(init=False)
@@ -480,6 +480,8 @@ def integrate_orbit_with_vector_field(
         current_pos = new_pos
         current_vel = new_vel
 
+        print(f"Time {times[i]:.2f}s: pos=({current_pos[0]:.2e}, {current_pos[1]:.2e}), vel=({current_vel[0]:.2e}, {current_vel[1]:.2e}), energy={energies[-1]:.2e}")
+
     return OrbitalTrajectory(
         approach_name=vector_approach.name,
         times=times,
@@ -500,7 +502,7 @@ def create_continuous_vector_field(
     scalar_magnitude: float,
     grid_resolution: int = 50,
     field_bounds: float = 2e11  # 2 AU in meters
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
     Create a continuous 3D vector field from discrete fractal interactions.
 
@@ -512,7 +514,7 @@ def create_continuous_vector_field(
         field_bounds: Spatial extent of the field (meters)
 
     Returns:
-        Tuple of (X, Y, Z, Fx, Fy, Fz) grid arrays
+        tuple of (X, Y, Z, Fx, Fy, Fz) grid arrays
     """
     # Create spatial grid
     grid_1d = np.linspace(-field_bounds, field_bounds, grid_resolution)
@@ -784,7 +786,7 @@ class TrajectoryComparison:
 # CELESTIAL SYSTEM DEFINITIONS
 # ============================================================================
 
-def create_earth_sun_fractal_entities() -> Tuple[FractalEntity, FractalEntity]:
+def create_earth_sun_fractal_entities() -> tuple[FractalEntity, FractalEntity]:
     """Create Earth-Sun system with fractal properties."""
 
     # Sun parameters (from EXP-14 and EXP-13)
@@ -812,7 +814,7 @@ def create_earth_sun_fractal_entities() -> Tuple[FractalEntity, FractalEntity]:
     return earth, sun
 
 
-def create_solar_system_fractal_entities() -> List[FractalEntity]:
+def create_solar_system_fractal_entities() -> list[FractalEntity]:
     """Create multiple planets in fractal representation."""
 
     # Central Sun
@@ -898,9 +900,9 @@ class InverseSquareValidation:
 
     approach_name: str
     correlation_with_inverse_square: float
-    test_distances: List[float]
-    measured_magnitudes: List[float]
-    theoretical_magnitudes: List[float]
+    test_distances: list[float]
+    measured_magnitudes: list[float]
+    theoretical_magnitudes: list[float]
 
     inverse_square_confirmed: bool
 
@@ -914,13 +916,13 @@ class EXP20_VectorFieldResults:
     total_duration_seconds: float
 
     # Test systems
-    systems_tested: List[str]
+    systems_tested: list[str]
 
     # Results for each approach on each system
-    approach_results: Dict[str, Dict[str, VectorFieldTestResult]]
+    approach_results: dict[str, dict[str, VectorFieldTestResult]]
 
     # Inverse-square law validation
-    inverse_square_validations: Dict[str, InverseSquareValidation]
+    inverse_square_validations: dict[str, InverseSquareValidation]
 
     # Cross-approach analysis
     best_approach: str
@@ -937,7 +939,7 @@ class EXP20_VectorFieldResults:
 def test_vector_field_approaches(
     system_name: str = "Earth-Sun",
     scalar_magnitude: float = 3.54e22  # From EXP-13 results
-) -> Dict[str, VectorFieldTestResult]:
+) -> dict[str, VectorFieldTestResult]:
     """
     Test all vector field derivation approaches on a celestial system.
 
@@ -1092,6 +1094,8 @@ def compute_newtonian_trajectory(
         potential = -G * central_body.mass * orbiting_body.mass / r if r > 0 else 0
         energies.append(kinetic + potential)
 
+        print(f"Time {t:.2f}s: pos=({pos[0]:.2e}, {pos[1]:.2e}), vel=({vel[0]:.2e}, {vel[1]:.2e}), energy={energies[-1]:.2e}")
+
     return OrbitalTrajectory(
         approach_name="Newtonian",
         times=times,
@@ -1162,7 +1166,7 @@ def validate_inverse_square_law_for_approach(
 
 
 def run_exp20_vector_field_derivation(
-    systems_to_test: List[str] = None,
+    systems_to_test: list[str] = None,
     validate_inverse_square: bool = True
 ) -> EXP20_VectorFieldResults:
     """

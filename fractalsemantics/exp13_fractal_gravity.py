@@ -32,7 +32,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Optional
 
 import numpy as np
 
@@ -63,7 +63,7 @@ class FractalNode:
 
     element: str  # Element type (gold, nickel, etc.)
     hierarchical_depth: int  # Depth in fractal tree (0 = root, 1 = child, etc.)
-    tree_address: List[int]  # Address in tree (e.g., [0, 2, 1] = grandchild of second child of root)
+    tree_address: list[int]  # Address in tree (e.g., [0, 2, 1] = grandchild of second child of root)
 
     def __repr__(self):
         return f"Node({self.element}, depth={self.hierarchical_depth}, addr={self.tree_address})"
@@ -88,7 +88,7 @@ class FractalHierarchy:
     element: str
     max_depth: int
     branching_factor: int
-    nodes_by_depth: Dict[int, List[FractalNode]]
+    nodes_by_depth: dict[int, list[FractalNode]]
 
     @classmethod
     def build(cls, element_type: str, max_depth: int, branching_factor: int = 3):
@@ -108,13 +108,15 @@ class FractalHierarchy:
             for parent_idx in range(parent_count):
                 # Each parent has branching_factor children
                 for child_idx in range(branching_factor):
-                    child_addr = [parent_idx, child_idx]
+                    # Child address is parent address + child index
+                    parent_addr = instance.nodes_by_depth[depth - 1][parent_idx].tree_address
+                    child_addr = parent_addr + [child_idx]
                     child = FractalNode(element_type, depth, child_addr)
                     instance.nodes_by_depth[depth].append(child)
 
         return instance
 
-    def get_all_nodes(self) -> List[FractalNode]:
+    def get_all_nodes(self) -> list[FractalNode]:
         """Get all nodes in the hierarchy."""
         all_nodes = []
         for nodes in self.nodes_by_depth.values():
@@ -140,6 +142,8 @@ class FractalHierarchy:
                 break
 
         # Distance = hops up to ancestor + hops down
+        # For parent-child: parent at depth 0, child at depth 1, common_depth = 0
+        # Distance = (1 - 0) + (0 - 0) = 1 ✓
         distance = (len(addr_a) - common_depth) + (len(addr_b) - common_depth)
         return max(1, distance)  # Minimum distance of 1
 
@@ -161,7 +165,7 @@ class ElementGravityResults:
 
     element: str
     total_measurements: int
-    cohesion_by_hierarchical_distance: Dict[int, Dict[str, Any]]
+    cohesion_by_hierarchical_distance: dict[int, dict[str, any]]
     element_fractal_density: float  # Derived property
 
     # Key metrics (calculated in __post_init__)
@@ -181,8 +185,15 @@ class ElementGravityResults:
 
         means = []
         for dist_data in self.cohesion_by_hierarchical_distance.values():
-            if 'natural' in dist_data and dist_data['natural']['measurements']:
-                means.append(dist_data['natural']['mean'])
+            if 'natural' in dist_data:
+                # Handle both old format (with 'measurements') and new format (with 'mean')
+                if 'measurements' in dist_data['natural']:
+                    measurements = dist_data['natural']['measurements']
+                    if measurements:
+                        mean_val = sum(measurements) / len(measurements)
+                        means.append(mean_val)
+                elif 'mean' in dist_data['natural']:
+                    means.append(dist_data['natural']['mean'])
 
         if len(means) <= 1:
             self.natural_cohesion_flatness = 1.0  # Single distance = perfectly flat
@@ -207,9 +218,17 @@ class ElementGravityResults:
         measured_means = []
 
         for h_dist, dist_data in self.cohesion_by_hierarchical_distance.items():
-            if 'falloff' in dist_data and dist_data['falloff']['measurements']:
-                distances.append(h_dist)
-                measured_means.append(dist_data['falloff']['mean'])
+            if 'falloff' in dist_data:
+                # Handle both old format (with 'measurements') and new format (with 'mean')
+                if 'measurements' in dist_data['falloff']:
+                    measurements = dist_data['falloff']['measurements']
+                    if measurements:
+                        mean_val = sum(measurements) / len(measurements)
+                        distances.append(h_dist)
+                        measured_means.append(mean_val)
+                elif 'mean' in dist_data['falloff']:
+                    distances.append(h_dist)
+                    measured_means.append(dist_data['falloff']['mean'])
 
         if len(distances) < 2:
             self.falloff_pattern_consistency = 0.5  # Insufficient data
@@ -250,9 +269,9 @@ class EXP13v2_GravityTestResults:
     start_time: str
     end_time: str
     total_duration_seconds: float
-    elements_tested: List[str]
-    element_results: Dict[str, ElementGravityResults]
-    measurements: List[HierarchicalCohesionMeasurement]
+    elements_tested: list[str]
+    element_results: dict[str, ElementGravityResults]
+    measurements: list[HierarchicalCohesionMeasurement]
 
     # Cross-element analysis
     fractal_no_falloff_confirmed: bool  # Natural cohesion is constant across hierarchy
@@ -457,7 +476,7 @@ def run_hierarchical_gravity_test_for_element(
 
 
 def run_fractal_gravity_experiment_v2(
-    elements_to_test: List[str] = None,
+    elements_to_test: list[str] = None,
     max_hierarchy_depth: int = 5,
     interaction_samples: int = 5000
 ) -> EXP13v2_GravityTestResults:
@@ -467,7 +486,7 @@ def run_fractal_gravity_experiment_v2(
     This version properly isolates hierarchical properties from spatial coordinates.
 
     Args:
-        elements_to_test: List of element types to test
+        elements_to_test: list of element types to test
         max_hierarchy_depth: Maximum depth of fractal tree to build
         interaction_samples: Number of random node pairs to test per element
 
@@ -553,7 +572,7 @@ def run_fractal_gravity_experiment_v2(
     return results
 
 
-def analyze_fractal_no_falloff(element_results: Dict[str, ElementGravityResults]) -> bool:
+def analyze_fractal_no_falloff(element_results: dict[str, ElementGravityResults]) -> bool:
     """
     Analyze if natural cohesion shows no falloff (constant across hierarchy).
 
@@ -581,7 +600,7 @@ def analyze_fractal_no_falloff(element_results: Dict[str, ElementGravityResults]
         return std_flatness < 0.001  # Absolute tolerance for near-zero means
 
 
-def analyze_universal_falloff_mechanism(element_results: Dict[str, ElementGravityResults]) -> bool:
+def analyze_universal_falloff_mechanism(element_results: dict[str, ElementGravityResults]) -> bool:
     """Analyze if falloff produces the same mathematical pattern across elements."""
     if len(element_results) < 2:
         return True
@@ -592,7 +611,7 @@ def analyze_universal_falloff_mechanism(element_results: Dict[str, ElementGravit
     return all(score > 0.9 for score in consistency_scores)
 
 
-def analyze_mass_fractal_correlation(element_results: Dict[str, ElementGravityResults]) -> float:
+def analyze_mass_fractal_correlation(element_results: dict[str, ElementGravityResults]) -> float:
     """Analyze correlation between fractal density and element properties."""
     if not element_results:
         return 0.0
@@ -605,7 +624,7 @@ def analyze_mass_fractal_correlation(element_results: Dict[str, ElementGravityRe
 
 # Backward compatibility: keep old function name but use new implementation
 def run_fractal_gravity_experiment(
-    elements_to_test: List[str] = None,
+    elements_to_test: list[str] = None,
     population_size: int = 5,  # Much smaller for hierarchical test
     interaction_samples: int = 5000
 ) -> EXP13v2_GravityTestResults:
@@ -613,7 +632,7 @@ def run_fractal_gravity_experiment(
     Run EXP-13: Fractal Gravity Without Falloff (v2 - Pure Hierarchical)
 
     Args:
-        elements_to_test: List of element types to test
+        elements_to_test: list of element types to test
         population_size: Maps to max_hierarchy_depth in v2
         interaction_samples: Number of random node pairs to test per element
 

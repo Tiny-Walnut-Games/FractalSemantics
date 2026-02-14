@@ -1,0 +1,13 @@
+{
+  "analyzer_config": {
+    "enabled_categories": [
+      "complexity",
+      "coverage",
+      "architecture"
+    ],
+    "complexity_thresholds": {
+      "function": 10,
+      "class": 20
+    }
+  }
+}

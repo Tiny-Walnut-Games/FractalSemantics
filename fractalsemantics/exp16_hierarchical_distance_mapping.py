@@ -33,7 +33,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 
@@ -69,6 +69,8 @@ try:
     )
 except ImportError:
     # Fallback: define minimal versions needed for distance mapping
+    from typing import tuple
+
     import numpy as np
 
     @dataclass
@@ -131,7 +133,7 @@ except ImportError:
 
         return directional_magnitude * direction
 
-    def create_earth_sun_fractal_entities() -> Tuple[FractalEntity, FractalEntity]:
+    def create_earth_sun_fractal_entities() -> tuple[FractalEntity, FractalEntity]:
         """Create Earth-Sun system with fractal properties."""
 
         # Sun parameters (from EXP-14 and EXP-13)
@@ -165,7 +167,7 @@ except ImportError:
         scalar_magnitude: float,
         time_span: float,
         time_steps: int = 1000
-    ) -> Any:
+    ) -> any:
         """
         Simplified orbital integration for distance mapping validation.
 
@@ -243,6 +245,8 @@ except ImportError:
             current_pos = new_pos
             current_vel = new_vel
 
+            print(f"Step {i}/{time_steps}: pos={current_pos}, vel={current_vel}, energy={energies[-1]}")
+
         # Return simplified trajectory object
         class SimplifiedTrajectory:
             def __init__(self, positions, velocities, energies, mass):
@@ -266,7 +270,7 @@ class EmbeddedFractalHierarchy:
     """
     hierarchy: FractalHierarchy
     embedding_type: str
-    positions: Dict[FractalNode, np.ndarray]  # node -> [x,y,z] position
+    positions: dict[FractalNode, np.ndarray]  # node -> [x,y,z] position
     scale_factor: float = 1.0
 
     def get_euclidean_distance(self, node_a: FractalNode, node_b: FractalNode) -> float:
@@ -511,7 +515,7 @@ class DistanceMappingAnalysis:
     Analysis of distance mapping for an embedded hierarchy.
     """
     embedding: EmbeddedFractalHierarchy
-    distance_pairs: List[DistancePair]
+    distance_pairs: list[DistancePair]
 
     # Power-law fitting results
     power_law_exponent: float = field(init=False)
@@ -578,8 +582,8 @@ class ForceScalingValidation:
     Validation of force scaling consistency between hierarchical and Euclidean approaches.
     """
     embedding_analysis: DistanceMappingAnalysis
-    hierarchical_forces: List[float]
-    euclidean_forces: List[float]
+    hierarchical_forces: list[float]
+    euclidean_forces: list[float]
 
     # Force scaling analysis
     force_correlation: float = field(init=False)
@@ -607,7 +611,7 @@ class ForceScalingValidation:
 # EXP-16: EMBEDDING AND MEASUREMENT FUNCTIONS
 # ============================================================================
 
-def create_embedding_strategies() -> List[EmbeddingStrategy]:
+def create_embedding_strategies() -> list[EmbeddingStrategy]:
     """Create all available embedding strategies."""
     return [
         ExponentialEmbedding(),
@@ -616,7 +620,7 @@ def create_embedding_strategies() -> List[EmbeddingStrategy]:
     ]
 
 
-def measure_distances_in_embedding(embedding: EmbeddedFractalHierarchy, num_samples: int = 1000) -> List[DistancePair]:
+def measure_distances_in_embedding(embedding: EmbeddedFractalHierarchy, num_samples: int = 1000) -> list[DistancePair]:
     """
     Measure distance pairs in an embedded hierarchy.
 
@@ -625,7 +629,7 @@ def measure_distances_in_embedding(embedding: EmbeddedFractalHierarchy, num_samp
         num_samples: Number of random node pairs to measure
 
     Returns:
-        List of distance measurements
+        list of distance measurements
     """
     all_nodes = list(embedding.positions.keys())
     if len(all_nodes) < 2:
@@ -691,17 +695,11 @@ def validate_force_scaling(
         e_dist = pair.euclidean_distance
 
         # Hierarchical force (inverse-square on hierarchical distance)
-        if h_dist > 0:
-            h_force = scalar_magnitude / (h_dist ** 2)
-        else:
-            h_force = scalar_magnitude
+        h_force = scalar_magnitude / h_dist ** 2 if h_dist > 0 else scalar_magnitude
         hierarchical_forces.append(h_force)
 
         # Euclidean force (Newtonian inverse-square)
-        if e_dist > 0:
-            e_force = scalar_magnitude / (e_dist ** 2)
-        else:
-            e_force = scalar_magnitude
+        e_force = scalar_magnitude / e_dist ** 2 if e_dist > 0 else scalar_magnitude
         euclidean_forces.append(e_force)
 
     return ForceScalingValidation(
@@ -745,7 +743,7 @@ class EXP16_DistanceMappingResults:
     distance_samples: int
 
     # Results for each embedding strategy
-    embedding_results: Dict[str, EmbeddingTestResult]
+    embedding_results: dict[str, EmbeddingTestResult]
 
     # Cross-strategy analysis
     best_embedding_strategy: str
@@ -832,7 +830,7 @@ def test_embedding_strategy(
 def run_exp16_distance_mapping_experiment(
     hierarchy_depth: int = 5,
     branching_factor: int = 3,
-    scale_factors: List[float] = None,
+    scale_factors: list[float] = None,
     distance_samples: int = 1000
 ) -> EXP16_DistanceMappingResults:
     """

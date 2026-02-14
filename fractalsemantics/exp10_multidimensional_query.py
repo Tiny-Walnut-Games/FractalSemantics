@@ -35,7 +35,7 @@ from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 # Import subprocess communication for enhanced progress reporting
 try:
@@ -67,7 +67,7 @@ class QueryPattern:
 
     pattern_name: str
     description: str
-    dimensions_used: List[str]
+    dimensions_used: list[str]
     complexity_level: str  # "simple", "medium", "complex", "expert"
     real_world_use_case: str
 
@@ -109,7 +109,7 @@ class MultiDimensionalQueryResults:
 
     # Dataset information
     dataset_size: int = 0
-    dimensions_coverage: Dict[str, int] = field(default_factory=dict)
+    dimensions_coverage: dict[str, int] = field(default_factory=dict)
     coordinate_diversity: float = 0.0
 
     # Query performance metrics
@@ -120,26 +120,26 @@ class MultiDimensionalQueryResults:
     query_throughput_qps: float = 0.0
 
     # Optimization effectiveness
-    optimization_strategies: List[str] = field(default_factory=list)
+    optimization_strategies: list[str] = field(default_factory=list)
     optimization_improvement: float = 0.0
     indexing_efficiency: float = 0.0
     caching_effectiveness: float = 0.0
 
     # Real-world applicability
-    use_case_validation: Dict[str, bool] = field(default_factory=dict)
+    use_case_validation: dict[str, bool] = field(default_factory=dict)
     practical_value_score: float = 0.0
     scalability_score: float = 0.0
 
     # Detailed results
-    query_results: List[QueryResult] = field(default_factory=list)
-    optimizer_results: List[Dict[str, Any]] = field(default_factory=list)
-    performance_benchmarks: Dict[str, float] = field(default_factory=dict)
+    query_results: list[QueryResult] = field(default_factory=list)
+    optimizer_results: list[dict[str, any]] = field(default_factory=list)
+    performance_benchmarks: dict[str, float] = field(default_factory=dict)
 
     def __post_init__(self):
         if self.timestamp == "":
             self.timestamp = datetime.now(timezone.utc).isoformat()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to dictionary."""
         result = asdict(self)
         # Convert query results to list of dicts
@@ -167,17 +167,17 @@ class MultiDimensionalQueryEngine:
             dataset_size: Size of the test dataset
         """
         self.dataset_size = dataset_size
-        self.bit_chains: List[BitChain] = []
-        self.query_index: Dict[str, List[int]] = defaultdict(list)
-        self.query_cache: Dict[str, List[int]] = {}
+        self.bit_chains: list[BitChain] = []
+        self.query_index: dict[str, list[int]] = defaultdict(list)
+        self.query_cache: dict[str, list[int]] = {}
 
         # Performance tracking
-        self.query_times: List[float] = []
+        self.query_times: list[float] = []
         self.cache_hits = 0
         self.cache_misses = 0
 
         # Optimization strategies
-        self.optimizers: List[QueryOptimizer] = [
+        self.optimizers: list[QueryOptimizer] = [
             QueryOptimizer(
                 strategy_name="Dimensional Indexing",
                 description="Create indexes for each FractalSemantics dimension",
@@ -358,7 +358,7 @@ class MultiDimensionalQueryEngine:
         key_data = f"{query_pattern.pattern_name}_{query_pattern.complexity_level}"
         return hashlib.md5(key_data.encode()).hexdigest()
 
-    def _execute_query_pattern(self, query_pattern: QueryPattern) -> List[int]:
+    def _execute_query_pattern(self, query_pattern: QueryPattern) -> list[int]:
         """Execute specific query pattern."""
         if query_pattern.pattern_name == "Realm-Specific Search":
             return self._query_realm_specific(query_pattern)
@@ -374,7 +374,7 @@ class MultiDimensionalQueryEngine:
             # Default: return all indices (worst case)
             return list(range(len(self.bit_chains)))
 
-    def _query_realm_specific(self, query_pattern: QueryPattern) -> List[int]:
+    def _query_realm_specific(self, query_pattern: QueryPattern) -> list[int]:
         """Query for specific realm with additional constraints."""
         # Find indices for specific realm
         target_realm = secure_random.choice(['data', 'narrative', 'system', 'faculty', 'event', 'pattern', 'void'])
@@ -401,7 +401,7 @@ class MultiDimensionalQueryEngine:
 
         return filtered_indices
 
-    def _query_semantic_similarity(self, query_pattern: QueryPattern) -> List[int]:
+    def _query_semantic_similarity(self, query_pattern: QueryPattern) -> list[int]:
         """Query for semantically similar bit-chains using indexed approach."""
         # Select a reference bit-chain
         reference_idx = secure_random.randint(0, len(self.bit_chains) - 1)
@@ -448,7 +448,7 @@ class MultiDimensionalQueryEngine:
 
         return similar_indices
 
-    def _calculate_semantic_similarity(self, coords1: Dict[str, Any], coords2: Dict[str, Any]) -> float:
+    def _calculate_semantic_similarity(self, coords1: dict[str, any], coords2: dict[str, any]) -> float:
         """Calculate semantic similarity between two coordinate sets."""
         similarities = []
 
@@ -491,7 +491,7 @@ class MultiDimensionalQueryEngine:
         else:
             return sum(similarities) / len(similarities) if similarities else 0.0
 
-    def _query_multi_dimensional_filter(self, query_pattern: QueryPattern) -> List[int]:
+    def _query_multi_dimensional_filter(self, query_pattern: QueryPattern) -> list[int]:
         """Query with multiple dimension constraints using indexed approach."""
         # Use index intersection for efficient filtering
         target_realms = ['data', 'narrative', 'system', 'faculty', 'event', 'pattern', 'void']
@@ -534,7 +534,7 @@ class MultiDimensionalQueryEngine:
 
         return filtered_indices
 
-    def _query_temporal_pattern(self, query_pattern: QueryPattern) -> List[int]:
+    def _query_temporal_pattern(self, query_pattern: QueryPattern) -> list[int]:
         """Query based on temporal patterns (lineage) using indexed approach."""
         # Find bit-chains with specific lineage patterns
         target_lineage = secure_random.randint(1, 50)
@@ -564,7 +564,7 @@ class MultiDimensionalQueryEngine:
 
         return filtered_indices
 
-    def _query_complex_relationship(self, query_pattern: QueryPattern) -> List[int]:
+    def _query_complex_relationship(self, query_pattern: QueryPattern) -> list[int]:
         """Query for complex relationships across multiple dimensions using indexed approach."""
         # Use indexing to efficiently find candidates for complex relationships
         # Target: high dimensionality + logic/creativity polarity + reasonable luminosity
@@ -607,7 +607,7 @@ class MultiDimensionalQueryEngine:
 
         return complex_indices[:50] if len(complex_indices) > 50 else complex_indices
 
-    def _calculate_query_accuracy(self, query_pattern: QueryPattern, result_indices: List[int]) -> Tuple[float, float, float]:
+    def _calculate_query_accuracy(self, query_pattern: QueryPattern, result_indices: list[int]) -> tuple[float, float, float]:
         """Calculate precision, recall, and F1 score for query."""
         # Improved accuracy calculation based on actual query performance
 
@@ -657,7 +657,7 @@ class MultiDimensionalQueryEngine:
 
         return precision, recall, f1
 
-    def apply_optimizations(self) -> Dict[str, Any]:
+    def apply_optimizations(self) -> dict[str, any]:
         """Apply optimization strategies and measure effectiveness."""
         optimization_results = {}
 
@@ -710,7 +710,7 @@ class MultiDimensionalQueryEngine:
             QueryPattern("Multi-Dimensional Filter", "Filter across multiple dimensions", ["realm", "polarity", "luminosity", "dimensionality"], "complex", "Advanced search")
         ]
 
-        times: List[float] = []
+        times: list[float] = []
         for query in sample_queries:
             start_time = time.perf_counter()
             self.execute_query(query, f"baseline_{len(times)}")
@@ -719,7 +719,7 @@ class MultiDimensionalQueryEngine:
 
         return statistics.mean(times) if times else 0.0
 
-    def _apply_optimization(self, optimizer: QueryOptimizer, baseline_queries: List[QueryPattern]) -> float:
+    def _apply_optimization(self, optimizer: QueryOptimizer, baseline_queries: list[QueryPattern]) -> float:
         """Apply specific optimization strategy."""
         start_time = time.perf_counter()
 
@@ -911,12 +911,12 @@ class MultiDimensionalQueryExperiment:
 
         return results
 
-    def _get_dimension_coverage(self) -> Dict[str, int]:
+    def _get_dimension_coverage(self) -> dict[str, int]:
         """Get coverage statistics for each dimension."""
         if not self.engine.bit_chains:
             return {}
 
-        coverage: Dict[str, int] = defaultdict(int)
+        coverage: dict[str, int] = defaultdict(int)
 
         for bitchain in self.engine.bit_chains:
             coords = bitchain.coordinates.to_dict()

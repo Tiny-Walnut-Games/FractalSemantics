@@ -7,9 +7,11 @@ This directory contains the Cline development system for the FractalSemantics pr
 ### Workflows
 
 #### `/python-dev-workflow`
+
 Comprehensive Python development workflow automation.
 
 **Usage:**
+
 - `/python-dev-workflow` - Run full development workflow
 - `/python-dev-workflow setup` - Setup development environment
 - `/python-dev-workflow check` - Run quality checks only
@@ -17,6 +19,7 @@ Comprehensive Python development workflow automation.
 - `/python-dev-workflow deps` - Check dependencies
 
 **Features:**
+
 - Environment setup with virtual environments
 - Code quality checks (Ruff, Black, MyPy)
 - Security scanning (Safety, Bandit)
@@ -27,9 +30,11 @@ Comprehensive Python development workflow automation.
 **Configuration:** `.cline-workflow-config.json`
 
 #### `/git-workflow`
+
 Comprehensive Git workflow automation.
 
 **Usage:**
+
 - `/git-workflow` - Show available commands
 - `/git-workflow setup-hooks` - Setup pre-commit hooks
 - `/git-workflow feature <name>` - Create feature branch
@@ -41,6 +46,7 @@ Comprehensive Git workflow automation.
 - `/git-workflow changelog [tag]` - Generate changelog
 
 **Features:**
+
 - Pre-commit hooks setup
 - Branch management (feature, release, hotfix)
 - Pull request preparation
@@ -53,15 +59,18 @@ Comprehensive Git workflow automation.
 ### Hooks
 
 #### `/pre-commit-hook`
+
 Comprehensive pre-commit hook for code quality.
 
 **Usage:**
+
 - `/pre-commit-hook` - Show available commands
 - `/pre-commit-hook setup` - Setup pre-commit hook for current repository
 - `/pre-commit-hook check` - Run quality checks on staged files
 - `/pre-commit-hook config` - Show configuration
 
 **Features:**
+
 - Linting checks (Ruff, Flake8, ESLint)
 - Code formatting checks (Black, Prettier)
 - Type checking (MyPy, TypeScript)
@@ -74,9 +83,11 @@ Comprehensive pre-commit hook for code quality.
 ### Skills
 
 #### `/code-reviewer`
+
 AI-powered code reviewer for multiple programming languages.
 
 **Usage:**
+
 - `/code-reviewer <file_path>` - Review single file
 - `/code-reviewer .` - Review entire project
 - `/code-reviewer <file> --security` - Security-focused review
@@ -84,6 +95,7 @@ AI-powered code reviewer for multiple programming languages.
 - `/code-reviewer <file> --best-practices` - Best practices review
 
 **Features:**
+
 - Security vulnerability detection
 - Performance issue identification
 - Code style and formatting checks
@@ -94,9 +106,11 @@ AI-powered code reviewer for multiple programming languages.
 **Configuration:** `.cline-code-reviewer.json`
 
 #### `/project-analyzer`
+
 Comprehensive project analysis tool.
 
 **Usage:**
+
 - `/project-analyzer` - Analyze current project
 - `/project-analyzer <path>` - Analyze specific project
 - `/project-analyzer --metrics` - Show detailed metrics
@@ -105,6 +119,7 @@ Comprehensive project analysis tool.
 - `/project-analyzer --languages` - Show language analysis
 
 **Features:**
+
 - Project structure analysis
 - File and line metrics
 - Dependency analysis
@@ -127,6 +142,7 @@ Each command has its own configuration file for customization:
 ## Setup
 
 1. **Install Dependencies:**
+
    ```bash
    # For Python development
    pip install ruff black mypy pytest safety bandit
@@ -139,16 +155,19 @@ Each command has its own configuration file for customization:
    ```
 
 2. **Setup Git Hooks:**
+
    ```bash
    /git-workflow setup-hooks
    ```
 
 3. **Configure Pre-commit:**
+
    ```bash
    /pre-commit-hook setup
    ```
 
 4. **Run Initial Analysis:**
+
    ```bash
    /project-analyzer
    ```
@@ -206,15 +225,17 @@ Each command has its own configuration file for customization:
 ### IDE Integration
 
 These commands work seamlessly with:
+
 - VS Code
 - PyCharm
 - Vim/Neovim
 - Emacs
-- Any terminal-based editor
+- any terminal-based editor
 
 ### CI/CD Integration
 
 Commands can be integrated into CI/CD pipelines:
+
 ```yaml
 # GitHub Actions example
 - name: Run Python Development Workflow
@@ -227,6 +248,7 @@ Commands can be integrated into CI/CD pipelines:
 ### Automation
 
 Set up automated workflows:
+
 - Pre-commit hooks for quality checks
 - Scheduled project analysis
 - Automated dependency updates

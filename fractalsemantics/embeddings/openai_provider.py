@@ -6,7 +6,7 @@ import hashlib
 import math
 import struct
 from types import ModuleType
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional, dict, list
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 
@@ -14,7 +14,7 @@ from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 class OpenAIEmbeddingProvider(EmbeddingProvider):
     """OpenAI API-based embedding provider."""
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[dict[str, any]] = None):
         super().__init__(config)
         self.api_key: Optional[str] = config.get("api_key") if config else None
         model_default = "text-embedding-ada-002"
@@ -39,11 +39,11 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
                 ) from exc
         return self._client
 
-    def embed_text(self, text: str) -> List[float]:
+    def embed_text(self, text: str) -> list[float]:
         """Generate OpenAI embedding for text."""
         try:
             client = self._get_client()
-            response: Dict[str, Any] = client.Embedding.create(  # pylint: disable=no-member
+            response: dict[str, any] = client.Embedding.create(  # pylint: disable=no-member
                 model=self.model, input=text
             )
             return response["data"][0]["embedding"]
@@ -51,11 +51,11 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
             print(f"Warning: OpenAI API failed ({e}), using mock embedding")
             return self._create_mock_embedding(text)
 
-    def embed_batch(self, texts: List[str]) -> List[List[float]]:
+    def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """Generate OpenAI embeddings for multiple texts."""
         try:
             client = self._get_client()
-            response: Dict[str, Any] = client.Embedding.create(  # pylint: disable=no-member
+            response: dict[str, any] = client.Embedding.create(  # pylint: disable=no-member
                 model=self.model, input=texts
             )
             return [item["embedding"] for item in response["data"]]
@@ -67,7 +67,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         """Get embedding dimension."""
         return self.dimension
 
-    def _create_mock_embedding(self, text: str) -> List[float]:
+    def _create_mock_embedding(self, text: str) -> list[float]:
         """Create a mock embedding for development/testing."""
         hash_obj = hashlib.sha256(text.encode())
         hash_bytes = hash_obj.digest()

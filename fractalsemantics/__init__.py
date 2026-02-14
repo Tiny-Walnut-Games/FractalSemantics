@@ -71,7 +71,7 @@ __all__ = [
     "DIMENSIONALITY",
     "ALIGNMENT",
 
-    # Dimension List
+    # Dimension list
     "FRACTALSEMANTICS_DIMENSIONS",
 
     # Classes

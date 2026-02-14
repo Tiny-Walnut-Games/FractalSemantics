@@ -21,7 +21,7 @@ import queue
 import threading
 import traceback
 from datetime import datetime
-from typing import Any, Dict, List, Tuple
+from typing import Any, dict, list, tuple
 
 import gradio as gr
 
@@ -311,7 +311,7 @@ EXPERIMENT_INFO = {
     }
 }
 
-def create_progress_chart(experiment_name: str, progress_data: List[Tuple[float, float]]) -> Any:
+def create_progress_chart(experiment_name: str, progress_data: list[tuple[float, float]]) -> any:
     """Create a progress visualization chart for the experiment."""
     if not MATPLOTLIB_AVAILABLE:
         return None
@@ -346,7 +346,7 @@ def create_progress_chart(experiment_name: str, progress_data: List[Tuple[float,
     plt.tight_layout()
     return fig
 
-def create_results_chart(experiment_name: str, results: Dict[str, Any]) -> Any:
+def create_results_chart(experiment_name: str, results: dict[str, any]) -> any:
     """Create a results visualization chart for the experiment."""
     if not MATPLOTLIB_AVAILABLE:
         return None
@@ -422,9 +422,10 @@ def run_experiment_thread(experiment_name: str):
 
         # Find the experiment in the list
         experiment_module = None
-        for module, name in EXPERIMENTS:
+        for module, display_name in EXPERIMENTS:
             if module == experiment_name:
                 experiment_module = module
+                print(f"Found experiment module: {module} with display name: {display_name}")
                 break
 
         if experiment_module:
@@ -632,8 +633,8 @@ def create_gradio_interface():
         # Footer
         gr.Markdown("""
         ---
-        **Note**: This is a research platform for validating the FractalSemantics addressing system. 
-        All experiments are designed to run safely and provide educational insights into 
+        **Note**: This is a research platform for validating the FractalSemantics addressing system.
+        All experiments are designed to run safely and provide educational insights into
         multi-dimensional coordinate systems and their applications.
         """)
 

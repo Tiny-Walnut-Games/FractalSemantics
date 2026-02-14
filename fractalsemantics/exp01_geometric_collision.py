@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 """
-EXP-01: FractalSemantics Semantic Collision Resistance Test
+EXP-01: FractalSemantics Address Collision Resistance Test
 
 Validates that FractalSemantics coordinates achieve collision resistance through semantic
 differentiation rather than coordinate space geometry, demonstrating that expressivity
@@ -26,13 +27,14 @@ Success Criteria:
 - Empirical validation that FractalSemantics transcends cryptographic limitations
 """
 
+import ast
 import json
 import secrets
 import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from fractalsemantics.progress_comm import ProgressReporter
 
@@ -65,7 +67,7 @@ class EXP01_Result:
     collision_rate: float
     geometric_limit_hit: bool  # True if sample_size > coordinate_space
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
@@ -114,7 +116,7 @@ class EXP01_GeometricCollisionResistance:
     def __init__(self, sample_size: int = 100000):  # 100K default for hardware-constrained testing
         self.sample_size = sample_size
         self.dimensions = list(self.DIMENSION_RANGES.keys())
-        self.results: List[EXP01_Result] = []
+        self.results: list[EXP01_Result] = []
 
     def _calculate_coordinate_space_size(self, dimension: int) -> int:
         """Calculate total possible coordinates for a given dimension."""
@@ -125,21 +127,21 @@ class EXP01_GeometricCollisionResistance:
         )
         return range_size**dimension
 
-    def _generate_coordinate(self, dimension: int, seed: int) -> Tuple[int, ...]:
+    def _generate_coordinate(self, dimension: int, seed: int) -> tuple[int, ...]:
         """Generate a uniform coordinate tuple for given dimension."""
 
         secure_random.seed(seed)
         min_val, max_val = self.DIMENSION_RANGES[dimension]
         return tuple(secure_random.randint(min_val, max_val) for _ in range(dimension))
 
-    def run(self) -> Tuple[List[EXP01_Result], bool]:
+    def run(self) -> tuple[list[EXP01_Result], bool]:
         """
         Run the geometric collision resistance test.
 
         Tests coordinate collision rates across dimensions 2D→7D at 100k+ sample scale.
 
         Returns:
-            Tuple of (results list, overall geometric validation success)
+            tuple of (results list, overall geometric validation success)
         """
         print(f"\n{'=' * 80}")
         print("EXP-01: GEOMETRIC COLLISION RESISTANCE TEST")
@@ -155,7 +157,7 @@ class EXP01_GeometricCollisionResistance:
 
             # Send subprocess progress message
             send_subprocess_status("EXP-01", "Initialization", "Starting geometric collision resistance test")
-        except:
+        except ast.ParseError:
             pass  # Ignore if progress communication is not available
 
         all_validated = True
@@ -168,7 +170,7 @@ class EXP01_GeometricCollisionResistance:
             try:
                 progress = ProgressReporter("EXP-01")
                 progress.status(f"Testing {dimension}D", f"Generating {self.sample_size:,} coordinates")
-            except:
+            except ast.ParseError:
                 pass
 
             # Calculate theoretical coordinate space
@@ -197,7 +199,7 @@ class EXP01_GeometricCollisionResistance:
 
                         # Send subprocess progress message
                         send_subprocess_progress("EXP-01", coord_progress, f"{dimension}D Generation", f"Generated {j:,}/{self.sample_size:,} coordinates")
-                    except:
+                    except ast.ParseError:
                         pass
 
             unique_coords = len(coordinates)
@@ -246,7 +248,7 @@ class EXP01_GeometricCollisionResistance:
 
             # Send subprocess completion message
             send_subprocess_completion("EXP-01", all_validated, f"Geometric validation {'passed' if all_validated else 'failed'}")
-        except:
+        except ast.ParseError:
             pass
 
         print(f"{'=' * 80}")
@@ -288,7 +290,7 @@ class EXP01_GeometricCollisionResistance:
 
         return self.results, all_validated
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """Get comprehensive geometric analysis summary."""
         low_dim_results = [r for r in self.results if r.dimension < 4]
         high_dim_results = [r for r in self.results if r.dimension >= 4]
@@ -334,11 +336,11 @@ class EXP01_GeometricCollisionResistance:
         }
 
 
-def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> str:
+def save_results(results: dict[str, Any], output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-        output_file = f"exp01_address_uniqueness_{timestamp}.json"
+        output_file = f"exp01_geometric_collision_{timestamp}.json"
 
     results_dir = Path(__file__).resolve().parent.parent / "results"
     results_dir.mkdir(exist_ok=True)

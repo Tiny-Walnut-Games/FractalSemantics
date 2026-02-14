@@ -1,0 +1,13 @@
+{
+  "reviewer_config": {
+    "enabled_categories": [
+      "security",
+      "performance",
+      "quality"
+    ],
+    "severity_levels": {
+      "security": "error",
+      "performance": "warning"
+    }
+  }
+}

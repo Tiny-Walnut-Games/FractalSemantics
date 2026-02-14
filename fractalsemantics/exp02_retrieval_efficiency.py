@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # pylint: disable=C0301,C0116,W0404,W0621,W0212,W0718
 """
 EXP-02: Retrieval Efficiency Test
@@ -21,6 +22,7 @@ Success Criteria:
 - Latency scales logarithmically or better
 """
 
+import ast
 import gc
 import json
 import secrets
@@ -29,7 +31,7 @@ import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 import psutil  # type: ignore[import-untyped]
 
@@ -76,7 +78,7 @@ class EXP02_Result:
     warmup_time_ms: float
     success: bool  # target_latency < threshold
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         return asdict(self)
 
 
@@ -107,9 +109,9 @@ class EXP02_RetrievalEfficiency:
             self.scales = config.get("EXP-02", "scales", [1000000, 100000000, 10000000000, 1000000000000])
         except Exception:
             self.scales = [1000000, 100000000, 10000000000, 1000000000000]  # Scaled defaults: 1M, 100M, 10B, 1T
-        self.results: List[EXP02_Result] = []
+        self.results: list[EXP02_Result] = []
 
-    def run(self) -> Tuple[List[EXP02_Result], bool]:
+    def run(self) -> tuple[list[EXP02_Result], bool]:
         """
         Run the retrieval efficiency test with comprehensive benchmarking.
 
@@ -120,7 +122,7 @@ class EXP02_RetrievalEfficiency:
         - Multiple query patterns (cached, random, adversarial)
 
         Returns:
-            Tuple of (results list, overall success boolean)
+            tuple of (results list, overall success boolean)
         """
         print(f"\n{'=' * 70}")
         print("EXP-02: RETRIEVAL EFFICIENCY TEST (ENHANCED)")
@@ -137,7 +139,7 @@ class EXP02_RetrievalEfficiency:
 
             # Send subprocess progress message
             send_subprocess_status("EXP-02", "Initialization", "Starting retrieval efficiency test")
-        except:
+        except ast.ParseError:
             pass  # Ignore if progress communication is not available
 
         all_success = True
@@ -157,7 +159,7 @@ class EXP02_RetrievalEfficiency:
             try:
                 progress = ProgressReporter("EXP-02")
                 progress.status(f"Scale {scale:,}", f"Testing {scale:,} bit-chains")
-            except:
+            except ast.ParseError:
                 pass  # Ignore if progress communication is not available
 
             start_time = time.time()
@@ -173,7 +175,7 @@ class EXP02_RetrievalEfficiency:
 
             # 2. Index by address for more realistic storage simulation
             # Use a richer structure to avoid pure Python dict optimization
-            address_to_data: Dict[str, Dict[str, Any]] = {}
+            address_to_data: dict[str, dict[str, any]] = {}
             for bc, payload_data in bitchains:
                 addr = bc.compute_address()
                 address_to_data[addr] = {
@@ -268,7 +270,7 @@ class EXP02_RetrievalEfficiency:
 
                         # Send subprocess progress message
                         send_subprocess_progress("EXP-02", query_progress, f"{scale:,} Scale", f"Executed {query_idx:,}/{self.query_count:,} queries")
-                    except:
+                    except ast.ParseError:
                         pass
 
             # 6. Compute enhanced statistics
@@ -330,12 +332,12 @@ class EXP02_RetrievalEfficiency:
 
             # Send subprocess completion message
             send_subprocess_completion("EXP-02", all_success, f"Retrieval efficiency {'passed' if all_success else 'failed'}")
-        except:
+        except ast.ParseError:
             pass  # Ignore if progress communication is not available
 
         return self.results, all_success
 
-    def _generate_query_patterns(self, addresses: List[str], query_count: int) -> List[str]:
+    def _generate_query_patterns(self, addresses: list[str], query_count: int) -> list[str]:
         """
         Generate realistic query patterns including:
         - Hot data access patterns (recently accessed items)
@@ -367,7 +369,7 @@ class EXP02_RetrievalEfficiency:
         secure_random.shuffle(queries)
         return queries[:query_count]
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, any]:
         """Get summary statistics."""
         return {
             "total_scales_tested": len(self.results),
@@ -376,7 +378,7 @@ class EXP02_RetrievalEfficiency:
         }
 
 
-def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> str:
+def save_results(results: dict[str, any], output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")

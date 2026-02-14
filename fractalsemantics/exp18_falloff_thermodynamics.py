@@ -21,7 +21,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Optional, dict
 
 import numpy as np
 
@@ -218,7 +218,7 @@ def create_fractal_region_with_falloff(hierarchy: FractalHierarchy,
 # EXPERIMENT IMPLEMENTATION
 # ============================================================================
 
-def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Dict[str, Any]:
+def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> dict[str, any]:
     """
     Run EXP-18: Falloff Injection in Thermodynamics.
 
@@ -296,6 +296,8 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Dict
         new_entropy_f = current_entropy_f + abs(current_entropy_f) * 0.01
         energy_history_with_falloff.append(new_energy_f)
         entropy_history_with_falloff.append(new_entropy_f)
+
+        print(f"Step {step + 1}: Energy (with falloff)={new_energy_f:.4f}, Entropy (with falloff)={new_entropy_f:.4f}")
 
     # Temperature evolution
     temperature_history_no_falloff = []
@@ -465,7 +467,7 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Dict
 # CLI & RESULTS PERSISTENCE
 # ============================================================================
 
-def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> str:
+def save_results(results: dict[str, any], output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         exponent = results.get("falloff_exponent", 2.0)
@@ -509,10 +511,12 @@ if __name__ == "__main__":
             print("   This confirms that gravity and thermodynamics share the same falloff mechanism.")
             print("   ✓ Same falloff formula works for both energy and gravitational interactions")
         else:
-            print("\n❌ NO IMPROVEMENT: Falloff injection doesn't help thermodynamics")
+            print("\nX NO IMPROVEMENT: Falloff injection doesn't help thermodynamics")
             print("   Gravity and thermodynamics may have different falloff characteristics.")
 
         print()
+
+        sys.exit(0 if results["success_criteria"]["passed"] else 1)
 
     except Exception as e:
         print(f"\nEXPERIMENT FAILED: {e}")

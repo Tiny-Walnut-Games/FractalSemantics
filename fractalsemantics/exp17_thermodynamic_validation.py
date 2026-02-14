@@ -22,7 +22,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 
@@ -103,12 +103,12 @@ class ThermodynamicValidation:
     law_tested: str
     description: str
     measured_value: float
-    expected_range: Tuple[float, float]
+    expected_range: tuple[float, float]
     passed: bool
     confidence: float  # 0-1 scale
 
     def __str__(self):
-        status = "✓ PASS" if self.passed else "✗ FAIL"
+        status = "Y PASS" if self.passed else "X FAIL"
         return f"{self.law_tested}: {status} ({self.measured_value:.4f} in {self.expected_range})"
 
 
@@ -138,6 +138,7 @@ def measure_fractal_entropy(hierarchy: FractalHierarchy) -> float:
                 for neighbor in neighbors
             ]
             cohesions.extend(node_cohesions)
+            print(f"Depth {depth}: Node {node.id} cohesion samples: {node_cohesions}")
 
     if not cohesions:
         return 0.0
@@ -263,7 +264,7 @@ def create_fractal_region(hierarchy: FractalHierarchy, region_type: str) -> Ther
 # THERMODYNAMIC LAW VALIDATION FUNCTIONS
 # ============================================================================
 
-def validate_first_law(energy_measurements: List[float]) -> ThermodynamicValidation:
+def validate_first_law(energy_measurements: list[float]) -> ThermodynamicValidation:
     """
     Validate 1st Law of Thermodynamics: Energy conservation.
 
@@ -291,7 +292,7 @@ def validate_first_law(energy_measurements: List[float]) -> ThermodynamicValidat
     )
 
 
-def validate_second_law(entropy_measurements: List[float]) -> ThermodynamicValidation:
+def validate_second_law(entropy_measurements: list[float]) -> ThermodynamicValidation:
     """
     Validate 2nd Law of Thermodynamics: Entropy increases.
 
@@ -323,7 +324,7 @@ def validate_second_law(entropy_measurements: List[float]) -> ThermodynamicValid
     )
 
 
-def validate_zeroth_law(temperature_measurements: List[List[float]]) -> ThermodynamicValidation:
+def validate_zeroth_law(temperature_measurements: list[list[float]]) -> ThermodynamicValidation:
     """
     Validate 0th Law of Thermodynamics: Temperature equilibration.
 
@@ -361,8 +362,8 @@ def validate_zeroth_law(temperature_measurements: List[List[float]]) -> Thermody
     )
 
 
-def validate_fractal_void_density(void_states: List[ThermodynamicState],
-                                 dense_states: List[ThermodynamicState]) -> ThermodynamicValidation:
+def validate_fractal_void_density(void_states: list[ThermodynamicState],
+                                 dense_states: list[ThermodynamicState]) -> ThermodynamicValidation:
     """
     Validate fractal void/dense thermodynamic properties.
 
@@ -396,7 +397,7 @@ def validate_fractal_void_density(void_states: List[ThermodynamicState],
 # EXPERIMENT IMPLEMENTATION
 # ============================================================================
 
-def run_thermodynamic_validation_experiment() -> Dict[str, Any]:
+def run_thermodynamic_validation_experiment() -> dict[str, any]:
     """
     Run EXP-17: Thermodynamic Validation of Fractal Systems.
 
@@ -457,6 +458,8 @@ def run_thermodynamic_validation_experiment() -> Dict[str, Any]:
 
         energy_history.append(new_energy)
         entropy_history.append(new_entropy)
+
+        print(f"Step {step + 1}: Energy={new_energy:.4f}, Entropy={new_entropy:.4f}")
 
     # Track temperature evolution
     temperature_history = []
@@ -576,7 +579,7 @@ def run_thermodynamic_validation_experiment() -> Dict[str, Any]:
 # CLI & RESULTS PERSISTENCE
 # ============================================================================
 
-def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> str:
+def save_results(results: dict[str, any], output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -612,18 +615,20 @@ if __name__ == "__main__":
         print(f"Output: {output_file}")
 
         if overall_success:
-            print("\n🎉 SUCCESS: Fractal systems satisfy thermodynamic laws!")
+            print("\nY SUCCESS: Fractal systems satisfy thermodynamic laws!")
             print("   This completes the unification of physics under fractal theory.")
-            print("   ✓ Energy conservation (1st Law)")
-            print("   ✓ Entropy increase (2nd Law)")
-            print("   ✓ Temperature equilibration (0th Law)")
-            print("   ✓ Void/dense regions follow thermodynamic principles")
+            print("   Y Energy conservation (1st Law)")
+            print("   Y Entropy increase (2nd Law)")
+            print("   Y Temperature equilibration (0th Law)")
+            print("   Y Void/dense regions follow thermodynamic principles")
         else:
             print("\n❌ THERMODYNAMIC INCONSISTENCY DETECTED")
             print("   Fractal systems don't fully satisfy thermodynamic laws.")
             print("   May indicate limitations of the current fractal model.")
 
         print()
+
+        sys.exit(0 if results["success_criteria"]["passed"] else 1)
 
     except Exception as e:
         print(f"\nEXPERIMENT FAILED: {e}")

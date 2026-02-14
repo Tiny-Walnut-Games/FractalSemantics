@@ -7,10 +7,10 @@ It processes all Python files and ensures clean formatting without affecting act
 """
 
 from pathlib import Path
-from typing import List, Tuple
+from typing import list, tuple
 
 
-def fix_file_whitespace(file_path: Path) -> Tuple[bool, int]:
+def fix_file_whitespace(file_path: Path) -> tuple[bool, int]:
     """
     Fix whitespace on empty lines in a single file.
 
@@ -18,7 +18,7 @@ def fix_file_whitespace(file_path: Path) -> Tuple[bool, int]:
         file_path: Path to the file to fix
 
     Returns:
-        Tuple of (was_modified, lines_changed)
+        tuple of (was_modified, lines_changed)
     """
     try:
         # Read the file content
@@ -61,7 +61,7 @@ def fix_file_whitespace(file_path: Path) -> Tuple[bool, int]:
         return False, 0
 
 
-def find_python_files(directory: Path) -> List[Path]:
+def find_python_files(directory: Path) -> list[Path]:
     """Find all Python files in the directory and subdirectories."""
     python_files = []
 

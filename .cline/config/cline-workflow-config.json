@@ -1,0 +1,13 @@
+{
+  "python_dev_workflow": {
+    "dev_requirements": [
+      "custom-package>=1.0.0"
+    ],
+    "tool_versions": {
+      "black": "22.3.0"
+    },
+    "skip_steps": [
+      "documentation"
+    ]
+  }
+}

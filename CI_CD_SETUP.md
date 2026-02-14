@@ -1,6 +1,7 @@
 # CI/CD Pipeline Setup Guide
 
 ## Overview
+
 FractalSemantics has a comprehensive four-stage GitLab CI/CD pipeline:
 
 1. **Quality** - Code formatting, linting, type checking
@@ -13,36 +14,42 @@ FractalSemantics has a comprehensive four-stage GitLab CI/CD pipeline:
 ### Quality Stage (Parallel Jobs)
 
 #### `code_format`
+
 - **Trigger**: On merge requests and main branch
 - **Tool**: Black (code formatter)
 - **Action**: Checks if code adheres to Black formatting standards
 - **Fail Policy**: Hard fail - MRs cannot merge if formatting is incorrect
 
 **Local equivalent:**
+
 ```bash
 black --check fractalsemantics/
 black fractalsemantics/  # to auto-fix
 ```
 
 #### `lint`
+
 - **Trigger**: On merge requests and main branch
 - **Tool**: Ruff (fast Python linter)
 - **Action**: Checks for style violations, unused imports, etc.
 - **Fail Policy**: Hard fail
 
 **Local equivalent:**
+
 ```bash
 ruff check fractalsemantics/
 ruff check --fix fractalsemantics/  # auto-fix
 ```
 
 #### `type_check`
+
 - **Trigger**: On merge requests and main branch
 - **Tool**: MyPy (static type checker)
 - **Action**: Validates type hints and catches type errors
 - **Fail Policy**: Soft fail (warnings only) - helps catch issues early
 
 **Local equivalent:**
+
 ```bash
 mypy fractalsemantics/ --ignore-missing-imports
 ```
@@ -50,6 +57,7 @@ mypy fractalsemantics/ --ignore-missing-imports
 ### Validate Stage (Experiment-Based)
 
 #### `validate_experiments`
+
 - **Trigger**: On merge requests and main branch
 - **Duration**: Up to 2 hours
 - **Action**: Runs 9 nested and standalone experiments sequentially:
@@ -72,6 +80,7 @@ mypy fractalsemantics/ --ignore-missing-imports
 - **Fail Policy**: Hard fail - must pass to merge
 
 #### `stress_tests` (EXP-10: Bob Stress Test)
+
 - **Trigger**: On merge requests and main branch
 - **Duration**: Up to 1 hour
 - **Action**: Runs Bob Stress Test (`bob_stress_test`) - comprehensive high-volume query testing
@@ -82,6 +91,7 @@ mypy fractalsemantics/ --ignore-missing-imports
 ### Build Stage
 
 #### `build_package`
+
 - **Trigger**: On tags and main branch
 - **Action**:
   - Runs build transformation script
@@ -92,18 +102,21 @@ mypy fractalsemantics/ --ignore-missing-imports
 ### Deploy Stage (Manual Triggers)
 
 #### `deploy_pypi`
+
 - **Trigger**: Manual on tagged releases
 - **Requires**: Build stage success
 - **Action**: Uploads package to PyPI (Python Package Index)
-- **Environment**: https://pypi.org/project/fractalsemantics/
+- **Environment**: <https://pypi.org/project/fractalsemantics/>
 
 #### `deploy_huggingface`
+
 - **Trigger**: Manual on tagged releases
 - **Requires**: Build stage success
 - **Action**: Uploads package to HuggingFace Model Hub
-- **Environment**: https://huggingface.co/${HF_REPO_ID}
+- **Environment**: <https://huggingface.co/${HF_REPO_ID}>
 
 #### `deploy_api_dev` & `deploy_api_prod`
+
 - **Trigger**: Manual
 - **Action**: Deploys as API service (configurable)
 - **Environments**: Development and Production
@@ -113,8 +126,9 @@ mypy fractalsemantics/ --ignore-missing-imports
 Set these in **GitLab → Project → Settings → CI/CD → Variables**:
 
 ### For HuggingFace Deployment
+
 - **HF_TOKEN**: Your HuggingFace API token
-  - Get from: https://huggingface.co/settings/tokens
+  - Get from: <https://huggingface.co/settings/tokens>
   - Mark as **Protected** and **Masked**
   - Requires write permissions
 
@@ -123,11 +137,13 @@ Set these in **GitLab → Project → Settings → CI/CD → Variables**:
   - Example: `tinywalnutgames/fractalsemantics-v1`
 
 ### For PyPI Deployment (Optional)
+
 - **PYPI_API_TOKEN**: Your PyPI API token
-  - Get from: https://pypi.org/manage/account/
+  - Get from: <https://pypi.org/manage/account/>
   - Mark as **Protected** and **Masked**
 
 ### For API Deployment (Optional)
+
 - **API_DEV_URL**: Development API endpoint
 - **API_PROD_URL**: Production API endpoint
 - **API_AUTH_TOKEN**: Authentication token for deployments
@@ -135,6 +151,7 @@ Set these in **GitLab → Project → Settings → CI/CD → Variables**:
 ## Workflow Examples
 
 ### Submit a Merge Request
+
 1. Push to a feature branch: `git push origin feature/new-experiment`
 2. Open merge request on GitLab
 3. Pipeline automatically runs:
@@ -146,6 +163,7 @@ Set these in **GitLab → Project → Settings → CI/CD → Variables**:
 ### Create a Release
 
 1. **Tag on main branch:**
+
    ```bash
    git tag v0.2.0
    git push origin v0.2.0
@@ -195,7 +213,8 @@ python copy_and_transform.py
 python -m build
 ```
 
-**Total: 10 Experiments**
+- **Total: 10 Experiments**
+
 - 3 Phase 1 Doctrine experiments nested in `fractalsemantics_experiments.py` (EXP-01, EXP-02, EXP-03)
 - 6 Phase 2+ experiments in separate files (EXP-04 through EXP-09)
 - 1 Stress testing framework (EXP-10: Bob Stress Test)
@@ -203,6 +222,7 @@ python -m build
 ## Cache Strategy
 
 The pipeline uses caching for:
+
 - **`.cache/pip`**: pip package cache (speeds up dependency installation)
 - **`venv/`**: Virtual environment (if needed)
 
@@ -214,6 +234,7 @@ This reduces pipeline runtime significantly by avoiding re-downloading dependenc
 - **View Logs**: Click any job to see detailed output
 - **Download Artifacts**: Click job → Artifacts → Download
 - **Pipeline Status Badge**: Add to README:
+
   ```markdown
   [![pipeline status](https://gitlab.com/tiny-walnut-games/the-seed/badges/main/pipeline.svg)](https://gitlab.com/tiny-walnut-games/the-seed/-/commits/main)
   ```
@@ -231,6 +252,7 @@ This reduces pipeline runtime significantly by avoiding re-downloading dependenc
 ## Troubleshooting
 
 ### Black/Ruff Failures
+
 ```bash
 # Auto-fix locally
 black fractalsemantics/
@@ -241,17 +263,20 @@ git push
 ```
 
 ### Experiments Timeout
+
 - Increase `timeout:` value in `.gitlab-ci.yml`
 - Split long experiments into separate jobs
 - Run only critical experiments in pre-merge checks
 
 ### Deploy Failures
+
 - Verify token is set and not expired
 - Check token permissions in service (PyPI/HuggingFace)
 - Verify repository/model IDs are correct
 - Check GitLab variable scope (protected vs. unprotected branches)
 
 ### Build Failures
+
 - Run `python copy_and_transform.py` locally to verify
 - Check that all dependencies in `pyproject.toml` are available
 - Verify Python version compatibility in GitHub Actions logs

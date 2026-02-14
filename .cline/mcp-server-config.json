@@ -1,5 +1,4 @@
 {
-  "$schema": "https://claudecodeplugins.io/schemas/mcp-presets.schema.json",
   "name": "cline-global-tools",
   "description": "Anthropic/Claude-style markdown-based workflows, hooks, and skills for Cline global development tools",
   "version": "1.0.0",

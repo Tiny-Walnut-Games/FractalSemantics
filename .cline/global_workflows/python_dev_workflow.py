@@ -14,7 +14,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional, list
 
 
 class PythonDevWorkflow:
@@ -31,7 +31,7 @@ class PythonDevWorkflow:
             return str(self.venv_path / "bin" / "python")
         return sys.executable
 
-    def _run_command(self, cmd: List[str], description: str) -> bool:
+    def _run_command(self, cmd: list[str], description: str) -> bool:
         """Run a command and return success status."""
         print(f"🔧 {description}")
         print(f"   Command: {' '.join(cmd)}")

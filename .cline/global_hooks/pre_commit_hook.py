@@ -6,11 +6,12 @@ A comprehensive pre-commit hook that runs quality checks before allowing commits
 Can be used with any Git repository to enforce code quality standards.
 """
 
+import ast
 import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional, dict, list
 
 
 class PreCommitHook:
@@ -29,10 +30,10 @@ class PreCommitHook:
                 text=True
             )
             return Path(result.stdout.strip())
-        except:
+        except ast.ParseError:
             return Path.cwd()
 
-    def _load_config(self) -> Dict[str, Any]:
+    def _load_config(self) -> dict[str, any]:
         """Load configuration from .cline-pre-commit.json or use defaults."""
         config_path = self.repo_root / ".cline-pre-commit.json"
 
@@ -78,12 +79,12 @@ class PreCommitHook:
                     user_config = json.load(f)
                 # Merge with defaults
                 return {**default_config, **user_config}
-            except:
+            except ast.ParseError:
                 pass
 
         return default_config
 
-    def _get_staged_files(self) -> List[Path]:
+    def _get_staged_files(self) -> list[Path]:
         """Get list of staged files that will be committed."""
         try:
             result = subprocess.run(
@@ -98,15 +99,15 @@ class PreCommitHook:
                     files.append(self.repo_root / file_path)
 
             return files
-        except:
+        except ast.ParseError:
             return []
 
-    def _get_changed_python_files(self) -> List[Path]:
+    def _get_changed_python_files(self) -> list[Path]:
         """Get list of changed Python files."""
         staged_files = self._get_staged_files()
         return [f for f in staged_files if f.suffix == '.py']
 
-    def _run_command(self, cmd: List[str], description: str, cwd: Optional[Path] = None) -> bool:
+    def _run_command(self, cmd: list[str], description: str, cwd: Optional[Path] = None) -> bool:
         """Run a command and return success status."""
         print(f"🔧 {description}")
         print(f"   Command: {' '.join(cmd)}")
@@ -336,7 +337,7 @@ class PreCommitHook:
             print("   ✅ Commit message format looks good")
             return True
 
-        except:
+        except ast.ParseError:
             print("   ⚠️  Could not check commit message")
             return True
 

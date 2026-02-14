@@ -31,7 +31,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 import numpy as np
 
@@ -123,7 +123,7 @@ except ImportError:
 
         return directional_magnitude * direction
 
-    def create_earth_sun_fractal_entities() -> Tuple[FractalEntity, FractalEntity]:
+    def create_earth_sun_fractal_entities() -> tuple[FractalEntity, FractalEntity]:
         """Create Earth-Sun system with fractal properties."""
 
         # Sun parameters (from EXP-14 and EXP-13)
@@ -157,7 +157,7 @@ except ImportError:
         scalar_magnitude: float,
         time_span: float,
         time_steps: int = 1000
-    ) -> Any:
+    ) -> any:
         """
         Simplified orbital integration for topological conservation testing.
 
@@ -235,6 +235,8 @@ except ImportError:
             current_pos = new_pos
             current_vel = new_vel
 
+            print(f"Step {i}/{time_steps}: pos={current_pos}, vel={current_vel}, energy={energies[-1]}")
+
         # Return simplified trajectory object
         class SimplifiedTrajectory:
             def __init__(self, positions, velocities, energies, mass):
@@ -261,13 +263,13 @@ class TopologicalInvariants:
     timestamp: float
     total_nodes: int
     max_hierarchical_depth: int
-    branching_distribution: Dict[int, int]  # branching_factor -> count
+    branching_distribution: dict[int, int]  # branching_factor -> count
     connectivity_matrix_hash: str  # Hash of parent-child relationships
     address_collision_count: int
     structure_entropy: float
     fractal_dimension: float
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         return {
             "timestamp": self.timestamp,
             "total_nodes": self.total_nodes,
@@ -311,7 +313,7 @@ class TopologicalConservationAnalysis:
     Analysis of topological conservation over a trajectory.
     """
     reference_measurement: TopologicalConservationMeasurement
-    all_measurements: List[TopologicalConservationMeasurement]
+    all_measurements: list[TopologicalConservationMeasurement]
 
     # Conservation statistics
     node_conservation_rate: float = field(init=False)
@@ -362,10 +364,10 @@ class ClassicalConservationAnalysis:
     """
     Analysis of classical conservation laws (energy, momentum, angular momentum).
     """
-    times: List[float]
-    energies: List[float]
-    momenta: List[float]
-    angular_momenta: List[float]
+    times: list[float]
+    energies: list[float]
+    momenta: list[float]
+    angular_momenta: list[float]
 
     # Conservation statistics
     energy_conservation_rate: float = field(init=False)
@@ -426,12 +428,12 @@ class ClassicalConservationAnalysis:
 # EXP-15: TOPOLOGICAL MEASUREMENT FUNCTIONS
 # ============================================================================
 
-def compute_topological_invariants(entities: List[FractalEntity], timestamp: float) -> TopologicalInvariants:
+def compute_topological_invariants(entities: list[FractalEntity], timestamp: float) -> TopologicalInvariants:
     """
     Compute all topological invariants for a system of fractal entities.
 
     Args:
-        entities: List of fractal entities in the system
+        entities: list of fractal entities in the system
         timestamp: Current simulation time
 
     Returns:
@@ -505,7 +507,7 @@ def compute_topological_invariants(entities: List[FractalEntity], timestamp: flo
     )
 
 
-def compare_topological_invariants(ref: TopologicalInvariants, current: TopologicalInvariants) -> Dict[str, bool]:
+def compare_topological_invariants(ref: TopologicalInvariants, current: TopologicalInvariants) -> dict[str, bool]:
     """
     Compare two sets of topological invariants to check conservation.
 
@@ -514,7 +516,7 @@ def compare_topological_invariants(ref: TopologicalInvariants, current: Topologi
         current: Current invariants to compare
 
     Returns:
-        Dictionary of conservation checks
+        dictionary of conservation checks
     """
     return {
         'nodes_conserved': ref.total_nodes == current.total_nodes,
@@ -584,7 +586,7 @@ def integrate_orbit_with_topological_tracking(
     time_span: float,
     time_steps: int = 1000,
     topological_check_steps: int = 100
-) -> Tuple[Any, TopologicalConservationAnalysis]:
+) -> tuple[Any, TopologicalConservationAnalysis]:
     """
     Integrate orbital trajectory while tracking topological conservation.
 
@@ -597,7 +599,7 @@ def integrate_orbit_with_topological_tracking(
         topological_check_steps: How often to check topology (every N steps)
 
     Returns:
-        Tuple of (trajectory, topological_analysis)
+        tuple of (trajectory, topological_analysis)
     """
     # First integrate the trajectory
     trajectory = integrate_orbit_with_vector_field(
@@ -666,7 +668,7 @@ class TopologicalConservationTestResult:
     approach_name: str
 
     # Trajectory data
-    trajectory: Any
+    trajectory: any
     integration_time: float
 
     # Topological analysis
@@ -690,11 +692,11 @@ class EXP15_TopologicalConservationResults:
     total_duration_seconds: float
 
     # Test systems and approaches
-    systems_tested: List[str]
-    approaches_tested: List[str]
+    systems_tested: list[str]
+    approaches_tested: list[str]
 
     # Results for each system/approach combination
-    conservation_results: Dict[str, Dict[str, TopologicalConservationTestResult]]
+    conservation_results: dict[str, dict[str, TopologicalConservationTestResult]]
 
     # Cross-analysis
     topology_conservation_confirmed: bool
@@ -779,8 +781,8 @@ def test_topological_conservation_in_orbit(
 
 
 def run_exp15_topological_conservation_experiment(
-    systems_to_test: List[str] = None,
-    approaches_to_test: List[str] = None
+    systems_to_test: list[str] = None,
+    approaches_to_test: list[str] = None
 ) -> EXP15_TopologicalConservationResults:
     """
     Run EXP-15: Complete topological conservation experiment.

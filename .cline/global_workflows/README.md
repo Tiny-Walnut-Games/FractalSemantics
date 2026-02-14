@@ -16,11 +16,13 @@ A comprehensive workflow for Python projects that includes:
 - **Dependency Management**: Checks for outdated packages
 
 **Usage:**
+
 ```bash
 python ~/.cline/global_workflows/python_dev_workflow.py
 ```
 
 **Features:**
+
 - Automatic virtual environment detection and creation
 - Configurable tool versions and settings
 - Comprehensive error reporting
@@ -39,6 +41,7 @@ Comprehensive Git workflow automation including:
 - **Changelog Generation**: Creates changelogs from Git commits
 
 **Usage:**
+
 ```bash
 # Setup pre-commit hooks
 python ~/.cline/global_workflows/git_workflow.py setup-hooks
@@ -54,6 +57,7 @@ python ~/.cline/global_workflows/git_workflow.py release-tag v1.0.0
 ```
 
 **Commands:**
+
 - `setup-hooks`: Install pre-commit hooks
 - `feature <name>`: Create feature branch
 - `release <version>`: Create release branch
@@ -77,6 +81,7 @@ The Git workflow creates a `.pre-commit-config.yaml` file with the following too
 ### Python Development Configuration
 
 The Python workflow uses the following default versions:
+
 - Black: Latest
 - Ruff: Latest
 - MyPy: Latest
@@ -144,16 +149,19 @@ Create a `.cline-git-config.json` file:
 ### Common Issues
 
 **Virtual Environment Not Found:**
+
 - Ensure Python is installed and in PATH
 - Check that the virtual environment directory exists
 - Verify permissions on the project directory
 
 **Tool Installation Failures:**
+
 - Check internet connectivity
 - Verify package repository access
 - Try installing tools manually first
 
 **Git Workflow Errors:**
+
 - Ensure Git is installed and configured
 - Check repository status and permissions
 - Verify remote repository access

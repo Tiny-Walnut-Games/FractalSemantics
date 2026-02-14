@@ -20,7 +20,7 @@ Status: Phase 1 Mathematical Validation COMPLETE; proceeding with Phase 2 robust
 import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Optional
 
 # Import progress communication
 
@@ -44,7 +44,7 @@ except ImportError:
 # ============================================================================
 
 
-def compute_polarity_vector(bitchain: Dict) -> List[float]:
+def compute_polarity_vector(bitchain: dict) -> list[float]:
     """
     Extract 7-dimensional polarity vector from bit-chain coordinates.
 
@@ -113,14 +113,14 @@ def compute_polarity_vector(bitchain: Dict) -> List[float]:
     ]
 
 
-def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
+def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
     """
     Compute cosine similarity between two vectors.
 
     Formula: cos(θ) = (u·v) / (|u| × |v|)
 
     Args:
-        vec1, vec2: Lists of floats (same length)
+        vec1, vec2: lists of floats (same length)
 
     Returns:
         Float in [-1.0, 1.0] where 1.0 = identical, 0.0 = orthogonal, -1.0 = opposite
@@ -144,7 +144,7 @@ def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
     return max(-1.0, min(1.0, result))
 
 
-def polarity_resonance(bc1: Dict, bc2: Dict) -> float:
+def polarity_resonance(bc1: dict, bc2: dict) -> float:
     """
     Compute polarity resonance between two bit-chains.
 
@@ -193,7 +193,7 @@ REALM_ADJACENCY = {
 }
 
 
-def realm_affinity(bc1: Dict, bc2: Dict) -> float:
+def realm_affinity(bc1: dict, bc2: dict) -> float:
     """
     Compute realm affinity between two bit-chains.
 
@@ -228,7 +228,7 @@ def realm_affinity(bc1: Dict, bc2: Dict) -> float:
 # ============================================================================
 
 
-def jaccard_similarity(set1: Set, set2: Set) -> float:
+def jaccard_similarity(set1: set, set2: set) -> float:
     """
     Compute Jaccard similarity between two sets.
 
@@ -239,7 +239,7 @@ def jaccard_similarity(set1: Set, set2: Set) -> float:
       - One empty: return 0.0 (one isolated, one connected)
 
     Args:
-        set1, set2: Sets of hashable elements
+        set1, set2: sets of hashable elements
 
     Returns:
         Jaccard similarity in [0.0, 1.0]
@@ -254,7 +254,7 @@ def jaccard_similarity(set1: Set, set2: Set) -> float:
     return intersection / union
 
 
-def adjacency_overlap(bc1: Dict, bc2: Dict) -> float:
+def adjacency_overlap(bc1: dict, bc2: dict) -> float:
     """
     Compute adjacency overlap (Jaccard similarity of neighbor sets).
 
@@ -280,7 +280,7 @@ def adjacency_overlap(bc1: Dict, bc2: Dict) -> float:
 # ============================================================================
 
 
-def luminosity_proximity(bc1: Dict, bc2: Dict) -> float:
+def luminosity_proximity(bc1: dict, bc2: dict) -> float:
     """
     Compute luminosity proximity (compression state similarity).
 
@@ -313,7 +313,7 @@ def luminosity_proximity(bc1: Dict, bc2: Dict) -> float:
 # ============================================================================
 
 
-def lineage_affinity(bc1: Dict, bc2: Dict, decay_base: float = 0.9) -> float:
+def lineage_affinity(bc1: dict, bc2: dict, decay_base: float = 0.9) -> float:
     """
     Compute lineage affinity (generational closeness).
 
@@ -362,7 +362,7 @@ class EntanglementScore:
     luminosity_proximity: float
     lineage_affinity: float
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary for serialization."""
         return {
             "bitchain1_id": self.bitchain1_id,
@@ -378,7 +378,7 @@ class EntanglementScore:
         }
 
 
-def compute_entanglement_score(bc1: Dict, bc2: Dict) -> EntanglementScore:
+def compute_entanglement_score(bc1: dict, bc2: dict) -> EntanglementScore:
     """
     Compute entanglement score between two bit-chains.
 
@@ -478,17 +478,17 @@ class EntanglementDetector:
             raise ValueError(f"Threshold must be in [0.0, 1.0], got {threshold}")
 
         self.threshold = threshold
-        self.scores: List[EntanglementScore] = []
+        self.scores: list[EntanglementScore] = []
 
-    def detect(self, bitchains: List[Dict]) -> List[Tuple[str, str, float]]:
+    def detect(self, bitchains: list[dict]) -> list[tuple[str, str, float]]:
         """
         Find all entangled pairs above threshold.
 
         Args:
-            bitchains: List of BitChain dictionaries
+            bitchains: list of BitChain dictionaries
 
         Returns:
-            List of (bitchain1_id, bitchain2_id, score) tuples where score >= threshold
+            list of (bitchain1_id, bitchain2_id, score) tuples where score >= threshold
         """
         self.scores = []
         entangled_pairs = []
@@ -508,14 +508,19 @@ class EntanglementDetector:
                         )
                     )
 
+                # Progress update every 10% of comparisons
+                if (j + 1) % (len(bitchains) // 10) == 0:
+                    progress = ((j + 1) / len(bitchains)) * 100
+                    print(f" {progress:.0f}%", end="", flush=True)
+
         return entangled_pairs
 
-    def get_score_distribution(self) -> Dict:
+    def get_score_distribution(self) -> dict:
         """
         Get statistics on score distribution.
 
         Returns:
-            Dictionary with min, max, mean, median, std dev
+            dictionary with min, max, mean, median, std dev
         """
         if not self.scores:
             return {}
@@ -536,11 +541,11 @@ class EntanglementDetector:
             "std_dev": round(std_dev, 8),
         }
 
-    def get_all_scores(self) -> List[Dict]:
+    def get_all_scores(self) -> list[dict]:
         """Get all computed scores as list of dicts."""
         return [s.to_dict() for s in self.scores]
 
-    def score(self, bitchain1: Dict, bitchain2: Dict) -> float:
+    def score(self, bitchain1: dict, bitchain2: dict) -> float:
         """
         Convenience method to score a single pair without detection.
 
@@ -559,7 +564,7 @@ class EntanglementDetector:
 # ============================================================================
 
 
-def save_results(results: Dict, output_file: Optional[str] = None) -> str:
+def save_results(results: dict, output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     import json
     from datetime import datetime, timezone
@@ -668,7 +673,7 @@ def main() -> bool:
 # ============================================================================
 
 
-def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict, bool]:
+def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict, bool]:
     """
     Run EXP-06: Entanglement Detection validation experiment.
 
@@ -680,7 +685,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
         threshold: Entanglement detection threshold
 
     Returns:
-        Tuple of (results_dict, success_boolean)
+        tuple of (results_dict, success_boolean)
     """
     import random
     import time
@@ -703,7 +708,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
     # This simulates quantum-like behavior where an entity can exist in superposition
     # across different "universes" or reality layers (realms)
 
-    true_entangled_pairs: Set[Tuple[str, str]] = set()
+    true_entangled_pairs: set[tuple[str, str]] = set()
     entangled_groups = []
 
     # Create entangled groups where each group represents the same logical entity
@@ -746,7 +751,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
                 break
 
             # Create a new entity with the same core quantum fingerprint
-            bc_entity: Dict[str, Any] = {
+            bc_entity: dict[str, any] = {
                 "id": f"bc_{len(bitchains):03d}",  # Use current list length for ID
                 "coordinates": {
                     "realm": realm,  # Different realm for each manifestation
@@ -811,7 +816,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
     detected_pairs = detector.detect(bitchains)
 
     # Convert detected pairs to set format
-    detected_pairs_set = set((bc1_id, bc2_id) for bc1_id, bc2_id, score in detected_pairs)
+    detected_pairs_set = {(bc1_id, bc2_id) for bc1_id, bc2_id, score in detected_pairs}
 
     runtime = time.time() - start_time
     print(".2f")
@@ -830,6 +835,8 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
         # Sort IDs to ensure consistent ordering
         pair = tuple(sorted([bc1_id, bc2_id]))
         detected_normalized.add(pair)
+        # DEBUG: Print detected pair and score
+        print(f"Detected pair: {pair} with score {score}")
 
     true_normalized = set()
     for bc1_id, bc2_id in true_entangled_pairs:
@@ -895,7 +902,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> Tuple[Dict
     return results, success
 
 
-def _are_realms_adjacent(bc1: Dict, bc2: Dict) -> bool:
+def _are_realms_adjacent(bc1: dict, bc2: dict) -> bool:
     """Check if two bit-chains have adjacent realms."""
     realm1 = bc1.get("coordinates", {}).get("realm", "")
     realm2 = bc2.get("coordinates", {}).get("realm", "")
@@ -903,7 +910,7 @@ def _are_realms_adjacent(bc1: Dict, bc2: Dict) -> bool:
     return realm2 in REALM_ADJACENCY.get(realm1, set())
 
 
-def _are_coordinates_similar(bc1: Dict, bc2: Dict) -> bool:
+def _are_coordinates_similar(bc1: dict, bc2: dict) -> bool:
     """Check if two bit-chains have similar coordinate profiles."""
     vec1 = compute_polarity_vector(bc1)
     vec2 = compute_polarity_vector(bc2)
@@ -942,7 +949,7 @@ class ValidationResult:
         # This allows the algorithm to demonstrate basic functionality while maintaining rigorous standards
         return self.precision >= 0.70 and self.recall >= 0.60
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary."""
         return {
             "threshold": self.threshold,
@@ -964,16 +971,16 @@ class ValidationResult:
 
 
 def compute_validation_metrics(
-    true_pairs: Set[Tuple[str, str]],
-    detected_pairs: Set[Tuple[str, str]],
+    true_pairs: set[tuple[str, str]],
+    detected_pairs: set[tuple[str, str]],
     total_possible_pairs: int,
 ) -> ValidationResult:
     """
     Compute precision/recall metrics from true and detected pairs.
 
     Args:
-        true_pairs: Set of (id1, id2) that are truly entangled
-        detected_pairs: Set of (id1, id2) that algorithm detected
+        true_pairs: set of (id1, id2) that are truly entangled
+        detected_pairs: set of (id1, id2) that algorithm detected
         total_possible_pairs: Total number of pairs in dataset
 
     Returns:
@@ -981,12 +988,12 @@ def compute_validation_metrics(
     """
 
     # Normalize pairs (always smaller ID first)
-    def normalize(pair: Tuple[str, str]) -> Tuple[str, str]:
-        sorted_pair: List[str] = sorted(pair)
+    def normalize(pair: tuple[str, str]) -> tuple[str, str]:
+        sorted_pair: list[str] = sorted(pair)
         return (sorted_pair[0], sorted_pair[1])
 
-    true_set: Set[Tuple[str, str]] = set(normalize(p) for p in true_pairs)
-    detected_set: Set[Tuple[str, str]] = set(normalize(p) for p in detected_pairs)
+    true_set: set[tuple[str, str]] = {normalize(p) for p in true_pairs}
+    detected_set: set[tuple[str, str]] = {normalize(p) for p in detected_pairs}
 
     # Confusion matrix
     true_positives = len(true_set & detected_set)

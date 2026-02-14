@@ -29,7 +29,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 from fractalsemantics.dynamic_enum import Alignment, Polarity
 
@@ -86,7 +86,7 @@ class TestScenario:
     use_unique_id: bool
     use_unique_state: bool
     coordinate_range_limit: Optional[float]
-    dimensions: List[str]
+    dimensions: list[str]
 
 TEST_SCENARIOS = [
     TestScenario(
@@ -182,7 +182,7 @@ class StressTestResult:
 
     test_name: str
     dimension_count: int
-    dimensions_used: List[str]
+    dimensions_used: list[str]
     sample_size: int
     unique_addresses: int
     collisions: int
@@ -191,7 +191,7 @@ class StressTestResult:
     coordinate_diversity: float  # 0.0 to 1.0, how varied the coordinates are
     description: str
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         return asdict(self)
 
 
@@ -202,10 +202,10 @@ class DimensionStressTestResult:
     start_time: str
     end_time: str
     total_duration_seconds: float
-    test_results: List[StressTestResult]
-    key_findings: List[str] = field(default_factory=list)
+    test_results: list[StressTestResult]
+    key_findings: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         return {
             "experiment": "EXP-11b",
             "test_type": "Dimensional Collision Stress Test",
@@ -245,7 +245,7 @@ class DimensionStressTest:
         if sample_size <= 0:
             raise ValueError(f"Sample size must be positive, got {sample_size}")
         self.sample_size = sample_size
-        self.results: List[StressTestResult] = []
+        self.results: list[StressTestResult] = []
 
     def _generate_bitchain_with_constraints(
         self,
@@ -253,7 +253,7 @@ class DimensionStressTest:
         use_unique_id: bool = True,
         use_unique_state: bool = True,
         coordinate_range_limit: Optional[float] = None,
-        dimensions_to_use: Optional[List[str]] = None,
+        dimensions_to_use: Optional[list[str]] = None,
     ) -> BitChain:
         """
         Generate a bit-chain with specific constraints for stress testing.
@@ -266,10 +266,7 @@ class DimensionStressTest:
             dimensions_to_use: If set, only vary these dimensions
         """
         # ID: unique or fixed
-        if use_unique_id:
-            id_str = f"test-{index:08d}"
-        else:
-            id_str = "fixed-id-000000"
+        id_str = f"test-{index:08d}" if use_unique_id else "fixed-id-000000"
 
         # State: unique or fixed
         if use_unique_state:
@@ -325,14 +322,14 @@ class DimensionStressTest:
         )
 
     def _compute_address_with_selected_dimensions(
-        self, bc: BitChain, dimensions: List[str]
+        self, bc: BitChain, dimensions: list[str]
     ) -> str:
         """
         Compute address using only selected dimensions.
         This is the key function that lets us test dimensional collision resistance.
         """
         # Build coordinate dict with only selected dimensions
-        coords_dict: Dict[str, Any] = {}
+        coords_dict: dict[str, any] = {}
         for dim in dimensions:
             if dim == "realm":
                 coords_dict[dim] = bc.coordinates.realm
@@ -362,7 +359,7 @@ class DimensionStressTest:
 
         return compute_address_hash(data)
 
-    def _compute_coordinate_diversity(self, bitchains: List[BitChain]) -> float:
+    def _compute_coordinate_diversity(self, bitchains: list[BitChain]) -> float:
         """
         Calculate how diverse the coordinates are (0.0 = all identical, 1.0 = maximally diverse).
         """
@@ -373,9 +370,9 @@ class DimensionStressTest:
         sample = bitchains[: min(1000, len(bitchains))]
 
         # Count unique values per dimension
-        unique_realms = len(set(bc.coordinates.realm for bc in sample))
-        unique_lineages = len(set(bc.coordinates.lineage for bc in sample))
-        unique_horizons = len(set(bc.coordinates.horizon for bc in sample))
+        unique_realms = len({bc.coordinates.realm for bc in sample})
+        unique_lineages = len({bc.coordinates.lineage for bc in sample})
+        unique_horizons = len({bc.coordinates.horizon for bc in sample})
 
         # Normalize to 0-1 range
         realm_diversity = unique_realms / len(REALMS)
@@ -392,7 +389,7 @@ class DimensionStressTest:
         use_unique_id: bool,
         use_unique_state: bool,
         coordinate_range_limit: Optional[float],
-        dimensions_to_use: List[str],
+        dimensions_to_use: list[str],
     ) -> StressTestResult:
         """
         Run a single stress test configuration.
@@ -415,7 +412,7 @@ class DimensionStressTest:
         ]
 
         # Compute addresses
-        addresses: Dict[str, List[str]] = {}
+        addresses: dict[str, list[str]] = {}
         for bc in bitchains:
             addr = self._compute_address_with_selected_dimensions(bc, dimensions_to_use)
             if addr not in addresses:
@@ -455,12 +452,12 @@ class DimensionStressTest:
 
         return result
 
-    def run(self) -> Tuple[DimensionStressTestResult, bool]:
+    def run(self) -> tuple[DimensionStressTestResult, bool]:
         """
         Run all stress tests defined in TEST_SCENARIOS.
 
         Returns:
-            Tuple of (results, success)
+            tuple of (results, success)
         """
         start_time = datetime.now(timezone.utc).isoformat()
         overall_start = time.time()

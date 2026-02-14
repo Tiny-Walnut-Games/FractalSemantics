@@ -7,6 +7,7 @@ This workflow addresses the issue of large files (>1000 lines) that become diffi
 ## Current Large File Analysis
 
 **Files exceeding 1000 lines:**
+
 - `fractalsemantics/exp20_vector_field_derivation.py` (1,367 lines)
 - `fractalsemantics/exp03_coordinate_entropy.py` (1,075 lines)
 - `fractalsemantics/exp19_orbital_equivalence.py` (1,054 lines)
@@ -17,13 +18,15 @@ This workflow addresses the issue of large files (>1000 lines) that become diffi
 
 ### 1. File Decomposition Strategy
 
-**Rule: Single Responsibility Principle for Files**
+- **Rule: Single Responsibility Principle for Files**
+
 - Each file should have a maximum of 500 lines
 - Files >300 lines should be reviewed for decomposition opportunities
 - Related functionality should be grouped into logical modules
 
 **Decomposition Pattern:**
-```
+
+```none
 expXX_main_functionality.py (core logic, <500 lines)
 ├── expXX_data_models.py (data structures, enums)
 ├── expXX_algorithms.py (algorithm implementations)
@@ -33,13 +36,15 @@ expXX_main_functionality.py (core logic, <500 lines)
 
 ### 2. Modular Architecture Guidelines
 
-**Rule: Clear Module Boundaries**
+- **Rule: Clear Module Boundaries**
+
 - Each module should have a single, well-defined purpose
 - Use clear import statements to show dependencies
 - Maintain backward compatibility during refactoring
 
 **Example Structure for exp20:**
-```
+
+```none
 fractalsemantics/exp20_vector_field_derivation/
 ├── __init__.py
 ├── main.py (core vector field logic)
@@ -51,13 +56,15 @@ fractalsemantics/exp20_vector_field_derivation/
 
 ### 3. Search Optimization
 
-**Rule: Enhanced Searchability**
+- **Rule: Enhanced Searchability**
+
 - Use consistent naming conventions
 - Add comprehensive docstrings to all functions
 - Implement structured logging for debugging
 - Create index files for large modules
 
 **Search Enhancement Pattern:**
+
 ```python
 # Add to each module
 MODULE_INDEX = {
@@ -70,7 +77,8 @@ MODULE_INDEX = {
 
 ### 4. Documentation Standards
 
-**Rule: Inline Documentation**
+- **Rule: Inline Documentation**
+
 - Every function >10 lines must have docstring
 - Complex algorithms need inline comments
 - Module-level documentation required for files >100 lines
@@ -78,7 +86,8 @@ MODULE_INDEX = {
 
 ### 5. Testing Strategy
 
-**Rule: Modular Testing**
+- **Rule: Modular Testing**
+
 - Each decomposed module gets its own test file
 - Integration tests for module interactions
 - Performance tests for critical algorithms
@@ -87,23 +96,27 @@ MODULE_INDEX = {
 ## Implementation Steps
 
 ### Phase 1: Analysis (Current)
+
 - [x] Identify large files
 - [x] Analyze file structure and dependencies
 - [ ] Create decomposition plan for each large file
 
 ### Phase 2: Refactoring
+
 - [ ] Implement modular structure for exp20
 - [ ] Create clear module boundaries
 - [ ] Maintain backward compatibility
 - [ ] Update import statements
 
 ### Phase 3: Optimization
+
 - [ ] Add comprehensive documentation
 - [ ] Implement search optimization patterns
 - [ ] Create module index files
 - [ ] Update testing strategy
 
 ### Phase 4: Validation
+
 - [ ] Run existing tests to ensure compatibility
 - [ ] Performance benchmarking
 - [ ] Code review and approval
@@ -112,11 +125,13 @@ MODULE_INDEX = {
 ## Tools and Skills Integration
 
 ### MCP Server Usage
+
 - Use Context7 MCP for library documentation when refactoring
 - Use Fetch MCP for external documentation research
 - Implement project-health-auditor for code quality checks
 
 ### Skills Integration
+
 - Apply technical documentation skills for improved docstrings
 - Use code organization skills for better module structure
 - Implement search optimization skills for enhanced findability

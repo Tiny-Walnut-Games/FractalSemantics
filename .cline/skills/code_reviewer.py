@@ -1,26 +1,18 @@
 #!/usr/bin/env python3
 """
-Code Reviewer Skill for Cline
+Global Code Reviewer Skill for Cline
 
-AI-powered code reviewer that provides comprehensive feedback on code quality,
-security, performance, and best practices. Supports multiple programming languages.
-
-Usage:
-  /code-reviewer <file_path>       - Review single file
-  /code-reviewer .                 - Review entire project
-  /code-reviewer <file> --security - Security-focused review
-  /code-reviewer <file> --performance - Performance-focused review
-  /code-reviewer <file> --best-practices - Best practices review
+An AI-powered code reviewer that provides comprehensive feedback on code quality,
+security, performance, and best practices. Can be used across any project.
 """
 
 import ast
-import json
 import os
 import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Optional, dict, list
 
 
 @dataclass
@@ -38,62 +30,11 @@ class CodeReviewer:
     """AI-powered code reviewer for multiple languages."""
 
     def __init__(self, project_root: Optional[str] = None):
+        """Initialize the code reviewer with optional project root."""
         self.project_root = Path(project_root or os.getcwd())
-        self.issues: List[ReviewIssue] = []
-        self.config = self._load_config()
+        self.issues: list[ReviewIssue] = []
 
-    def _load_config(self) -> Dict[str, Any]:
-        """Load configuration from .cline-code-reviewer.json."""
-        config_path = self.project_root / ".cline-code-reviewer.json"
-
-        default_config = {
-            "reviewer_config": {
-                "enabled_categories": [
-                    "security",
-                    "performance",
-                    "quality",
-                    "best_practices",
-                    "type_safety"
-                ],
-                "severity_levels": {
-                    "security": "error",
-                    "performance": "warning",
-                    "quality": "info",
-                    "best_practices": "warning",
-                    "type_safety": "info"
-                },
-                "custom_rules": [],
-                "file_patterns": {
-                    "include": ["*.py", "*.js", "*.ts", "*.rs", "*.go"],
-                    "exclude": ["*.test.js", "*.spec.ts", "node_modules/**"]
-                },
-                "language_specific": {
-                    "python": {
-                        "max_complexity": 10,
-                        "max_line_length": 88,
-                        "require_type_hints": True
-                    },
-                    "javascript": {
-                        "strict_mode": True,
-                        "no_var": True,
-                        "prefer_const": True
-                    }
-                }
-            }
-        }
-
-        if config_path.exists():
-            try:
-                with open(config_path) as f:
-                    user_config = json.load(f)
-                # Merge with defaults
-                return {**default_config, **user_config}
-            except:
-                pass
-
-        return default_config
-
-    def review_file(self, file_path: Path) -> List[ReviewIssue]:
+    def review_file(self, file_path: Path) -> list[ReviewIssue]:
         """Review a single file and return list of issues."""
         self.issues = []
 
@@ -104,7 +45,7 @@ class CodeReviewer:
             with open(file_path, encoding='utf-8') as f:
                 content = f.read()
                 lines = content.split('\n')
-        except:
+        except ast.ParseError:
             return self.issues
 
         # Determine file type and run appropriate reviews
@@ -131,14 +72,14 @@ class CodeReviewer:
 
         return self.issues
 
-    def _review_python_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_python_file(self, file_path: Path, content: str, lines: list[str]):
         """Review Python files for common issues."""
 
         # Parse AST for deeper analysis
         try:
             tree = ast.parse(content)
         except SyntaxError as e:
-            self._add_issue("error", "syntax", e.lineno, e.offset or 0,
+            self._add_issue("error", "syntax", e.lineno if e.lineno is not None else 0, e.offset if e.offset is not None else 0,
                           f"Syntax error: {e.msg}")
             return
 
@@ -152,7 +93,7 @@ class CodeReviewer:
         self._check_python_style(content, lines)
 
         # Check for best practices
-        self._check_python_best_practices(file_path, content, lines)
+        self._check_python_best_practices(content, lines)
 
         # Check imports
         self._check_python_imports(content, lines)
@@ -160,7 +101,7 @@ class CodeReviewer:
         # Check docstrings
         self._check_python_docstrings(tree, lines)
 
-    def _check_python_security(self, content: str, lines: List[str]):
+    def _check_python_security(self, content: str, lines: list[str]):
         """Check for security vulnerabilities in Python code."""
 
         # Check for hardcoded secrets
@@ -207,7 +148,7 @@ class CodeReviewer:
                                   "Potential SQL injection vulnerability",
                                   "Use parameterized queries instead")
 
-    def _check_python_performance(self, content: str, lines: List[str]):
+    def _check_python_performance(self, content: str, lines: list[str]):
         """Check for performance issues in Python code."""
 
         # Check for inefficient loops
@@ -217,12 +158,11 @@ class CodeReviewer:
                               "Inefficient iteration pattern",
                               "Use enumerate() or direct iteration instead")
 
-            if re.search(r'\.append\(\)', line) in content:
-                # Check for repeated appends in loops
-                if i > 0 and i < len(lines) - 1:
-                    if re.search(r'for\s+', lines[i-1]) or re.search(r'while\s+', lines[i-1]):
-                        self._add_issue("info", "performance", i, 0,
-                                      "Consider using list comprehension for better performance")
+            if (re.search(r'\.append\(\)', line) and re.search(r'\.append\(\)', content) and
+                i > 0 and i < len(lines) - 1 and
+                (re.search(r'for\s+', lines[i-1]) or re.search(r'while\s+', lines[i-1]))):
+                self._add_issue("info", "performance", i, 0,
+                              "Consider using list comprehension for better performance")
 
         # Check for unnecessary string concatenation in loops
         in_loop = False
@@ -237,15 +177,14 @@ class CodeReviewer:
                               "Use join() or f-strings instead")
                 in_loop = False
 
-    def _check_python_style(self, content: str, lines: List[str]):
+    def _check_python_style(self, content: str, lines: list[str]):
         """Check for code style issues."""
 
         # Check line length
-        max_length = self.config.get("reviewer_config", {}).get("language_specific", {}).get("python", {}).get("max_line_length", 88)
         for i, line in enumerate(lines, 1):
-            if len(line) > max_length:
-                self._add_issue("warning", "style", i, max_length,
-                              f"Line too long ({len(line)} > {max_length} characters)")
+            if len(line) > 88:  # Black default
+                self._add_issue("warning", "style", i, 88,
+                              f"Line too long ({len(line)} > 88 characters)")
 
         # Check for trailing whitespace
         for i, line in enumerate(lines, 1):
@@ -264,7 +203,7 @@ class CodeReviewer:
             else:
                 blank_count = 0
 
-    def _check_python_best_practices(self, file_path: Path, content: str, lines: List[str]):
+    def _check_python_best_practices(self, content: str, lines: list[str]):
         """Check for Python best practices."""
 
         # Check for mutable default arguments
@@ -282,14 +221,13 @@ class CodeReviewer:
                               "Specify specific exception types")
 
         # Check for print statements in production code
-        if file_path and 'test' not in str(file_path).lower():
-            for i, line in enumerate(lines, 1):
-                if re.search(r'\bprint\s*\(', line):
-                    self._add_issue("info", "best_practice", i, 0,
-                                  "Print statement in production code",
-                                  "Use logging instead of print")
+        for i, line in enumerate(lines, 1):
+            if re.search(r'\bprint\s*\(', line) and 'test' not in self.project_root.name.lower():
+                self._add_issue("info", "best_practice", i, 0,
+                              "Print statement in production code",
+                              "Use logging instead of print")
 
-    def _check_python_imports(self, content: str, lines: List[str]):
+    def _check_python_imports(self, content: str, lines: list[str]):
         """Check import statements."""
 
         imports = []
@@ -322,27 +260,27 @@ class CodeReviewer:
                     self._add_issue("info", "best_practice", line_num, 0,
                                   f"Potentially unused import: {imported_name}")
 
-    def _check_python_docstrings(self, tree: ast.AST, lines: List[str]):
+    def _check_python_docstrings(self, tree: ast.AST, lines: list[str]):
         """Check for missing docstrings."""
 
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
                 if (node.body and isinstance(node.body[0], ast.Expr) and
-                    isinstance(node.body[0].value, ast.Str)):
+                    isinstance(node.body[0].value, ast.Constant) and isinstance(node.body[0].value.value, str)):
                     continue  # Has docstring
                 else:
                     line_num = node.lineno
                     self._add_issue("info", "best_practice", line_num, 0,
                                   f"Missing docstring for {node.__class__.__name__.lower()}: {node.name}")
 
-    def _review_javascript_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_javascript_file(self, file_path: Path, content: str, lines: list[str]):
         """Review JavaScript/TypeScript files."""
         # Similar structure to Python review but for JS/TS
         self._check_javascript_security(content, lines)
         self._check_javascript_performance(content, lines)
         self._check_javascript_style(content, lines)
 
-    def _check_javascript_security(self, content: str, lines: List[str]):
+    def _check_javascript_security(self, content: str, lines: list[str]):
         """Check for JavaScript security issues."""
 
         # Check for eval
@@ -359,55 +297,47 @@ class CodeReviewer:
                               "Potential XSS vulnerability",
                               "Use textContent or sanitize HTML")
 
-    def _check_javascript_performance(self, content: str, lines: List[str]):
+    def _check_javascript_performance(self, content: str, lines: list[str]):
         """Check for JavaScript performance issues."""
 
         # Check for inefficient DOM queries in loops
         for i, line in enumerate(lines, 1):
-            if re.search(r'document\.(getElement|querySelector)', line):
-                # Check if this is in a loop (simplified check)
-                if i > 0 and i < len(lines) - 1:
-                    if re.search(r'(for|while)\s*\(.*\)\s*\{', lines[i-1] + lines[i]):
-                        self._add_issue("warning", "performance", i, 0,
-                                      "DOM query in loop is inefficient",
-                                      "Cache DOM elements outside the loop")
+            if (re.search(r'document\.(getElement|querySelector)', line) and
+                i > 0 and i < len(lines) - 1 and
+                re.search(r'(for|while)\s*\(.*\)\s*\{', lines[i-1] + lines[i])):
+                self._add_issue("warning", "performance", i, 0,
+                              "DOM query in loop is inefficient",
+                              "Cache DOM elements outside the loop")
 
-    def _check_javascript_style(self, content: str, lines: List[str]):
+    def _check_javascript_style(self, content: str, lines: list[str]):
         """Check JavaScript code style."""
 
         # Check semicolons
         for i, line in enumerate(lines, 1):
-            if line.strip() and not line.strip().startswith('//'):
-                if not line.strip().endswith((';', '{', '}', ':', ',')):
-                    if re.match(r'^\s*(var|let|const|function|if|for|while|return)', line):
-                        self._add_issue("info", "style", i, len(line),
-                                      "Missing semicolon")
+            if (line.strip() and not line.strip().startswith('//') and
+                not line.strip().endswith((';', '{', '}', ':', ',')) and
+                re.match(r'^\s*(var|let|const|function|if|for|while|return)', line)):
+                self._add_issue("info", "style", i, len(line),
+                              "Missing semicolon")
 
-    def _review_rust_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_rust_file(self, file_path: Path, content: str, lines: list[str]):
         """Review Rust files."""
         # Basic Rust review patterns
         self._check_rust_borrowing(content, lines)
-        self._check_rust_performance(content, lines)
 
-    def _check_rust_borrowing(self, content: str, lines: List[str]):
+    def _check_rust_borrowing(self, content: str, lines: list[str]):
         """Check for potential borrowing issues."""
         for i, line in enumerate(lines, 1):
             if re.search(r'\.clone\(\)', line):
                 self._add_issue("info", "performance", i, 0,
                               "Consider avoiding clone() for performance")
 
-    def _check_rust_performance(self, content: str, lines: List[str]):
-        """Check for Rust performance issues."""
-        # Basic performance checks for Rust
-        pass
-
-    def _review_go_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_go_file(self, file_path: Path, content: str, lines: list[str]):
         """Review Go files."""
         # Basic Go review patterns
         self._check_go_error_handling(content, lines)
-        self._check_go_performance(content, lines)
 
-    def _check_go_error_handling(self, content: str, lines: List[str]):
+    def _check_go_error_handling(self, content: str, lines: list[str]):
         """Check for proper error handling."""
         for i, line in enumerate(lines, 1):
             if re.search(r'err\s*:=', line) and 'if err != nil' not in content:
@@ -415,89 +345,29 @@ class CodeReviewer:
                               "Error not checked",
                               "Always check error return values")
 
-    def _check_go_performance(self, content: str, lines: List[str]):
-        """Check for Go performance issues."""
-        # Basic performance checks for Go
-        pass
-
-    def _review_java_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_java_file(self, file_path: Path, content: str, lines: list[str]):
         """Review Java files."""
         # Basic Java review patterns
-        self._check_java_naming(content, lines)
-        self._check_java_performance(content, lines)
-
-    def _check_java_naming(self, content: str, lines: List[str]):
-        """Check Java naming conventions."""
-        # Basic naming convention checks
         pass
 
-    def _check_java_performance(self, content: str, lines: List[str]):
-        """Check for Java performance issues."""
-        # Basic performance checks for Java
-        pass
-
-    def _review_c_cpp_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_c_cpp_file(self, file_path: Path, content: str, lines: list[str]):
         """Review C/C++ files."""
         # Basic C/C++ review patterns
-        self._check_c_memory_management(content, lines)
-        self._check_c_security(content, lines)
-
-    def _check_c_memory_management(self, content: str, lines: List[str]):
-        """Check for C/C++ memory management issues."""
-        # Basic memory management checks
         pass
 
-    def _check_c_security(self, content: str, lines: List[str]):
-        """Check for C/C++ security issues."""
-        # Basic security checks for C/C++
-        pass
-
-    def _review_html_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_html_file(self, file_path: Path, content: str, lines: list[str]):
         """Review HTML files."""
         # Basic HTML review patterns
-        self._check_html_accessibility(content, lines)
-        self._check_html_semantics(content, lines)
-
-    def _check_html_accessibility(self, content: str, lines: List[str]):
-        """Check HTML accessibility."""
-        # Basic accessibility checks
         pass
 
-    def _check_html_semantics(self, content: str, lines: List[str]):
-        """Check HTML semantic structure."""
-        # Basic semantic checks
-        pass
-
-    def _review_css_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_css_file(self, file_path: Path, content: str, lines: list[str]):
         """Review CSS files."""
         # Basic CSS review patterns
-        self._check_css_performance(content, lines)
-        self._check_css_compatibility(content, lines)
-
-    def _check_css_performance(self, content: str, lines: List[str]):
-        """Check CSS performance issues."""
-        # Basic CSS performance checks
         pass
 
-    def _check_css_compatibility(self, content: str, lines: List[str]):
-        """Check CSS browser compatibility."""
-        # Basic compatibility checks
-        pass
-
-    def _review_config_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_config_file(self, file_path: Path, content: str, lines: list[str]):
         """Review configuration files."""
         # Basic config review patterns
-        self._check_config_secrets(content, lines)
-        self._check_config_structure(content, lines)
-
-    def _check_config_secrets(self, content: str, lines: List[str]):
-        """Check for secrets in config files."""
-        # Basic secret detection in configs
-        pass
-
-    def _check_config_structure(self, content: str, lines: List[str]):
-        """Check config file structure."""
-        # Basic structure validation
         pass
 
     def _add_issue(self, severity: str, category: str, line: int, column: int, message: str, suggestion: Optional[str] = None):
@@ -511,7 +381,7 @@ class CodeReviewer:
             suggestion=suggestion
         ))
 
-    def generate_report(self, file_path: Path, issues: List[ReviewIssue]) -> str:
+    def generate_report(self, file_path: Path, issues: list[ReviewIssue]) -> str:
         """Generate a formatted review report."""
         if not issues:
             return f"✅ {file_path.name}: No issues found!"
@@ -545,10 +415,10 @@ class CodeReviewer:
 
         return report
 
-    def review_project(self, file_patterns: Optional[List[str]] = None) -> Dict[str, List[ReviewIssue]]:
+    def review_project(self, file_patterns: Optional[list[str]] = None) -> dict[str, list[ReviewIssue]]:
         """Review entire project for issues."""
         if file_patterns is None:
-            file_patterns = self.config.get("reviewer_config", {}).get("file_patterns", {}).get("include", ['*.py', '*.js', '*.ts', '*.rs', '*.go'])
+            file_patterns = ['*.py', '*.js', '*.ts', '*.jsx', '*.tsx', '*.rs', '*.go', '*.java', '*.kt']
 
         all_issues = {}
 
@@ -560,20 +430,6 @@ class CodeReviewer:
                         all_issues[str(file_path)] = issues
 
         return all_issues
-
-    def show_help(self) -> bool:
-        """Show available commands."""
-        print("🔧 Code Reviewer Commands:")
-        print()
-        print("  <file_path>              - Review single file")
-        print("  .                        - Review entire project")
-        print("  <file> --security        - Security-focused review")
-        print("  <file> --performance     - Performance-focused review")
-        print("  <file> --best-practices  - Best practices review")
-        print()
-        print("Configuration file: .cline-code-reviewer.json")
-
-        return True
 
 
 def main():

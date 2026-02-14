@@ -24,7 +24,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 # Import subprocess communication for enhanced progress reporting
 try:
@@ -42,7 +42,7 @@ except ImportError:
     def is_subprocess_communication_enabled() -> bool: return False
 
 # Reuse canonical serialization from Phase 1
-from fractalsemantics.fractalsemantics_experiments import (
+from fractalsemantics.fractalsemantics_entity import (
     BitChain,
     compute_address_hash,
     generate_random_bitchain,
@@ -60,7 +60,7 @@ class DimensionTestResult:
     """Results for a single dimension count test."""
 
     dimension_count: int
-    dimensions_used: List[str]
+    dimensions_used: list[str]
     sample_size: int
     unique_addresses: int
     collisions: int
@@ -71,7 +71,7 @@ class DimensionTestResult:
     storage_overhead_per_dimension: float
     semantic_expressiveness_score: float  # 0.0 to 1.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to serializable dict."""
         return asdict(self)
 
@@ -84,11 +84,11 @@ class DimensionCardinalityResult:
     end_time: str
     total_duration_seconds: float
     sample_size: int
-    dimension_counts_tested: List[int]
+    dimension_counts_tested: list[int]
     test_iterations: int
 
     # Per-dimension-count results
-    dimension_results: List[DimensionTestResult]
+    dimension_results: list[DimensionTestResult]
 
     # Aggregate analysis
     optimal_dimension_count: int
@@ -98,10 +98,10 @@ class DimensionCardinalityResult:
     diminishing_returns_threshold: int  # Dimension count where returns diminish
 
     # Key findings
-    major_findings: List[str] = field(default_factory=list)
+    major_findings: list[str] = field(default_factory=list)
     seven_dimensions_justified: bool = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to serializable dict."""
         return {
             "experiment": "EXP-11",
@@ -165,7 +165,7 @@ class EXP11_DimensionCardinality:
     def __init__(
         self,
         sample_size: int = 1000,
-        dimension_counts: Optional[List[int]] = None,
+        dimension_counts: Optional[list[int]] = None,
         test_iterations: int = 5,
     ):
         """
@@ -173,7 +173,7 @@ class EXP11_DimensionCardinality:
 
         Args:
             sample_size: Number of bit-chains to test per dimension count
-            dimension_counts: List of dimension counts to test (default: [3,4,5,6,7,8,9,10])
+            dimension_counts: list of dimension counts to test (default: [3,4,5,6,7,8,9,10])
             test_iterations: Number of iterations per dimension count
         """
         self.sample_size = sample_size
@@ -183,9 +183,9 @@ class EXP11_DimensionCardinality:
             else [3, 4, 5, 6, 7, 8, 9, 10]
         )
         self.test_iterations = test_iterations
-        self.results: List[DimensionTestResult] = []
+        self.results: list[DimensionTestResult] = []
 
-    def _select_dimensions(self, count: int) -> List[str]:
+    def _select_dimensions(self, count: int) -> list[str]:
         """
         Select which dimensions to use for a given count.
 
@@ -200,14 +200,14 @@ class EXP11_DimensionCardinality:
             return self.FractalSemantics_DIMENSIONS + self.EXTENDED_DIMENSIONS[:extended_count]
 
     def _compute_address_with_dimensions(
-        self, bc: BitChain, dimensions: List[str]
+        self, bc: BitChain, dimensions: list[str]
     ) -> str:
         """
         Compute address using only specified dimensions.
 
         Args:
             bc: BitChain to address
-            dimensions: List of dimension names to include
+            dimensions: list of dimension names to include
 
         Returns:
             SHA-256 hash of canonical serialization with selected dimensions
@@ -246,7 +246,7 @@ class EXP11_DimensionCardinality:
         return compute_address_hash(data)
 
     def _calculate_semantic_expressiveness(
-        self, dimensions: List[str], bitchains: List[BitChain]
+        self, dimensions: list[str], bitchains: list[BitChain]
     ) -> float:
         """
         Calculate semantic expressiveness score (0.0 to 1.0).
@@ -291,8 +291,8 @@ class EXP11_DimensionCardinality:
             REALMS = ["COMPANION", "BADGE", "SPONSOR_RING", "ACHIEVEMENT", "PATTERN",
                       "FACULTY", "TEMPORAL", "VOID"]
 
-            realm_count = len(set(bc.coordinates.realm for bc in bitchains))
-            lineage_variance = len(set(bc.coordinates.lineage for bc in bitchains))
+            realm_count = len({bc.coordinates.realm for bc in bitchains})
+            lineage_variance = len({bc.coordinates.lineage for bc in bitchains})
             adjacency_complexity = sum(len(bc.coordinates.adjacency) for bc in bitchains) / len(bitchains)
 
             # Bonus based on actual coordinate diversity
@@ -388,12 +388,12 @@ class EXP11_DimensionCardinality:
             semantic_expressiveness_score=expressiveness,
         )
 
-    def run(self) -> Tuple[DimensionCardinalityResult, bool]:
+    def run(self) -> tuple[DimensionCardinalityResult, bool]:
         """
         Run the dimension cardinality analysis.
 
         Returns:
-            Tuple of (results, success)
+            tuple of (results, success)
         """
         start_time = datetime.now(timezone.utc).isoformat()
         overall_start = time.time()

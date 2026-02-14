@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 EXP-04: Bit-Chain FractalSemantics Fractal Scaling Test
 
@@ -18,10 +19,10 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 # Reuse canonical serialization from Phase 1
-from fractalsemantics.fractalsemantics_experiments import (
+from fractalsemantics.fractalsemantics_entity import (
     BitChain,
     generate_random_bitchain,
 )
@@ -81,7 +82,7 @@ class ScaleTestResults:
 
     # Retrieval performance
     num_retrievals: int
-    retrieval_times_ms: List[float]
+    retrieval_times_ms: list[float]
     retrieval_mean_ms: float
     retrieval_median_ms: float
     retrieval_p95_ms: float
@@ -99,7 +100,7 @@ class ScaleTestResults:
             and self.retrieval_mean_ms < 2.0  # Sub-millisecond target
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to serializable dict."""
         return {
             "scale": self.scale,
@@ -130,14 +131,14 @@ class FractalScalingResults:
     start_time: str
     end_time: str
     total_duration_seconds: float
-    scale_results: List[ScaleTestResults]
+    scale_results: list[ScaleTestResults]
 
     # Degradation analysis
     collision_degradation: Optional[str]
     retrieval_degradation: Optional[str]
     is_fractal: bool
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to serializable dict."""
         return {
             "experiment": "EXP-04",
@@ -172,14 +173,18 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
 
     # Step 1: Generate bit-chains
     print(f"  Generating {config.scale} bit-chains...", end="", flush=True)
-    bitchains: List[BitChain] = []
+    bitchains: list[BitChain] = []
     for i in range(config.scale):
         bitchains.append(generate_random_bitchain())
+        # use variable i to report progress every 10% of generation
+        if (i + 1) % (config.scale // 10) == 0:
+            gen_progress = ((i + 1) / config.scale) * 100
+            print(f" {gen_progress:.0f}%", end="", flush=True)
     print(" OK")
 
     # Step 2: Compute addresses and check for collisions (EXP-01)
     print("  Computing addresses (EXP-01)...", end="", flush=True)
-    address_map: Dict[str, int] = defaultdict(int)
+    address_map: dict[str, int] = defaultdict(int)
     addresses = []
 
     for bc in bitchains:
@@ -265,8 +270,8 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
 
 
 def analyze_degradation(
-    results: List[ScaleTestResults],
-) -> Tuple[Optional[str], Optional[str], bool]:
+    results: list[ScaleTestResults],
+) -> tuple[Optional[str], Optional[str], bool]:
     """
     Analyze whether the system maintains fractal properties.
 

@@ -13,8 +13,22 @@ enabled = [
     "EXP-03",
     "EXP-04",
     "EXP-05",
+    "EXP-06",
+    "EXP-07",
+    "EXP-08",
+    "EXP-09",
+    "EXP-10",
     "EXP-11",
-    "EXP-12"
+    "EXP-11b",
+    "EXP-12",
+    "EXP-13",
+    "EXP-14",
+    "EXP-15",
+    "EXP-16",
+    "EXP-17",
+    "EXP-18",
+    "EXP-19",
+    "EXP-20"
 ]
 
 # EXP-01: Adequate sample size for geometric collision resistance test (scaled)
@@ -75,6 +89,12 @@ optimization_strategies = ["Dimensional Indexing", "Query Result Caching"]
 [experiments.EXP-11]
 sample_size = 10000         # Increased for better testing
 dimension_counts = [3, 4, 5, 6, 7, 8, 9, 10]  # Full range for syncopation
+test_iterations = 10        # Increased for statistical significance
+
+# EXP-11b: Quick dimension cardinality stress test
+[experiments.EXP-11b]
+sample_size = 10000         # Increased for better testing
+dimension_counts = [2, 12]  # Extreme dimension counts for stress testing
 test_iterations = 10        # Increased for statistical significance
 
 # EXP-12: Quick benchmark comparison

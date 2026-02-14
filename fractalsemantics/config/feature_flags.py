@@ -18,7 +18,7 @@ Usage:
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional, dict, list
 
 # Handle Python 3.11+ vs earlier versions for tomllib/tomli
 if sys.version_info >= (3, 11):
@@ -49,7 +49,7 @@ class ExperimentConfig:
             config_file: Base configuration file name (default: experiments.toml)
         """
         self.config_dir = Path(__file__).parent
-        self.config: Dict[str, Any] = {}
+        self.config: dict[str, any] = {}
         self.env = os.getenv("FRACTALSEMANTICS_ENV", "dev")
 
         # Load base configuration
@@ -82,7 +82,7 @@ class ExperimentConfig:
         # Merge environment config into base config
         self._merge_configs(env_config)
 
-    def _merge_configs(self, override_config: Dict[str, Any]) -> None:
+    def _merge_configs(self, override_config: dict[str, any]) -> None:
         """
         Merge override configuration into base configuration.
 
@@ -127,7 +127,7 @@ class ExperimentConfig:
         enabled_list = self.config.get("experiments", {}).get("enabled", [])
         return experiment in enabled_list
 
-    def get(self, experiment: str, key: str, default: Any = None) -> Any:
+    def get(self, experiment: str, key: str, default: any = None) -> any:
         """
         Get a configuration value for an experiment.
 
@@ -142,7 +142,7 @@ class ExperimentConfig:
         exp_config = self.config.get("experiments", {}).get(experiment, {})
         return exp_config.get(key, default)
 
-    def get_all(self, experiment: str) -> Dict[str, Any]:
+    def get_all(self, experiment: str) -> dict[str, any]:
         """
         Get all configuration for an experiment.
 
@@ -150,16 +150,16 @@ class ExperimentConfig:
             experiment: Experiment ID (e.g., "EXP-01")
 
         Returns:
-            Dictionary of all configuration values for the experiment
+            dictionary of all configuration values for the experiment
         """
         return self.config.get("experiments", {}).get(experiment, {})
 
-    def get_enabled_experiments(self) -> List[str]:
+    def get_enabled_experiments(self) -> list[str]:
         """
         Get list of all enabled experiments.
 
         Returns:
-            List of enabled experiment IDs
+            list of enabled experiment IDs
         """
         return self.config.get("experiments", {}).get("enabled", [])
 

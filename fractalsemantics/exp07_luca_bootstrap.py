@@ -24,7 +24,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Optional
 
 # Import progress communication
 
@@ -66,9 +66,9 @@ class TestBitChain:
     timestamp: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         """Convert to dictionary."""
         return {
             "bit_chain_id": self.bit_chain_id,
@@ -102,13 +102,13 @@ class LUCABootstrapResult:
     title: str = "LUCA Bootstrap Test"
     timestamp: str = ""
     status: str = "PASS"
-    results: Dict[str, Any] = field(default_factory=dict)
+    results: dict[str, any] = field(default_factory=dict)
 
     def __post_init__(self):
         if self.timestamp == "":
             self.timestamp = datetime.now(timezone.utc).isoformat()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, any]:
         return {
             "experiment": self.experiment,
             "title": self.title,
@@ -128,9 +128,9 @@ class LUCABootstrapTester:
 
     def __init__(self):
         self.results = LUCABootstrapResult()
-        self.luca_dictionary: Dict[str, Any] = {}  # Master reference
+        self.luca_dictionary: dict[str, any] = {}  # Master reference
 
-    def create_test_entities(self, num_entities: int = 10) -> List[TestBitChain]:  # type: ignore[misc]
+    def create_test_entities(self, num_entities: int = 10) -> list[TestBitChain]:  # type: ignore[misc]
         """Create test entities with known lineage from LUCA."""
         entities = []
 
@@ -161,7 +161,7 @@ class LUCABootstrapTester:
 
         return entities
 
-    def compute_luca_encoding(self, entity: TestBitChain) -> Dict[str, Any]:
+    def compute_luca_encoding(self, entity: TestBitChain) -> dict[str, any]:
         """
         Encode entity to minimal LUCA-equivalent representation.
         This is the "compressed to irreducible ground state" form.
@@ -180,7 +180,7 @@ class LUCABootstrapTester:
         }
         return luca_form
 
-    def compress_to_luca(self, entities: List[TestBitChain]) -> Dict[str, Any]:
+    def compress_to_luca(self, entities: list[TestBitChain]) -> dict[str, any]:
         """
         Compress entities to LUCA-equivalent state.
         The result is the minimal bootstrap form from which everything can be reconstructed.
@@ -222,8 +222,8 @@ class LUCABootstrapTester:
         return luca_state
 
     def bootstrap_from_luca(
-        self, luca_state: Dict[str, Any]
-    ) -> Tuple[List[TestBitChain], List[bool]]:
+        self, luca_state: dict[str, any]
+    ) -> tuple[list[TestBitChain], list[bool]]:
         """
         Bootstrap entities back from LUCA state.
         This reconstructs the full entity from minimal encoding.
@@ -271,8 +271,8 @@ class LUCABootstrapTester:
         return signature_map.get(sig, "unknown")
 
     def compare_entities(
-        self, original: List[TestBitChain], bootstrapped: List[TestBitChain]
-    ) -> Dict[str, Any]:
+        self, original: list[TestBitChain], bootstrapped: list[TestBitChain]
+    ) -> dict[str, any]:
         """Compare original and bootstrapped entities."""
         print("   Comparing original and bootstrapped entities...")
 
@@ -280,7 +280,7 @@ class LUCABootstrapTester:
         lineage_matches: int = 0
         realm_matches: int = 0
         dimensionality_matches: int = 0
-        details: List[Dict[str, Any]] = []
+        details: list[dict[str, any]] = []
 
         comparison = {
             "original_count": len(original),
@@ -356,11 +356,11 @@ class LUCABootstrapTester:
 
         return comparison
 
-    def test_fractal_properties(self, entities: List[TestBitChain]) -> Dict[str, Any]:
+    def test_fractal_properties(self, entities: list[TestBitChain]) -> dict[str, any]:
         """Test fractal properties of the system."""
         print("   Testing fractal properties...")
 
-        details: Dict[str, Any] = {}
+        details: dict[str, any] = {}
         fractal_tests = {
             "self_similarity": True,
             "scale_invariance": True,
@@ -411,7 +411,7 @@ class LUCABootstrapTester:
 
         return fractal_tests
 
-    def test_luca_continuity(self, original: List[TestBitChain]) -> Dict[str, Any]:
+    def test_luca_continuity(self, original: list[TestBitChain]) -> dict[str, any]:
         """
         Test that LUCA provides continuity and health for entities.
         This is the core of EXP-07.
@@ -420,7 +420,7 @@ class LUCABootstrapTester:
 
         bootstraps_performed: int = 0
         bootstrap_failures: int = 0
-        reconstruction_errors: List[str] = []
+        reconstruction_errors: list[str] = []
         lineage_continuity: bool = True
 
         continuity_test = {
@@ -610,7 +610,7 @@ class LUCABootstrapTester:
         return self.results
 
 
-def save_results(results: Dict[str, Any], output_file: Optional[str] = None) -> str:
+def save_results(results: dict[str, any], output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")

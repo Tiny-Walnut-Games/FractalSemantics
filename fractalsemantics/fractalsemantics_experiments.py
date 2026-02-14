@@ -18,7 +18,7 @@ Usage:
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional, dict, list
 
 # Re-export functions and classes that moved to separate modules during refactoring
 # plus constants from the main package for backward compatibility
@@ -109,7 +109,7 @@ __all__ = [
 # CONFIGURE EXPERIMENT MODULES TO RUN
 # ===========================================================================
 
-# List of all experiments with their module names and display names
+# list of all experiments with their module names and display names
 EXPERIMENTS = [
     ("exp01_geometric_collision", "EXP-01 (Geometric Collision Resistance)"),
     ("exp02_retrieval_efficiency", "EXP-02 (Retrieval Efficiency)"),
@@ -132,10 +132,11 @@ EXPERIMENTS = [
     ("exp18_falloff_thermodynamics", "EXP-18 (Falloff Thermodynamics)"),
     ("exp19_orbital_equivalence", "EXP-19 (Orbital Equivalence)"),
     ("exp20_vector_field_derivation", "EXP-20 (Vector Field Derivation)"),
+    ("exp21_earth_moon_sun_simulation", "EXP-21 (Earth-Moon-Sun Simulation)"),
 ]
 
 
-def run_single_experiment(module_name: str, display_name: str) -> Dict[str, Any]:
+def run_single_experiment(module_name: str, display_name: str) -> dict[str, any]:
     """
     Run a single experiment module and capture its results.
 
@@ -144,7 +145,7 @@ def run_single_experiment(module_name: str, display_name: str) -> Dict[str, Any]
         display_name: Human-readable name for the experiment
 
     Returns:
-        Dictionary with success status and results
+        dictionary with success status and results
     """
     try:
         print(f"\n{'=' * 80}")
@@ -171,7 +172,7 @@ def run_single_experiment(module_name: str, display_name: str) -> Dict[str, Any]
                 "EXP-09 COMPLETE", "EXP-10 COMPLETE", "EXP-11 COMPLETE", "EXP-11b COMPLETE",
                 "EXP-12 COMPLETE", "EXP-13 COMPLETE", "EXP-14 COMPLETE", "EXP-15 COMPLETE",
                 "EXP-16 COMPLETE", "EXP-17 COMPLETE", "EXP-18 COMPLETE", "EXP-19 COMPLETE",
-                "EXP-20 COMPLETE", "BREAKTHROUGH CONFIRMED", "SUCCESS: Fractal systems satisfy thermodynamic laws"
+                "EXP-20 COMPLETE", "EXP-21 COMPLETE", "ALL EXPERIMENTS COMPLETE"
             ]
             failure_indicators = ["[FAIL] EXPERIMENT FAILED", "[Error]", "EXPERIMENT FAILED"]
 
@@ -209,16 +210,16 @@ def run_single_experiment(module_name: str, display_name: str) -> Dict[str, Any]
     return {"success": False, "error": f"No handler found for {module_name}"}
 
 
-def run_all_experiments(selected_experiments: Optional[List[str]] = None) -> Dict[str, Any]:
+def run_all_experiments(selected_experiments: Optional[list[str]] = None) -> dict[str, any]:
     """
     Run all configured experiments or a selected subset.
 
     Args:
-        selected_experiments: List of experiment names to run.
+        selected_experiments: list of experiment names to run.
                             If None, runs all experiments.
 
     Returns:
-        Dictionary with experiment results and overall summary
+        dictionary with experiment results and overall summary
     """
     print("=" * 100)
     print("FRACTALSEMANTICS VALIDATION EXPERIMENTS - MODULAR ORCHESTRATOR")
@@ -302,7 +303,7 @@ def main():
 Examples:
     python fractalsemantics_experiments.py                    # Run all experiments
     python fractalsemantics_experiments.py exp01 exp02      # Run specific experiments
-    python fractalsemantics_experiments.py --list             # List available experiments
+    python fractalsemantics_experiments.py --list             # list available experiments
         """
     )
 
@@ -315,7 +316,7 @@ Examples:
     parser.add_argument(
         '--list',
         action='store_true',
-        help='List all available experiments and exit'
+        help='list all available experiments and exit'
     )
 
     parser.add_argument(

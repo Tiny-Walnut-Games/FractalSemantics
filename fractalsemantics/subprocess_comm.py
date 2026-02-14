@@ -18,13 +18,15 @@ Usage in experiments:
     send_subprocess_progress("EXP-01", 50.0, "Generation", "50% of bit-chains generated", "info")
 """
 
+import contextlib
 import json
 import os
 import sys
 import threading
 import time
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional
 
 # Import the existing progress communication system
 from fractalsemantics.progress_comm import report_progress
@@ -85,7 +87,7 @@ class SubprocessCommunicator:
 
             # Create progress message
             progress_msg = {
-                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S.%f%z"),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "experiment_id": self.experiment_id,
                 "progress_percent": progress,
                 "stage": stage,
@@ -94,33 +96,24 @@ class SubprocessCommunicator:
                 "message_type": "progress"
             }
 
-            # Write to progress file if configured
-            if self.progress_file:
-                try:
-                    # Ensure directory exists
-                    Path(self.progress_file).parent.mkdir(parents=True, exist_ok=True)
-
-                    # Write JSON line to file
-                    with open(self.progress_file, 'a') as f:
-                        f.write(json.dumps(progress_msg) + '\n')
-
-                    # Also send to stderr for immediate feedback
-                    print(f"__PROGRESS__:{json.dumps(progress_msg)}", file=sys.stderr)
-
-                    return True
-                except Exception as e:
-                    print(f"Warning: Failed to write to progress file: {e}", file=sys.stderr)
-
-            # Fallback: send using the existing progress communication system
+            # Use the progress_comm system for file writing (atomic, compatible with GUI polling)
+            # This avoids format conflicts between JSONL appends and atomic JSON writes
             from fractalsemantics.progress_comm import report_progress
-            report_progress(
+
+            # Send progress using the unified progress communication system
+            # This will write to the file atomically if configured
+            success = report_progress(
                 experiment_id=self.experiment_id,
                 progress_percent=progress,
                 stage=stage,
                 message=enhanced_message
             )
 
-            return True
+            # Also send to stderr for immediate feedback (doesn't interfere with file writing)
+            with contextlib.suppress(BaseException):
+                print(f"__PROGRESS__:{json.dumps(progress_msg)}", file=sys.stderr)
+
+            return success
 
         except Exception as e:
             # Log error but don't fail the experiment
@@ -181,12 +174,12 @@ class SubprocessCommunicator:
 
         return self.send_progress(progress, "Completion", message, level)
 
-    def get_runtime_info(self) -> Dict[str, Any]:
+    def get_runtime_info(self) -> dict[str, any]:
         """
         Get runtime information for debugging.
 
         Returns:
-            Dictionary with subprocess runtime information
+            dictionary with subprocess runtime information
         """
         current_time = time.time()
         runtime = current_time - self.start_time
@@ -346,7 +339,7 @@ def is_subprocess_communication_enabled() -> bool:
         return False
 
 
-def get_subprocess_runtime_info(experiment_id: str) -> Dict[str, Any]:
+def get_subprocess_runtime_info(experiment_id: str) -> dict[str, any]:
     """
     Get runtime information for the current subprocess.
 
@@ -354,7 +347,7 @@ def get_subprocess_runtime_info(experiment_id: str) -> Dict[str, Any]:
         experiment_id: The experiment identifier
 
     Returns:
-        Dictionary with runtime information
+        dictionary with runtime information
     """
     try:
         communicator = get_subprocess_communicator(experiment_id)

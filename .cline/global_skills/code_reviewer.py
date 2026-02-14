@@ -12,7 +12,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Optional
 
 
 @dataclass
@@ -32,9 +32,9 @@ class CodeReviewer:
     def __init__(self, project_root: Optional[str] = None):
         """Initialize the code reviewer with optional project root."""
         self.project_root = Path(project_root or os.getcwd())
-        self.issues: List[ReviewIssue] = []
+        self.issues: list[ReviewIssue] = []
 
-    def review_file(self, file_path: Path) -> List[ReviewIssue]:
+    def review_file(self, file_path: Path) -> list[ReviewIssue]:
         """Review a single file and return list of issues."""
         self.issues = []
 
@@ -45,7 +45,7 @@ class CodeReviewer:
             with open(file_path, encoding='utf-8') as f:
                 content = f.read()
                 lines = content.split('\n')
-        except:
+        except ast.ParseError:
             return self.issues
 
         # Determine file type and run appropriate reviews
@@ -72,7 +72,7 @@ class CodeReviewer:
 
         return self.issues
 
-    def _review_python_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_python_file(self, file_path: Path, content: str, lines: list[str]):
         """Review Python files for common issues."""
 
         # Parse AST for deeper analysis
@@ -101,7 +101,7 @@ class CodeReviewer:
         # Check docstrings
         self._check_python_docstrings(tree, lines)
 
-    def _check_python_security(self, content: str, lines: List[str]):
+    def _check_python_security(self, content: str, lines: list[str]):
         """Check for security vulnerabilities in Python code."""
 
         # Check for hardcoded secrets
@@ -148,7 +148,7 @@ class CodeReviewer:
                                   "Potential SQL injection vulnerability",
                                   "Use parameterized queries instead")
 
-    def _check_python_performance(self, content: str, lines: List[str]):
+    def _check_python_performance(self, content: str, lines: list[str]):
         """Check for performance issues in Python code."""
 
         # Check for inefficient loops
@@ -177,7 +177,7 @@ class CodeReviewer:
                               "Use join() or f-strings instead")
                 in_loop = False
 
-    def _check_python_style(self, content: str, lines: List[str]):
+    def _check_python_style(self, content: str, lines: list[str]):
         """Check for code style issues."""
 
         # Check line length
@@ -203,7 +203,7 @@ class CodeReviewer:
             else:
                 blank_count = 0
 
-    def _check_python_best_practices(self, content: str, lines: List[str]):
+    def _check_python_best_practices(self, content: str, lines: list[str]):
         """Check for Python best practices."""
 
         # Check for mutable default arguments
@@ -227,7 +227,7 @@ class CodeReviewer:
                               "Print statement in production code",
                               "Use logging instead of print")
 
-    def _check_python_imports(self, content: str, lines: List[str]):
+    def _check_python_imports(self, content: str, lines: list[str]):
         """Check import statements."""
 
         imports = []
@@ -260,7 +260,7 @@ class CodeReviewer:
                     self._add_issue("info", "best_practice", line_num, 0,
                                   f"Potentially unused import: {imported_name}")
 
-    def _check_python_docstrings(self, tree: ast.AST, lines: List[str]):
+    def _check_python_docstrings(self, tree: ast.AST, lines: list[str]):
         """Check for missing docstrings."""
 
         for node in ast.walk(tree):
@@ -273,14 +273,14 @@ class CodeReviewer:
                     self._add_issue("info", "best_practice", line_num, 0,
                                   f"Missing docstring for {node.__class__.__name__.lower()}: {node.name}")
 
-    def _review_javascript_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_javascript_file(self, file_path: Path, content: str, lines: list[str]):
         """Review JavaScript/TypeScript files."""
         # Similar structure to Python review but for JS/TS
         self._check_javascript_security(content, lines)
         self._check_javascript_performance(content, lines)
         self._check_javascript_style(content, lines)
 
-    def _check_javascript_security(self, content: str, lines: List[str]):
+    def _check_javascript_security(self, content: str, lines: list[str]):
         """Check for JavaScript security issues."""
 
         # Check for eval
@@ -297,7 +297,7 @@ class CodeReviewer:
                               "Potential XSS vulnerability",
                               "Use textContent or sanitize HTML")
 
-    def _check_javascript_performance(self, content: str, lines: List[str]):
+    def _check_javascript_performance(self, content: str, lines: list[str]):
         """Check for JavaScript performance issues."""
 
         # Check for inefficient DOM queries in loops
@@ -309,7 +309,7 @@ class CodeReviewer:
                               "DOM query in loop is inefficient",
                               "Cache DOM elements outside the loop")
 
-    def _check_javascript_style(self, content: str, lines: List[str]):
+    def _check_javascript_style(self, content: str, lines: list[str]):
         """Check JavaScript code style."""
 
         # Check semicolons
@@ -320,24 +320,24 @@ class CodeReviewer:
                 self._add_issue("info", "style", i, len(line),
                               "Missing semicolon")
 
-    def _review_rust_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_rust_file(self, file_path: Path, content: str, lines: list[str]):
         """Review Rust files."""
         # Basic Rust review patterns
         self._check_rust_borrowing(content, lines)
 
-    def _check_rust_borrowing(self, content: str, lines: List[str]):
+    def _check_rust_borrowing(self, content: str, lines: list[str]):
         """Check for potential borrowing issues."""
         for i, line in enumerate(lines, 1):
             if re.search(r'\.clone\(\)', line):
                 self._add_issue("info", "performance", i, 0,
                               "Consider avoiding clone() for performance")
 
-    def _review_go_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_go_file(self, file_path: Path, content: str, lines: list[str]):
         """Review Go files."""
         # Basic Go review patterns
         self._check_go_error_handling(content, lines)
 
-    def _check_go_error_handling(self, content: str, lines: List[str]):
+    def _check_go_error_handling(self, content: str, lines: list[str]):
         """Check for proper error handling."""
         for i, line in enumerate(lines, 1):
             if re.search(r'err\s*:=', line) and 'if err != nil' not in content:
@@ -345,27 +345,27 @@ class CodeReviewer:
                               "Error not checked",
                               "Always check error return values")
 
-    def _review_java_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_java_file(self, file_path: Path, content: str, lines: list[str]):
         """Review Java files."""
         # Basic Java review patterns
         pass
 
-    def _review_c_cpp_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_c_cpp_file(self, file_path: Path, content: str, lines: list[str]):
         """Review C/C++ files."""
         # Basic C/C++ review patterns
         pass
 
-    def _review_html_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_html_file(self, file_path: Path, content: str, lines: list[str]):
         """Review HTML files."""
         # Basic HTML review patterns
         pass
 
-    def _review_css_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_css_file(self, file_path: Path, content: str, lines: list[str]):
         """Review CSS files."""
         # Basic CSS review patterns
         pass
 
-    def _review_config_file(self, file_path: Path, content: str, lines: List[str]):
+    def _review_config_file(self, file_path: Path, content: str, lines: list[str]):
         """Review configuration files."""
         # Basic config review patterns
         pass
@@ -381,7 +381,7 @@ class CodeReviewer:
             suggestion=suggestion
         ))
 
-    def generate_report(self, file_path: Path, issues: List[ReviewIssue]) -> str:
+    def generate_report(self, file_path: Path, issues: list[ReviewIssue]) -> str:
         """Generate a formatted review report."""
         if not issues:
             return f"✅ {file_path.name}: No issues found!"
@@ -415,7 +415,7 @@ class CodeReviewer:
 
         return report
 
-    def review_project(self, file_patterns: Optional[List[str]] = None) -> Dict[str, List[ReviewIssue]]:
+    def review_project(self, file_patterns: Optional[list[str]] = None) -> dict[str, list[ReviewIssue]]:
         """Review entire project for issues."""
         if file_patterns is None:
             file_patterns = ['*.py', '*.js', '*.ts', '*.jsx', '*.tsx', '*.rs', '*.go', '*.java', '*.kt']

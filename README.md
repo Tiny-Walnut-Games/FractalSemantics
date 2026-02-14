@@ -9,7 +9,7 @@
 
 ## What is FractalSemantics?
 
-FractalSemantics is a research package containing **12 validation experiments** that prove the FractalSemantics (previously known as FractalSemantics internally) addressing system works at scale. FractalSemantics expands FractalSemantics from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
+FractalSemantics is a research package containing **21 validation experiments** that prove the FractalSemantics 8-dimensional addressing system works at scale. FractalSemantics expands FractalSemantics from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
 
 **The 8 Dimensions:**
 
@@ -23,10 +23,12 @@ FractalSemantics is a research package containing **12 validation experiments** 
 - **Density** - Compression distance (0.0 to 1.0)
 - **Alignment** - Value based on alignment map
 
-## The 12 Experiments
+## The 21 Experiments
+
+### Core Addressing System (EXP-01 to EXP-12)
 
 | Exp | Name | Tests | Status |
-|-----|------|-------|--------|
+| ----- | ------ | ------- | -------- |
 | **EXP-01** | Geometric Collisions | Zero collisions over 3D | [Success] PASS |
 | **EXP-02** | Retrieval Efficiency | Sub-millisecond retrieval | [Success] PASS |
 | **EXP-03** | Coordinate Space Entropy | Entropy contribution per dimension | [Success] PASS |
@@ -34,11 +36,171 @@ FractalSemantics is a research package containing **12 validation experiments** 
 | **EXP-05** | Compression/Expansion | Lossless encoding | [Success] PASS |
 | **EXP-06** | Entanglement Detection | Semantic relationships | [Success] PASS |
 | **EXP-07** | LUCA Bootstrap | Full system reconstruction | [Success] PASS |
-| **EXP-08** | RAG Integration | Storage compatibility | [Success] PASS |
-| **EXP-09** | Concurrency | Thread-safe queries | [Success] PASS |
-| **EXP-10** | Bob the Skeptic | Anti-hallucination | [Success] PASS |
+| **EXP-08** | Self-Organizing Memory | Memory network formation | [Success] PASS |
+| **EXP-09** | Memory Pressure | Performance under load | [Success] PASS |
+| **EXP-10** | Multi-Dimensional Query | Query optimization across dimensions | [Success] PASS |
 | **EXP-11** | Dimension Cardinality | Optimal dimension count analysis | [Success] PASS |
+| **EXP-11b** | Dimension Stress Test | Extreme dimension testing | [Success] PASS |
 | **EXP-12** | Benchmark Comparison | FractalSemantics vs. common systems | [Success] PASS |
+
+### Advanced Physics & Thermodynamics (EXP-13 to EXP-20)
+
+| Exp | Name | Tests | Status |
+| ----- | ------ | ------- | -------- |
+| **EXP-13** | Fractal Gravity | Gravity simulation without falloff | [Success] PASS |
+| **EXP-14** | Atomic Fractal Mapping | Atomic structure representation | [Success] PASS |
+| **EXP-15** | Topological Conservation | Topological properties preservation | [Success] PASS |
+| **EXP-16** | Hierarchical Distance Mapping | Distance hierarchy validation | [Success] PASS |
+| **EXP-17** | Thermodynamic Validation | Thermodynamic laws compliance | [Success] PASS |
+| **EXP-18** | Falloff Thermodynamics | Falloff behavior analysis | [Success] PASS |
+| **EXP-19** | Orbital Equivalence | Orbital mechanics equivalence | [Success] PASS |
+| **EXP-20** | Vector Field Derivation | Vector field from fractal hierarchy | [Success] PASS |
+
+### Experiment Descriptions
+
+#### Core Addressing System
+
+**EXP-01: Geometric Collision Resistance**
+Tests that FractalSemantics coordinates achieve collision resistance through semantic differentiation rather than coordinate space geometry. Demonstrates that expressivity emerges from deterministic coordinate assignment.
+
+**EXP-02: Retrieval Efficiency**
+Validates sub-millisecond retrieval performance for FractalSemantics addressing system, ensuring practical usability for real-time applications.
+
+**EXP-03: Coordinate Space Entropy**
+Measures entropy contribution per dimension to validate that each dimension adds meaningful information content to the addressing system.
+
+**EXP-04: Fractal Scaling**
+Tests whether FractalSemantics addressing maintains consistency and zero collisions when scaled from 1K → 10K → 100K → 1M data points, verifying the "fractal" property of self-similar behavior at all scales.
+
+**EXP-05: Compression/Expansion**
+Validates lossless encoding capabilities of the FractalSemantics coordinate system, ensuring data integrity during compression and expansion operations.
+
+**EXP-06: Entanglement Detection**
+Tests the system's ability to detect and handle semantic relationships between different data entities within the fractal coordinate space.
+
+**EXP-07: LUCA Bootstrap**
+Validates the full system reconstruction capability from the Last Universal Common Ancestor (LUCA) concept, ensuring the system can bootstrap from fundamental principles.
+
+**EXP-08: Self-Organizing Memory**
+Tests the formation and organization of memory networks within the FractalSemantics framework, demonstrating emergent organizational properties.
+
+**EXP-09: Memory Pressure**
+Evaluates system performance under memory load conditions, ensuring robustness in resource-constrained environments.
+
+**EXP-10: Multi-Dimensional Query Optimization**
+Tests query performance and optimization across multiple dimensions simultaneously, validating the system's ability to handle complex multi-dimensional queries efficiently.
+
+**EXP-11: Dimension Cardinality**
+Analyzes optimal dimension count for the addressing system, determining the mathematical sweet spot for dimensionality.
+
+**EXP-11b: Dimension Stress Test**
+Performs extreme testing of dimensionality limits to understand system behavior under stress conditions.
+
+**EXP-12: Benchmark Comparison**
+Compares FractalSemantics performance against common addressing systems to establish relative advantages and disadvantages.
+
+#### Advanced Physics & Thermodynamics
+
+**EXP-13: Fractal Gravity**
+Simulates gravitational effects within the fractal coordinate system without traditional falloff behavior, exploring alternative physics models.
+
+**EXP-14: Atomic Fractal Mapping**
+Tests the representation of atomic structures within the fractal framework, validating the system's ability to model complex physical systems.
+
+**EXP-15: Topological Conservation**
+Validates that topological properties are preserved across fractal transformations, ensuring mathematical consistency.
+
+**EXP-16: Hierarchical Distance Mapping**
+Tests the validation of distance hierarchies within the fractal system, ensuring proper spatial relationships are maintained.
+
+**EXP-17: Thermodynamic Validation**
+Confirms that the fractal system complies with fundamental thermodynamic laws, ensuring physical plausibility.
+
+**EXP-18: Falloff Thermodynamics**
+Analyzes falloff behavior in thermodynamic contexts within the fractal framework, exploring energy distribution patterns.
+
+**EXP-19: Orbital Equivalence**
+Tests the equivalence of orbital mechanics within the fractal system compared to traditional physics models.
+
+**EXP-20: Vector Field Derivation**
+Derives vector fields from fractal hierarchy, demonstrating that directional force vectors emerge naturally from hierarchical relationships.
+
+## The GUI Application
+
+### 🚀 Interactive Web Interface
+
+FractalSemantics includes a comprehensive **Streamlit-based GUI application** that provides:
+
+- **📊 Real-time Experiment Monitoring** - Watch experiments run with live progress bars and status updates
+- **📈 Advanced Data Visualization** - Interactive Plotly charts for all experiment results
+- **📚 Educational Content** - Mathematical explanations and learning materials for each experiment
+- **🔬 Batch Experiment Management** - Configure and run multiple experiments simultaneously
+- **⚙️ Export Options** - Export results to JSON, CSV, and PDF formats
+- **🎯 Performance Analytics** - Detailed performance metrics and system health monitoring
+
+### Key GUI Features
+
+#### Dashboard Overview
+
+- **Experiment Progress**: Real-time progress tracking with percentage completion
+- **Performance Metrics**: Success rates, execution times, and resource usage
+- **System Health**: CPU, memory, and disk space monitoring
+- **Results Summary**: Quick overview of all experiment outcomes
+
+#### Interactive Visualizations
+
+- **Success Rate Charts**: Bar charts showing experiment success by type
+- **Performance Analysis**: Scatter plots of execution times vs. experiment complexity
+- **Progress Timeline**: Line charts showing real-time progress updates
+- **Educational Content**: Expandable sections with mathematical explanations
+
+#### Experiment Control
+
+- **Multi-Selection**: Choose which experiments to run from the full suite
+- **Configuration Options**: Quick mode, parallel execution, and feature level settings
+- **Real-time Feedback**: Live output display and progress updates
+- **Batch Management**: Run experiments in parallel or sequentially
+
+#### Educational Interface
+
+- **Mathematical Foundations**: Detailed explanations of fractal geometry and coordinate systems
+- **Experiment Documentation**: Step-by-step guides for each validation experiment
+- **Real-World Applications**: Examples of how FractalSemantics applies to data management
+- **Interactive Learning**: Hands-on exploration of fractal concepts
+
+### Launching the GUI
+
+```bash
+# Install GUI dependencies
+pip install -r gui_requirements.txt
+
+# Launch the GUI application
+python launch_gui.py
+
+# Or run directly with Streamlit
+streamlit run gui_app.py
+```
+
+### GUI Architecture
+
+The GUI is built using modern web technologies:
+
+- **Frontend**: Streamlit with custom CSS styling and Plotly visualizations
+- **Backend**: Python experiment runner with real-time progress communication
+- **Data Flow**: JSON-based communication between experiment modules and GUI
+- **State Management**: Streamlit session state for persistent data across interactions
+- **Progress System**: Custom progress reporter for real-time updates
+
+### Screenshots and Examples
+
+The GUI provides stunning visualizations of experiment results, including:
+
+- **3D Fractal Visualizations**: Interactive plots showing coordinate space distributions
+- **Performance Dashboards**: Real-time charts of experiment execution metrics
+- **Educational Diagrams**: Mathematical concepts visualized for better understanding
+- **Progress Indicators**: Beautiful progress bars and status indicators
+
+For detailed GUI documentation, see [GUI_README.md](GUI_README.md).
 
 ## EXP-01: Address Uniqueness Test
 
@@ -125,6 +287,7 @@ streamlit run gui_app.py
 ```
 
 **GUI Features:**
+
 - 📊 Interactive dashboard with real-time experiment monitoring
 - 📈 Advanced data visualizations with Plotly charts
 - 📚 Educational content and mathematical explanations

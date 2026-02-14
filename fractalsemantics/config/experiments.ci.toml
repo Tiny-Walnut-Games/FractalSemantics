@@ -9,7 +9,7 @@
 # Enable all experiments but with reduced parameters
 enabled = [
     "EXP-01",
-    "EXP-02", 
+    "EXP-02",
     "EXP-03",
     "EXP-04",
     "EXP-05",
@@ -19,7 +19,16 @@ enabled = [
     "EXP-09",
     "EXP-10",
     "EXP-11",
-    "EXP-12"
+    "EXP-11b",
+    "EXP-12",
+    "EXP-13",
+    "EXP-14",
+    "EXP-15",
+    "EXP-16",
+    "EXP-17",
+    "EXP-18",
+    "EXP-19",
+    "EXP-20"
 ]
 
 # EXP-01: Fast uniqueness validation
@@ -79,6 +88,12 @@ max_concurrent_queries = 20     # Reduced for CI
 [experiments.EXP-11]
 sample_size = 50            # Balanced for CI
 dimension_counts = [3, 5, 7, 9]  # Reduced set for CI
+test_iterations = 2         # Reduced from 5
+
+# EXP-11b: CI dimension cardinality stress test
+[experiments.EXP-11b]
+sample_size = 50            # Balanced for CI
+dimension_counts = [2, 12]  # Extreme dimension counts for stress testing
 test_iterations = 2         # Reduced from 5
 
 # EXP-12: CI benchmark comparison
