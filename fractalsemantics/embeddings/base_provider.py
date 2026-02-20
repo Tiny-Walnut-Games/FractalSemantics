@@ -5,7 +5,7 @@ Base Embedding Provider - Abstract Interface for Semantic Grounding
 import math
 import time
 from abc import ABC, abstractmethod
-from typing import Any, Optional, dict, list
+from typing import Optional
 
 
 class EmbeddingProvider(ABC):

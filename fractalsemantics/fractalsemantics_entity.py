@@ -284,7 +284,7 @@ class FractalSemanticsEntity(ABC):
             self.entanglement_strength[idx] = new_strength
             self._record_event(
                 "entanglement_updated",
-                f"Entanglement strength changed {old_strength:.2f} → {new_strength:.2f}",
+                f"Entanglement strength changed {old_strength:.2f} - {new_strength:.2f}",
             )
 
     # ========================================================================

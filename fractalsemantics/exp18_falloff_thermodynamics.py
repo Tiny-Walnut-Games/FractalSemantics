@@ -21,7 +21,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, dict
+from typing import Optional
 
 import numpy as np
 
@@ -507,7 +507,7 @@ if __name__ == "__main__":
         print(f"Output: {output_file}")
 
         if success:
-            print("\n🎉 SUCCESS: Falloff injection improves thermodynamic behavior!")
+            print("\ncelebration SUCCESS: Falloff injection improves thermodynamic behavior!")
             print("   This confirms that gravity and thermodynamics share the same falloff mechanism.")
             print("   ✓ Same falloff formula works for both energy and gravitational interactions")
         else:

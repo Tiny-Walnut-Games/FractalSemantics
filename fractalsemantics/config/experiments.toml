@@ -66,7 +66,7 @@ num_retrievals = 10000      # Queries per scale (fits hardware)
 timeout_seconds = 1800      # Kill test if it takes too long (30 minutes)
 
 # EXP-05: Compression/Expansion
-# Tests lossless compression through fragments → clusters → glyphs → mist
+# Tests lossless compression through fragments - clusters - glyphs - mist
 [experiments.EXP-05]
 name = "Compression/Expansion"
 enabled = true

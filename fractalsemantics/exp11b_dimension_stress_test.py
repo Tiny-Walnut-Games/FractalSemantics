@@ -63,8 +63,8 @@ MAX_DIVERSITY_SAMPLE_SIZE = 1_000
 
 # Coordinate range limits for stress testing
 COORDINATE_RANGE_LIMITS = {
-    "limited": 0.1,  # ±10%
-    "very_limited": 0.01,  # ±1%
+    "limited": 0.1,  # +/-10%
+    "very_limited": 0.01,  # +/-1%
 }
 
 # Common dimension subsets for testing
@@ -115,7 +115,7 @@ TEST_SCENARIOS = [
     ),
     TestScenario(
         name="Test 4: Limited Coordinate Range",
-        description="Fixed ID, fixed state, ±10% coordinate range, all 8 dimensions",
+        description="Fixed ID, fixed state, +/-10% coordinate range, all 8 dimensions",
         use_unique_id=False,
         use_unique_state=False,
         coordinate_range_limit=COORDINATE_RANGE_LIMITS["limited"],
@@ -147,7 +147,7 @@ TEST_SCENARIOS = [
     ),
     TestScenario(
         name="Test 8: Extreme Stress",
-        description="Fixed ID, fixed state, ±10% range, only 3 dimensions",
+        description="Fixed ID, fixed state, +/-10% range, only 3 dimensions",
         use_unique_id=False,
         use_unique_state=False,
         coordinate_range_limit=COORDINATE_RANGE_LIMITS["limited"],
@@ -262,7 +262,7 @@ class DimensionStressTest:
             index: Sequential index for deterministic generation
             use_unique_id: If False, all bit-chains get same ID
             use_unique_state: If False, all bit-chains get same state
-            coordinate_range_limit: If set, limit coordinate ranges (e.g., 0.1 = ±10%)
+            coordinate_range_limit: If set, limit coordinate ranges (e.g., 0.1 = +/-10%)
             dimensions_to_use: If set, only vary these dimensions
         """
         # ID: unique or fixed

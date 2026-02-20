@@ -21,7 +21,6 @@ import queue
 import threading
 import traceback
 from datetime import datetime
-from typing import Any, dict, list, tuple
 
 import gradio as gr
 
@@ -158,7 +157,7 @@ EXPERIMENT_INFO = {
         FractalSemantics uses hierarchical compression:
 
         ```
-        fragments → clusters → glyphs → mist
+        fragments - clusters - glyphs - mist
         ```
 
         **Lossless Properties:**
@@ -178,7 +177,7 @@ EXPERIMENT_INFO = {
         Entanglement is measured through coordinate similarity:
 
         ```
-        similarity = cos(θ) = (A · B) / (|A| |B|)
+        similarity = cos(theta) = (A * B) / (|A| |B|)
         ```
 
         **Entanglement Thresholds:**
@@ -198,7 +197,7 @@ EXPERIMENT_INFO = {
         System reconstruction through lineage expansion:
 
         ```
-        LUCA → Generation 1 → Generation 2 → ... → Current State
+        LUCA - Generation 1 - Generation 2 - ... - Current State
         ```
 
         **Bootstrap Process:**

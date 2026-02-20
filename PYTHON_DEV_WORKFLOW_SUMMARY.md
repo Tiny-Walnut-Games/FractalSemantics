@@ -32,7 +32,7 @@ python .cline/workflows/python_dev_workflow.py deps
 python .cline/workflows/python_dev_workflow.py docs
 ```
 
-## ⚠️ **Issues Identified**
+## - **Issues Identified**
 
 ### **Code Quality Problems (930 total issues)**
 
@@ -43,12 +43,12 @@ python .cline/workflows/python_dev_workflow.py docs
 
 ### **Common Issues Found**
 
-1. **Bare except clauses**: Multiple `except ast.ParseError:` statements without specific exception types
+1. **Bare except clauses**: Multiple `except Exception:` statements without specific exception types
 2. **Type annotation inconsistencies**: Inconsistent use of typing annotations
 3. **Import organization**: Some files have import order issues
 4. **Whitespace problems**: Empty lines with whitespace
 
-## 🎯 **Immediate Next Steps**
+## - **Immediate Next Steps**
 
 ### **Priority 1: Fix Critical Issues**
 
@@ -65,7 +65,7 @@ mypy . --show-error-codes
 
 ### **Priority 2: Update Code Quality**
 
-1. Replace deprecated typing imports (`typing.dict` → `dict`, `typing.list` → `list`)
+1. Replace deprecated typing imports (`typing.dict` - `dict`, `typing.list` - `list`)
 2. Fix bare except clauses with specific exception types
 3. Add missing type annotations and docstrings
 4. Clean up whitespace issues

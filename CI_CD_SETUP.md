@@ -123,7 +123,7 @@ mypy fractalsemantics/ --ignore-missing-imports
 
 ## Required GitLab CI Variables
 
-Set these in **GitLab → Project → Settings → CI/CD → Variables**:
+Set these in **GitLab - Project - Settings - CI/CD - Variables**:
 
 ### For HuggingFace Deployment
 
@@ -158,7 +158,7 @@ Set these in **GitLab → Project → Settings → CI/CD → Variables**:
    - [Success] Quality checks (black, ruff, mypy)
    - [Success] Validation experiments (all exp*_*.py modules)
    - [Success] Stress tests
-4. If all pass → MR can be merged; if fail → fix issues and re-push
+4. If all pass - MR can be merged; if fail - fix issues and re-push
 
 ### Create a Release
 
@@ -175,7 +175,7 @@ Set these in **GitLab → Project → Settings → CI/CD → Variables**:
    - Waits for manual deployment trigger
 
 3. **Deploy to PyPI (manual):**
-   - Go to **GitLab → CI/CD → Pipelines**
+   - Go to **GitLab - CI/CD - Pipelines**
    - Find your tag pipeline
    - Click **Play** (▶) on `deploy_pypi` job
 
@@ -230,9 +230,9 @@ This reduces pipeline runtime significantly by avoiding re-downloading dependenc
 
 ## Monitoring Pipeline
 
-- **GitLab Dashboard**: Project → CI/CD → Pipelines
+- **GitLab Dashboard**: Project - CI/CD - Pipelines
 - **View Logs**: Click any job to see detailed output
-- **Download Artifacts**: Click job → Artifacts → Download
+- **Download Artifacts**: Click job - Artifacts - Download
 - **Pipeline Status Badge**: Add to README:
 
   ```markdown

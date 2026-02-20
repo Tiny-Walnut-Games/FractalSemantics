@@ -13,7 +13,7 @@ import psutil
 
 def check_system_resources():
     """Check available system resources."""
-    print("🔍 System Resource Analysis")
+    print("left_pointing_magnifying_glass System Resource Analysis")
     print("=" * 40)
 
     # Memory information
@@ -43,7 +43,7 @@ def check_system_resources():
 
 def analyze_dependencies():
     """Analyze dependency versions and potential optimizations."""
-    print("\n📦 Dependency Analysis")
+    print("\npackage Dependency Analysis")
     print("=" * 40)
 
     try:
@@ -52,10 +52,10 @@ def analyze_dependencies():
         import plotly
         import streamlit as st
 
-        print(f"✅ Streamlit: {st.__version__}")
-        print(f"✅ Plotly: {plotly.__version__}")
-        print(f"✅ Pandas: {pd.__version__}")
-        print(f"✅ NumPy: {np.__version__}")
+        print(f"success Streamlit: {st.__version__}")
+        print(f"success Plotly: {plotly.__version__}")
+        print(f"success Pandas: {pd.__version__}")
+        print(f"success NumPy: {np.__version__}")
 
         # Check for performance optimizations
         if hasattr(np, 'show_config'):
@@ -64,41 +64,41 @@ def analyze_dependencies():
         return True
 
     except ImportError as e:
-        print(f"❌ Missing dependency: {e}")
+        print(f"error Missing dependency: {e}")
         return False
 
 def generate_optimization_recommendations(resources):
     """Generate optimization recommendations based on system resources."""
-    print("\n⚡ Optimization Recommendations")
+    print("\nlightning Optimization Recommendations")
     print("=" * 40)
 
     recommendations = []
 
     # Memory recommendations
     if resources['memory_gb'] < 4:
-        recommendations.append("⚠️  Low memory detected (< 4GB). Consider:")
+        recommendations.append("-  Low memory detected (< 4GB). Consider:")
         recommendations.append("   - Using Quick Mode for experiments")
         recommendations.append("   - Running fewer experiments in parallel")
         recommendations.append("   - Closing other applications")
     elif resources['memory_gb'] >= 8:
-        recommendations.append("✅ Good memory capacity (≥ 8GB). Can handle:")
+        recommendations.append("success Good memory capacity (>= 8GB). Can handle:")
         recommendations.append("   - Full mode experiments")
         recommendations.append("   - Parallel execution")
         recommendations.append("   - Large datasets")
 
     # CPU recommendations
     if resources['cpu_cores'] < 4:
-        recommendations.append("⚠️  Limited CPU cores (< 4). Consider:")
+        recommendations.append("-  Limited CPU cores (< 4). Consider:")
         recommendations.append("   - Sequential execution mode")
         recommendations.append("   - Quick mode experiments")
     elif resources['cpu_cores'] >= 4:
-        recommendations.append("✅ Good CPU capacity (≥ 4 cores). Can handle:")
+        recommendations.append("success Good CPU capacity (>= 4 cores). Can handle:")
         recommendations.append("   - Parallel execution")
         recommendations.append("   - Multiple concurrent experiments")
 
     # Disk recommendations
     if resources['disk_free_gb'] < 1:
-        recommendations.append("⚠️  Low disk space (< 1GB free). Consider:")
+        recommendations.append("-  Low disk space (< 1GB free). Consider:")
         recommendations.append("   - Cleaning up temporary files")
         recommendations.append("   - Moving results to external storage")
 
@@ -109,7 +109,7 @@ def generate_optimization_recommendations(resources):
 
 def create_optimization_config():
     """Create an optimization configuration file."""
-    print("\n⚙️  Creating Optimization Configuration")
+    print("\ngear  Creating Optimization Configuration")
     print("=" * 40)
 
     config_content = '''# GUI Application Optimization Configuration
@@ -150,10 +150,10 @@ enable_performance_logging = true
     try:
         with open(config_file, 'w') as f:
             f.write(config_content)
-        print(f"✅ Optimization config created: {config_file}")
+        print(f"success Optimization config created: {config_file}")
         return True
     except Exception as e:
-        print(f"❌ Failed to create config: {e}")
+        print(f"error Failed to create config: {e}")
         return False
 
 def performance_benchmark():
@@ -186,21 +186,21 @@ def performance_benchmark():
         # Overall assessment
         total_time = numpy_time + pandas_time
         if total_time < 2.0:
-            print("✅ Excellent performance")
+            print("success Excellent performance")
         elif total_time < 5.0:
-            print("✅ Good performance")
+            print("success Good performance")
         else:
-            print("⚠️  Performance may be slow")
+            print("-  Performance may be slow")
 
         return total_time
 
     except Exception as e:
-        print(f"❌ Benchmark failed: {e}")
+        print(f"error Benchmark failed: {e}")
         return None
 
 def main():
     """Main optimization analysis function."""
-    print("🔬 FractalSemantics GUI Optimization Tool")
+    print("microscope FractalSemantics GUI Optimization Tool")
     print("=" * 50)
 
     # Check system resources
@@ -220,18 +220,18 @@ def main():
 
     # Summary
     print("\n" + "=" * 50)
-    print("📊 OPTIMIZATION SUMMARY")
+    print("chart OPTIMIZATION SUMMARY")
     print("=" * 50)
 
     print(f"System Memory: {resources['memory_gb']:.1f} GB")
     print(f"CPU Cores: {resources['cpu_cores']}")
     print(f"Disk Free: {resources['disk_free_gb']:.1f} GB")
-    print(f"Dependencies: {'✅ OK' if deps_ok else '❌ Issues'}")
-    print(f"Config Created: {'✅ Yes' if config_created else '❌ No'}")
+    print(f"Dependencies: {'success OK' if deps_ok else 'error Issues'}")
+    print(f"Config Created: {'success Yes' if config_created else 'error No'}")
     if benchmark_time:
         print(f"Benchmark Time: {benchmark_time:.2f}s")
 
-    print("\n💡 Quick Optimization Tips:")
+    print("\nidea Quick Optimization Tips:")
     print("- Use Quick Mode for development and testing")
     print("- Enable parallel execution on multi-core systems")
     print("- Monitor memory usage during large experiments")
@@ -239,9 +239,9 @@ def main():
     print("- Use filters to focus on specific experiments")
 
     if resources['memory_gb'] >= 8 and resources['cpu_cores'] >= 4:
-        print("\n🚀 Your system is well-suited for FractalSemantics GUI!")
+        print("\n- Your system is well-suited for FractalSemantics GUI!")
     else:
-        print("\n🔧 Consider the recommendations above for better performance.")
+        print("\nwrench Consider the recommendations above for better performance.")
 
 if __name__ == "__main__":
     main()

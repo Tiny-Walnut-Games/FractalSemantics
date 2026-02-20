@@ -1,5 +1,5 @@
 """
-EXP-19: Orbital Equivalence - Prove orbital mechanics ≈ fractal cohesion mechanics
+EXP-19: Orbital Equivalence - Prove orbital mechanics approx fractal cohesion mechanics
 
 Tests whether orbital mechanics and fractal cohesion mechanics are equivalent representations
 of the same physical reality. If Newton's gravity emerges from fractal topology, then
@@ -618,7 +618,7 @@ def create_earth_sun_system() -> tuple[OrbitalSystem, FractalOrbitalSystem]:
 
     fractal_earth = FractalBody(
         name="Earth",
-        fractal_density=0.000003,  # Earth/Sun mass ratio ≈ 3e-6
+        fractal_density=0.000003,  # Earth/Sun mass ratio approx 3e-6
         hierarchical_depth=1,       # Inner planet
         tree_address=[0]
     )

@@ -5,7 +5,7 @@ Implements the mathematical framework for detecting semantic entanglement betwee
 All algorithms are formally proven in EXP-06-MATHEMATICAL-FRAMEWORK.md
 
 Core Score Function (Version 2 — Tuned Weights):
-E(B1, B2) = 0.5·P + 0.15·R + 0.2·A + 0.1·L + 0.05·ell
+E(B1, B2) = 0.5*P + 0.15*R + 0.2*A + 0.1*L + 0.05*ell
 
 Where:
   P = Polarity Resonance (cosine similarity)
@@ -117,7 +117,7 @@ def cosine_similarity(vec1: list[float], vec2: list[float]) -> float:
     """
     Compute cosine similarity between two vectors.
 
-    Formula: cos(θ) = (u·v) / (|u| × |v|)
+    Formula: cos(theta) = (u*v) / (|u| * |v|)
 
     Args:
         vec1, vec2: lists of floats (same length)
@@ -232,7 +232,7 @@ def jaccard_similarity(set1: set, set2: set) -> float:
     """
     Compute Jaccard similarity between two sets.
 
-    Formula: J(A,B) = |A∩B| / |A∪B|
+    Formula: J(A,B) = |AintersectionB| / |AunionB|
 
     Edge cases:
       - Both empty: return 1.0 (both isolated, thus similar)
@@ -493,7 +493,7 @@ class EntanglementDetector:
         self.scores = []
         entangled_pairs = []
 
-        # All-pairs comparison (O(N²))
+        # All-pairs comparison (O(N^2))
         for i, bc1 in enumerate(bitchains):
             for j, bc2 in enumerate(bitchains[i + 1:], i + 1):
                 score = compute_entanglement_score(bc1, bc2)
@@ -717,7 +717,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
     # This creates strong statistical signals that are easy to detect
     entities_per_group = 6  # FIXED: Max manifestations per entity (limited by 6 available realms)
     num_groups = 50  # FIXED: Fewer entities, each with strong entanglement patterns
-    sample_size = num_groups * entities_per_group  # FIXED: 50 × 6 = 300 entities
+    sample_size = num_groups * entities_per_group  # FIXED: 50 * 6 = 300 entities
 
     # Generate ONLY the synthetic entangled entities (much more efficient)
     print(f"Generating {sample_size} synthetic entangled bit-chains...")

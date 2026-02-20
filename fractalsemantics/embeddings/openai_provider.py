@@ -6,7 +6,7 @@ import hashlib
 import math
 import struct
 from types import ModuleType
-from typing import Any, Optional, dict, list
+from typing import Optional
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 

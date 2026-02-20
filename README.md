@@ -70,7 +70,7 @@ Validates sub-millisecond retrieval performance for FractalSemantics addressing 
 Measures entropy contribution per dimension to validate that each dimension adds meaningful information content to the addressing system.
 
 **EXP-04: Fractal Scaling**
-Tests whether FractalSemantics addressing maintains consistency and zero collisions when scaled from 1K → 10K → 100K → 1M data points, verifying the "fractal" property of self-similar behavior at all scales.
+Tests whether FractalSemantics addressing maintains consistency and zero collisions when scaled from 1K - 10K - 100K - 1M data points, verifying the "fractal" property of self-similar behavior at all scales.
 
 **EXP-05: Compression/Expansion**
 Validates lossless encoding capabilities of the FractalSemantics coordinate system, ensuring data integrity during compression and expansion operations.
@@ -127,7 +127,7 @@ Derives vector fields from fractal hierarchy, demonstrating that directional for
 
 ## The GUI Application
 
-### 🚀 Interactive Web Interface
+### - Interactive Web Interface
 
 FractalSemantics includes a comprehensive **Streamlit-based GUI application** that provides:
 
@@ -136,7 +136,7 @@ FractalSemantics includes a comprehensive **Streamlit-based GUI application** th
 - **📚 Educational Content** - Mathematical explanations and learning materials for each experiment
 - **🔬 Batch Experiment Management** - Configure and run multiple experiments simultaneously
 - **⚙️ Export Options** - Export results to JSON, CSV, and PDF formats
-- **🎯 Performance Analytics** - Detailed performance metrics and system health monitoring
+- **- Performance Analytics** - Detailed performance metrics and system health monitoring
 
 ### Key GUI Features
 
@@ -293,7 +293,7 @@ streamlit run gui_app.py
 - 📚 Educational content and mathematical explanations
 - 🔬 Batch experiment management and configuration
 - ⚙️ Export options (JSON, CSV, PDF)
-- 🎯 Real-time progress tracking and performance metrics
+- - Real-time progress tracking and performance metrics
 
 For detailed GUI documentation, see [GUI_README.md](GUI_README.md).
 

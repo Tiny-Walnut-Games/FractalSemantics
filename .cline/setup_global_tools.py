@@ -435,7 +435,7 @@ This project is licensed under the MIT License.
 
     def run_setup(self):
         """Run the complete setup process."""
-        print("🚀 Starting Cline Global Tools Setup")
+        print("- Starting Cline Global Tools Setup")
         print("=" * 50)
 
         try:

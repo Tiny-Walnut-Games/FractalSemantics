@@ -185,7 +185,6 @@ Description of what this skill does.
 
 import sys
 from pathlib import Path
-from typing import dict, list, any
 
 
 def main():

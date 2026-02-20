@@ -2,7 +2,7 @@
 Embedding Provider Factory - Dynamic Provider Creation
 """
 
-from typing import Any, Optional, dict, list
+from typing import Optional
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 from fractalsemantics.embeddings.local_provider import LocalEmbeddingProvider

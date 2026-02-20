@@ -38,7 +38,7 @@ from collections import deque
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, dict, list
+from typing import Optional
 
 import psutil
 

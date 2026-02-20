@@ -7,7 +7,6 @@ such as random bit-chain generation and other shared testing functionality.
 
 import secrets
 from datetime import datetime, timezone
-from typing import list
 
 # Use cryptographically secure random number generator
 secure_random = secrets.SystemRandom()

@@ -31,7 +31,7 @@ The Python development workflow has been analyzed for the FractalSemantics proje
 
 #### 3. Code Quality Problems
 
-- **Bare except clauses**: Multiple `except ast.ParseError:` statements without specific exception types
+- **Bare except clauses**: Multiple `except Exception:` statements without specific exception types
 - **Type annotation issues**: Inconsistent use of typing annotations
 - **Import organization**: Some files have import order issues
 - **Whitespace problems**: Empty lines with whitespace
@@ -89,7 +89,7 @@ Replace deprecated typing imports:
 
 ```python
 # Before
-from typing import dict, list, Optional
+from typing import Optional
 
 # After
 from typing import Optional
@@ -104,7 +104,7 @@ Replace bare except clauses:
 # Before
 try:
     # code
-except ast.ParseError:
+except Exception:
     pass
 
 # After

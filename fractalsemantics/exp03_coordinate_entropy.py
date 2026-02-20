@@ -20,12 +20,12 @@ Success Criteria:
 - Baseline (all 8 dims): Entropy score approaches maximum (normalized to 1.0)
 - Each dimension removal: Entropy score decreases measurably (>5% reduction)
 - Semantic disambiguation power confirmed for all dimensions
-- Minimal necessary set identified (≥7 dims for full expressiveness)
+- Minimal necessary set identified (>=7 dims for full expressiveness)
 
 Statistical Significance:
-- Sample size: ≥100,000 bit-chains
+- Sample size: >=100,000 bit-chains
 - Dimension combinations tested: 8 (baseline + 7 ablations)
-- Entropy threshold: ≥5% reduction when dimension removed
+- Entropy threshold: >=5% reduction when dimension removed
 
 Difference from Previous Collision-Based Test:
 The previous EXP-03 (dimension_necessity.py) focused on hash collisions as the metric

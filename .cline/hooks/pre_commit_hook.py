@@ -11,7 +11,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Optional, dict, list
+from typing import Optional
 
 
 class PreCommitHook:
@@ -30,7 +30,7 @@ class PreCommitHook:
                 text=True
             )
             return Path(result.stdout.strip())
-        except ast.ParseError:
+        except Exception:
             return Path.cwd()
 
     def _load_config(self) -> dict[str, any]:
@@ -79,7 +79,7 @@ class PreCommitHook:
                     user_config = json.load(f)
                 # Merge with defaults
                 return {**default_config, **user_config}
-            except ast.ParseError:
+            except Exception:
                 pass
 
         return default_config
@@ -99,7 +99,7 @@ class PreCommitHook:
                     files.append(self.repo_root / file_path)
 
             return files
-        except ast.ParseError:
+        except Exception:
             return []
 
     def _get_changed_python_files(self) -> list[Path]:
@@ -124,7 +124,7 @@ class PreCommitHook:
             if result.stdout:
                 print(f"   ✅ {result.stdout.strip()}")
             if result.stderr:
-                print(f"   ⚠️  {result.stderr.strip()}")
+                print(f"   -  {result.stderr.strip()}")
 
             return result.returncode == 0
 
@@ -156,7 +156,7 @@ class PreCommitHook:
                     f"Running {tool} on {len(python_files)} files"
                 )
             else:
-                print(f"   ⚠️  Unknown linting tool: {tool}")
+                print(f"   -  Unknown linting tool: {tool}")
                 success = True
 
             if not success and self.config.get("linting", {}).get("fail_on_warning", True):
@@ -191,7 +191,7 @@ class PreCommitHook:
                     f"Running {tool} on {len(python_files)} files"
                 )
             else:
-                print(f"   ⚠️  Unknown formatting tool: {tool}")
+                print(f"   -  Unknown formatting tool: {tool}")
                 success = True
 
             if not success:
@@ -222,7 +222,7 @@ class PreCommitHook:
                     f"Running {tool} on {len(python_files)} files"
                 )
             else:
-                print(f"   ⚠️  Unknown type checking tool: {tool}")
+                print(f"   -  Unknown type checking tool: {tool}")
                 success = True
 
             if not success:
@@ -253,7 +253,7 @@ class PreCommitHook:
                     f"Running {tool}"
                 )
             else:
-                print(f"   ⚠️  Unknown security tool: {tool}")
+                print(f"   -  Unknown security tool: {tool}")
                 success = True
 
             if not success and self.config.get("security", {}).get("fail_on_warning", True):
@@ -297,7 +297,7 @@ class PreCommitHook:
                         f"Running {tool}"
                     )
             else:
-                print(f"   ⚠️  Unknown test tool: {tool}")
+                print(f"   -  Unknown test tool: {tool}")
                 success = True
 
             if not success:
@@ -319,7 +319,7 @@ class PreCommitHook:
             message = result.stdout.strip()
 
             if not message:
-                print("   ⚠️  No commit message found")
+                print("   -  No commit message found")
                 return True
 
             # Basic commit message checks
@@ -327,23 +327,23 @@ class PreCommitHook:
             first_line = lines[0]
 
             if len(first_line) > 72:
-                print(f"   ⚠️  First line too long ({len(first_line)} chars, max 72)")
+                print(f"   -  First line too long ({len(first_line)} chars, max 72)")
                 return False
 
             if first_line.endswith('.'):
-                print("   ⚠️  First line should not end with a period")
+                print("   -  First line should not end with a period")
                 return False
 
             print("   ✅ Commit message format looks good")
             return True
 
-        except ast.ParseError:
-            print("   ⚠️  Could not check commit message")
+        except Exception:
+            print("   -  Could not check commit message")
             return True
 
     def run_all_checks(self) -> bool:
         """Run all enabled checks."""
-        print("🚀 Running pre-commit checks")
+        print("- Running pre-commit checks")
         print("=" * 50)
 
         enabled_checks = self.config.get("enabled_checks", [])
@@ -370,13 +370,13 @@ class PreCommitHook:
                 else:
                     print(f"✅ {check_name} passed")
             else:
-                print(f"⚠️  Unknown check: {check_name}")
+                print(f"-  Unknown check: {check_name}")
 
         print("\n" + "=" * 50)
         if all_passed:
             print("🎉 All pre-commit checks passed!")
         else:
-            print("⚠️  Some pre-commit checks failed. Please fix the issues before committing.")
+            print("-  Some pre-commit checks failed. Please fix the issues before committing.")
 
         return all_passed
 

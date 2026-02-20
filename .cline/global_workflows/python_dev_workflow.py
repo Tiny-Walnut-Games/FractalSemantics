@@ -14,7 +14,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional, list
+from typing import Optional
 
 
 class PythonDevWorkflow:
@@ -48,7 +48,7 @@ class PythonDevWorkflow:
             if result.stdout:
                 print(f"   ✅ {result.stdout.strip()}")
             if result.stderr:
-                print(f"   ⚠️  {result.stderr.strip()}")
+                print(f"   -  {result.stderr.strip()}")
 
             return result.returncode == 0
 
@@ -172,7 +172,7 @@ class PythonDevWorkflow:
                     if success:
                         return True
 
-        print("   ⚠️  No documentation found or Sphinx not available")
+        print("   -  No documentation found or Sphinx not available")
         return True
 
     def check_dependencies(self) -> bool:
@@ -188,7 +188,7 @@ class PythonDevWorkflow:
 
     def run_full_workflow(self) -> bool:
         """Run the complete development workflow."""
-        print("🚀 Starting Python Development Workflow")
+        print("- Starting Python Development Workflow")
         print("=" * 50)
 
         steps = [
@@ -216,7 +216,7 @@ class PythonDevWorkflow:
         if all_passed:
             print("🎉 All workflow steps completed successfully!")
         else:
-            print("⚠️  Some workflow steps failed. Please review the output above.")
+            print("-  Some workflow steps failed. Please review the output above.")
 
         return all_passed
 

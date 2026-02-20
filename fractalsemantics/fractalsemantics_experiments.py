@@ -18,7 +18,7 @@ Usage:
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Optional, dict, list
+from typing import Optional
 
 # Re-export functions and classes that moved to separate modules during refactoring
 # plus constants from the main package for backward compatibility

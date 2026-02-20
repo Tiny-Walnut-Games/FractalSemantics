@@ -537,7 +537,7 @@ def create_continuous_vector_field(
                 r_vector = entity_b.position - position
                 current_distance = np.linalg.norm(r_vector)
 
-                # Apply inverse-square law: F ∝ 1/r²
+                # Apply inverse-square law: F ∝ 1/r^2
                 if current_distance > 0:
                     distance_factor = (reference_distance / current_distance) ** 2
                     effective_magnitude = scalar_magnitude * distance_factor
@@ -563,7 +563,7 @@ def create_continuous_vector_field(
                 Fz[i,j,k] = force_vector[2]
 
     # Return unsmoothed field for accurate inverse-square validation
-    # Smoothing was found to reduce correlation with theoretical 1/r² behavior
+    # Smoothing was found to reduce correlation with theoretical 1/r^2 behavior
     return X, Y, Z, Fx, Fy, Fz
 
 
@@ -583,7 +583,7 @@ def verify_inverse_square_law(
         test_distances: Distances to test at
 
     Returns:
-        Correlation coefficient with 1/r² law
+        Correlation coefficient with 1/r^2 law
     """
     measured_magnitudes = []
     theoretical_magnitudes = []
@@ -622,7 +622,7 @@ def verify_inverse_square_law(
     if len(measured_magnitudes) < 2:
         return 0.0
 
-    # Calculate correlation with theoretical 1/r²
+    # Calculate correlation with theoretical 1/r^2
     try:
         correlation = np.corrcoef(measured_magnitudes, theoretical_magnitudes)[0, 1]
         return abs(correlation)  # Return absolute value

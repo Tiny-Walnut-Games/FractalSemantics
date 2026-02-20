@@ -17,25 +17,25 @@ def check_dependencies():
         import pandas
         import plotly
         import streamlit
-        print("✅ All GUI dependencies are installed")
+        print("success All GUI dependencies are installed")
         return True
     except ImportError as e:
-        print(f"❌ Missing dependency: {e}")
+        print(f"error Missing dependency: {e}")
         print("Please install GUI dependencies:")
         print("pip install -r gui_requirements.txt")
         return False
 
 def install_dependencies():
     """Install GUI dependencies."""
-    print("📦 Installing GUI dependencies...")
+    print("package Installing GUI dependencies...")
     try:
         subprocess.check_call([
             sys.executable, "-m", "pip", "install", "-r", "gui_requirements.txt"
         ])
-        print("✅ GUI dependencies installed successfully")
+        print("success GUI dependencies installed successfully")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"❌ Failed to install dependencies: {e}")
+        print(f"error Failed to install dependencies: {e}")
         return False
 
 def launch_streamlit_app():
@@ -43,13 +43,13 @@ def launch_streamlit_app():
     gui_app_path = Path(__file__).parent / "gui_app.py"
 
     if not gui_app_path.exists():
-        print(f"❌ GUI application not found at {gui_app_path}")
+        print(f"error GUI application not found at {gui_app_path}")
         return False
 
-    print("🚀 Launching FractalSemantics GUI...")
-    print(f"📍 Application: {gui_app_path}")
+    print("- Launching FractalSemantics GUI...")
+    print(f"round_pushpin Application: {gui_app_path}")
     print("🌐 Streamlit will open in your default browser")
-    print("💡 Use Ctrl+C to stop the server")
+    print("idea Use Ctrl+C to stop the server")
     print("-" * 60)
 
     try:
@@ -62,17 +62,17 @@ def launch_streamlit_app():
         print("\n🛑 Streamlit server stopped")
         return True
     except Exception as e:
-        print(f"❌ Failed to launch Streamlit: {e}")
+        print(f"error Failed to launch Streamlit: {e}")
         return False
 
 def main():
     """Main launcher function."""
-    print("🔬 FractalSemantics GUI Launcher")
+    print("microscope FractalSemantics GUI Launcher")
     print("=" * 40)
 
     # Check if dependencies are installed
     if not check_dependencies():
-        print("\n🔧 Would you like to install the missing dependencies? (y/n)")
+        print("\nwrench Would you like to install the missing dependencies? (y/n)")
         choice = input().lower().strip()
 
         if choice in ['y', 'yes']:

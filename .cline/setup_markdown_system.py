@@ -70,7 +70,7 @@ class MarkdownSystemSetup:
                     old_path.symlink_to(new_path)
                     print(f"✅ Created symlink: {old_path} -> {new_path}")
                 except OSError as e:
-                    print(f"⚠️  Could not create symlink: {e}")
+                    print(f"-  Could not create symlink: {e}")
 
     def setup_mcp_server(self):
         """Setup MCP server configuration."""
@@ -79,7 +79,7 @@ class MarkdownSystemSetup:
         if mcp_config.exists():
             print(f"✅ MCP server configuration already exists: {mcp_config}")
         else:
-            print(f"⚠️  MCP server configuration not found. Please ensure {mcp_config} exists.")
+            print(f"-  MCP server configuration not found. Please ensure {mcp_config} exists.")
 
     def create_integration_scripts(self):
         """Create integration scripts for the system."""
@@ -195,14 +195,14 @@ if __name__ == "__main__":
         if markdown_files:
             print(f"✅ Found {len(markdown_files)} markdown files")
         else:
-            print("⚠️  No markdown files found")
+            print("-  No markdown files found")
 
         # Check for Python tools
         python_tools = list(self.cline_dir.glob("**/*.py"))
         if python_tools:
             print(f"✅ Found {len(python_tools)} Python tools")
         else:
-            print("⚠️  No Python tools found")
+            print("-  No Python tools found")
 
     def print_usage_guide(self):
         """Print usage guide and next steps."""
@@ -225,7 +225,7 @@ if __name__ == "__main__":
         print("  .cline/config/cline-code-reviewer.json")
         print("  .cline/config/cline-project-analyzer.json")
 
-        print("\n🚀 Next Steps:")
+        print("\n- Next Steps:")
         print("  1. Review and customize configuration files")
         print("  2. Test commands: /python-dev-workflow")
         print("  3. Setup pre-commit hooks: /git-workflow setup-hooks")
@@ -245,7 +245,7 @@ if __name__ == "__main__":
 
     def run_full_setup(self):
         """Run the complete setup process."""
-        print("🚀 Setting up Anthropic/Claude-style Markdown System")
+        print("- Setting up Anthropic/Claude-style Markdown System")
         print("="*60)
 
         self.setup_directories()

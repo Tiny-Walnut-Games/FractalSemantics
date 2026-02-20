@@ -18,7 +18,7 @@ PHASES:
 
 SUCCESS CRITERIA:
 - Distance correlation > 0.95 for best embedding strategy
-- Power-law exponent found (1 ≤ exponent ≤ 2)
+- Power-law exponent found (1 <= exponent <= 2)
 - Force correlation > 0.90 between hierarchical and Euclidean
 - Optimal embedding type identified
 """
@@ -69,8 +69,6 @@ try:
     )
 except ImportError:
     # Fallback: define minimal versions needed for distance mapping
-    from typing import tuple
-
     import numpy as np
 
     @dataclass
@@ -318,7 +316,7 @@ class ExponentialEmbedding(EmbeddingStrategy):
     def __init__(self):
         super().__init__(
             name="Exponential",
-            description="Nodes placed at exponential distance from parent (d ∝ α^depth)"
+            description="Nodes placed at exponential distance from parent (d ∝ alpha^depth)"
         )
 
     def embed_hierarchy(

@@ -34,7 +34,7 @@ class ExperimentConfig:
     educational_focus: str
     experiment_type: str = "standard"  # "standard", "advanced", "stress_test"
     quick_mode_supported: bool = True
-    timeout_seconds: int = 300
+    timeout_seconds: int = 300 # Default to 300 seconds (5 minutes) for all experiments
     dependencies: list[str] = field(default_factory=list)
 
 @dataclass
@@ -111,7 +111,6 @@ class ExperimentRunner:
             "gc": "gc",
             "uuid": "uuid",
             "math": "math",
-            "periodictable": "periodictable",
             "networkx": "networkx"
         }
 
@@ -124,7 +123,7 @@ class ExperimentRunner:
                     missing_packages.append(dep)
 
         if missing_packages:
-            print(f"⚠️  Warning: Missing dependencies for {config.experiment_id}: {', '.join(missing_packages)}")
+            print(f"Warning: Missing dependencies for {config.experiment_id}: {', '.join(missing_packages)}")
             print("   Some experiments may fail due to missing packages.")
 
     def _load_experiment_configs(self) -> dict[str, ExperimentConfig]:
@@ -173,7 +172,7 @@ class ExperimentRunner:
             "EXP-05": ExperimentConfig(
                 experiment_id="EXP-05",
                 module_name="fractalsemantics.exp05_compression_expansion",
-                description="Tests lossless compression through hierarchical structures (fragments → clusters → glyphs → mist).",
+                description="Tests lossless compression through hierarchical structures (fragments - clusters - glyphs - mist).",
                 educational_focus="Information Theory and Hierarchical Compression Algorithms",
                 experiment_type="standard",
                 quick_mode_supported=True,
@@ -278,7 +277,7 @@ class ExperimentRunner:
                 experiment_type="advanced",
                 quick_mode_supported=True,
                 timeout_seconds=300,
-                dependencies=["numpy", "periodictable"]
+                dependencies=["numpy"]
             ),
             "EXP-15": ExperimentConfig(
                 experiment_id="EXP-15",
@@ -396,30 +395,30 @@ class ExperimentRunner:
                 duration=duration,
                 output=f"Error executing experiment: {str(e)}",
                 metrics={},
-                educational_content=[f"❌ Experiment failed with error: {str(e)}"],
+                educational_content=[f"[FAIL] Experiment failed with error: {str(e)}"],
                 result_type="failure"
             )
 
-    def _generate_introduction(self, experiment_id: str, config: dict[str, any]) -> str:
+    def _generate_introduction(self, experiment_id: str, config: ExperimentConfig) -> str:
         """Generate educational introduction for the experiment."""
         intro = f"""
-🎓 EXPERIMENT: {experiment_id} - {config['module'].split('.')[-1].replace('_', ' ').title()}
-📚 Educational Focus: {config['educational_focus']}
+        - EXPERIMENT: {experiment_id} - {config.module_name.split('.')[-1].replace('_', ' ').title()}
+        - Educational Focus: {config.educational_focus}
 
-🎯 Objective:
-{config['description']}
+        - Objective:
+        {config.description}
 
-📝 Mathematical Concepts Covered:
-"""
+        - Mathematical Concepts Covered:
+        """
 
         # Add specific mathematical concepts for each experiment
         concepts = self._get_mathematical_concepts(experiment_id)
         for concept in concepts:
-            intro += f"   • {concept}\n"
+            intro += f"   * {concept}\n"
 
         intro += """
-🔍 Step-by-Step Process:
-"""
+        - Step-by-Step Process:
+        """
 
         # Add step-by-step process
         steps = self._get_experiment_steps(experiment_id)
@@ -432,30 +431,30 @@ class ExperimentRunner:
     def _generate_analysis(self, experiment_id: str, result: dict[str, any]) -> str:
         """Generate educational analysis of experiment results."""
         analysis = f"""
-📊 EXPERIMENT RESULTS ANALYSIS: {experiment_id}
-🎯 Key Learning Outcomes:
+        - EXPERIMENT RESULTS ANALYSIS: {experiment_id}
+        - Key Learning Outcomes:
 
-"""
+        """
 
         if result["success"]:
-            analysis += "✅ Experiment completed successfully!"
-            analysis += "📈 Performance Metrics:"
+            analysis += "[SUCCESS] Experiment completed successfully!"
+            analysis += "- Performance Metrics:"
             for key, value in result["metrics"].items():
-                analysis += f"   • {key}: {value}"
+                analysis += f"   * {key}: {value}"
         else:
-            analysis += "❌ Experiment encountered issues."
-            analysis += "🔍 Troubleshooting Insights:"
-            analysis += "   • This demonstrates real-world challenges in computational systems"
-            analysis += "   • Error analysis helps identify system limitations"
-            analysis += "   • Understanding failure modes is crucial for system design"
+            analysis += "[FAIL] Experiment encountered issues."
+            analysis += "- Troubleshooting Insights:"
+            analysis += "   * This demonstrates real-world challenges in computational systems"
+            analysis += "   * Error analysis helps identify system limitations"
+            analysis += "   * Understanding failure modes is crucial for system design"
 
         analysis += f"""
-💡 Real-World Applications:
-{self._get_real_world_applications(experiment_id)}
+            - Real-World Applications:
+            {self._get_real_world_applications(experiment_id)}
 
-🎯 Takeaway Lessons:
-{self._get_key_lessons(experiment_id)}
-"""
+            - Takeaway Lessons:
+            {self._get_key_lessons(experiment_id)}
+            """
 
         return analysis
 
@@ -629,7 +628,7 @@ class ExperimentRunner:
                 "Calculate scaling exponents and power law relationships"
             ],
             "EXP-05": [
-                "Create hierarchical data structures (fragments → clusters → glyphs → mist)",
+                "Create hierarchical data structures (fragments - clusters - glyphs - mist)",
                 "Apply compression algorithms at each hierarchical level",
                 "Measure compression ratios and efficiency metrics",
                 "Verify lossless decompression capabilities",
@@ -760,58 +759,58 @@ class ExperimentRunner:
     def _get_real_world_applications(self, experiment_id: str) -> str:
         """Get real-world applications for the experiment."""
         applications_map = {
-            "EXP-01": "• Content-addressable storage systems• Cryptographic hash functions• Database indexing strategies• File system design",
-            "EXP-02": "• Database query optimization• Cache system design• Real-time data processing• High-frequency trading systems",
-            "EXP-03": "• Feature selection in machine learning• Dimensionality reduction techniques• Data compression algorithms• Information retrieval systems",
-            "EXP-04": "• Scalable distributed systems• Cloud computing architectures• Big data processing frameworks• Network protocol design",
-            "EXP-05": "• Data compression software• Multimedia file formats• Database storage optimization• Network bandwidth optimization",
-            "EXP-06": "• Semantic search engines• Recommendation systems• Natural language processing• Knowledge graph construction",
-            "EXP-07": "• Evolutionary biology research• Phylogenetic tree construction• Genetic algorithm design• Ancestral sequence reconstruction",
-            "EXP-08": "• Artificial neural networks• Knowledge management systems• Self-organizing maps• Clustering algorithms",
-            "EXP-09": "• Memory-constrained embedded systems• Mobile application optimization• Cloud resource management• Real-time system design",
-            "EXP-10": "• Multi-dimensional database systems• Geographic information systems• Scientific data analysis• Complex query optimization",
-            "EXP-11": "• System design trade-off analysis• Resource allocation strategies• Performance optimization• Cost-benefit analysis",
-            "EXP-11b": "• Stress testing methodologies• Parameter sensitivity analysis• Robust system design• Performance under extreme conditions",
-            "EXP-12": "• Technology selection for projects• Performance benchmarking• System architecture design• Vendor evaluation",
-            "EXP-13": "• Hierarchical data organization• Natural language processing• Knowledge graph construction• Self-organizing systems",
-            "EXP-14": "• Atomic structure modeling• Periodic table analysis• Quantum computing applications• Material science research",
-            "EXP-15": "• Topological data analysis• Fractal physics applications• Complex system modeling• Network topology optimization",
-            "EXP-16": "• Spatial database systems• Geographic information systems• Multi-scale data analysis• Hierarchical data visualization",
-            "EXP-17": "• Thermodynamic system analysis• Energy conservation modeling• Statistical mechanics applications• Thermal system optimization",
-            "EXP-18": "• Energy distribution analysis• Hierarchical system optimization• Thermodynamic efficiency modeling• Resource allocation systems",
-            "EXP-19": "• Orbital mechanics applications• Hierarchical system dynamics• Equivalence principle testing• Complex system analysis",
-            "EXP-20": "• Gravitational field modeling• Vector field applications• Fractal interaction systems• Field theory implementations",
-            "EXP-21": "• Astronomical simulations• Orbital mechanics research• N-body problem analysis• Numerical integration method development"
+            "EXP-01": "* Content-addressable storage systems* Cryptographic hash functions* Database indexing strategies* File system design",
+            "EXP-02": "* Database query optimization* Cache system design* Real-time data processing* High-frequency trading systems",
+            "EXP-03": "* Feature selection in machine learning* Dimensionality reduction techniques* Data compression algorithms* Information retrieval systems",
+            "EXP-04": "* Scalable distributed systems* Cloud computing architectures* Big data processing frameworks* Network protocol design",
+            "EXP-05": "* Data compression software* Multimedia file formats* Database storage optimization* Network bandwidth optimization",
+            "EXP-06": "* Semantic search engines* Recommendation systems* Natural language processing* Knowledge graph construction",
+            "EXP-07": "* Evolutionary biology research* Phylogenetic tree construction* Genetic algorithm design* Ancestral sequence reconstruction",
+            "EXP-08": "* Artificial neural networks* Knowledge management systems* Self-organizing maps* Clustering algorithms",
+            "EXP-09": "* Memory-constrained embedded systems* Mobile application optimization* Cloud resource management* Real-time system design",
+            "EXP-10": "* Multi-dimensional database systems* Geographic information systems* Scientific data analysis* Complex query optimization",
+            "EXP-11": "* System design trade-off analysis* Resource allocation strategies* Performance optimization* Cost-benefit analysis",
+            "EXP-11b": "* Stress testing methodologies* Parameter sensitivity analysis* Robust system design* Performance under extreme conditions",
+            "EXP-12": "* Technology selection for projects* Performance benchmarking* System architecture design* Vendor evaluation",
+            "EXP-13": "* Hierarchical data organization* Natural language processing* Knowledge graph construction* Self-organizing systems",
+            "EXP-14": "* Atomic structure modeling* Periodic table analysis* Quantum computing applications* Material science research",
+            "EXP-15": "* Topological data analysis* Fractal physics applications* Complex system modeling* Network topology optimization",
+            "EXP-16": "* Spatial database systems* Geographic information systems* Multi-scale data analysis* Hierarchical data visualization",
+            "EXP-17": "* Thermodynamic system analysis* Energy conservation modeling* Statistical mechanics applications* Thermal system optimization",
+            "EXP-18": "* Energy distribution analysis* Hierarchical system optimization* Thermodynamic efficiency modeling* Resource allocation systems",
+            "EXP-19": "* Orbital mechanics applications* Hierarchical system dynamics* Equivalence principle testing* Complex system analysis",
+            "EXP-20": "* Gravitational field modeling* Vector field applications* Fractal interaction systems* Field theory implementations",
+            "EXP-21": "* Astronomical simulations* Orbital mechanics research* N-body problem analysis* Numerical integration method development"
         }
-        return applications_map.get(experiment_id, "• General computational applications")
+        return applications_map.get(experiment_id, "* General computational applications")
 
     def _get_key_lessons(self, experiment_id: str) -> str:
         """Get key lessons for the experiment."""
         lessons_map = {
-            "EXP-01": "• Mathematical foundations ensure system reliability• Collision resistance is critical for data integrity• Proper coordinate systems enable unique addressing• Cryptographic principles provide security guarantees",
-            "EXP-02": "• Algorithmic efficiency impacts real-world performance• Hash tables provide optimal retrieval performance• System design must consider scalability• Performance measurement requires precise timing",
-            "EXP-03": "• Dimensional analysis reveals system properties• Information theory guides feature selection• Ablation studies identify critical components• Entropy measures system complexity",
-            "EXP-04": "• Fractal properties enable scalable systems• Self-similarity provides consistent behavior• Scale invariance ensures predictable performance• Power laws describe natural system behavior",
-            "EXP-05": "• Hierarchical structures enable efficient compression• Information theory guides algorithm design• Lossless compression preserves data integrity• Multi-level optimization improves efficiency",
-            "EXP-06": "• Semantic similarity enables intelligent systems• Vector embeddings capture meaningful relationships• Threshold selection balances precision and recall• Entanglement detection reveals hidden connections",
-            "EXP-07": "• Evolutionary principles guide system design• Lineage tracking enables provenance• Bootstrap methods create comprehensive systems• Genetic algorithms solve complex problems",
-            "EXP-08": "• Self-organization creates emergent intelligence• Clustering reveals natural data structure• Semantic coherence improves system usability• Network topology affects performance",
-            "EXP-09": "• Resource constraints drive innovation• Optimization strategies improve resilience• Performance under pressure reveals system quality• Memory management is critical for efficiency",
-            "EXP-10": "• Multi-dimensional indexing enables complex queries• Query optimization reduces computational complexity• Dimensional pruning improves performance• Spatial databases handle complex data relationships",
-            "EXP-11": "• Trade-off analysis guides system design• Optimal dimensionality balances expressiveness and complexity• Pareto efficiency identifies best solutions• Complexity theory informs algorithm selection",
-            "EXP-11b": "• Stress testing methodologies• Parameter sensitivity analysis• Robust system design• Performance under extreme conditions",
-            "EXP-12": "• Comparative analysis reveals system strengths• Benchmarking provides objective evaluation• Performance metrics guide technology selection• Trade-off analysis informs architectural decisions",
-            "EXP-13": "• Hierarchical structures enable natural cohesion• Fractal gravity provides alternative to classical gravity• Tree-based organization supports efficient relationships• Hierarchical distance metrics enable spatial reasoning",
-            "EXP-14": "• Atomic structure can be modeled through fractal hierarchies• Electron shell configurations inform fractal parameters• Periodic table patterns emerge from fractal properties• Quantum mechanical principles align with fractal mathematics",
-            "EXP-15": "• Topological conservation provides alternative to classical conservation laws• Fractal systems prioritize structure over energy• Hierarchical tracking enables complex system analysis• Classical physics principles may not apply to fractal systems",
-            "EXP-16": "• Hierarchical distance mapping enables multi-scale analysis• Spatial relationships can be preserved through hierarchical structures• Distance transformation algorithms support complex queries• Multi-scale analysis reveals hidden patterns in data",
-            "EXP-17": "• Thermodynamic principles apply to fractal systems• Energy conservation manifests differently in hierarchical structures• Statistical mechanics principles guide fractal system behavior• Thermal equilibrium can be achieved through hierarchical organization",
-            "EXP-18": "• Falloff thermodynamics affects hierarchical energy distribution• Energy efficiency varies across hierarchical levels• Thermodynamic optimization requires multi-scale analysis• Hierarchical structures impact energy flow patterns",
-            "EXP-19": "• Orbital equivalence enables hierarchical system modeling• Fractal orbital mechanics provide alternative to classical mechanics• Equivalence principles apply across hierarchical scales• Complex orbital relationships emerge from fractal structures",
-            "EXP-20": "• Vector field approaches enable fractal gravitational modeling• Field theory principles apply to hierarchical systems• Vector calculus provides tools for fractal interaction analysis• Gravitational interactions can be modeled through fractal mathematics",
-            "EXP-21": "• Accurate orbital mechanics is essential for realistic simulations• Gravitational interactions are complex and require careful modeling• N-body problem analysis reveals system dynamics• Numerical integration methods are critical for long-term stability"
+            "EXP-01": "* Mathematical foundations ensure system reliability* Collision resistance is critical for data integrity* Proper coordinate systems enable unique addressing* Cryptographic principles provide security guarantees",
+            "EXP-02": "* Algorithmic efficiency impacts real-world performance* Hash tables provide optimal retrieval performance* System design must consider scalability* Performance measurement requires precise timing",
+            "EXP-03": "* Dimensional analysis reveals system properties* Information theory guides feature selection* Ablation studies identify critical components* Entropy measures system complexity",
+            "EXP-04": "* Fractal properties enable scalable systems* Self-similarity provides consistent behavior* Scale invariance ensures predictable performance* Power laws describe natural system behavior",
+            "EXP-05": "* Hierarchical structures enable efficient compression* Information theory guides algorithm design* Lossless compression preserves data integrity* Multi-level optimization improves efficiency",
+            "EXP-06": "* Semantic similarity enables intelligent systems* Vector embeddings capture meaningful relationships* Threshold selection balances precision and recall* Entanglement detection reveals hidden connections",
+            "EXP-07": "* Evolutionary principles guide system design* Lineage tracking enables provenance* Bootstrap methods create comprehensive systems* Genetic algorithms solve complex problems",
+            "EXP-08": "* Self-organization creates emergent intelligence* Clustering reveals natural data structure* Semantic coherence improves system usability* Network topology affects performance",
+            "EXP-09": "* Resource constraints drive innovation* Optimization strategies improve resilience* Performance under pressure reveals system quality* Memory management is critical for efficiency",
+            "EXP-10": "* Multi-dimensional indexing enables complex queries* Query optimization reduces computational complexity* Dimensional pruning improves performance* Spatial databases handle complex data relationships",
+            "EXP-11": "* Trade-off analysis guides system design* Optimal dimensionality balances expressiveness and complexity* Pareto efficiency identifies best solutions* Complexity theory informs algorithm selection",
+            "EXP-11b": "* Stress testing methodologies* Parameter sensitivity analysis* Robust system design* Performance under extreme conditions",
+            "EXP-12": "* Comparative analysis reveals system strengths* Benchmarking provides objective evaluation* Performance metrics guide technology selection* Trade-off analysis informs architectural decisions",
+            "EXP-13": "* Hierarchical structures enable natural cohesion* Fractal gravity provides alternative to classical gravity* Tree-based organization supports efficient relationships* Hierarchical distance metrics enable spatial reasoning",
+            "EXP-14": "* Atomic structure can be modeled through fractal hierarchies* Electron shell configurations inform fractal parameters* Periodic table patterns emerge from fractal properties* Quantum mechanical principles align with fractal mathematics",
+            "EXP-15": "* Topological conservation provides alternative to classical conservation laws* Fractal systems prioritize structure over energy* Hierarchical tracking enables complex system analysis* Classical physics principles may not apply to fractal systems",
+            "EXP-16": "* Hierarchical distance mapping enables multi-scale analysis* Spatial relationships can be preserved through hierarchical structures* Distance transformation algorithms support complex queries* Multi-scale analysis reveals hidden patterns in data",
+            "EXP-17": "* Thermodynamic principles apply to fractal systems* Energy conservation manifests differently in hierarchical structures* Statistical mechanics principles guide fractal system behavior* Thermal equilibrium can be achieved through hierarchical organization",
+            "EXP-18": "* Falloff thermodynamics affects hierarchical energy distribution* Energy efficiency varies across hierarchical levels* Thermodynamic optimization requires multi-scale analysis* Hierarchical structures impact energy flow patterns",
+            "EXP-19": "* Orbital equivalence enables hierarchical system modeling* Fractal orbital mechanics provide alternative to classical mechanics* Equivalence principles apply across hierarchical scales* Complex orbital relationships emerge from fractal structures",
+            "EXP-20": "* Vector field approaches enable fractal gravitational modeling* Field theory principles apply to hierarchical systems* Vector calculus provides tools for fractal interaction analysis* Gravitational interactions can be modeled through fractal mathematics",
+            "EXP-21": "* Accurate orbital mechanics is essential for realistic simulations* Gravitational interactions are complex and require careful modeling* N-body problem analysis reveals system dynamics* Numerical integration methods are critical for long-term stability"
         }
-        return lessons_map.get(experiment_id, "• Computational thinking solves complex problems• Mathematical foundations enable reliable systems• Experimental methodology validates theoretical concepts")
+        return lessons_map.get(experiment_id, "* Computational thinking solves complex problems* Mathematical foundations enable reliable systems* Experimental methodology validates theoretical concepts")
 
     def _determine_result_type(self, experiment_id: str, result: dict[str, any]) -> str:
         """Determine the result type based on experiment outcome and scientific validation."""
@@ -861,6 +860,9 @@ class ExperimentRunner:
         elif experiment_id in ["EXP-18", "EXP-19", "EXP-20", "EXP-21"]:
             # Use centralized validation logic for advanced experiments
             return self._check_advanced_experiment_validation(experiment_id, output)
+
+        # Default to success if no specific validation failures found
+        return "success"
 
     def _check_advanced_experiment_validation(self, experiment_id: str, output: str) -> str:
         """Centralized validation logic for advanced experiments (EXP-18 through EXP-21)."""
@@ -916,34 +918,10 @@ class ExperimentRunner:
 
     async def _execute_experiment_module(self, experiment_id: str, quick_mode: bool) -> dict[str, any]:
         """Execute the actual experiment module."""
-
-        # Experiment ID to module name mapping
-        experiment_map = {
-            "EXP-01": "exp01_geometric_collision",
-            "EXP-02": "exp02_retrieval_efficiency",
-            "EXP-03": "exp03_coordinate_entropy",
-            "EXP-04": "exp04_fractal_scaling",
-            "EXP-05": "exp05_compression_expansion",
-            "EXP-06": "exp06_entanglement_detection",
-            "EXP-07": "exp07_luca_bootstrap",
-            "EXP-08": "exp08_self_organizing_memory",
-            "EXP-09": "exp09_memory_pressure",
-            "EXP-10": "exp10_multidimensional_query",
-            "EXP-11": "exp11_dimension_cardinality",
-            "EXP-11b": "exp11b_dimension_stress_test",
-            "EXP-12": "exp12_benchmark_comparison",
-            "EXP-13": "exp13_fractal_gravity",
-            "EXP-14": "exp14_atomic_fractal_mapping",
-            "EXP-15": "exp15_topological_conservation",
-            "EXP-16": "exp16_hierarchical_distance_mapping",
-            "EXP-17": "exp17_thermodynamic_validation",
-            "EXP-18": "exp18_falloff_thermodynamics",
-            "EXP-19": "exp19_orbital_equivalence",
-            "EXP-20": "exp20_vector_field_derivation",
-            "EXP-21": "exp21_earth_moon_sun"
-        }
-
         try:
+            # Get the configuration for this experiment
+            config = self.experiment_configs[experiment_id]
+
             # Use subprocess execution for all experiments to ensure compatibility
             return await self._execute_experiment_subprocess(experiment_id, quick_mode)
 
@@ -956,7 +934,7 @@ class ExperimentRunner:
                 "working_directory": os.getcwd(),
                 "python_executable": sys.executable,
                 "experiment_id": experiment_id,
-                "module_name": experiment_map.get(experiment_id, "unknown")
+                "module_name": config.module_name if 'config' in locals() else "unknown"
             }
 
             error_output = f"""
@@ -981,12 +959,11 @@ Full Traceback:
             }
 
     async def _execute_experiment_subprocess(self, experiment_id: str, quick_mode: bool) -> dict[str, any]:
-        """Execute experiment as subprocess with progress tracking (Windows-compatible)."""
-        import threading
-
+        """Execute experiment as subprocess with optimized progress tracking."""
         try:
             # Import progress communication module
             from fractalsemantics.progress_comm import (
+                ProgressReporter,
                 is_progress_message,
                 parse_progress_message,
             )
@@ -1039,7 +1016,9 @@ Full Traceback:
                 env["FRACTALSEMANTICS_PROGRESS_FILE"] = os.environ["FRACTALSEMANTICS_PROGRESS_FILE"]
             else:
                 # Set default progress file path if not already set
-                progress_file_path = str(Path("results") / "gui_progress.jsonl")
+                # Use absolute path to ensure it's in the project root regardless of working directory
+                project_root = str(Path(__file__).parent.parent)
+                progress_file_path = str(Path(project_root) / "results" / "gui_progress.jsonl")
                 env["FRACTALSEMANTICS_PROGRESS_FILE"] = progress_file_path
 
             # Remove Streamlit-specific environment variables
@@ -1057,177 +1036,116 @@ Full Traceback:
             env["VIRTUAL_ENV"] = sys.prefix
             env["PATH"] = f"{sys.prefix}/bin{os.pathsep}{env.get('PATH', '')}"
 
-            # Run subprocess with streaming output (Windows-compatible threading approach)
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                encoding='utf-8',
-                env=env,
-                bufsize=1,  # Line buffered
-                universal_newlines=True
-            )
+            # Get timeout from experiment config
+            config = self.experiment_configs.get(experiment_id, ExperimentConfig(
+                experiment_id=experiment_id,
+                module_name="",
+                description="",
+                educational_focus="",
+                timeout_seconds=300
+            ))
+            timeout = config.timeout_seconds
 
-            # Collect output in real-time using threads (Windows-compatible)
-            stdout_lines = []
-            stderr_lines = []
+            # Use regular subprocess with proper timeout handling
+            import subprocess
 
-            # Queues for thread-safe communication
-            stdout_queue = Queue()
-            stderr_queue = Queue()
+            try:
+                # Run subprocess with timeout
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout,
+                    env=env,
+                    cwd=str(Path(__file__).parent),
+                    encoding='utf-8',
+                    errors='replace'  # Replace problematic characters instead of failing
+                )
 
-            def read_stdout():
-                """Read stdout in background thread."""
+                # Parse output with additional error handling
                 try:
-                    for line in iter(process.stdout.readline, ''):
-                        if line:
-                            stdout_queue.put(line)
-                except ast.ParseError:
-                    pass
-                finally:
-                    stdout_queue.put(None)  # Signal completion
+                    stdout_lines = result.stdout.split('\n') if result.stdout else []
+                except (UnicodeDecodeError, UnicodeEncodeError):
+                    # Fallback to raw bytes if text parsing fails
+                    stdout_lines = []
+                    if result.stdout:
+                        try:
+                            stdout_text = result.stdout.decode('utf-8', errors='replace')
+                            stdout_lines = stdout_text.split('\n')
+                        except Exception as e:
+                            stdout_lines = [f"[Output encoding error - unable to decode stdout: {e}]"]
 
-            def read_stderr():
-                """Read stderr in background thread."""
                 try:
-                    for line in iter(process.stderr.readline, ''):
-                        if line:
-                            stderr_queue.put(line)
-                except ast.ParseError:
-                    pass
-                finally:
-                    stderr_queue.put(None)  # Signal completion
+                    stderr_lines = result.stderr.split('\n') if result.stderr else []
+                except (UnicodeDecodeError, UnicodeEncodeError):
+                    # Fallback to raw bytes if text parsing fails
+                    stderr_lines = []
+                    if result.stderr:
+                        try:
+                            stderr_text = result.stderr.decode('utf-8', errors='replace')
+                            stderr_lines = stderr_text.split('\n')
+                        except Exception as e:
+                            stderr_lines = [f"[Output encoding error - unable to decode stderr: {e}]"]
 
-            # Start reader threads
-            stdout_thread = Thread(target=read_stdout, daemon=True)
-            stderr_thread = Thread(target=read_stderr, daemon=True)
-            stdout_thread.start()
-            stderr_thread.start()
+                # Parse progress messages from stderr
+                progress_messages = []
+                for line in stderr_lines:
+                    if is_progress_message(line):
+                        progress_msg = parse_progress_message(line)
+                        if progress_msg and progress_msg.experiment_id == experiment_id:
+                            progress_messages.append(progress_msg)
 
-            # Read streams until process completes
-            start_time = time.time()
-            timeout = 300  # 5 minutes
-            stdout_done = False
-            stderr_done = False
+                # Determine success by checking for completion markers in output
+                output = result.stdout
+                completion_markers = [
+                    "[OK]",
+                    "COMPLETE",
+                    "[Success]",
+                    "SUCCESS",
+                    f"{experiment_id} COMPLETE"
+                ]
 
-            while not (stdout_done and stderr_done):
-                # Check for timeout
-                if time.time() - start_time > timeout:
-                    process.kill()
-                    raise TimeoutError(f"Experiment {experiment_id} timed out after {timeout} seconds")
+                has_completion_marker = any(marker in output.upper() for marker in [m.upper() for m in completion_markers])
 
-                # Read from stdout queue
-                if not stdout_done:
-                    try:
-                        line = stdout_queue.get(timeout=0.1)
-                        if line is None:
-                            stdout_done = True
-                        else:
-                            stdout_lines.append(line)
-                    except ast.ParseError:
-                        pass  # Queue empty
+                # Success if:
+                # 1. Return code is 0 (definite success), OR
+                # 2. Return code is non-zero BUT output contains completion markers (warning-level result)
+                success = result.returncode == 0 or has_completion_marker
 
-                # Read from stderr queue
-                if not stderr_done:
-                    try:
-                        line = stderr_queue.get(timeout=0.1)
-                        if line is None:
-                            stderr_done = True
-                        else:
-                            stderr_lines.append(line)
-                    except ast.ParseError:
-                        pass  # Queue empty
+                # Filter out progress messages from error output
+                filtered_error_lines = []
+                for line in stderr_lines:
+                    if not is_progress_message(line):
+                        filtered_error_lines.append(line)
 
-                # Yield control to event loop
-                await asyncio.sleep(0.01)
+                filtered_error = '\n'.join(filtered_error_lines).strip()
 
-            # Wait for threads to finish
-            stdout_thread.join(timeout=1.0)
-            stderr_thread.join(timeout=1.0)
+                # Build metrics
+                metrics: dict[str, any] = {"return_code": result.returncode}
+                if progress_messages:
+                    progress_data = []
+                    for msg in progress_messages:
+                        progress_data.append({
+                            "timestamp": msg.timestamp,
+                            "progress_percent": float(msg.progress_percent),
+                            "stage": msg.stage,
+                            "message": msg.message,
+                            "message_type": msg.message_type
+                        })
+                    metrics["progress_messages"] = progress_data
 
-            # Get return code
-            return_code = process.wait()
+                return {
+                    "success": success,
+                    "output": output + (f"\nStderr: {filtered_error}" if filtered_error else ""),
+                    "metrics": metrics
+                }
 
-            # Combine output
-            output = ''.join(stdout_lines)
-            error = ''.join(stderr_lines)
-
-            # Determine success by checking for completion markers in output
-            # Exit code 0 = definite success
-            # Exit code 1 = could be warning (successful completion with validation warnings) or failure
-            # We need to check the output to distinguish between these cases
-            completion_markers = [
-                "[OK]",
-                "COMPLETE",
-                "[Success]",
-                "SUCCESS",
-                f"{experiment_id} COMPLETE"
-            ]
-
-            has_completion_marker = any(marker in output.upper() for marker in [m.upper() for m in completion_markers])
-
-            # Success if:
-            # 1. Return code is 0 (definite success), OR
-            # 2. Return code is non-zero BUT output contains completion markers (warning-level result)
-            success = return_code == 0 or has_completion_marker
-
-            # Add detailed diagnostic information if subprocess had non-zero exit code
-            if return_code != 0:
-                diagnostic_info = f"""
-=== EXPERIMENT COMPLETED WITH NON-ZERO EXIT CODE ===
-Return Code: {return_code}
-Experiment ID: {experiment_id}
-Module Name: {module_name}
-Completion Status: {'Completed with warnings' if has_completion_marker else 'Failed'}
-
-{'Note: Non-zero exit code typically indicates scientific validation warnings, not technical failures.' if has_completion_marker else 'Note: No completion marker found - this appears to be a technical failure.'}
-
-=== STDOUT ===
-{output if output else '(no output)'}
-
-=== STDERR ===
-{error if error else '(no error output)'}
-"""
-                print(diagnostic_info)
-                # Only add error info to output if it's a true technical failure
-                if not has_completion_marker:
-                    output = diagnostic_info + "\n" + output
-
-            # Parse progress messages from stderr and filter them out of error output
-            progress_messages = []
-            filtered_error_lines = []
-            for line in error.split('\n'):
-                if is_progress_message(line):
-                    progress_msg = parse_progress_message(line)
-                    if progress_msg and progress_msg.experiment_id == experiment_id:
-                        progress_messages.append(progress_msg)
-                    # Don't include progress messages in error output
-                else:
-                    filtered_error_lines.append(line)
-
-            # Use filtered error output
-            filtered_error = '\n'.join(filtered_error_lines).strip()
-
-            # Build metrics
-            metrics: dict[str, any] = {"return_code": return_code}
-            if progress_messages:
-                progress_data = []
-                for msg in progress_messages:
-                    progress_data.append({
-                        "timestamp": msg.timestamp,
-                        "progress_percent": float(msg.progress_percent),
-                        "stage": msg.stage,
-                        "message": msg.message,
-                        "message_type": msg.message_type
-                    })
-                metrics["progress_messages"] = progress_data
-
-            return {
-                "success": success,
-                "output": output + (f"\nStderr: {filtered_error}" if filtered_error else ""),
-                "metrics": metrics
-            }
+            except subprocess.TimeoutExpired:
+                return {
+                    "success": False,
+                    "output": f"Experiment {experiment_id} timed out after {timeout} seconds",
+                    "metrics": {"error_type": "TimeoutError", "error_message": f"Timeout after {timeout} seconds"}
+                }
 
         except Exception as e:
             import traceback
@@ -1261,9 +1179,9 @@ Completion Status: {'Completed with warnings' if has_completion_marker else 'Fai
         successful_experiments = 0
         failed_experiments = 0
 
-        print(f"🚀 Starting batch run of {total_experiments} experiments...")
-        print(f"📊 Feature Level: {'Quick' if quick_mode else 'Full'}")
-        print(f"⚡ Execution Mode: {'Parallel' if parallel else 'Sequential'}")
+        print(f"Starting batch run of {total_experiments} experiments...")
+        print(f"Feature Level: {'Quick' if quick_mode else 'Full'}")
+        print(f"Execution Mode: {'Parallel' if parallel else 'Sequential'}")
         print("=" * 80)
 
         if parallel:
@@ -1301,14 +1219,14 @@ Completion Status: {'Completed with warnings' if has_completion_marker else 'Fai
                         duration=duration,
                         output=f"Error: {str(result)}",
                         metrics={},
-                        educational_content=[f"❌ Experiment {experiment_id} failed with error: {str(result)}"]
+                        educational_content=[f"[FAIL] Experiment {experiment_id} failed with error: {str(result)}"]
                     )
                     experiment_results.append(error_result)
                     failed_experiments += 1
 
                     # Complete progress bar as failed
                     progress_bar.n = 100
-                    progress_bar.set_postfix({"Status": "❌ Failed"})
+                    progress_bar.set_postfix({"Status": "[FAIL] Failed"})
                     progress_bar.refresh()
                     progress_bar.close()
 
@@ -1320,10 +1238,10 @@ Completion Status: {'Completed with warnings' if has_completion_marker else 'Fai
                     experiment_results.append(result)
                     if result.success:
                         successful_experiments += 1
-                        status = "✅ Success"
+                        status = "[PASS] Success"
                     else:
                         failed_experiments += 1
-                        status = "❌ Failed"
+                        status = "[FAIL] Failed"
 
                     # Complete progress bar
                     progress_bar.n = 100
@@ -1373,13 +1291,13 @@ Completion Status: {'Completed with warnings' if has_completion_marker else 'Fai
                         duration=duration,
                         output=f"Error: {str(e)}",
                         metrics={},
-                        educational_content=[f"❌ Experiment {experiment_id} failed with error: {str(e)}"]
+                        educational_content=[f"[FAIL] Experiment {experiment_id} failed with error: {str(e)}"]
                     )
                     experiment_results.append(error_result)
                     failed_experiments += 1
 
                     # Update progress bar
-                    progress_bar.set_postfix({"Status": "Failed", "Last": experiment_id})
+                    progress_bar.set_postfix({"Status": "[FAIL] Failed", "Last": experiment_id})
                     progress_bar.update(1)
 
                     if progress_callback:
@@ -1415,9 +1333,15 @@ Completion Status: {'Completed with warnings' if has_completion_marker else 'Fai
 
         return None
 
+    def progress_file(self) -> str:
+        """Get the path to the progress file."""
+        # Use absolute path to ensure it's in the project root regardless of working directory
+        project_root = str(Path(__file__).parent.parent)
+        return str(Path(project_root) / "results" / "gui_progress.jsonl")
+
     def _print_progress(self, current: int, total: int, result: ExperimentResult):
         """Print progress update for batch runs."""
-        status = "✅" if result.success else "❌"
+        status = "[PASS]" if result.success else "[FAIL]"
         duration_str = f"{result.duration:.2f}s"
         print(f"{status} {result.experiment_id} - {duration_str} ({current}/{total})")
 
@@ -1437,25 +1361,25 @@ Completion Status: {'Completed with warnings' if has_completion_marker else 'Fai
         partial_successes = sum(1 for r in experiment_results if r.result_type == "partial_success")
 
         summary = f"""
-🎯 BATCH EXPERIMENT SUMMARY REPORT
+- BATCH EXPERIMENT SUMMARY REPORT
 {'='*80}
 
-📊 OVERALL STATISTICS:
-   • Total Experiments: {len(experiment_results)}
-   • Successful: {successful}
-   • Failed: {failed}
-   • Success Rate: {(successful/len(experiment_results)*100):.1f}%
-   • Total Duration: {total_duration:.2f} seconds
-   • Average Duration: {(total_duration/len(experiment_results)):.2f} seconds per experiment
-   • Feature Level: {'Quick' if quick_mode else 'Full'}
+- OVERALL STATISTICS:
+   * Total Experiments: {len(experiment_results)}
+   * Successful: {successful}
+   * Failed: {failed}
+   * Success Rate: {(successful/len(experiment_results)*100):.1f}%
+   * Total Duration: {total_duration:.2f} seconds
+   * Average Duration: {(total_duration/len(experiment_results)):.2f} seconds per experiment
+   * Feature Level: {'Quick' if quick_mode else 'Full'}
 
-🔍 FAILURE ANALYSIS:
-   • Technical Failures (crashes/errors): {technical_failures}
-   • Scientific Warnings (validation failures): {scientific_warnings}
-   • Partial Successes (low performance): {partial_successes}
-   • True Successes: {successful}
+- FAILURE ANALYSIS:
+   * Technical Failures (crashes/errors): {technical_failures}
+   * Scientific Warnings (validation failures): {scientific_warnings}
+   * Partial Successes (low performance): {partial_successes}
+   * True Successes: {successful}
 
-📈 PERFORMANCE ANALYSIS:
+- PERFORMANCE ANALYSIS:
 """
 
         # Analyze performance patterns
@@ -1465,19 +1389,19 @@ Completion Status: {'Completed with warnings' if has_completion_marker else 'Fai
             min_duration = min(successful_durations)
             max_duration = max(successful_durations)
 
-            summary += f"""   • Average Duration (successful): {avg_duration:.2f}s
-   • Fastest Experiment: {min_duration:.2f}s
-   • Slowest Experiment: {max_duration:.2f}s
+            summary += f"""   * Average Duration (successful): {avg_duration:.2f}s
+   * Fastest Experiment: {min_duration:.2f}s
+   * Slowest Experiment: {max_duration:.2f}s
 """
 
         summary += """
-🎯 EDUCATIONAL INSIGHTS:
-   • This batch run demonstrates the comprehensive capabilities of FractalSemantics
-   • Each experiment validates different aspects of the addressing system
-   • Success rate indicates system reliability and robustness
-   • Performance metrics show scalability characteristics
+- EDUCATIONAL INSIGHTS:
+   * This batch run demonstrates the comprehensive capabilities of FractalSemantics
+   * Each experiment validates different aspects of the addressing system
+   * Success rate indicates system reliability and robustness
+   * Performance metrics show scalability characteristics
 
-💡 SYSTEM VALIDATION:
+- SYSTEM VALIDATION:
 """
 
         # Categorize experiments by type
@@ -1488,33 +1412,33 @@ Completion Status: {'Completed with warnings' if has_completion_marker else 'Fai
         analysis_tests = [r for r in experiment_results if r.experiment_id in ["EXP-11", "EXP-12"]]
         fractal_physics_tests = [r for r in experiment_results if r.experiment_id in ["EXP-13", "EXP-14", "EXP-15", "EXP-16", "EXP-17", "EXP-18", "EXP-19","EXP-20" ,"EXP-21"]]
 
-        summary += f"""   • Collision Resistance Tests: {sum(1 for r in collision_tests if r.success)}/{len(collision_tests)} passed
-   • Performance & Scaling Tests: {sum(1 for r in performance_tests if r.success)}/{len(performance_tests)} passed
-   • Advanced Feature Tests: {sum(1 for r in advanced_tests if r.success)}/{len(advanced_tests)} passed
-   • System Integration Tests: {sum(1 for r in system_tests if r.success)}/{len(system_tests)} passed
-   • Analysis & Comparison Tests: {sum(1 for r in analysis_tests if r.success)}/{len(analysis_tests)} passed
-   • Fractal Physics Simulations: {sum(1 for r in fractal_physics_tests if r.success)}/{len(fractal_physics_tests)} passed
+        summary += f"""   * Collision Resistance Tests: {sum(1 for r in collision_tests if r.success)}/{len(collision_tests)} passed
+   * Performance & Scaling Tests: {sum(1 for r in performance_tests if r.success)}/{len(performance_tests)} passed
+   * Advanced Feature Tests: {sum(1 for r in advanced_tests if r.success)}/{len(advanced_tests)} passed
+   * System Integration Tests: {sum(1 for r in system_tests if r.success)}/{len(system_tests)} passed
+   * Analysis & Comparison Tests: {sum(1 for r in analysis_tests if r.success)}/{len(analysis_tests)} passed
+   * Fractal Physics Simulations: {sum(1 for r in fractal_physics_tests if r.success)}/{len(fractal_physics_tests)} passed
 
-🎯 KEY LEARNING OUTCOMES:
-   • FractalSemantics provides robust, collision-resistant addressing
-   • System scales efficiently across different data volumes
-   • Multi-dimensional indexing enables powerful querying capabilities
-   • Hierarchical structures support efficient compression and organization
-   • Semantic relationships can be detected and analyzed
-   • Fractal physics simulations fail to validate in some cases; expected behavior
+- KEY LEARNING OUTCOMES:
+   * FractalSemantics provides robust, collision-resistant addressing
+   * System scales efficiently across different data volumes
+   * Multi-dimensional indexing enables powerful querying capabilities
+   * Hierarchical structures support efficient compression and organization
+   * Semantic relationships can be detected and analyzed
+   * Fractal physics simulations fail to validate in some cases; expected behavior
 
-⚠️  SCIENTIFIC VALIDATION INSIGHTS:
-   • Technical failures indicate system crashes or execution errors
-   • Scientific warnings indicate experiments ran but didn't meet validation criteria
-   • Partial successes indicate experiments with sub-optimal performance
-   • These distinctions help identify areas for improvement
+-  SCIENTIFIC VALIDATION INSIGHTS:
+   * Technical failures indicate system crashes or execution errors
+   * Scientific warnings indicate experiments ran but didn't meet validation criteria
+   * Partial successes indicate experiments with sub-optimal performance
+   * These distinctions help identify areas for improvement
 
-🚀 RECOMMENDATIONS:
-   • For production use: Run with full feature level for comprehensive validation
-   • For development: Quick mode provides rapid feedback on core functionality
-   • Monitor both technical and scientific success rates
-   • Address scientific warnings to improve system capabilities
-   • Regular batch runs help maintain system reliability
+- RECOMMENDATIONS:
+   * For production use: Run with full feature level for comprehensive validation
+   * For development: Quick mode provides rapid feedback on core functionality
+   * Monitor both technical and scientific success rates
+   * Address scientific warnings to improve system capabilities
+   * Regular batch runs help maintain system reliability
 
 {'='*80}
 """
@@ -1544,7 +1468,7 @@ def main():
     is_quick = "--quick" in args
     is_full = "--full" in args
     is_parallel = "--parallel" in args
-    is_sequential = "--sequential" in args
+    is_sequential = "--sequential" in args or "--serial" in args
 
     # Check for format
     output_format = "json"  # default format
@@ -1576,7 +1500,7 @@ def main():
     try:
         if is_all:
             # Run all experiments
-            print(f"🚀 Running ALL experiments in {'Quick' if quick_mode else 'Full'} mode...")
+            print(f"- Running ALL experiments in {'Quick' if quick_mode else 'Full'} mode...")
             batch_result = asyncio.run(runner.run_batch_experiments(
                 experiment_ids=[],  # Empty list means run all
                 quick_mode=quick_mode,
@@ -1650,7 +1574,7 @@ def main():
                     print("=" * 80)
             else:
                 # Multiple specific experiments
-                print(f"🚀 Running {len(experiment_ids)} specific experiments in {'Quick' if quick_mode else 'Full'} mode...")
+                print(f"- Running {len(experiment_ids)} specific experiments in {'Quick' if quick_mode else 'Full'} mode...")
                 batch_result = asyncio.run(runner.run_batch_experiments(
                     experiment_ids=experiment_ids,
                     quick_mode=quick_mode,

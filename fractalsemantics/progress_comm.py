@@ -134,7 +134,7 @@ class ProgressReporter:
                 with self._lock:
                     sys.stderr.write("__PROGRESS_ERROR__: Failed to send progress message\n")
                     sys.stderr.flush()
-            except ast.ParseError:
+            except Exception:
                 pass
 
         # Also write to file if configured
@@ -206,7 +206,7 @@ class ProgressReporter:
         message_obj = ProgressMessage(
             timestamp=datetime.now(timezone.utc).isoformat(),
             experiment_id=self.experiment_id,
-            progress_percent=-1.0,  # Special value for non-progress messages
+            progress_percent=-1.0,  # Use -1.0 to indicate this is not a progress update
             stage=stage,
             message=message,
             metadata=metadata,
@@ -233,7 +233,7 @@ class ProgressReporter:
         message_obj = ProgressMessage(
             timestamp=datetime.now(timezone.utc).isoformat(),
             experiment_id=self.experiment_id,
-            progress_percent=-1.0,
+            progress_percent=-1.0,  # Use -1.0 to indicate this is not a progress update
             stage=stage,
             message=message,
             metadata=metadata,
@@ -260,7 +260,7 @@ class ProgressReporter:
         message_obj = ProgressMessage(
             timestamp=datetime.now(timezone.utc).isoformat(),
             experiment_id=self.experiment_id,
-            progress_percent=-1.0,
+            progress_percent=-1.0,  # Use -1.0 to indicate this is not a progress update
             stage=stage,
             message=message,
             metadata=metadata,
@@ -349,9 +349,9 @@ def is_progress_message(line: str) -> bool:
 
 def write_progress_to_file(progress_file: Path, progress_data: dict) -> bool:
     """
-    Write progress data to file atomically.
+    Write progress data to file in JSONL format (append mode).
 
-    Uses temp file + rename pattern to ensure atomic writes and prevent corruption.
+    Each call appends a new JSON line to the file, preserving previous entries.
 
     Args:
         progress_file: Path to the progress file
@@ -364,34 +364,14 @@ def write_progress_to_file(progress_file: Path, progress_data: dict) -> bool:
         # Ensure directory exists
         progress_file.parent.mkdir(parents=True, exist_ok=True)
 
-        # Write to temporary file first
-        temp_fd, temp_path = tempfile.mkstemp(
-            dir=progress_file.parent,
-            prefix=".progress_",
-            suffix=".json.tmp"
-        )
+        # Append to file in JSONL format (one JSON object per line)
+        with open(progress_file, 'a', encoding='utf-8') as f:
+            json_line = json.dumps(progress_data, ensure_ascii=False)
+            f.write(json_line + '\n')
+            f.flush()
+            os.fsync(f.fileno())  # Ensure data is written to disk
 
-        try:
-            # Write JSON data to temp file
-            with os.fdopen(temp_fd, 'w', encoding='utf-8') as f:
-                json.dump(progress_data, f, ensure_ascii=False, indent=2)
-                f.flush()
-                os.fsync(f.fileno())  # Ensure data is written to disk
-
-            # Atomically rename temp file to target file
-            # On Windows, need to remove target first if it exists
-            if os.name == 'nt' and progress_file.exists():
-                os.replace(temp_path, str(progress_file))
-            else:
-                os.rename(temp_path, str(progress_file))
-
-            return True
-
-        except Exception:
-            # Clean up temp file on error
-            with contextlib.suppress(builtins.BaseException):
-                os.unlink(temp_path)
-            raise
+        return True
 
     except Exception:
         # Silently fail - progress reporting should not crash experiments
@@ -400,20 +380,29 @@ def write_progress_to_file(progress_file: Path, progress_data: dict) -> bool:
 
 def read_progress_from_file(progress_file: Path) -> Optional[dict]:
     """
-    Read progress data from file.
+    Read the latest progress data from JSONL file.
 
     Args:
         progress_file: Path to the progress file
 
     Returns:
-        Dictionary containing progress data, or None if file doesn't exist or can't be read
+        Dictionary containing the latest progress data, or None if file doesn't exist or can't be read
     """
     try:
         if not progress_file.exists():
             return None
 
+        # Read the last line of the JSONL file
         with open(progress_file, encoding='utf-8') as f:
-            return json.load(f)
+            lines = f.readlines()
+            if not lines:
+                return None
+
+            # Parse the last line as JSON
+            last_line = lines[-1].strip()
+            if last_line:
+                return json.loads(last_line)
+            return None
 
     except (OSError, json.JSONDecodeError):
         return None

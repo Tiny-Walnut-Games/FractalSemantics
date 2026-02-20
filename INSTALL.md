@@ -434,4 +434,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-- **Happy experimenting with FractalSemantics! 🚀**
+- **Happy experimenting with FractalSemantics! -**

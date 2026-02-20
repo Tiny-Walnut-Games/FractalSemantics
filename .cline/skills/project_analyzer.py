@@ -250,10 +250,10 @@ class ProjectAnalyzer:
                                         "function": node.name,
                                         "lines": func_lines
                                     })
-                except ast.ParseError:
+                except Exception:
                     pass
 
-            except ast.ParseError:
+            except Exception:
                 continue
 
         return complexity_data
@@ -283,7 +283,7 @@ class ProjectAnalyzer:
                         pass
                     print(f"Checking line {i} in {py_file}: {line.strip()}")
 
-            except ast.ParseError:
+            except Exception:
                 continue
 
         return naming_issues
@@ -324,7 +324,7 @@ class ProjectAnalyzer:
                             })
                             break
 
-            except ast.ParseError:
+            except Exception:
                 continue
 
         return smells
@@ -358,10 +358,10 @@ class ProjectAnalyzer:
                             if (node.body and isinstance(node.body[0], ast.Expr) and
                                 isinstance(node.body[0].value, ast.Str)):
                                 documented_functions += 1
-                except ast.ParseError:
+                except Exception:
                     pass
 
-            except ast.ParseError:
+            except Exception:
                 continue
 
         if total_functions == 0:
@@ -413,7 +413,7 @@ class ProjectAnalyzer:
                     if stripped.startswith('#') or stripped.startswith('"""') or stripped.startswith("'''"):
                         comment_lines += 1
 
-            except ast.ParseError:
+            except Exception:
                 continue
 
         if total_lines == 0:
@@ -447,7 +447,7 @@ class ProjectAnalyzer:
                         })
                         break
 
-            except ast.ParseError:
+            except Exception:
                 continue
 
         self.metrics["security"] = {
@@ -480,7 +480,7 @@ class ProjectAnalyzer:
                         "severity": "high"
                     })
 
-            except ast.ParseError:
+            except Exception:
                 continue
 
         self.metrics["performance"] = {
@@ -524,7 +524,7 @@ class ProjectAnalyzer:
                         # Parse TOML
                         pass
 
-                except ast.ParseError:
+                except Exception:
                     continue
 
         return deps
@@ -544,7 +544,7 @@ class ProjectAnalyzer:
                 if "devDependencies" in data:
                     deps["dev_total"] = len(data["devDependencies"])
 
-            except ast.ParseError:
+            except Exception:
                 pass
 
         return deps
@@ -614,7 +614,7 @@ class ProjectAnalyzer:
             if latest_file:
                 import datetime
                 return datetime.datetime.fromtimestamp(latest_file.stat().st_mtime).isoformat()
-        except ast.ParseError:
+        except Exception:
             pass
         return "Unknown"
 

@@ -6,7 +6,6 @@ Based on actual experiment results structure
 
 import json
 from pathlib import Path
-from typing import Any, dict, list, tuple
 
 
 def load_experiment_results() -> dict[str, list[dict[str, any]]]:
@@ -1161,14 +1160,14 @@ def generate_summary_report(analysis: dict[str, any]) -> str:
         report.append(f"{status_symbol} {exp_name}: {details['status']}")
         if details["findings"]:
             for finding in details["findings"][:1]:  # Show first finding
-                report.append(f"    → {finding}")
+                report.append(f"    - {finding}")
     report.append("")
 
     # Conclusions
     report.append("CONCLUSIONS")
     report.append("-" * 40)
     if analysis["overall_success_rate"] >= 80:
-        report.append("🎉 SYSTEM VALIDATION SUCCESSFUL")
+        report.append("celebration SYSTEM VALIDATION SUCCESSFUL")
         report.append("The FractalSemantics system demonstrates robust performance across")
         report.append("multiple validation criteria. Key strengths include:")
         report.append("- Zero collision rates in geometric addressing")
@@ -1178,7 +1177,7 @@ def generate_summary_report(analysis: dict[str, any]) -> str:
         report.append("- Physics unification through thermodynamic validation")
         report.append("- Atomic structure mapping capabilities")
     else:
-        report.append("⚠️  SYSTEM VALIDATION NEEDS IMPROVEMENT")
+        report.append("-  SYSTEM VALIDATION NEEDS IMPROVEMENT")
         report.append("Several experiments failed validation criteria. Focus areas:")
         report.append("- Collision resistance mechanisms")
         report.append("- Retrieval performance optimization")
@@ -1238,9 +1237,9 @@ def main():
     print(f"Passed: {analysis['passed_experiments']}/{analysis['total_experiments']}")
 
     if analysis["overall_success_rate"] >= 80:
-        print("\n🎉 SYSTEM VALIDATION SUCCESSFUL - READY FOR PRODUCTION")
+        print("\ncelebration SYSTEM VALIDATION SUCCESSFUL - READY FOR PRODUCTION")
     else:
-        print("\n⚠️  SYSTEM NEEDS IMPROVEMENT - ADDITIONAL WORK REQUIRED")
+        print("\nwarning  SYSTEM NEEDS IMPROVEMENT - ADDITIONAL WORK REQUIRED")
 
 if __name__ == "__main__":
     main()

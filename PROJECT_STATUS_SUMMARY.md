@@ -128,7 +128,7 @@ fractalsemantics/
 - **Performance Characteristics:** Sub-millisecond retrieval at all scales
 - **Semantic Capabilities:** Superior expressiveness and relationship detection
 
-### ⚠️ Development Required
+### - Development Required
 
 - **EXP-16:** Hierarchical distance mapping algorithm refinement
 - **EXP-18:** Alternative energy distribution approaches

@@ -12,7 +12,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, dict, list
+from typing import Optional
 
 
 @dataclass
@@ -45,7 +45,7 @@ class CodeReviewer:
             with open(file_path, encoding='utf-8') as f:
                 content = f.read()
                 lines = content.split('\n')
-        except ast.ParseError:
+        except Exception:
             return self.issues
 
         # Determine file type and run appropriate reviews

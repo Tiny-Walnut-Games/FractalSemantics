@@ -139,7 +139,7 @@ class EXP02_RetrievalEfficiency:
 
             # Send subprocess progress message
             send_subprocess_status("EXP-02", "Initialization", "Starting retrieval efficiency test")
-        except ast.ParseError:
+        except Exception:
             pass  # Ignore if progress communication is not available
 
         all_success = True
@@ -159,7 +159,7 @@ class EXP02_RetrievalEfficiency:
             try:
                 progress = ProgressReporter("EXP-02")
                 progress.status(f"Scale {scale:,}", f"Testing {scale:,} bit-chains")
-            except ast.ParseError:
+            except Exception:
                 pass  # Ignore if progress communication is not available
 
             start_time = time.time()
@@ -270,7 +270,7 @@ class EXP02_RetrievalEfficiency:
 
                         # Send subprocess progress message
                         send_subprocess_progress("EXP-02", query_progress, f"{scale:,} Scale", f"Executed {query_idx:,}/{self.query_count:,} queries")
-                    except ast.ParseError:
+                    except Exception:
                         pass
 
             # 6. Compute enhanced statistics
@@ -332,7 +332,7 @@ class EXP02_RetrievalEfficiency:
 
             # Send subprocess completion message
             send_subprocess_completion("EXP-02", all_success, f"Retrieval efficiency {'passed' if all_success else 'failed'}")
-        except ast.ParseError:
+        except Exception:
             pass  # Ignore if progress communication is not available
 
         return self.results, all_success

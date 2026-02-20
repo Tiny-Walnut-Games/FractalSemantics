@@ -28,7 +28,7 @@ class FractalSemanticsInstaller:
 
     def run_command(self, cmd, description="", check=True, shell=False):
         """Run a command with proper error handling."""
-        print(f"🔧 {description}")
+        print(f"wrench {description}")
         print(f"   Command: {' '.join(cmd) if isinstance(cmd, list) else cmd}")
 
         try:
@@ -41,10 +41,10 @@ class FractalSemanticsInstaller:
                 cwd=self.project_root
             )
             if result.stdout:
-                print(f"   ✅ {result.stdout.strip()}")
+                print(f"   success {result.stdout.strip()}")
             return result
         except subprocess.CalledProcessError as e:
-            print(f"   ❌ Failed: {e}")
+            print(f"   error Failed: {e}")
             if e.stderr:
                 print(f"   Error: {e.stderr.strip()}")
             if check:
@@ -56,14 +56,14 @@ class FractalSemanticsInstaller:
         print(f"🐍 Checking Python version: {self.python_version.major}.{self.python_version.minor}.{self.python_version.micro}")
 
         if self.python_version < (3, 9):
-            print("❌ Python 3.9+ is required")
+            print("error Python 3.9+ is required")
             sys.exit(1)
 
-        print("✅ Python version is compatible")
+        print("success Python version is compatible")
 
     def detect_platform(self):
         """Detect platform and architecture."""
-        print("🖥️  Detecting platform...")
+        print("desktop_computer️  Detecting platform...")
 
         is_arm = self.machine in ['arm64', 'aarch64']
         is_raspberry_pi = False
@@ -96,7 +96,7 @@ class FractalSemanticsInstaller:
 
     def create_virtual_environment(self):
         """Create a virtual environment for the project."""
-        print("🔧 Creating virtual environment...")
+        print("wrench Creating virtual environment...")
 
         if self.venv_path.exists():
             print(f"   Virtual environment already exists at {self.venv_path}")
@@ -137,7 +137,7 @@ class FractalSemanticsInstaller:
 
     def install_pytorch(self, platform_info):
         """Install PyTorch with platform-specific optimizations."""
-        print("🔥 Installing PyTorch...")
+        print("fire Installing PyTorch...")
 
         # Determine PyTorch installation command
         if platform_info['is_raspberry_pi']:
@@ -164,7 +164,7 @@ class FractalSemanticsInstaller:
 
     def install_fractalsemantics(self, dev=False, minimal=False):
         """Install FractalSemantics dependencies."""
-        print("🎯 Installing FractalSemantics dependencies...")
+        print("- Installing FractalSemantics dependencies...")
 
         if minimal:
             # Install only core dependencies
@@ -240,16 +240,16 @@ print("FractalSemantics modules imported successfully!")
 '''
             ], "Testing FractalSemantics modules")
 
-            print("✅ Installation test passed!")
+            print("success Installation test passed!")
             return True
 
         except Exception as e:
-            print(f"❌ Installation test failed: {e}")
+            print(f"error Installation test failed: {e}")
             return False
 
     def create_launcher_script(self, platform_info):
         """Create a convenient launcher script."""
-        print("📜 Creating launcher script...")
+        print("scroll Creating launcher script...")
 
         # Get relative path to venv
         venv_rel_path = self.venv_path.relative_to(self.project_root)
@@ -257,7 +257,7 @@ print("FractalSemantics modules imported successfully!")
         launcher_content = f'''#!/bin/bash
 # FractalSemantics Launcher Script
 
-echo "🚀 Starting FractalSemantics..."
+echo "- Starting FractalSemantics..."
 
 # Activate virtual environment
 source {venv_rel_path}/bin/activate
@@ -291,10 +291,10 @@ python -m fractalsemantics.fractalsemantics_experiments
     def show_post_installation_info(self, platform_info):
         """Show post-installation information."""
         print("\n" + "="*60)
-        print("🎉 FractalSemantics Installation Complete!")
+        print("celebration FractalSemantics Installation Complete!")
         print("="*60)
 
-        print("\n📚 Quick Start:")
+        print("\nbooks Quick Start:")
         print("  ./run_experiments.sh dev    # Fast development mode")
         print("  ./run_experiments.sh        # Full production mode")
 
@@ -314,21 +314,21 @@ python -m fractalsemantics.fractalsemantics_experiments
             print("  - Monitor memory usage with 'htop'")
             print("  - Consider external cooling for long runs")
 
-        print("\n📖 Documentation:")
+        print("\nopen_book Documentation:")
         print("  - Installation Guide: INSTALL.md")
         print("  - Experiment Details: docs/")
         print("  - Configuration: fractalsemantics/config/")
 
-        print("\n🔧 Troubleshooting:")
+        print("\nwrench Troubleshooting:")
         print("  - Check logs for error messages")
         print("  - Use 'dev' mode for memory-constrained systems")
         print("  - See INSTALL.md for detailed troubleshooting")
 
-        print("\n✨ Happy experimenting with FractalSemantics!")
+        print("\nsparkles Happy experimenting with FractalSemantics!")
 
     def run(self, args):
         """Main installation workflow."""
-        print("🎯 FractalSemantics Automated Installer")
+        print("- FractalSemantics Automated Installer")
         print("="*50)
 
         # Preliminary checks
@@ -353,7 +353,7 @@ python -m fractalsemantics.fractalsemantics_experiments
         if not args.skip_test:
             success = self.test_installation()
             if not success and not args.force:
-                print("❌ Installation test failed. Use --force to continue anyway.")
+                print("error Installation test failed. Use --force to continue anyway.")
                 sys.exit(1)
 
         self.show_post_installation_info(platform_info)
@@ -405,7 +405,7 @@ For Raspberry Pi:
 
     # Validate arguments
     if args.minimal and args.dev:
-        print("❌ Cannot use --minimal and --dev together")
+        print("error Cannot use --minimal and --dev together")
         sys.exit(1)
 
     # Run installer

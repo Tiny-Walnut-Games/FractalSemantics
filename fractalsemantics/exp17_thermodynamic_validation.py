@@ -138,7 +138,7 @@ def measure_fractal_entropy(hierarchy: FractalHierarchy) -> float:
                 for neighbor in neighbors
             ]
             cohesions.extend(node_cohesions)
-            print(f"Depth {depth}: Node {node.id} cohesion samples: {node_cohesions}")
+            print(f"Depth {depth}: Node {node.tree_address} cohesion samples: {node_cohesions}")
 
     if not cohesions:
         return 0.0
@@ -622,7 +622,7 @@ if __name__ == "__main__":
             print("   Y Temperature equilibration (0th Law)")
             print("   Y Void/dense regions follow thermodynamic principles")
         else:
-            print("\n❌ THERMODYNAMIC INCONSISTENCY DETECTED")
+            print("\nerror THERMODYNAMIC INCONSISTENCY DETECTED")
             print("   Fractal systems don't fully satisfy thermodynamic laws.")
             print("   May indicate limitations of the current fractal model.")
 

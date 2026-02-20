@@ -78,7 +78,7 @@
 - System architecture (EXP-07 to EXP-12): All passed
 - Physics unification (EXP-13, EXP-14, EXP-15, EXP-17, EXP-20): 5/8 passed
 
-### Development Required ⚠️
+### Development Required -
 
 - EXP-16: Hierarchical distance mapping algorithm refinement
 - EXP-18: Alternative energy distribution approaches

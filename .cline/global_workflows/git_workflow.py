@@ -15,7 +15,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional, list
+from typing import Optional
 
 
 class GitWorkflow:
@@ -35,7 +35,7 @@ class GitWorkflow:
                 text=True
             )
             return result.returncode == 0
-        except ast.ParseError:
+        except Exception:
             return False
 
     def _run_command(self, cmd: list[str], description: str) -> bool:
@@ -55,7 +55,7 @@ class GitWorkflow:
             if result.stdout:
                 print(f"   ✅ {result.stdout.strip()}")
             if result.stderr:
-                print(f"   ⚠️  {result.stderr.strip()}")
+                print(f"   -  {result.stderr.strip()}")
 
             return result.returncode == 0
 
@@ -168,7 +168,7 @@ repos:
         current_branch = result.stdout.strip()
 
         if current_branch == base_branch:
-            print(f"   ⚠️  Already on base branch {base_branch}")
+            print(f"   -  Already on base branch {base_branch}")
             return False
 
         # Fetch latest changes
@@ -187,7 +187,7 @@ repos:
         )
 
         if not success:
-            print("   ⚠️  Rebase failed, trying merge instead")
+            print("   -  Rebase failed, trying merge instead")
             success = self._run_command(
                 ["git", "merge", f"origin/{base_branch}"],
                 f"Merging {base_branch}"
@@ -210,7 +210,7 @@ repos:
 
     def create_release(self, version: str, message: str = "") -> bool:
         """Create a new release."""
-        print(f"🚀 Creating release: {version}")
+        print(f"- Creating release: {version}")
 
         # Create tag
         tag_name = f"v{version}"
@@ -270,7 +270,7 @@ repos:
         )
 
         if "Your branch is ahead" in result.stdout:
-            print("   ⚠️  You have unpushed commits")
+            print("   -  You have unpushed commits")
         elif "Your branch is up to date" in result.stdout:
             print("   ✅ Branch is up to date with remote")
 
@@ -360,7 +360,7 @@ repos:
 
             print(f"   ✅ Generated changelog since {since_tag}")
         else:
-            print("   ⚠️  No tags found, cannot generate changelog")
+            print("   -  No tags found, cannot generate changelog")
 
         return True
 

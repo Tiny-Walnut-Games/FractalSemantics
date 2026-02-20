@@ -31,10 +31,18 @@ import ast
 import json
 import secrets
 import sys
+import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
+
+# Import tqdm for progress bars (CLI execution)
+try:
+    from tqdm import tqdm
+    TQDM_AVAILABLE = True
+except ImportError:
+    TQDM_AVAILABLE = False
 
 from fractalsemantics.progress_comm import ProgressReporter
 
@@ -82,8 +90,8 @@ class EXP01_GeometricCollisionResistance:
     The geometric structure of FractalSemantics coordinates inherently prevents collisions
     at higher dimensions due to exponential expansion of coordinate space:
 
-    - 2D/3D: Coordinate space smaller than test scales → expected collisions
-    - 4D+: Coordinate space vastly larger than test scales → geometric collision resistance
+    - 2D/3D: Coordinate space smaller than test scales - expected collisions
+    - 4D+: Coordinate space vastly larger than test scales - geometric collision resistance
     - This proves collision resistance is mathematical, not just cryptographic
 
     Coordinate spaces are designed so that:
@@ -138,7 +146,7 @@ class EXP01_GeometricCollisionResistance:
         """
         Run the geometric collision resistance test.
 
-        Tests coordinate collision rates across dimensions 2D→7D at 100k+ sample scale.
+        Tests coordinate collision rates across dimensions 2D-7D at 100k+ sample scale.
 
         Returns:
             tuple of (results list, overall geometric validation success)
@@ -157,89 +165,121 @@ class EXP01_GeometricCollisionResistance:
 
             # Send subprocess progress message
             send_subprocess_status("EXP-01", "Initialization", "Starting geometric collision resistance test")
-        except ast.ParseError:
+        except Exception:
             pass  # Ignore if progress communication is not available
 
         all_validated = True
 
-        for i, dimension in enumerate(self.dimensions):
-            progress_percent = (i / len(self.dimensions)) * 100
-            print(f"Testing {dimension}D coordinate space...")
-
-            # Send progress message for dimension start
-            try:
-                progress = ProgressReporter("EXP-01")
-                progress.status(f"Testing {dimension}D", f"Generating {self.sample_size:,} coordinates")
-            except ast.ParseError:
-                pass
-
-            # Calculate theoretical coordinate space
-            coord_space_size = self._calculate_coordinate_space_size(dimension)
-            print(f"  Coordinate space: {coord_space_size:,} possible combinations")
-
-            # Generate uniform coordinate samples
-            coordinates = set()
-            collisions = 0
-
-            # Progress tracking for coordinate generation
-            progress_interval = max(1, self.sample_size // 10)  # Update every 10%
-
-            for j in range(self.sample_size):
-                coord = self._generate_coordinate(dimension, j)
-                if coord in coordinates:
-                    collisions += 1
-                coordinates.add(coord)
-
-                # Send progress update every 10%
-                if j % progress_interval == 0 and j > 0:
-                    coord_progress = progress_percent + (j / self.sample_size) * (100 / len(self.dimensions))
-                    try:
-                        progress = ProgressReporter("EXP-01")
-                        progress.update(coord_progress, f"{dimension}D Generation", f"Generated {j:,}/{self.sample_size:,} coordinates")
-
-                        # Send subprocess progress message
-                        send_subprocess_progress("EXP-01", coord_progress, f"{dimension}D Generation", f"Generated {j:,}/{self.sample_size:,} coordinates")
-                    except ast.ParseError:
-                        pass
-
-            unique_coords = len(coordinates)
-            collision_rate = collisions / self.sample_size if self.sample_size > 0 else 0.0
-            geometric_limit_hit = self.sample_size > coord_space_size
-
-            result = EXP01_Result(
-                dimension=dimension,
-                coordinate_space_size=coord_space_size,
-                sample_size=self.sample_size,
-                unique_coordinates=unique_coords,
-                collisions=collisions,
-                collision_rate=collision_rate,
-                geometric_limit_hit=geometric_limit_hit,
+        # Create CLI progress bar if available and running standalone
+        use_cli_progress = TQDM_AVAILABLE and not is_subprocess_communication_enabled()
+        if use_cli_progress:
+            total_iterations = len(self.dimensions) * self.sample_size
+            cli_progress_bar = tqdm(
+                total=total_iterations,
+                desc="Generating coordinates",
+                unit="coords",
+                ncols=80,
+                leave=True
             )
+        else:
+            cli_progress_bar = None
 
-            self.results.append(result)
+        try:
+            for i, dimension in enumerate(self.dimensions):
+                progress_percent = (i / len(self.dimensions)) * 100
+                print(f"Testing {dimension}D coordinate space...")
 
-            # Status based on geometric collision resistance pattern
-            # Higher dimensions show exponentially fewer collisions due to coordinate space expansion
-            if dimension >= 4 and collision_rate < 0.1:  # Success: geometric collision resistance
-                status = "GEOMETRICALLY RESISTANT"
-                symbol = "PASS"
-            elif dimension < 4 and collisions > 0:  # Expected: birthday paradox in smaller spaces
-                status = "BIRTHDAY PARADOX (expected)"
-                symbol = "CONFIRMED"
-            elif dimension >= 4 and collision_rate >= 0.1:  # Fail: insufficient geometric resistance
-                status = "WEAK COLLISION RESISTANCE"
-                symbol = "FAIL"
-                all_validated = False
-            else:  # Low-D with no collisions (rare, but possible with small samples)
-                status = "SAMPLE SPACE INSUFFICIENT"
-                symbol = "WARNING"
+                # Send progress message for dimension start
+                try:
+                    progress = ProgressReporter("EXP-01")
+                    progress.status(f"Testing {dimension}D", f"Generating {self.sample_size:,} coordinates")
+                except Exception:
+                    pass
 
-            print(f"  {symbol} | Unique: {unique_coords:,} | Collisions: {collisions}")
-            print(
-                f"      Rate: {collision_rate * 100:.4f}% | Space: {'exceeded' if geometric_limit_hit else 'sufficient'}"
-            )
-            print(f"      Status: {status}")
-            print()
+                # Calculate theoretical coordinate space
+                coord_space_size = self._calculate_coordinate_space_size(dimension)
+                print(f"  Coordinate space: {coord_space_size:,} possible combinations")
+
+                # Generate uniform coordinate samples
+                coordinates = set()
+                collisions = 0
+
+                # Progress tracking for coordinate generation
+                progress_interval = max(1, self.sample_size // 10)  # Update every 10%
+
+                for j in range(self.sample_size):
+                    coord = self._generate_coordinate(dimension, j)
+                    if coord in coordinates:
+                        collisions += 1
+                    coordinates.add(coord)
+
+                    # Update CLI progress bar
+                    if cli_progress_bar:
+                        cli_progress_bar.update(1)
+                        cli_progress_bar.set_postfix({
+                            "Dimension": f"{dimension}D",
+                            "Generated": f"{j+1:,}/{self.sample_size:,}"
+                        })
+
+                    # Send progress update every 10%
+                    if j % progress_interval == 0 and j > 0:
+                        coord_progress = progress_percent + (j / self.sample_size) * (100 / len(self.dimensions))
+                        try:
+                            progress = ProgressReporter("EXP-01")
+                            progress.update(coord_progress, f"{dimension}D Generation", f"Generated {j:,}/{self.sample_size:,} coordinates")
+
+                            # Send subprocess progress message
+                            send_subprocess_progress("EXP-01", coord_progress, f"{dimension}D Generation", f"Generated {j:,}/{self.sample_size:,} coordinates")
+                        except Exception:
+                            pass
+
+                unique_coords = len(coordinates)
+                collision_rate = collisions / self.sample_size if self.sample_size > 0 else 0.0
+                geometric_limit_hit = self.sample_size > coord_space_size
+
+                result = EXP01_Result(
+                    dimension=dimension,
+                    coordinate_space_size=coord_space_size,
+                    sample_size=self.sample_size,
+                    unique_coordinates=unique_coords,
+                    collisions=collisions,
+                    collision_rate=collision_rate,
+                    geometric_limit_hit=geometric_limit_hit,
+                )
+
+                self.results.append(result)
+
+                # Status based on geometric collision resistance pattern
+                # Higher dimensions show exponentially fewer collisions due to coordinate space expansion
+                if dimension >= 4 and collision_rate < 0.1:  # Success: geometric collision resistance
+                    status = "GEOMETRICALLY RESISTANT"
+                    symbol = "PASS"
+                elif dimension < 4 and collisions > 0:  # Expected: birthday paradox in smaller spaces
+                    status = "BIRTHDAY PARADOX (expected)"
+                    symbol = "CONFIRMED"
+                elif dimension >= 4 and collision_rate >= 0.1:  # Fail: insufficient geometric resistance
+                    status = "WEAK COLLISION RESISTANCE"
+                    symbol = "FAIL"
+                    all_validated = False
+                else:  # Low-D with no collisions (rare, but possible with small samples)
+                    status = "SAMPLE SPACE INSUFFICIENT"
+                    symbol = "WARNING"
+
+                print(f"  {symbol} | Unique: {unique_coords:,} | Collisions: {collisions}")
+                print(
+                    f"      Rate: {collision_rate * 100:.4f}% | Space: {'exceeded' if geometric_limit_hit else 'sufficient'}"
+                )
+                print(f"      Status: {status}")
+                print()
+
+        except Exception as e:
+            # Handle any unexpected errors during the experiment
+            print(f"\n[ERROR] Experiment failed during execution: {e}")
+            raise
+        finally:
+            # Close CLI progress bar if it was created
+            if cli_progress_bar:
+                cli_progress_bar.close()
 
         # Send completion progress message
         try:
@@ -248,7 +288,7 @@ class EXP01_GeometricCollisionResistance:
 
             # Send subprocess completion message
             send_subprocess_completion("EXP-01", all_validated, f"Geometric validation {'passed' if all_validated else 'failed'}")
-        except ast.ParseError:
+        except Exception:
             pass
 
         print(f"{'=' * 80}")
@@ -279,13 +319,13 @@ class EXP01_GeometricCollisionResistance:
 
         if geometric_threshold_met and low_dim_collision_rate > 0:
             print("[Pass] GEOMETRIC COLLISION RESISTANCE VALIDATED")
-            print(f"   • Low dimensions: {low_dim_collision_rate*100:.2f}% collision rate (expected)")
-            print(f"   • High dimensions: {high_dim_collision_rate*100:.2f}% collision rate (excellent)")
-            print(f"   • Geometric improvement: {geometric_improvement:.0f}x reduction")
-            print("   • Higher dimensions exhibit strong geometric collision resistance")
+            print(f"   * Low dimensions: {low_dim_collision_rate*100:.2f}% collision rate (expected)")
+            print(f"   * High dimensions: {high_dim_collision_rate*100:.2f}% collision rate (excellent)")
+            print(f"   * Geometric improvement: {geometric_improvement:.0f}x reduction")
+            print("   * Higher dimensions exhibit strong geometric collision resistance")
         else:
             print("[Fail] GEOMETRIC VALIDATION INSUFFICIENT")
-            print("   • Insufficient geometric collision resistance improvement")
+            print("   * Insufficient geometric collision resistance improvement")
             all_validated = False
 
         return self.results, all_validated

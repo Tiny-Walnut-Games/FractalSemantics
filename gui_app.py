@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FractalSemantics GUI Application
+FractalSemantics GUI Application 🔬
 
 A comprehensive web-based GUI for running and visualizing FractalSemantics experiments.
 Provides real-time monitoring, interactive dashboards, and educational content display.
@@ -30,6 +30,7 @@ import streamlit as st
 from plotly.subplots import make_subplots
 from streamlit_autorefresh import st_autorefresh
 
+import gui_state_manager
 from fractalsemantics.progress_comm import clear_progress_file, read_progress_from_file
 
 # Add the fractalsemantics module to the path
@@ -40,6 +41,13 @@ from fractalsemantics.experiment_runner import (
     BatchRunResult,
     ExperimentResult,
     ExperimentRunner,
+)
+from gui_state_manager import (
+    cleanup_session_state,
+    ensure_session_state_initialized,
+    get_session_state_snapshot,
+    safe_session_state_update,
+    validate_session_state,
 )
 
 # Configure logging
@@ -59,7 +67,7 @@ st.set_page_config(
 results_dir = Path("results")
 results_dir.mkdir(exist_ok=True)
 
-# Set progress file path
+# Set progress file path - experiments write to project root/results/ directory
 progress_file = results_dir / "gui_progress.jsonl"
 os.environ["FRACTALSEMANTICS_PROGRESS_FILE"] = str(progress_file)
 
@@ -126,6 +134,27 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Initialize session state at the very beginning to prevent access errors
+try:
+    if 'experiment_results' not in st.session_state:
+        st.session_state.experiment_results = []
+    if 'batch_result' not in st.session_state:
+        st.session_state.batch_result = None
+    if 'is_running' not in st.session_state:
+        st.session_state.is_running = False
+    if 'current_experiment_id' not in st.session_state:
+        st.session_state.current_experiment_id = None
+    if 'progress_data' not in st.session_state:
+        st.session_state.progress_data = []
+except Exception as e:
+    # Fallback initialization if session state is corrupted
+    st.session_state.experiment_results = []
+    st.session_state.batch_result = None
+    st.session_state.is_running = False
+    st.session_state.current_experiment_id = None
+    st.session_state.progress_data = []
+    logger.error(f"Global session state initialization error: {e}")
+
 class FractalSemanticsGUI:
     """Main GUI application for FractalSemantics experiments."""
 
@@ -139,28 +168,39 @@ class FractalSemanticsGUI:
 
     def setup_session_state(self):
         """Initialize session state variables."""
-        if 'experiment_results' not in st.session_state:
+        try:
+            # Initialize session state with thread-safe operations
+            if 'experiment_results' not in st.session_state:
+                st.session_state.experiment_results = []
+            if 'batch_result' not in st.session_state:
+                st.session_state.batch_result = None
+            if 'is_running' not in st.session_state:
+                st.session_state.is_running = False
+            if 'current_experiment_id' not in st.session_state:
+                st.session_state.current_experiment_id = None
+            if 'progress_data' not in st.session_state:
+                st.session_state.progress_data = []
+
+            # Set up progress file environment variable for subprocess communication
+            import os
+            from pathlib import Path
+
+            # Create results directory if it doesn't exist
+            results_dir = Path("results")
+            results_dir.mkdir(exist_ok=True)
+
+            # Set progress file path
+            progress_file = results_dir / "gui_progress.jsonl"
+            os.environ["FRACTALSEMANTICS_PROGRESS_FILE"] = str(progress_file)
+
+        except Exception as e:
+            # Fallback initialization if session state is corrupted
             st.session_state.experiment_results = []
-        if 'batch_result' not in st.session_state:
             st.session_state.batch_result = None
-        if 'is_running' not in st.session_state:
             st.session_state.is_running = False
-        if 'current_experiment_id' not in st.session_state:
             st.session_state.current_experiment_id = None
-        if 'progress_data' not in st.session_state:
             st.session_state.progress_data = []
-
-        # Set up progress file environment variable for subprocess communication
-        import os
-        from pathlib import Path
-
-        # Create results directory if it doesn't exist
-        results_dir = Path("results")
-        results_dir.mkdir(exist_ok=True)
-
-        # Set progress file path
-        progress_file = results_dir / "gui_progress.jsonl"
-        os.environ["FRACTALSEMANTICS_PROGRESS_FILE"] = str(progress_file)
+            logger.error(f"Session state initialization error: {e}")
 
     def render_header(self):
         """Render the main application header."""
@@ -184,20 +224,43 @@ class FractalSemanticsGUI:
         st.sidebar.subheader("Experiment Selection")
 
         experiment_options = list(self.runner.experiment_configs.keys())
+
+        # Select all button
+        col1, col2 = st.sidebar.columns(2)
+        with col1:
+            select_all = st.button("Select All", key="select_all_experiments")
+        with col2:
+            clear_all = st.button("Clear All", key="clear_all_experiments")
+
+        # Initialize default selection
+        if 'selected_experiments' not in st.session_state:
+            st.session_state.selected_experiments = ["EXP-01", "EXP-02", "EXP-03"]
+
+        # Handle select all/clear all
+        if select_all:
+            st.session_state.selected_experiments = experiment_options
+        elif clear_all:
+            st.session_state.selected_experiments = []
+
         selected_experiments = st.sidebar.multiselect(
             "Select Experiments",
             experiment_options,
-            default=["EXP-01", "EXP-02", "EXP-03"],
+            default=st.session_state.selected_experiments,
             help="Choose which experiments to run"
         )
+
+        # Update session state with current selection
+        st.session_state.selected_experiments = selected_experiments
 
         # Configuration options
         st.sidebar.subheader("Configuration")
 
-        quick_mode = st.sidebar.checkbox(
-            "Quick Mode",
-            value=True,
-            help="Run experiments with smaller sample sizes for faster results"
+        # Combined feature level selection
+        feature_level = st.sidebar.selectbox(
+            "Feature Level",
+            ["Quick", "Full"],
+            index=0,
+            help="Quick mode for development, Full mode for comprehensive validation"
         )
 
         parallel_mode = st.sidebar.checkbox(
@@ -206,13 +269,8 @@ class FractalSemanticsGUI:
             help="Run experiments in parallel for faster completion"
         )
 
-        # Feature level selection
-        feature_level = st.sidebar.selectbox(
-            "Feature Level",
-            ["Quick", "Full"],
-            index=0,
-            help="Quick mode for development, Full mode for comprehensive validation"
-        )
+        # Quick mode is determined by feature level
+        quick_mode = feature_level == "Quick"
 
         # Action buttons
         st.sidebar.subheader("Actions")
@@ -221,7 +279,7 @@ class FractalSemanticsGUI:
 
         with col1:
             run_button = st.button(
-                "🚀 Run Experiments",
+                "▶️ Run Experiments",
                 type="primary",
                 width="stretch",
                 disabled=st.session_state.is_running
@@ -244,7 +302,7 @@ class FractalSemanticsGUI:
             index=0
         )
 
-        if st.sidebar.button("📊 Export Results", width="stretch"):
+        if st.sidebar.button("chart Export Results", width="stretch"):
             self.export_results(export_format)
 
         # System info
@@ -284,7 +342,7 @@ class FractalSemanticsGUI:
 
     def render_dashboard(self):
         """Render the main dashboard with overall statistics."""
-        st.subheader("📊 Experiment Dashboard")
+        st.subheader("🧪 Experiment Dashboard")
 
         if not st.session_state.experiment_results:
             st.info("No experiments have been run yet. Select experiments in the sidebar and click 'Run Experiments' to get started.")
@@ -381,20 +439,22 @@ class FractalSemanticsGUI:
 
                 with col1:
                     st.markdown(f"### {result.experiment_id}")
-                    st.markdown(f"**{self.runner.experiment_configs[result.experiment_id]['description']}**")
+                    exp_config = self.runner.experiment_configs[result.experiment_id]
+                    st.markdown(f"**{exp_config.description}**")
 
                 with col2:
                     # Display appropriate badge based on result type
-                    if result.result_type == "success":
+                    result_type = result.result_type or "unknown"
+                    if result_type == "success":
                         st.markdown('<span class="success-badge">✅ Success</span>', unsafe_allow_html=True)
-                    elif result.result_type == "warning":
+                    elif result_type == "warning":
                         st.markdown('<span class="warning-badge">⚠️ Warning</span>', unsafe_allow_html=True)
-                    elif result.result_type == "partial_success":
+                    elif result_type == "partial_success":
                         st.markdown('<span class="warning-badge">⚠️ Partial Success</span>', unsafe_allow_html=True)
-                    elif result.result_type == "failure":
+                    elif result_type == "failure":
                         st.markdown('<span class="error-badge">❌ Failed</span>', unsafe_allow_html=True)
                     else:
-                        st.markdown(f'<span class="warning-badge">❓ {result.result_type.title()}</span>', unsafe_allow_html=True)
+                        st.markdown(f'<span class="warning-badge">❓ {result_type.title()}</span>', unsafe_allow_html=True)
 
                 with col3:
                     st.markdown(f"**Duration:** {result.duration:.2f}s")
@@ -408,8 +468,9 @@ class FractalSemanticsGUI:
                         st.write(f"- {key}: {value}")
 
                 with col2:
-                    st.markdown("**🎯 Result Type:**")
-                    st.write(f"- {result.result_type.title()}")
+                    st.markdown("**❓ Result Type:**")
+                    result_type = result.result_type or "unknown"
+                    st.write(f"- {result_type.title()}")
                     st.write(f"- Educational Content: {len(result.educational_content)} sections")
 
                 # Output and educational content
@@ -435,7 +496,7 @@ class FractalSemanticsGUI:
         results = st.session_state.experiment_results
 
         # Experiment success rate by type
-        st.markdown("### Experiment Success Rate by Type")
+        st.markdown("### 🧪 Experiment Success Rate by Type")
         success_data = []
         for exp_id in self.runner.experiment_configs:
             exp_results = [r for r in results if r.experiment_id == exp_id]
@@ -461,7 +522,7 @@ class FractalSemanticsGUI:
             st.plotly_chart(fig, width="stretch")
 
         # Performance analysis
-        st.markdown("### Performance Analysis")
+        st.markdown("### ⏱️ Performance Analysis")
         perf_data = []
         for result in results:
             perf_data.append({
@@ -484,7 +545,7 @@ class FractalSemanticsGUI:
             st.plotly_chart(fig, width="stretch")
 
         # Educational content analysis
-        st.markdown("### Educational Content Analysis")
+        st.markdown("### 📚 Educational Content Analysis")
         edu_data = []
         for result in results:
             edu_data.append({
@@ -544,7 +605,8 @@ class FractalSemanticsGUI:
             # Get the most recent experiment
             latest_result = st.session_state.experiment_results[-1]
 
-            st.markdown(f"### {latest_result.experiment_id} - {self.runner.experiment_configs[latest_result.experiment_id]['educational_focus']}")
+            exp_config = self.runner.experiment_configs[latest_result.experiment_id]
+            st.markdown(f"### {latest_result.experiment_id} - {exp_config.educational_focus}")
 
             for i, content in enumerate(latest_result.educational_content, 1):
                 with st.expander(f"Section {i}"):
@@ -555,7 +617,7 @@ class FractalSemanticsGUI:
         st.subheader("⚙️ Application Settings")
 
         # Auto-refresh settings
-        st.markdown("### Auto-Refresh Settings")
+        st.markdown("### 🔄 Auto-Refresh Settings")
         auto_refresh = st.checkbox("Enable Auto-Refresh", value=True)
 
         if auto_refresh:
@@ -568,12 +630,12 @@ class FractalSemanticsGUI:
             st_autorefresh(interval=refresh_interval * 1000, key="data_refresh")
 
         # Display settings
-        st.markdown("### Display Settings")
+        st.markdown("### 🖥️ Display Settings")
         st.checkbox("Show Detailed Experiment Output", value=True)
         st.checkbox("Show Educational Content", value=True)
 
         # Reset data
-        st.markdown("### Data Management")
+        st.markdown("### 🗄️ Data Management")
         col1, col2 = st.columns(2)
 
         with col1:
@@ -588,82 +650,137 @@ class FractalSemanticsGUI:
 
     def render_progress_chart(self):
         """Render real-time progress visualization with individual progress bars per experiment."""
-        if st.session_state.is_running and st.session_state.progress_data:
-            progress_data = st.session_state.progress_data
+        try:
+            # Always show progress chart, whether running or not
+            st.markdown("### 📊 Experiment Progress")
 
-            # Get latest progress per experiment
+            # Get progress file path
+            progress_file = Path(os.environ.get("FRACTALSEMANTICS_PROGRESS_FILE", "results/gui_progress.jsonl"))
+
+            # Read current progress from file
             experiment_progress = {}
-            for p in progress_data:
-                exp_id = p.get('experiment', 'Unknown')
-                experiment_progress[exp_id] = p
+            if progress_file.exists():
+                try:
+                    with open(progress_file, encoding='utf-8') as f:
+                        for line in f:
+                            if line.strip():
+                                try:
+                                    message = json.loads(line.strip())
+                                    if all(field in message for field in ['experiment_id', 'progress', 'stage']):
+                                        exp_id = message['experiment_id']
+                                        progress_value = message['progress']
+
+                                        # Only update progress for actual progress messages (progress >= 0)
+                                        if progress_value >= 0:
+                                            # Validate and clamp progress value to prevent negative values
+                                            progress_value = max(0.0, min(100.0, float(progress_value)))
+
+                                            experiment_progress[exp_id] = {
+                                                'progress': progress_value,
+                                                'stage': message.get('stage', 'Running'),
+                                                'message': message.get('message', ''),
+                                                'timestamp': message.get('timestamp', '')
+                                            }
+                                except json.JSONDecodeError:
+                                    continue
+                except Exception as e:
+                    logger.error(f"Error reading progress file: {e}")
 
             if experiment_progress:
                 # Display individual progress bars for each experiment
-                st.markdown("### 📊 Experiment Progress")
-
                 for exp_id, progress_info in sorted(experiment_progress.items()):
-                    progress_value = progress_info.get('progress', 0)
-                    stage = progress_info.get('stage', 'Running')
-                    message = progress_info.get('message', '')
+                    try:
+                        progress_value = progress_info['progress']
+                        stage = progress_info['stage']
+                        message = progress_info['message']
 
-                    # Create container for each experiment's progress
-                    with st.container():
-                        col1, col2 = st.columns([3, 1])
+                        # Create container for each experiment's progress
+                        with st.container():
+                            col1, col2 = st.columns([3, 1])
 
-                        with col1:
-                            st.markdown(f"**{exp_id}**")
-                            st.progress(progress_value / 100.0)
+                            with col1:
+                                st.markdown(f"**{exp_id}**")
+                                st.progress(progress_value / 100.0)
 
-                        with col2:
-                            st.metric("", f"{progress_value:.1f}%", label_visibility="collapsed")
+                            with col2:
+                                st.metric("", f"{progress_value:.1f}%", label_visibility="collapsed")
 
-                        # Show stage/message if available
-                        if message:
-                            st.caption(f"{stage}: {message}")
+                            # Show stage/message if available
+                            if message:
+                                st.caption(f"{stage}: {message}")
 
-                        st.markdown("---")
+                            st.markdown("---")
+                    except Exception as e:
+                        st.error(f"Error rendering progress for {exp_id}: {e}")
+                        continue
 
                 # Detailed progress chart
                 st.markdown("### 📈 Progress Timeline")
                 fig = go.Figure()
 
-                # Add progress line
-                fig.add_trace(go.Scatter(
-                    x=[p['time'] for p in progress_data],
-                    y=[p['progress'] for p in progress_data],
-                    mode='lines+markers',
-                    name='Progress',
-                    line={'color': '#667eea', 'width': 3},
-                    marker={'size': 8}
-                ))
+                # Read all progress data for timeline
+                progress_data = []
+                if progress_file.exists():
+                    try:
+                        with open(progress_file, encoding='utf-8') as f:
+                            for line in f:
+                                if line.strip():
+                                    try:
+                                        message = json.loads(line.strip())
+                                        if 'timestamp' in message and 'progress' in message:
+                                            progress_data.append({
+                                                'time': message['timestamp'],
+                                                'progress': message['progress'],
+                                                'experiment': message.get('experiment_id', 'Unknown')
+                                            })
+                                    except json.JSONDecodeError:
+                                        continue
+                    except Exception:
+                        pass
 
-                fig.update_layout(
-                    title="Real-time Experiment Progress",
-                    xaxis_title="Time",
-                    yaxis_title="Progress (%)",
-                    height=300,
-                    yaxis={'range': [0, 100]}
-                )
+                if progress_data:
+                    # Add progress line
+                    fig.add_trace(go.Scatter(
+                        x=[p['time'] for p in progress_data],
+                        y=[p['progress'] for p in progress_data],
+                        mode='lines+markers',
+                        name='Progress',
+                        line={'color': '#667eea', 'width': 3},
+                        marker={'size': 8}
+                    ))
 
-                st.plotly_chart(fig, width="stretch")
+                    fig.update_layout(
+                        title="Real-time Experiment Progress",
+                        xaxis_title="Time",
+                        yaxis_title="Progress (%)",
+                        height=300,
+                        yaxis={'range': [0, 100]}
+                    )
+
+                    st.plotly_chart(fig, width="stretch")
 
                 # Progress details table
                 st.markdown("### 📋 Progress Details")
                 progress_df = []
                 for p in progress_data[-10:]:  # Show last 10 progress updates
-                    progress_df.append({
-                        'Time': p['time'],
-                        'Progress': f"{p['progress']:.1f}%",
-                        'Stage': p.get('stage', 'Unknown'),
-                        'Message': p.get('message', '')
-                    })
+                    try:
+                        progress_df.append({
+                            'Time': p.get('time', 'Unknown'),
+                            'Progress': f"{p.get('progress', 0):.1f}%",
+                            'Experiment': p.get('experiment', 'Unknown')
+                        })
+                    except Exception:
+                        continue
 
                 if progress_df:
                     import pandas as pd
                     df = pd.DataFrame(progress_df)
                     st.dataframe(df, width="stretch")
-        else:
-            st.info("No progress data available. Start an experiment to see real-time progress.")
+            else:
+                st.info("No progress data available. Start an experiment to see real-time progress.")
+        except Exception as e:
+            st.error(f"Error rendering progress chart: {e}")
+            logger.error(f"Progress chart rendering error: {e}")
 
     def render_performance_metrics(self):
         """Render performance metrics visualization."""
@@ -827,6 +944,9 @@ class FractalSemanticsGUI:
 
     def run_experiments_sync(self, experiment_ids: list[str], quick_mode: bool, parallel_mode: bool):
         """Run experiments with real-time progress updates using background thread + polling."""
+        # Ensure session state is properly initialized before any access
+        ensure_session_state_initialized()
+
         st.session_state.is_running = True
         st.session_state.progress_data = []
 
@@ -840,7 +960,7 @@ class FractalSemanticsGUI:
         progress_container = st.container()
 
         with progress_container:
-            st.markdown("### 🚀 Running Experiments")
+            st.markdown("### - Running Experiments")
             st.markdown(f"**Selected Experiments:** {', '.join(experiment_ids)}")
             st.markdown(f"**Mode:** {'Quick' if quick_mode else 'Full'} | **Execution:** {'Parallel' if parallel_mode else 'Sequential'}")
             st.markdown("---")
@@ -874,35 +994,45 @@ class FractalSemanticsGUI:
         batch_result_holder = [None]  # List to hold result (mutable)
         exception_holder = [None]  # List to hold exceptions
 
-        # Track latest progress per experiment
+        # Track latest progress per experiment using thread-safe data structures
         experiment_progress = {}
         completed_experiments = set()
 
         def run_experiments_background():
-            """Run experiments in background thread."""
+            """Run experiments in background thread with proper asyncio handling."""
             try:
-                # Define progress callback
-                def progress_callback(current: int, total: int, result: ExperimentResult):
+                # Create a new event loop for this thread
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+
+                try:
+                    # Define progress callback that uses thread-safe data structures
+                    def progress_callback(current: int, total: int, result: ExperimentResult):
+                        with progress_lock:
+                            completed_experiments.add(result.experiment_id)
+                            experiment_progress[result.experiment_id] = {
+                                'progress': 100.0,
+                                'completed': True,
+                                'success': result.success
+                            }
+
+                    # Run batch experiments using the thread's event loop
+                    batch_result = loop.run_until_complete(
+                        self.runner.run_batch_experiments(
+                            experiment_ids=experiment_ids,
+                            quick_mode=quick_mode,
+                            parallel=parallel_mode,
+                            progress_callback=progress_callback
+                        )
+                    )
+
                     with progress_lock:
-                        completed_experiments.add(result.experiment_id)
-                        experiment_progress[result.experiment_id] = {
-                            'progress': 100.0,
-                            'completed': True,
-                            'success': result.success
-                        }
-                    # Store in original callback for session state
-                    self.progress_callback(current, total, result)
+                        batch_result_holder[0] = batch_result
 
-                # Run batch experiments
-                batch_result = asyncio.run(self.runner.run_batch_experiments(
-                    experiment_ids=experiment_ids,
-                    quick_mode=quick_mode,
-                    parallel=parallel_mode,
-                    progress_callback=progress_callback
-                ))
-
-                with progress_lock:
-                    batch_result_holder[0] = batch_result
+                finally:
+                    # Clean up the event loop
+                    loop.close()
+                    asyncio.set_event_loop(None)
 
             except Exception as e:
                 with progress_lock:
@@ -918,88 +1048,164 @@ class FractalSemanticsGUI:
         # Poll for progress updates in main thread
         last_progress_check = {}
         update_counter = 0
+        max_poll_time = 600  # 10 minute timeout to allow for longer experiments
+        start_poll_time = time.time()
 
         try:
             while not experiment_complete.is_set():
-                # Read latest progress from file
+                # Check for timeout
+                if time.time() - start_poll_time > max_poll_time:
+                    st.error("❌ Experiment execution timed out after 10 minutes")
+                    break
+
+                # Read latest progress from progress file (JSONL format)
                 try:
-                    progress_data = read_progress_from_file(progress_file)
-                    if progress_data:
-                        exp_id = progress_data.get('experiment_id', 'Unknown')
-                        progress_value = progress_data.get('progress', 0)
+                    # Read all progress messages from the file
+                    progress_messages = []
+                    if progress_file.exists():
+                        try:
+                            with open(progress_file, encoding='utf-8') as f:
+                                for line in f:
+                                    if line.strip():
+                                        try:
+                                            message = json.loads(line.strip())
+                                            progress_messages.append(message)
+                                        except json.JSONDecodeError:
+                                            continue
+                        except Exception:
+                            pass
 
-                        # Update progress tracking
-                        with progress_lock:
-                            if exp_id not in completed_experiments:
-                                experiment_progress[exp_id] = {
-                                    'progress': progress_value,
-                                    'completed': False,
-                                    'stage': progress_data.get('stage', 'Running'),
-                                    'message': progress_data.get('message', '')
-                                }
+                    # Process progress messages in reverse order (most recent first)
+                    # to get the latest progress for each experiment
+                    experiment_progress_updates = {}
+                    for message in reversed(progress_messages):
+                        try:
+                            if all(field in message for field in ['timestamp', 'experiment_id', 'progress_percent', 'stage']):
+                                exp_id = message['experiment_id']
+                                progress_value = message['progress_percent']
+                                message_type = message.get('message_type', 'progress')
 
-                                # Add to session state
-                                st.session_state.progress_data.append({
-                                    'time': progress_data.get('timestamp', datetime.now().isoformat()),
-                                    'progress': progress_value,
-                                    'experiment': exp_id,
-                                    'stage': progress_data.get('stage', 'Running'),
-                                    'message': progress_data.get('message', ''),
-                                    'current': 0,
-                                    'total': 100
-                                })
+                                # Only update progress for actual progress messages, not status messages
+                                # Status messages have progress = -1.0 and should not affect progress bars
+                                if message_type == 'progress' and progress_value >= 0:
+                                    # Validate progress value to prevent negative values
+                                    progress_value = max(0.0, min(100.0, float(progress_value)))
 
-                except Exception:
-                    pass  # Ignore polling errors
+                                    # Update progress tracking using thread-safe operations
+                                    with progress_lock:
+                                        if exp_id not in completed_experiments:
+                                            experiment_progress[exp_id] = {
+                                                'progress': progress_value,
+                                                'completed': False,
+                                                'stage': message.get('stage', 'Running'),
+                                                'message': message.get('message', ''),
+                                                'message_type': message_type
+                                            }
+                                elif message_type == 'complete':
+                                    # Handle completion messages
+                                    with progress_lock:
+                                        completed_experiments.add(exp_id)
+                                        experiment_progress[exp_id] = {
+                                            'progress': 100.0,
+                                            'completed': True,
+                                            'stage': message.get('stage', 'Complete'),
+                                            'message': message.get('message', ''),
+                                            'message_type': message_type,
+                                            'success': True  # Assume success unless marked otherwise
+                                        }
+                                elif message_type in ['status', 'warning', 'error']:
+                                    # For status messages (progress = -1.0), only update stage/message if experiment is still running
+                                    with progress_lock:
+                                        if exp_id not in completed_experiments and exp_id in experiment_progress:
+                                            # Update existing progress with new stage/message but keep current progress value
+                                            current_progress = experiment_progress[exp_id].get('progress', 0)
+                                            experiment_progress[exp_id].update({
+                                                'stage': message.get('stage', 'Running'),
+                                                'message': message.get('message', ''),
+                                                'message_type': message_type
+                                            })
+                        except Exception:
+                            continue
 
-                # Update UI with current progress
+                except Exception as e:
+                    # Log error but don't crash the polling
+                    logger.error(f"Error reading progress: {e}")
+                    pass
+
+                # Update UI with current progress (only in main thread)
                 with progress_lock:
                     for exp_id, progress_info in experiment_progress.items():
                         if exp_id in experiment_progress_bars:
                             progress_value = progress_info['progress']
 
-                            # Update progress bar
-                            with experiment_progress_bars[exp_id]['progress_bar']:
-                                st.progress(progress_value / 100.0)
+                            # Only update progress bar for actual progress updates (progress >= 0)
+                            # Skip non-progress messages (progress = -1.0)
+                            if progress_value >= 0:
+                                # Update progress bar with error handling for WebSocket disconnections
+                                try:
+                                    with experiment_progress_bars[exp_id]['progress_bar']:
+                                        st.progress(progress_value / 100.0)
+                                except Exception:
+                                    # WebSocket disconnected - skip UI update
+                                    pass
 
-                            # Update metric
-                            with experiment_progress_bars[exp_id]['metric']:
-                                if progress_info.get('completed'):
-                                    status_icon = "✅" if progress_info.get('success') else "❌"
-                                    st.metric(exp_id, f"{status_icon} Done")
-                                else:
-                                    st.metric(exp_id, f"{progress_value:.1f}%")
+                                # Update metric with error handling
+                                try:
+                                    with experiment_progress_bars[exp_id]['metric']:
+                                        if progress_info.get('completed'):
+                                            status_icon = "success" if progress_info.get('success') else "error"
+                                            st.metric(exp_id, f"{status_icon} Done")
+                                        else:
+                                            st.metric(exp_id, f"{progress_value:.1f}%")
+                                except Exception:
+                                    # WebSocket disconnected - skip UI update
+                                    pass
+                            else:
+                                # For non-progress messages (progress = -1.0), only update metric if completed
+                                try:
+                                    with experiment_progress_bars[exp_id]['metric']:
+                                        if progress_info.get('completed'):
+                                            status_icon = "success" if progress_info.get('success') else "error"
+                                            st.metric(exp_id, f"{status_icon} Done")
+                                except Exception:
+                                    # WebSocket disconnected - skip UI update
+                                    pass
 
-                    # Update overall progress
-                    total_experiments = len(experiment_ids)
-                    completed_count = len(completed_experiments)
-                    overall_percent = (completed_count / total_experiments * 100) if total_experiments > 0 else 0
+                    # Update overall progress with error handling
+                    try:
+                        total_experiments = len(experiment_ids)
+                        completed_count = len(completed_experiments)
+                        overall_percent = (completed_count / total_experiments * 100) if total_experiments > 0 else 0
 
-                    with overall_progress_bar:
-                        st.progress(overall_percent / 100.0)
+                        with overall_progress_bar:
+                            st.progress(overall_percent / 100.0)
 
-                    with progress_metrics:
-                        col1, col2, col3 = st.columns(3)
-                        with col1:
-                            st.metric("Completed", f"{completed_count}/{total_experiments}")
-                        with col2:
-                            # Show currently running experiments
-                            running = [exp_id for exp_id, info in experiment_progress.items()
-                                     if not info.get('completed')]
-                            st.metric("Running", f"{len(running)}")
-                        with col3:
-                            st.metric("Progress", f"{overall_percent:.1f}%")
+                        with progress_metrics:
+                            col1, col2, col3 = st.columns(3)
+                            with col1:
+                                st.metric("Completed", f"{completed_count}/{total_experiments}")
+                            with col2:
+                                # Show currently running experiments
+                                running = [exp_id for exp_id, info in experiment_progress.items()
+                                         if not info.get('completed')]
+                                st.metric("Running", f"{len(running)}")
+                            with col3:
+                                st.metric("Progress", f"{overall_percent:.1f}%")
+                    except Exception:
+                        # WebSocket disconnected - skip UI update
+                        pass
 
                 # Sleep briefly to allow UI updates
                 time.sleep(0.5)
                 update_counter += 1
 
-                # NOTE: Removed st.rerun() - it was causing the entire script to restart,
-                # disconnecting the UI from running experiments. st.empty() placeholders
-                # update automatically without needing a full rerun.
+            # Wait for thread to complete with timeout
+            experiment_thread.join(timeout=10.0)
 
-            # Wait for thread to complete
-            experiment_thread.join(timeout=5.0)
+            # Check if thread is still alive (timeout occurred)
+            if experiment_thread.is_alive():
+                st.error("❌ Experiment thread did not complete within timeout")
+                return
 
             # Check for exceptions
             with progress_lock:
@@ -1018,8 +1224,10 @@ class FractalSemanticsGUI:
             # Clear progress file
             clear_progress_file(progress_file)
 
-            # Do ONE final rerun to cleanly transition from "running" to "completed" state
-            # This avoids the ScriptRunContext errors and ensures proper state transition
+            # Use st.rerun() instead of st.experimental_rerun() for better compatibility
+            # Add a small delay to ensure state is properly updated
+            import time
+            time.sleep(0.1)
             st.rerun()
 
         except Exception as e:
@@ -1029,10 +1237,21 @@ class FractalSemanticsGUI:
                 st.code(traceback.format_exc())
 
         finally:
-            # Clear progress file
-            clear_progress_file(progress_file)
+            # Ensure proper cleanup
+            try:
+                # Clear progress file
+                clear_progress_file(progress_file)
 
-            st.session_state.is_running = False
+                # Ensure thread is properly cleaned up
+                if 'experiment_thread' in locals() and experiment_thread.is_alive():
+                    # Thread should already be joined, but ensure cleanup
+                    pass
+
+                # Reset running state
+                st.session_state.is_running = False
+
+            except Exception as cleanup_error:
+                logger.error(f"❌ Error during cleanup: {cleanup_error}")
 
     def progress_callback(self, current: int, total: int, result: ExperimentResult):
         """Callback function for experiment progress updates."""
@@ -1131,6 +1350,10 @@ class FractalSemanticsGUI:
 def main():
     """Main entry point for the GUI application."""
     try:
+        # Ensure session state is initialized BEFORE any Streamlit operations
+        gui_state_manager.ensure_session_state_initialized()
+
+        # Create GUI instance (this will call setup_session_state again, but it's safe)
         gui = FractalSemanticsGUI()
         gui.run()
     except Exception as e:

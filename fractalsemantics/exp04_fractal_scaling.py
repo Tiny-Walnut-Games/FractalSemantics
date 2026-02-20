@@ -3,7 +3,7 @@
 EXP-04: Bit-Chain FractalSemantics Fractal Scaling Test
 
 Tests whether FractalSemantics addressing maintains consistency and zero collisions
-when scaled from 1K → 10K → 100K → 1M data points.
+when scaled from 1K - 10K - 100K - 1M data points.
 
 Verifies the "fractal" property: self-similar behavior at all scales.
 

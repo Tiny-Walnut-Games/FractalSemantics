@@ -128,7 +128,7 @@ class FractalHierarchy:
         Calculate hierarchical distance as hops through tree to lowest common ancestor.
 
         Example: if A is at depth 3 and B is at depth 3, but they share
-        a parent at depth 2, the hierarchical distance is 2 (A→parent→B)
+        a parent at depth 2, the hierarchical distance is 2 (A-parent-B)
         """
         addr_a = node_a.tree_address
         addr_b = node_b.tree_address

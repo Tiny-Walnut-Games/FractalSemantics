@@ -2,7 +2,7 @@
 EXP-05: Bit-Chain Compression/Expansion Losslessness Validation
 
 Tests whether FractalSemantics bit-chains can be compressed through the full pipeline
-(fragments → clusters → glyphs → mist) and then expanded back to original
+(fragments - clusters - glyphs - mist) and then expanded back to original
 coordinates without information loss.
 
 Validates:
@@ -24,7 +24,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, dict, list
+from typing import Optional
 
 from fractalsemantics.dynamic_enum import Alignment, Polarity
 

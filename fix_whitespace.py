@@ -7,7 +7,6 @@ It processes all Python files and ensures clean formatting without affecting act
 """
 
 from pathlib import Path
-from typing import list, tuple
 
 
 def fix_file_whitespace(file_path: Path) -> tuple[bool, int]:
@@ -73,16 +72,16 @@ def find_python_files(directory: Path) -> list[Path]:
 
 def main():
     """Main function to fix whitespace across the project."""
-    print("🔧 FractalSemantics Whitespace Fixer")
+    print("wrench FractalSemantics Whitespace Fixer")
     print("=" * 50)
 
     # Get the project root directory
     project_root = Path(__file__).parent
 
-    print(f"📁 Project root: {project_root}")
+    print(f"folder Project root: {project_root}")
 
     # Find all Python files
-    print("🔍 Finding Python files...")
+    print("left_pointing_magnifying_glass Finding Python files...")
     python_files = find_python_files(project_root)
 
     print(f"Found {len(python_files)} Python files")
@@ -97,22 +96,22 @@ def main():
         if was_modified:
             total_modified += 1
             total_lines_changed += lines_changed
-            print(f"✅ {file_path.relative_to(project_root)}: {lines_changed} lines fixed")
+            print(f"success {file_path.relative_to(project_root)}: {lines_changed} lines fixed")
 
     # Summary
     print("\n" + "=" * 50)
-    print("📊 SUMMARY")
+    print("chart SUMMARY")
     print("=" * 50)
     print(f"Files processed: {len(python_files)}")
     print(f"Files modified: {total_modified}")
     print(f"Total lines fixed: {total_lines_changed}")
 
     if total_modified == 0:
-        print("✅ No whitespace issues found - all files are clean!")
+        print("success No whitespace issues found - all files are clean!")
     else:
-        print(f"✅ Successfully fixed whitespace in {total_modified} files")
+        print(f"success Successfully fixed whitespace in {total_modified} files")
 
-    print("\n✨ Whitespace cleanup complete!")
+    print("\nsparkles Whitespace cleanup complete!")
 
 
 if __name__ == "__main__":

@@ -36,7 +36,7 @@ Comprehensive code formatting and linting ruleset for the FractalSemantics proje
 
 ## Error handling
 
-- **Try-catch blocks**: Use specific exception types, avoid bare `except ast.ParseError:` clauses
+- **Try-catch blocks**: Use specific exception types, avoid bare `except Exception:` clauses
 - **User-friendly messages**: Provide clear, actionable error messages for users
 - **Logging**: Use structured logging for debugging and monitoring
 - **Graceful degradation**: Handle errors gracefully without crashing the application

@@ -32,8 +32,9 @@ import math
 import secrets
 import statistics
 import sys
+import time
 from dataclasses import dataclass, field
-from datetime import time, timezone
+from datetime import timezone
 from pathlib import Path
 from typing import Optional
 
@@ -545,7 +546,8 @@ def integrate_hierarchical_orbits(
 
             # Handle the step variable for progress reporting
             if is_subprocess_communication_enabled():
-                report_progress(step, time_steps)
+                progress_percent = (step / time_steps) * 100.0
+                report_progress("EXP-21", progress_percent, f"Integration step {step}/{time_steps}")
 
         # Update for next iteration
         current_positions = new_positions
@@ -553,7 +555,8 @@ def integrate_hierarchical_orbits(
 
         # Handle the step variable for progress reporting
         if is_subprocess_communication_enabled():
-            report_progress(step, time_steps)
+            progress_percent = (step / time_steps) * 100.0
+            report_progress("EXP-21", progress_percent, f"Integration step {step}/{time_steps}")
 
     # Convert to OrbitalTrajectory objects
     orbital_trajectories = {}
@@ -568,7 +571,8 @@ def integrate_hierarchical_orbits(
 
     # Handle the step variable for progress reporting
     if is_subprocess_communication_enabled():
-        report_progress(step, time_steps)
+        progress_percent = (step / time_steps) * 100.0
+        report_progress("EXP-21", progress_percent, f"Integration step {step}/{time_steps}")
 
     return orbital_trajectories
 
@@ -586,7 +590,7 @@ def create_earth_moon_sun_system() -> HierarchicalOrbitalSystem:
     In the real Earth-Moon-Sun system:
     1. Earth-Moon barycenter (mathematical node) orbits Sun
     2. Earth and Moon both orbit the barycenter
-    3. Forces propagate through hierarchy: Sun → Barycenter → Earth/Moon
+    3. Forces propagate through hierarchy: Sun - Barycenter - Earth/Moon
     4. No direct unmediated forces between Sun-Earth, Sun-Moon, or Earth-Moon
 
     This implements proper hierarchical force mediation!
@@ -727,8 +731,8 @@ class OrbitalPeriodValidation:
 class EXP21_EarthMoonSunResults:
     """Complete results from EXP-21 Earth-Moon-Sun test."""
 
-    start_time: str
-    end_time: str
+    start_time: float
+    end_time: float
     total_duration_seconds: float
 
     # System configuration
@@ -768,7 +772,7 @@ def run_exp21_earth_moon_sun_test(
         Complete test results
     """
 
-    start_time = datetime.now(time.timezone.utc).isoformat()
+    start_time = time.time()
     overall_start = time.time()
 
     print("\n" + "=" * 80)
@@ -851,7 +855,7 @@ def run_exp21_earth_moon_sun_test(
     print()
 
     if universality_claim_supported:
-        print("🚀 BREAKTHROUGH: Hierarchical framework scales to multi-body systems!")
+        print("BREAKTHROUGH: Hierarchical framework scales to multi-body systems!")
         print("   Moon's orbit emerges naturally from Earth-Sun hierarchy.")
         print("   No parameter tuning required - universality confirmed.")
     else:
@@ -859,7 +863,7 @@ def run_exp21_earth_moon_sun_test(
         print("   Hierarchy may be useful but not foundational.")
 
     overall_end = time.time()
-    end_time = datetime.now(timezone.utc).isoformat()
+    end_time = datetime.datetime.now(timezone.utc).isoformat()
 
     results = EXP21_EarthMoonSunResults(
         start_time=start_time,
@@ -887,7 +891,7 @@ def save_results(results: EXP21_EarthMoonSunResults, output_file: Optional[str] 
     """Save results to JSON file."""
 
     if output_file is None:
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         output_file = f"exp21_earth_moon_sun_{timestamp}.json"
 
     results_dir = Path(__file__).resolve().parent.parent / "results"
@@ -974,7 +978,7 @@ if __name__ == "__main__":
         print()
 
         if results.universality_claim_supported:
-            print("🎯 CRITICAL SUCCESS: Hierarchical framework scales to multi-body systems!")
+            print("- CRITICAL SUCCESS: Hierarchical framework scales to multi-body systems!")
             print("   Proceed to EXP-22 (Jupiter moons) - scaling laws confirmed.")
         else:
             print("CRITICAL FAILURE: Framework needs recalibration.")

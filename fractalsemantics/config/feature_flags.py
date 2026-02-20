@@ -18,7 +18,7 @@ Usage:
 import os
 import sys
 from pathlib import Path
-from typing import Any, Optional, dict, list
+from typing import Optional
 
 # Handle Python 3.11+ vs earlier versions for tomllib/tomli
 if sys.version_info >= (3, 11):
