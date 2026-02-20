@@ -29,7 +29,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
 
 from fractalsemantics.dynamic_enum import Alignment, Polarity
 
@@ -44,6 +44,10 @@ from fractalsemantics.fractalsemantics_entity import (
     Coordinates,
     compute_address_hash,
 )
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 secure_random = secrets.SystemRandom()
 

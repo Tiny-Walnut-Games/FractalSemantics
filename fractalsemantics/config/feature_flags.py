@@ -18,9 +18,14 @@ Usage:
 import os
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
 
 # Handle Python 3.11+ vs earlier versions for tomllib/tomli
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 if sys.version_info >= (3, 11):
     import tomllib
 else:

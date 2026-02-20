@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+
 # pylint: disable=C0301,C0116,W0404,W0621,W0212,W0718
+
 """
 EXP-02: Retrieval Efficiency Test
 
@@ -31,12 +33,16 @@ import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
 
 import psutil  # type: ignore[import-untyped]
 
 from fractalsemantics.fractalsemantics_entity import generate_random_bitchain
 from fractalsemantics.progress_comm import ProgressReporter
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 # Import subprocess communication for enhanced progress reporting
 try:

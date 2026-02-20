@@ -18,10 +18,15 @@ Usage:
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
 
 # Re-export functions and classes that moved to separate modules during refactoring
 # plus constants from the main package for backward compatibility
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 try:
     # Import constants from main package
     from fractalsemantics import ALIGNMENT, POLARITY

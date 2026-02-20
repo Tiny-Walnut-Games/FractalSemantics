@@ -8,9 +8,13 @@ High-quality embeddings using pre-trained transformer models with CUDA support
 import hashlib
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, TypeAlias
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 if TYPE_CHECKING:
     from sentence_transformers import (

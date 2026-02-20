@@ -19,7 +19,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
 
 # Reuse canonical serialization from Phase 1
 from fractalsemantics.fractalsemantics_entity import (
@@ -31,6 +31,11 @@ from fractalsemantics.fractalsemantics_entity import (
 from fractalsemantics.progress_comm import create_progress_reporter
 
 # Import subprocess communication for enhanced progress reporting
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 try:
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,

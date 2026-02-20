@@ -36,7 +36,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
 
 import numpy as np
 
@@ -44,6 +44,10 @@ from fractalsemantics.exp02_retrieval_efficiency import (
     is_subprocess_communication_enabled,
 )
 from fractalsemantics.progress_comm import report_progress
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 secure_random = secrets.SystemRandom()
 

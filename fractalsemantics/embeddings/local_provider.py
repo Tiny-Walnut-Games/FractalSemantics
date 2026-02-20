@@ -6,10 +6,13 @@ Simple TF-IDF based embeddings for offline operation
 import math
 import re
 from collections import Counter
-from typing import Optional
+from typing import Optional, TypeAlias
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 class LocalEmbeddingProvider(EmbeddingProvider):
     """Local TF-IDF based embedding provider for fallback scenarios."""

@@ -8,6 +8,7 @@ allowing it to run real FractalSemantics experiments with educational output.
 
 import ast
 import asyncio
+import hashlib
 import json
 import os
 import subprocess
@@ -17,11 +18,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from queue import Queue
 from threading import Thread
-from typing import Optional
+from typing import Optional, TypeAlias
 
 import tqdm
 
 # Add the fractalsemantics module to the path FIRST, before any imports
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -963,7 +969,6 @@ Full Traceback:
         try:
             # Import progress communication module
             from fractalsemantics.progress_comm import (
-                ProgressReporter,
                 is_progress_message,
                 parse_progress_message,
             )
@@ -998,10 +1003,24 @@ Full Traceback:
             if not module_name:
                 raise ValueError(f"Unknown experiment: {experiment_id}")
 
-            # Use the current Python executable (from virtual environment)
+            # Get timeout and execution profile from experiment config
+            config = self.experiment_configs.get(experiment_id, ExperimentConfig(
+                experiment_id=experiment_id,
+                module_name="",
+                description="",
+                educational_focus="",
+                timeout_seconds=300
+            ))
+            timeout = config.timeout_seconds
+
+            # Build isolated, deterministic subprocess command
             python_executable = sys.executable
             cmd = [
-                python_executable, str(Path(__file__).parent / f"{module_name}.py")
+                python_executable,
+                "-X",
+                "utf8",
+                "-I",
+                str(Path(__file__).parent / f"{module_name}.py"),
             ]
 
             # Add quick mode flag if needed
@@ -1033,24 +1052,18 @@ Full Traceback:
             else:
                 env["PYTHONPATH"] = project_root
 
+            env["PYTHONUTF8"] = "1"
+            env["PYTHONHASHSEED"] = "0"
+            env["FRACTALSEMANTICS_VALIDATION_MODE"] = "1"
             env["VIRTUAL_ENV"] = sys.prefix
-            env["PATH"] = f"{sys.prefix}/bin{os.pathsep}{env.get('PATH', '')}"
 
-            # Get timeout from experiment config
-            config = self.experiment_configs.get(experiment_id, ExperimentConfig(
-                experiment_id=experiment_id,
-                module_name="",
-                description="",
-                educational_focus="",
-                timeout_seconds=300
-            ))
-            timeout = config.timeout_seconds
+            scripts_dir = Path(sys.prefix) / ("Scripts" if os.name == "nt" else "bin")
+            env["PATH"] = f"{scripts_dir}{os.pathsep}{env.get('PATH', '')}"
 
-            # Use regular subprocess with proper timeout handling
-            import subprocess
+            # Advanced experiments get a reproducibility validation rerun in full mode
+            run_count = 2 if (config.experiment_type == "advanced" and not quick_mode) else 1
 
-            try:
-                # Run subprocess with timeout
+            def run_once() -> dict[str, any]:
                 result = subprocess.run(
                     cmd,
                     capture_output=True,
@@ -1058,36 +1071,13 @@ Full Traceback:
                     timeout=timeout,
                     env=env,
                     cwd=str(Path(__file__).parent),
-                    encoding='utf-8',
-                    errors='replace'  # Replace problematic characters instead of failing
+                    encoding="utf-8",
+                    errors="replace",
                 )
 
-                # Parse output with additional error handling
-                try:
-                    stdout_lines = result.stdout.split('\n') if result.stdout else []
-                except (UnicodeDecodeError, UnicodeEncodeError):
-                    # Fallback to raw bytes if text parsing fails
-                    stdout_lines = []
-                    if result.stdout:
-                        try:
-                            stdout_text = result.stdout.decode('utf-8', errors='replace')
-                            stdout_lines = stdout_text.split('\n')
-                        except Exception as e:
-                            stdout_lines = [f"[Output encoding error - unable to decode stdout: {e}]"]
+                stdout_lines = result.stdout.splitlines() if result.stdout else []
+                stderr_lines = result.stderr.splitlines() if result.stderr else []
 
-                try:
-                    stderr_lines = result.stderr.split('\n') if result.stderr else []
-                except (UnicodeDecodeError, UnicodeEncodeError):
-                    # Fallback to raw bytes if text parsing fails
-                    stderr_lines = []
-                    if result.stderr:
-                        try:
-                            stderr_text = result.stderr.decode('utf-8', errors='replace')
-                            stderr_lines = stderr_text.split('\n')
-                        except Exception as e:
-                            stderr_lines = [f"[Output encoding error - unable to decode stderr: {e}]"]
-
-                # Parse progress messages from stderr
                 progress_messages = []
                 for line in stderr_lines:
                     if is_progress_message(line):
@@ -1095,33 +1085,30 @@ Full Traceback:
                         if progress_msg and progress_msg.experiment_id == experiment_id:
                             progress_messages.append(progress_msg)
 
-                # Determine success by checking for completion markers in output
                 output = result.stdout
                 completion_markers = [
                     "[OK]",
                     "COMPLETE",
                     "[Success]",
                     "SUCCESS",
-                    f"{experiment_id} COMPLETE"
+                    f"{experiment_id} COMPLETE",
                 ]
-
-                has_completion_marker = any(marker in output.upper() for marker in [m.upper() for m in completion_markers])
-
-                # Success if:
-                # 1. Return code is 0 (definite success), OR
-                # 2. Return code is non-zero BUT output contains completion markers (warning-level result)
+                has_completion_marker = any(
+                    marker in output.upper() for marker in [m.upper() for m in completion_markers]
+                )
                 success = result.returncode == 0 or has_completion_marker
 
-                # Filter out progress messages from error output
-                filtered_error_lines = []
-                for line in stderr_lines:
-                    if not is_progress_message(line):
-                        filtered_error_lines.append(line)
+                filtered_error_lines = [line for line in stderr_lines if not is_progress_message(line)]
+                filtered_error = "\n".join(filtered_error_lines).strip()
 
-                filtered_error = '\n'.join(filtered_error_lines).strip()
-
-                # Build metrics
-                metrics: dict[str, any] = {"return_code": result.returncode}
+                metrics: dict[str, any] = {
+                    "return_code": result.returncode,
+                    "command": cmd,
+                    "timeout_seconds": timeout,
+                    "isolated_mode": True,
+                    "utf8_mode": True,
+                    "output_sha256": hashlib.sha256(output.encode("utf-8", errors="replace")).hexdigest(),
+                }
                 if progress_messages:
                     progress_data = []
                     for msg in progress_messages:
@@ -1130,15 +1117,42 @@ Full Traceback:
                             "progress_percent": float(msg.progress_percent),
                             "stage": msg.stage,
                             "message": msg.message,
-                            "message_type": msg.message_type
+                            "message_type": msg.message_type,
                         })
                     metrics["progress_messages"] = progress_data
 
                 return {
                     "success": success,
                     "output": output + (f"\nStderr: {filtered_error}" if filtered_error else ""),
-                    "metrics": metrics
+                    "metrics": metrics,
                 }
+
+            try:
+                primary_run = run_once()
+
+                if run_count == 2 and primary_run["success"]:
+                    validation_run = run_once()
+                    reproducibility = {
+                        "enabled": True,
+                        "first_return_code": primary_run["metrics"]["return_code"],
+                        "second_return_code": validation_run["metrics"]["return_code"],
+                        "same_success": primary_run["success"] == validation_run["success"],
+                        "same_output_sha256": primary_run["metrics"]["output_sha256"] == validation_run["metrics"]["output_sha256"],
+                    }
+                    reproducibility["reproducible"] = (
+                        reproducibility["same_success"]
+                        and reproducibility["first_return_code"] == reproducibility["second_return_code"]
+                    )
+
+                    primary_run["metrics"]["reproducibility_check"] = reproducibility
+
+                    if not reproducibility["reproducible"]:
+                        primary_run["output"] += (
+                            "\n[VALIDITY WARNING] Reproducibility check detected run-to-run variance "
+                            "(see metrics.reproducibility_check)."
+                        )
+
+                return primary_run
 
             except subprocess.TimeoutExpired:
                 return {

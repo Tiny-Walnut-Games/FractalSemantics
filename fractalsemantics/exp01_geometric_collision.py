@@ -35,16 +35,21 @@ import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, TypeAlias
+
+from fractalsemantics.progress_comm import ProgressReporter
 
 # Import tqdm for progress bars (CLI execution)
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 try:
     from tqdm import tqdm
     TQDM_AVAILABLE = True
 except ImportError:
     TQDM_AVAILABLE = False
-
-from fractalsemantics.progress_comm import ProgressReporter
 
 # Import subprocess communication for enhanced progress reporting
 try:

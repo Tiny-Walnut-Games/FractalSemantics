@@ -5,8 +5,11 @@ Base Embedding Provider - Abstract Interface for Semantic Grounding
 import math
 import time
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, TypeAlias
 
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 class EmbeddingProvider(ABC):
     """Abstract base class for embedding providers."""

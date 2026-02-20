@@ -2,13 +2,18 @@
 Embedding Provider Factory - Dynamic Provider Creation
 """
 
-from typing import Optional
+from typing import Optional, TypeAlias
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 from fractalsemantics.embeddings.local_provider import LocalEmbeddingProvider
 from fractalsemantics.embeddings.openai_provider import OpenAIEmbeddingProvider
 
 # Import sentence transformer provider conditionally
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 try:
     from fractalsemantics.embeddings.sentence_transformer_provider import (
         SentenceTransformerEmbeddingProvider,

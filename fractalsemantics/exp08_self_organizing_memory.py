@@ -37,9 +37,16 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
+
+from fractalsemantics_entity import BitChain, generate_random_bitchain
 
 # Add the current directory to Python path to allow direct imports
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Import progress communication
@@ -58,8 +65,6 @@ except ImportError:
     def send_subprocess_status(*args, **kwargs) -> bool: return False
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
-
-from fractalsemantics_entity import BitChain, generate_random_bitchain
 
 secure_random = secrets.SystemRandom()
 

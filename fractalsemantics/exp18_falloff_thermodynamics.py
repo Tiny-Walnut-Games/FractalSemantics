@@ -21,25 +21,10 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
 
 import numpy as np
 
-# Import subprocess communication for enhanced progress reporting
-try:
-    from fractalsemantics.subprocess_comm import (
-        is_subprocess_communication_enabled,
-        send_subprocess_progress,
-        send_subprocess_status,
-    )
-except ImportError:
-    # Fallback if subprocess communication is not available
-    def send_subprocess_progress(*args, **kwargs) -> bool: return False
-    def send_subprocess_status(*args, **kwargs) -> bool: return False
-    def send_subprocess_completion(*args, **kwargs) -> bool: return False
-    def is_subprocess_communication_enabled() -> bool: return False
-
-# Import fractal components
 from fractalsemantics.exp13_fractal_gravity import (
     FractalHierarchy,
     compute_natural_cohesion,
@@ -52,6 +37,25 @@ from fractalsemantics.exp17_thermodynamic_validation import (
     validate_second_law,
     validate_zeroth_law,
 )
+
+# Import subprocess communication for enhanced progress reporting
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
+try:
+    from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_progress,
+        send_subprocess_status,
+    )
+except ImportError:
+    # Fallback if subprocess communication is not available
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
 
 secure_random = np.random.RandomState(42)
 

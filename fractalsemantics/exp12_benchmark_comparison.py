@@ -29,9 +29,21 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
+
+from fractalsemantics.fractalsemantics_entity import (
+    BitChain,
+    canonical_serialize,
+    compute_address_hash,
+    generate_random_bitchain,
+)
 
 # Import subprocess communication for enhanced progress reporting
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 try:
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
@@ -45,14 +57,6 @@ except ImportError:
     def send_subprocess_status(*args, **kwargs) -> bool: return False
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
-
-# Reuse canonical serialization from Phase 1
-from fractalsemantics.fractalsemantics_entity import (
-    BitChain,
-    canonical_serialize,
-    compute_address_hash,
-    generate_random_bitchain,
-)
 
 secure_random = secrets.SystemRandom()
 

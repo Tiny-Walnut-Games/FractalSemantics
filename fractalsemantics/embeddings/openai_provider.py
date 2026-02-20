@@ -6,10 +6,13 @@ import hashlib
 import math
 import struct
 from types import ModuleType
-from typing import Optional
+from typing import Optional, TypeAlias
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 class OpenAIEmbeddingProvider(EmbeddingProvider):
     """OpenAI API-based embedding provider."""

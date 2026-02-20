@@ -24,7 +24,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
 
 from fractalsemantics.dynamic_enum import Alignment, Polarity
 
@@ -39,6 +39,11 @@ from fractalsemantics.fractalsemantics_entity import (
 # Import progress communication
 
 # Import subprocess communication for enhanced progress reporting
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 try:
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,

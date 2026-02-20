@@ -23,11 +23,14 @@ from datetime import datetime, timezone
 from decimal import ROUND_HALF_EVEN, Decimal
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TypeAlias
 
 # Import enums from dynamic_enum to avoid circular import
 from fractalsemantics.dynamic_enum import Alignment, Horizon, Polarity, Realm
 
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 def _utc_now() -> datetime:
     """Helper function for timezone-aware UTC datetime."""
@@ -99,7 +102,7 @@ class FractalSemanticsCoordinates:
             alignment=alignment_map[parts[8]],
         )
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> JsonObject:
         """Convert to dictionary for JSON serialization"""
         return {
             "realm": self.realm.value,
@@ -672,8 +675,8 @@ class BitChain:
 
     Security fields (Phase 1 Doctrine: Authentication + Access Control):
     - data_classification: Sensitivity level (PUBLIC, SENSITIVE, PII)
-    - access_control_list: Roles allowed to recover this bitchain
-    - owner_id: User who owns this bitchain
+    - access_control_list: Roles allowed to recover this bit-chain
+    - owner_id: User who owns this bit-chain
     - encryption_key_id: Optional key for encrypted-at-rest data
     """
 

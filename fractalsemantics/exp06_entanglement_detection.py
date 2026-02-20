@@ -20,11 +20,16 @@ Status: Phase 1 Mathematical Validation COMPLETE; proceeding with Phase 2 robust
 import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, TypeAlias
 
 # Import progress communication
 
 # Import subprocess communication for enhanced progress reporting
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 try:
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,

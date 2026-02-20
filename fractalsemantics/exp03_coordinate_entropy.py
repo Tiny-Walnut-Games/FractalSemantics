@@ -44,7 +44,7 @@ from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, TypeAlias
 
 import numpy as np
 
@@ -66,6 +66,11 @@ from fractalsemantics.fractalsemantics_entity import (
 from fractalsemantics.progress_comm import ProgressReporter
 
 # Import subprocess communication for enhanced progress reporting
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
+
 try:
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
