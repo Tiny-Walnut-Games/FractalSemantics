@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 from decimal import ROUND_HALF_EVEN, Decimal
 from enum import Enum
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 # Import enums from dynamic_enum to avoid circular import
 from fractalsemantics.dynamic_enum import Alignment, Horizon, Polarity, Realm
@@ -129,9 +129,9 @@ class LifecycleEvent:
     timestamp: datetime
     event_type: str  # "birth", "evolution", "mint", etc.
     description: str
-    metadata: dict[str, any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "timestamp": self.timestamp.isoformat(),
             "event_type": self.event_type,
@@ -168,7 +168,7 @@ class FractalSemanticsEntity(ABC):
     fractalsemantics: Optional[FractalSemanticsCoordinates] = None
 
     # Legacy Fields (backward compatibility)
-    legacy_data: dict[str, any] = field(default_factory=dict)
+    legacy_data: dict[str, Any] = field(default_factory=dict)
     migration_source: Optional[str] = None  # "pet", "badge", etc.
 
     # NFT Status
@@ -212,7 +212,7 @@ class FractalSemanticsEntity(ABC):
         """
 
     @abstractmethod
-    def to_collectible_card_data(self) -> dict[str, any]:
+    def to_collectible_card_data(self) -> dict[str, Any]:
         """Convert entity to collectible card display format"""
 
     @abstractmethod
@@ -230,7 +230,7 @@ class FractalSemanticsEntity(ABC):
         self,
         event_type: str,
         description: str,
-        metadata: Optional[dict[str, any]] = None,
+        metadata: Optional[dict[str, Any]] = None,
     ):
         """Record a lifecycle event"""
         event = LifecycleEvent(
@@ -301,7 +301,7 @@ class FractalSemanticsEntity(ABC):
             raise ValueError("fractalsemantics coordinates must be initialized")
         return self.fractalsemantics.lineage
 
-    def get_luca_trace(self) -> dict[str, any]:
+    def get_luca_trace(self) -> dict[str, Any]:
         """
         Get path back to LUCA bootstrap origin.
         In a real system, this would trace parent entities.
@@ -322,7 +322,7 @@ class FractalSemanticsEntity(ABC):
     # NFT Integration
     # ========================================================================
 
-    def prepare_for_minting(self) -> dict[str, any]:
+    def prepare_for_minting(self) -> dict[str, Any]:
         """
         Generate NFT metadata for minting.
         Returns ERC-721/ERC-1155 compatible metadata object.
@@ -382,7 +382,7 @@ class FractalSemanticsEntity(ABC):
     # Serialization
     # ========================================================================
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert entity to dictionary for JSON storage"""
         return {
             "entity_id": self.entity_id,
@@ -426,7 +426,7 @@ class FractalSemanticsEntity(ABC):
     # Display Levels
     # ========================================================================
 
-    def render_zoom_level(self, level: int) -> dict[str, any]:
+    def render_zoom_level(self, level: int) -> dict[str, Any]:
         """
         Render entity at specific zoom level.
 
@@ -521,11 +521,11 @@ class FractalSemanticsEntity(ABC):
                 "luca_trace": self.get_luca_trace(),
             }
 
-    def _get_realm_details(self) -> dict[str, any]:
+    def _get_realm_details(self) -> dict[str, Any]:
         """Override in subclasses to provide realm-specific details"""
         return {}
 
-    def _get_alignment_details(self) -> dict[str, any]:
+    def _get_alignment_details(self) -> dict[str, Any]:
         """Get alignment-based social/coordination analysis"""
         if self.fractalsemantics is None:
             return {}
@@ -553,7 +553,7 @@ class FractalSemanticsEntity(ABC):
             "social_dynamics": self._analyze_social_dynamics(),
         }
 
-    def _analyze_social_dynamics(self) -> dict[str, any]:
+    def _analyze_social_dynamics(self) -> dict[str, Any]:
         """Analyze social interaction patterns based on entanglement and alignment"""
         if self.fractalsemantics is None:
             return {}
@@ -600,7 +600,7 @@ class FractalSemanticsEntity(ABC):
 # ============================================================================
 
 
-def hash_for_coordinates(data: dict[str, any]) -> str:
+def hash_for_coordinates(data: dict[str, Any]) -> str:
     """Deterministic hashing for coordinate assignment"""
     json_str = json.dumps(data, sort_keys=True)
     return hashlib.sha256(json_str.encode()).hexdigest()
@@ -653,7 +653,7 @@ class Coordinates:
     dimensionality: int  # 0+ fractal depth
     alignment: Alignment  # pyright: ignore[reportInvalidTypeForm] # Social alignment dynamics - NEW DIMENSION
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
         return {
             "realm": self.realm,
@@ -685,7 +685,7 @@ class BitChain:
     realm: str  # Domain classification
     coordinates: Coordinates  # FractalSemantics 8D position
     created_at: str  # ISO8601 UTC timestamp
-    state: dict[str, any]  # Mutable state data
+    state: dict[str, Any]  # Mutable state data
 
     # Security fields (Phase 1)
     data_classification: DataClass = DataClass.PUBLIC
@@ -697,7 +697,7 @@ class BitChain:
         """Normalize timestamps."""
         self.created_at = normalize_timestamp(self.created_at)
 
-    def to_canonical_dict(self) -> dict[str, any]:
+    def to_canonical_dict(self) -> dict[str, Any]:
         """Convert to canonical form for hashing."""
         return {
             "created_at": self.created_at,
@@ -792,7 +792,7 @@ def normalize_timestamp(ts: Optional[str] = None) -> str:
     return now.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
 
-def sort_json_keys(obj: any) -> any:
+def sort_json_keys(obj: Any) -> Any:
     """
     Recursively sort all JSON object keys in ASCII order (case-sensitive).
     """
@@ -804,7 +804,7 @@ def sort_json_keys(obj: any) -> any:
         return obj
 
 
-def canonical_serialize(data: dict[str, any]) -> str:
+def canonical_serialize(data: dict[str, Any]) -> str:
     """
     Serialize to canonical form for deterministic hashing.
     Handles enum objects by converting them to string values.
@@ -828,7 +828,7 @@ def canonical_serialize(data: dict[str, any]) -> str:
     return canonical
 
 
-def compute_address_hash(data: dict[str, any]) -> str:
+def compute_address_hash(data: dict[str, Any]) -> str:
     """
     Compute SHA-256 hash of canonical serialization.
     """

@@ -21,7 +21,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 import numpy as np
 
@@ -596,7 +596,7 @@ def create_shell_based_fractal_mapping(element: str, shell_data: dict[str, Elect
 
 def run_atomic_fractal_mapping_experiment_v2(
     elements_to_test: list[str] = None
-) -> dict[str, any]:
+) -> JsonObject:
     """
     Run EXP-14 v2: Shell-Based Atomic-Fractal Mapping.
 
@@ -758,7 +758,7 @@ def run_atomic_fractal_mapping_experiment_v2(
 
 
 # Backward compatibility
-def run_atomic_fractal_mapping_experiment(elements_to_test: list[str] = None) -> dict[str, any]:
+def run_atomic_fractal_mapping_experiment(elements_to_test: list[str] = None) -> JsonObject:
     """Run EXP-14 v2 (shell-based mapping)."""
     return run_atomic_fractal_mapping_experiment_v2(elements_to_test)
 
@@ -767,7 +767,7 @@ def run_atomic_fractal_mapping_experiment(elements_to_test: list[str] = None) ->
 # CLI & RESULTS PERSISTENCE
 # ============================================================================
 
-def save_results(results: dict[str, any], output_file: Optional[str] = None) -> str:
+def save_results(results: JsonObject, output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")

@@ -29,7 +29,7 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 from fractalsemantics.fractalsemantics_entity import (
     BitChain,
@@ -93,7 +93,7 @@ class SystemBenchmarkResult:
     relationship_support: float
     query_flexibility: float
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> JsonObject:
         """Convert to serializable dict."""
         return asdict(self)
 
@@ -131,7 +131,7 @@ class BenchmarkComparisonResult:
     major_findings: list[str] = field(default_factory=list)
     fractalsemantics_competitive: bool = False
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> JsonObject:
         """Convert to serializable dict."""
         return {
             "experiment": "EXP-12",
@@ -173,21 +173,21 @@ class BenchmarkSystem:
 
     def __init__(self, name: str):
         self.name = name
-        self.storage: dict[str, any] = {}
+        self.storage: dict[str, Any] = {}
 
-    def generate_address(self, entity: any) -> str:
+    def generate_address(self, entity: Any) -> str:
         """Generate address/identifier for entity."""
         raise NotImplementedError
 
-    def store(self, address: str, entity: any) -> None:
+    def store(self, address: str, entity: Any) -> None:
         """Store entity at address."""
         self.storage[address] = entity
 
-    def retrieve(self, address: str) -> Optional[any]:
+    def retrieve(self, address: str) -> Optional[Any]:
         """Retrieve entity by address."""
         return self.storage.get(address)
 
-    def get_storage_size(self, entity: any) -> int:
+    def get_storage_size(self, entity: Any) -> int:
         """Get storage size in bytes for entity."""
         return len(json.dumps({"address": "placeholder", "data": str(entity)}))
 
@@ -210,7 +210,7 @@ class UUIDSystem(BenchmarkSystem):
     def __init__(self):
         super().__init__("UUID")
 
-    def generate_address(self, entity: any) -> str:
+    def generate_address(self, entity: Any) -> str:
         """Generate random UUID."""
         return str(uuid.uuid4())
 
@@ -230,7 +230,7 @@ class SHA256System(BenchmarkSystem):
     def __init__(self):
         super().__init__("SHA256")
 
-    def generate_address(self, entity: any) -> str:
+    def generate_address(self, entity: Any) -> str:
         """Generate SHA-256 hash of entity content."""
         if isinstance(entity, BitChain):
             content = canonical_serialize(entity.to_canonical_dict())
@@ -255,7 +255,7 @@ class VectorDBSystem(BenchmarkSystem):
         super().__init__("VectorDB")
         self.embeddings: dict[str, list[float]] = {}
 
-    def generate_address(self, entity: any) -> str:
+    def generate_address(self, entity: Any) -> str:
         """Generate UUID + store embedding."""
         addr = str(uuid.uuid4())
         # Simulate embedding (use entity properties as vector)
@@ -285,7 +285,7 @@ class GraphDBSystem(BenchmarkSystem):
         super().__init__("GraphDB")
         self.edges: dict[str, list[str]] = {}
 
-    def generate_address(self, entity: any) -> str:
+    def generate_address(self, entity: Any) -> str:
         """Generate UUID + store relationships."""
         addr = str(uuid.uuid4())
         # Simulate edges (use adjacency if available)
@@ -310,7 +310,7 @@ class RDBMSSystem(BenchmarkSystem):
         super().__init__("RDBMS")
         self.indexes: dict[str, list[str]] = {}
 
-    def generate_address(self, entity: any) -> str:
+    def generate_address(self, entity: Any) -> str:
         """Generate auto-increment ID + build indexes."""
         addr = str(uuid.uuid4())  # Simulate auto-increment
         # Simulate indexes on key fields
@@ -337,7 +337,7 @@ class FractalSemanticsSystem(BenchmarkSystem):
     def __init__(self):
         super().__init__("FractalSemantics")
 
-    def generate_address(self, entity: any) -> str:
+    def generate_address(self, entity: Any) -> str:
         """Generate FractalSemantics address."""
         if isinstance(entity, BitChain):
             return entity.compute_address()

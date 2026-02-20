@@ -24,7 +24,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 from fractalsemantics.dynamic_enum import Alignment, Polarity
 
@@ -70,7 +70,7 @@ class CompressionStage:
     stage_name: str  # "original", "fragments", "cluster", "glyph", "mist"
     size_bytes: int
     record_count: int
-    key_metadata: dict[str, any]  # What survives at this stage
+    key_metadata: dict[str, Any]  # What survives at this stage
     luminosity: float  # Activity level / heat
     provenance_intact: bool
 
@@ -85,7 +85,7 @@ class BitChainCompressionPath:
 
     original_bitchain: BitChain
     original_address: str
-    original_fractalsemantics_dict: dict[str, any]
+    original_fractalsemantics_dict: dict[str, Any]
     original_serialized_size: int
     original_luminosity: float
 
@@ -103,7 +103,7 @@ class BitChainCompressionPath:
     narrative_preserved: bool = False
     provenance_chain_complete: bool = False
 
-    def calculate_stats(self) -> dict[str, any]:
+    def calculate_stats(self) -> dict[str, Any]:
         """Compute summary statistics for this compression path."""
         result = {
             "original_realm": self.original_fractalsemantics_dict.get("realm"),
@@ -148,7 +148,7 @@ class CompressionExperimentResults:
     is_lossless: bool
     major_findings: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to serializable dict."""
         return {
             "experiment": "EXP-05",
@@ -394,7 +394,7 @@ class CompressionPipeline:
         return path
 
     def _reconstruct_from_mist(
-        self, path: BitChainCompressionPath, mist: dict[str, any]
+        self, path: BitChainCompressionPath, mist: dict[str, Any]
     ) -> BitChainCompressionPath:
         """Attempt to reconstruct FractalSemantics coordinates from mist form."""
         try:

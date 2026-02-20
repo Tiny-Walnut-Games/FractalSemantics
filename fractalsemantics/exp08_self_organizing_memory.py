@@ -37,7 +37,7 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 from fractalsemantics_entity import BitChain, generate_random_bitchain
 
@@ -110,8 +110,8 @@ class MemoryNode:
     """Individual memory node in the self-organizing network."""
 
     address: str
-    content: dict[str, any]
-    coordinates: dict[str, any]
+    content: dict[str, Any]
+    coordinates: dict[str, Any]
     activation_count: int = 0
     last_accessed: float = 0.0
     semantic_neighbors: list[str] = field(default_factory=list)
@@ -164,7 +164,7 @@ class SelfOrganizingMemoryResults:
         if self.timestamp == "":
             self.timestamp = datetime.now(timezone.utc).isoformat()
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> JsonObject:
         """Convert to dictionary."""
         return asdict(self)
 
@@ -267,7 +267,7 @@ class SelfOrganizingMemoryNetwork:
         # Update cluster properties
         self._update_cluster_properties(best_cluster)
 
-    def _calculate_semantic_similarity(self, coords1: dict[str, any], address2: str) -> float:
+    def _calculate_semantic_similarity(self, coords1: dict[str, Any], address2: str) -> float:
         """
         Calculate semantic similarity between coordinates and cluster representative.
 
@@ -373,7 +373,7 @@ class SelfOrganizingMemoryNetwork:
         # Update graph
         self.semantic_graph[node.address] = neighbors[:5]
 
-    def retrieve_memory(self, query_coords: dict[str, any]) -> list[tuple[str, float]]:
+    def retrieve_memory(self, query_coords: dict[str, Any]) -> list[tuple[str, float]]:
         """
         Retrieve memories based on semantic similarity to query coordinates.
 

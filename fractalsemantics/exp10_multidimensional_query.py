@@ -35,7 +35,7 @@ from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 from fractalsemantics.fractalsemantics_entity import BitChain, generate_random_bitchain
 
@@ -137,14 +137,14 @@ class MultiDimensionalQueryResults:
 
     # Detailed results
     query_results: list[QueryResult] = field(default_factory=list)
-    optimizer_results: list[dict[str, any]] = field(default_factory=list)
+    optimizer_results: list[dict[str, Any]] = field(default_factory=list)
     performance_benchmarks: dict[str, float] = field(default_factory=dict)
 
     def __post_init__(self):
         if self.timestamp == "":
             self.timestamp = datetime.now(timezone.utc).isoformat()
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> JsonObject:
         """Convert to dictionary."""
         result = asdict(self)
         # Convert query results to list of dicts
@@ -453,7 +453,7 @@ class MultiDimensionalQueryEngine:
 
         return similar_indices
 
-    def _calculate_semantic_similarity(self, coords1: dict[str, any], coords2: dict[str, any]) -> float:
+    def _calculate_semantic_similarity(self, coords1: dict[str, Any], coords2: dict[str, Any]) -> float:
         """Calculate semantic similarity between two coordinate sets."""
         similarities = []
 
@@ -662,7 +662,7 @@ class MultiDimensionalQueryEngine:
 
         return precision, recall, f1
 
-    def apply_optimizations(self) -> dict[str, any]:
+    def apply_optimizations(self) -> JsonObject:
         """Apply optimization strategies and measure effectiveness."""
         optimization_results = {}
 

@@ -32,7 +32,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 import numpy as np
 
@@ -170,7 +170,7 @@ class ElementGravityResults:
 
     element: str
     total_measurements: int
-    cohesion_by_hierarchical_distance: dict[int, dict[str, any]]
+    cohesion_by_hierarchical_distance: dict[int, dict[str, Any]]
     element_fractal_density: float  # Derived property
 
     # Key metrics (calculated in __post_init__)

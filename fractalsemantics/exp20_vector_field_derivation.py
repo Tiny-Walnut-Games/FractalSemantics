@@ -37,7 +37,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Optional, TypeAlias
+from typing import Any, Callable, Optional, TypeAlias
 
 import numpy as np
 

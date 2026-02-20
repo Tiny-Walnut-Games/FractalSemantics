@@ -2,7 +2,7 @@
 Embedding Provider Factory - Dynamic Provider Creation
 """
 
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 from fractalsemantics.embeddings.local_provider import LocalEmbeddingProvider
@@ -40,7 +40,7 @@ class EmbeddingProviderFactory:
     def create_provider(
         cls,
         provider_type: str,
-        config: Optional[dict[str, any]] = None,
+        config: Optional[dict[str, Any]] = None,
     ) -> EmbeddingProvider:
         """Create an embedding provider of the specified type."""
         if provider_type not in cls.PROVIDERS:
@@ -54,7 +54,7 @@ class EmbeddingProviderFactory:
 
     @classmethod
     def get_default_provider(
-        cls, config: Optional[dict[str, any]] = None
+        cls, config: Optional[dict[str, Any]] = None
     ) -> EmbeddingProvider:
         """Get the default embedding provider (SentenceTransformer with fallback)."""
         if "sentence_transformer" in cls.PROVIDERS:
@@ -79,7 +79,7 @@ class EmbeddingProviderFactory:
         return list(cls.PROVIDERS.keys())
 
     @classmethod
-    def create_from_config(cls, full_config: dict[str, any]) -> EmbeddingProvider:
+    def create_from_config(cls, full_config: dict[str, Any]) -> EmbeddingProvider:
         """Create provider from configuration dict."""
         provider_type = full_config.get("provider", "local")
         provider_config = full_config.get("config", {})

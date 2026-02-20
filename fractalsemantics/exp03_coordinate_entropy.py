@@ -295,7 +295,7 @@ class EXP03_Result:
     semantic_disambiguation_score: float  # How well dimensions separate entities
     meets_threshold: bool  # >5% expressiveness contribution
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to JSON-serializable dictionary"""
         result = asdict(self)
         # Ensure all values are JSON-serializable
@@ -881,7 +881,7 @@ class EXP03_CoordinateEntropy:
             print(
                 "[Success] RESULT: All 8 dimensions are critical for semantic disambiguation"
             )
-            print("   (all show measurablesurable entropy reduction when removed)")
+            print("   (all show measurable entropy reduction when removed)")
         else:
             print("[Warn]  RESULT: Some dimensions may be optional")
             print("   (not all show measurable entropy reduction when removed)")
@@ -893,7 +893,7 @@ class EXP03_CoordinateEntropy:
 
         return self.results, bool(all_success)
 
-    def get_summary(self) -> dict[str, any]:
+    def get_summary(self) -> dict[str, Any]:
         """Get summary statistics."""
         return {
             "sample_size": self.sample_size,
@@ -907,7 +907,7 @@ class EXP03_CoordinateEntropy:
             "results": [r.to_dict() for r in self.results],
         }
 
-    def generate_visualization_data(self) -> dict[str, any]:
+    def generate_visualization_data(self) -> dict[str, Any]:
         """
         Generate data for entropy contribution visualization.
 
@@ -936,7 +936,7 @@ class EXP03_CoordinateEntropy:
         }
 
 
-def save_results(results: dict[str, any], output_file: Optional[str] = None) -> str:
+def save_results(results: dict[str, Any], output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
@@ -983,7 +983,7 @@ def save_results(results: dict[str, any], output_file: Optional[str] = None) -> 
 
 
 def plot_entropy_contributions(
-    viz_data: dict[str, any], output_file: Optional[str] = None
+    viz_data: dict[str, Any], output_file: Optional[str] = None
 ):
     """
     Generate entropy contribution visualization.
@@ -1009,7 +1009,7 @@ def plot_entropy_contributions(
     threshold = viz_data["threshold"]
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(fig_size=(10, 6))
 
     # Create bar chart
     colors = ["green" if er > threshold else "orange" for er in entropy_reductions]

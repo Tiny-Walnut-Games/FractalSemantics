@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from queue import Queue
 from threading import Thread
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 import tqdm
 
@@ -50,10 +50,10 @@ class ExperimentResult:
     success: bool
     duration: float
     output: str
-    metrics: dict[str, any]
+    metrics: dict[str, Any]
     educational_content: list[str]
     result_type: str = "unknown"  # "success", "warning", "partial_success", "failure"
-    error_details: Optional[dict[str, any]] = None
+    error_details: Optional[dict[str, Any]] = None
 
 @dataclass
 class BatchRunResult:
@@ -64,7 +64,7 @@ class BatchRunResult:
     total_duration: float
     experiment_results: list[ExperimentResult]
     summary_report: str
-    performance_metrics: dict[str, any] = field(default_factory=dict)
+    performance_metrics: dict[str, Any] = field(default_factory=dict)
 
 class ExperimentRunner:
     """Runs FractalSemantics experiments with educational output."""
@@ -434,7 +434,7 @@ class ExperimentRunner:
         intro += "\n" + "="*60 + "\n"
         return intro
 
-    def _generate_analysis(self, experiment_id: str, result: dict[str, any]) -> str:
+    def _generate_analysis(self, experiment_id: str, result: dict[str, Any]) -> str:
         """Generate educational analysis of experiment results."""
         analysis = f"""
         - EXPERIMENT RESULTS ANALYSIS: {experiment_id}
@@ -818,7 +818,7 @@ class ExperimentRunner:
         }
         return lessons_map.get(experiment_id, "* Computational thinking solves complex problems* Mathematical foundations enable reliable systems* Experimental methodology validates theoretical concepts")
 
-    def _determine_result_type(self, experiment_id: str, result: dict[str, any]) -> str:
+    def _determine_result_type(self, experiment_id: str, result: dict[str, Any]) -> str:
         """Determine the result type based on experiment outcome and scientific validation."""
         # Technical failure - experiment crashed or had execution errors
         if not result["success"]:
@@ -922,7 +922,7 @@ class ExperimentRunner:
 
         return "success"
 
-    async def _execute_experiment_module(self, experiment_id: str, quick_mode: bool) -> dict[str, any]:
+    async def _execute_experiment_module(self, experiment_id: str, quick_mode: bool) -> JsonObject:
         """Execute the actual experiment module."""
         try:
             # Get the configuration for this experiment
@@ -964,7 +964,7 @@ Full Traceback:
                 "metrics": error_details
             }
 
-    async def _execute_experiment_subprocess(self, experiment_id: str, quick_mode: bool) -> dict[str, any]:
+    async def _execute_experiment_subprocess(self, experiment_id: str, quick_mode: bool) -> JsonObject:
         """Execute experiment as subprocess with optimized progress tracking."""
         try:
             # Import progress communication module
@@ -1063,7 +1063,7 @@ Full Traceback:
             # Advanced experiments get a reproducibility validation rerun in full mode
             run_count = 2 if (config.experiment_type == "advanced" and not quick_mode) else 1
 
-            def run_once() -> dict[str, any]:
+            def run_once() -> JsonObject:
                 result = subprocess.run(
                     cmd,
                     capture_output=True,
@@ -1101,7 +1101,7 @@ Full Traceback:
                 filtered_error_lines = [line for line in stderr_lines if not is_progress_message(line)]
                 filtered_error = "\n".join(filtered_error_lines).strip()
 
-                metrics: dict[str, any] = {
+                metrics: dict[str, Any] = {
                     "return_code": result.returncode,
                     "command": cmd,
                     "timeout_seconds": timeout,

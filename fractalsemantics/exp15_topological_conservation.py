@@ -31,7 +31,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, TypeAlias
+from typing import Optional, TypeAlias
 
 import numpy as np
 
@@ -532,7 +532,7 @@ def compare_topological_invariants(ref: TopologicalInvariants, current: Topologi
     }
 
 
-def compute_classical_conservation(trajectory: Any, central_mass: float) -> ClassicalConservationAnalysis:
+def compute_classical_conservation(trajectory: any, central_mass: float) -> ClassicalConservationAnalysis:
     """
     Compute classical conservation laws for a trajectory.
 
@@ -591,7 +591,7 @@ def integrate_orbit_with_topological_tracking(
     time_span: float,
     time_steps: int = 1000,
     topological_check_steps: int = 100
-) -> tuple[Any, TopologicalConservationAnalysis]:
+) -> tuple[any, TopologicalConservationAnalysis]:
     """
     Integrate orbital trajectory while tracking topological conservation.
 

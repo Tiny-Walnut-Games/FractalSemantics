@@ -29,7 +29,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 from fractalsemantics.dynamic_enum import Alignment, Polarity
 
@@ -195,7 +195,7 @@ class StressTestResult:
     coordinate_diversity: float  # 0.0 to 1.0, how varied the coordinates are
     description: str
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
@@ -209,7 +209,7 @@ class DimensionStressTestResult:
     test_results: list[StressTestResult]
     key_findings: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "experiment": "EXP-11b",
             "test_type": "Dimensional Collision Stress Test",
@@ -333,7 +333,7 @@ class DimensionStressTest:
         This is the key function that lets us test dimensional collision resistance.
         """
         # Build coordinate dict with only selected dimensions
-        coords_dict: dict[str, any] = {}
+        coords_dict: dict[str, Any] = {}
         for dim in dimensions:
             if dim == "realm":
                 coords_dict[dim] = bc.coordinates.realm

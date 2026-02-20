@@ -24,7 +24,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 from fractalsemantics.fractalsemantics_entity import (
     BitChain,
@@ -75,7 +75,7 @@ class DimensionTestResult:
     storage_overhead_per_dimension: float
     semantic_expressiveness_score: float  # 0.0 to 1.0
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> JsonObject:
         """Convert to serializable dict."""
         return asdict(self)
 
@@ -105,7 +105,7 @@ class DimensionCardinalityResult:
     major_findings: list[str] = field(default_factory=list)
     seven_dimensions_justified: bool = False
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> JsonObject:
         """Convert to serializable dict."""
         return {
             "experiment": "EXP-11",

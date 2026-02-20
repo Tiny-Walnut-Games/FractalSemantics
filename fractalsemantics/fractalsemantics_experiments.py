@@ -18,7 +18,7 @@ Usage:
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 # Re-export functions and classes that moved to separate modules during refactoring
 # plus constants from the main package for backward compatibility
@@ -141,7 +141,7 @@ EXPERIMENTS = [
 ]
 
 
-def run_single_experiment(module_name: str, display_name: str) -> dict[str, any]:
+def run_single_experiment(module_name: str, display_name: str) -> dict[str, Any]:
     """
     Run a single experiment module and capture its results.
 
@@ -215,7 +215,7 @@ def run_single_experiment(module_name: str, display_name: str) -> dict[str, any]
     return {"success": False, "error": f"No handler found for {module_name}"}
 
 
-def run_all_experiments(selected_experiments: Optional[list[str]] = None) -> dict[str, any]:
+def run_all_experiments(selected_experiments: Optional[list[str]] = None) -> dict[str, Any]:
     """
     Run all configured experiments or a selected subset.
 

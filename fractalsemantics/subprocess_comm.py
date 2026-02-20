@@ -26,7 +26,7 @@ import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 # Import the existing progress communication system
 from fractalsemantics.progress_comm import report_progress
@@ -177,7 +177,7 @@ class SubprocessCommunicator:
 
         return self.send_progress(progress, "Completion", message, level)
 
-    def get_runtime_info(self) -> dict[str, any]:
+    def get_runtime_info(self) -> dict[str, Any]:
         """
         Get runtime information for debugging.
 
@@ -342,7 +342,7 @@ def is_subprocess_communication_enabled() -> bool:
         return False
 
 
-def get_subprocess_runtime_info(experiment_id: str) -> dict[str, any]:
+def get_subprocess_runtime_info(experiment_id: str) -> dict[str, Any]:
     """
     Get runtime information for the current subprocess.
 

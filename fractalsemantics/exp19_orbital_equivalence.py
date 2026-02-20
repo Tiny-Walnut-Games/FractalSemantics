@@ -35,7 +35,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 import numpy as np
 from scipy.integrate import odeint
@@ -145,7 +145,7 @@ def simulate_orbital_trajectory(
     time_span: float,
     time_steps: int = 1000,
     G: float = 6.67430e-11
-) -> dict[str, any]:
+) -> dict[str, Any]:
     """
     Simulate orbital trajectories using classical Newtonian mechanics.
 
@@ -339,7 +339,7 @@ def simulate_fractal_trajectory(
     system: FractalOrbitalSystem,
     time_span: float,
     time_steps: int = 1000
-) -> dict[str, any]:
+) -> dict[str, Any]:
     """
     Simulate orbital trajectories using fractal cohesion mechanics.
 
@@ -544,8 +544,8 @@ class OrbitalEquivalenceTest:
     """Results from testing orbital equivalence between frameworks."""
 
     system_name: str
-    classical_trajectories: dict[str, any]
-    fractal_trajectories: dict[str, any]
+    classical_trajectories: dict[str, Any]
+    fractal_trajectories: dict[str, Any]
     comparisons: dict[str, TrajectoryComparison]
 
     # Overall equivalence metrics
@@ -1016,7 +1016,8 @@ if __name__ == "__main__":
         print()
 
         system_results = {}
-        gravitational_constant_derived = True  # Assume success unless proven otherwise
+        failed_systems = []
+        gravitational_constant_derived = True
         perturbation_equivalence = True
 
         for system_name in systems_to_test:
@@ -1040,12 +1041,23 @@ if __name__ == "__main__":
 
             except Exception as e:
                 print(f"FAILED {system_name}: {e}")
+                failed_systems.append(system_name)
+                gravitational_constant_derived = False
+                perturbation_equivalence = False
                 print()
 
         overall_end = time.time()
         end_time = datetime.now(timezone.utc).isoformat()
 
         # Cross-system analysis
+        if not system_results:
+            gravitational_constant_derived = False
+            perturbation_equivalence = False
+
+        if failed_systems or len(system_results) < len(systems_to_test):
+            gravitational_constant_derived = False
+            perturbation_equivalence = False
+
         orbital_mechanics_proven_fractal = (
             gravitational_constant_derived and
             perturbation_equivalence and

@@ -19,7 +19,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 # Reuse canonical serialization from Phase 1
 from fractalsemantics.fractalsemantics_entity import (
@@ -105,7 +105,7 @@ class ScaleTestResults:
             and self.retrieval_mean_ms < 2.0  # Sub-millisecond target
         )
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to serializable dict."""
         return {
             "scale": self.scale,
@@ -143,7 +143,7 @@ class FractalScalingResults:
     retrieval_degradation: Optional[str]
     is_fractal: bool
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to serializable dict."""
         return {
             "experiment": "EXP-04",

@@ -33,7 +33,7 @@ import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 import psutil  # type: ignore[import-untyped]
 
@@ -84,7 +84,7 @@ class EXP02_Result:
     warmup_time_ms: float
     success: bool  # target_latency < threshold
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> JsonObject:
         return asdict(self)
 
 
@@ -181,7 +181,7 @@ class EXP02_RetrievalEfficiency:
 
             # 2. Index by address for more realistic storage simulation
             # Use a richer structure to avoid pure Python dict optimization
-            address_to_data: dict[str, dict[str, any]] = {}
+            address_to_data: dict[str, dict[str, Any]] = {}
             for bc, payload_data in bitchains:
                 addr = bc.compute_address()
                 address_to_data[addr] = {
@@ -375,7 +375,7 @@ class EXP02_RetrievalEfficiency:
         secure_random.shuffle(queries)
         return queries[:query_count]
 
-    def get_summary(self) -> dict[str, any]:
+    def get_summary(self) -> JsonObject:
         """Get summary statistics."""
         return {
             "total_scales_tested": len(self.results),
@@ -384,7 +384,7 @@ class EXP02_RetrievalEfficiency:
         }
 
 
-def save_results(results: dict[str, any], output_file: Optional[str] = None) -> str:
+def save_results(results: JsonObject, output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")

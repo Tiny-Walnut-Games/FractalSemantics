@@ -6,9 +6,13 @@ Based on actual experiment results structure
 
 import json
 from pathlib import Path
+from typing import TypeAlias
 
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
-def load_experiment_results() -> dict[str, list[dict[str, any]]]:
+def load_experiment_results() -> dict[str, list[JsonObject]]:
     """Load all experiment results from the results directory."""
     results_dir = Path(__file__).parent / "results"
     experiment_results = {}
@@ -55,7 +59,7 @@ def load_experiment_results() -> dict[str, list[dict[str, any]]]:
 
     return experiment_results
 
-def analyze_experiment_results(results: dict[str, list[dict[str, any]]]) -> dict[str, any]:
+def analyze_experiment_results(results: dict[str, list[JsonObject]]) -> dict[str, JsonValue]:
     """Analyze all experiment results and generate summary statistics."""
 
     analysis = {
@@ -147,7 +151,7 @@ def analyze_experiment_results(results: dict[str, list[dict[str, any]]]) -> dict
 
     return analysis
 
-def validate_exp01(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp01(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-01: Address Uniqueness (Geometric Collision Resistance)"""
     findings = []
     metrics = {}
@@ -180,7 +184,7 @@ def validate_exp01(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
     success = metrics.get("collision_resistance", False)
     return success, findings, metrics
 
-def validate_exp02(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp02(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-02: Retrieval Efficiency"""
     findings = []
     metrics = {}
@@ -214,7 +218,7 @@ def validate_exp02(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
     success = metrics.get("retrieval_efficiency", False)
     return success, findings, metrics
 
-def validate_exp03(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp03(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-03: Coordinate Entropy"""
     findings = []
     metrics = {}
@@ -248,7 +252,7 @@ def validate_exp03(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
     success = metrics.get("semantic_diversity", False)
     return success, findings, metrics
 
-def validate_exp04(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp04(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-04: Fractal Scaling"""
     findings = []
     metrics = {}
@@ -294,7 +298,7 @@ def validate_exp04(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp05(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp05(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-05: Compression Expansion"""
     findings = []
     metrics = {}
@@ -333,7 +337,7 @@ def validate_exp05(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp06(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp06(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-06: Entanglement Detection"""
     findings = []
     metrics = {}
@@ -387,7 +391,7 @@ def validate_exp06(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp07(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp07(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-07: Luca Bootstrap"""
     findings = []
     metrics = {}
@@ -436,7 +440,7 @@ def validate_exp07(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp08(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp08(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-08: Self-Organizing Memory"""
     findings = []
     metrics = {}
@@ -483,7 +487,7 @@ def validate_exp08(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp09(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp09(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-09: Memory Pressure"""
     findings = []
     metrics = {}
@@ -530,7 +534,7 @@ def validate_exp09(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp10(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp10(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-10: Multidimensional Query"""
     findings = []
     metrics = {}
@@ -577,7 +581,7 @@ def validate_exp10(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp11(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp11(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-11: Dimension Cardinality"""
     findings = []
     metrics = {}
@@ -618,7 +622,7 @@ def validate_exp11(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp11b(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp11b(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-11b: Dimension Stress Test"""
     findings = []
     metrics = {}
@@ -684,7 +688,7 @@ def validate_exp11b(results: list[dict[str, any]]) -> tuple[bool, list[str], dic
 
     return success, findings, metrics
 
-def validate_exp12(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp12(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-12: Benchmark Comparison"""
     findings = []
     metrics = {}
@@ -722,7 +726,7 @@ def validate_exp12(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
     success = metrics.get("semantic_superiority", False) and metrics.get("overall_performance", False)
     return success, findings, metrics
 
-def validate_exp13(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp13(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-13: Fractal Gravity"""
     findings = []
     metrics = {}
@@ -784,7 +788,7 @@ def validate_exp13(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp14(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp14(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-14: Atomic Fractal Mapping"""
     findings = []
     metrics = {}
@@ -823,7 +827,7 @@ def validate_exp14(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp15(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp15(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-15: Topological Conservation"""
     findings = []
     metrics = {}
@@ -868,7 +872,7 @@ def validate_exp15(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp16(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp16(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-16: Hierarchical Distance Mapping"""
     findings = []
     metrics = {}
@@ -907,7 +911,7 @@ def validate_exp16(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp17(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp17(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-17: Thermodynamic Validation"""
     findings = []
     metrics = {}
@@ -947,7 +951,7 @@ def validate_exp17(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp18(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp18(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-18: Falloff Thermodynamics"""
     findings = []
     metrics = {}
@@ -986,7 +990,7 @@ def validate_exp18(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp19(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp19(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-19: Orbital Equivalence"""
     findings = []
     metrics = {}
@@ -1032,7 +1036,7 @@ def validate_exp19(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp20(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp20(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-20: Vector Field Derivation"""
     findings = []
     metrics = {}
@@ -1071,7 +1075,7 @@ def validate_exp20(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def validate_exp21(results: list[dict[str, any]]) -> tuple[bool, list[str], dict[str, any]]:
+def validate_exp21(results: list[JsonObject]) -> tuple[bool, list[str], dict[str, JsonObject]]:
     """Validate EXP-21: Unified Physics"""
     findings = []
     metrics = {}
@@ -1116,7 +1120,7 @@ def validate_exp21(results: list[dict[str, any]]) -> tuple[bool, list[str], dict
 
     return success, findings, metrics
 
-def generate_summary_report(analysis: dict[str, any]) -> str:
+def generate_summary_report(analysis: dict[str, JsonObject]) -> str:
     """Generate a comprehensive summary report."""
 
     report = []

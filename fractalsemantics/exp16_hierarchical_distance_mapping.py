@@ -33,7 +33,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 import numpy as np
 
@@ -169,7 +169,7 @@ except ImportError:
         scalar_magnitude: float,
         time_span: float,
         time_steps: int = 1000
-    ) -> any:
+    ) -> Any:
         """
         Simplified orbital integration for distance mapping validation.
 

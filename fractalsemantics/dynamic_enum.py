@@ -160,7 +160,7 @@ class DynamicEnumRegistry:
         """
         Register multiple entries atomically.
 
-        If any entry fails validation, none are registered.
+        If Any entry fails validation, none are registered.
         """
         with self._lock:
             # Validate all entries first

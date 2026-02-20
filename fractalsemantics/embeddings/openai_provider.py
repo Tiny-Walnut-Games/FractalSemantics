@@ -6,7 +6,7 @@ import hashlib
 import math
 import struct
 from types import ModuleType
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 
@@ -17,7 +17,7 @@ JsonObject: TypeAlias = dict[str, JsonValue]
 class OpenAIEmbeddingProvider(EmbeddingProvider):
     """OpenAI API-based embedding provider."""
 
-    def __init__(self, config: Optional[dict[str, any]] = None):
+    def __init__(self, config: Optional[dict[str, Any]] = None):
         super().__init__(config)
         self.api_key: Optional[str] = config.get("api_key") if config else None
         model_default = "text-embedding-ada-002"
@@ -46,7 +46,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         """Generate OpenAI embedding for text."""
         try:
             client = self._get_client()
-            response: dict[str, any] = client.Embedding.create(  # pylint: disable=no-member
+            response: dict[str, Any] = client.Embedding.create(  # pylint: disable=no-member
                 model=self.model, input=text
             )
             return response["data"][0]["embedding"]
@@ -58,7 +58,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         """Generate OpenAI embeddings for multiple texts."""
         try:
             client = self._get_client()
-            response: dict[str, any] = client.Embedding.create(  # pylint: disable=no-member
+            response: dict[str, Any] = client.Embedding.create(  # pylint: disable=no-member
                 model=self.model, input=texts
             )
             return [item["embedding"] for item in response["data"]]

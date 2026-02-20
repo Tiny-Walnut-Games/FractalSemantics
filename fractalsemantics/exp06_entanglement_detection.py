@@ -20,7 +20,7 @@ Status: Phase 1 Mathematical Validation COMPLETE; proceeding with Phase 2 robust
 import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 # Import progress communication
 
@@ -756,7 +756,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
                 break
 
             # Create a new entity with the same core quantum fingerprint
-            bc_entity: dict[str, any] = {
+            bc_entity: dict[str, Any] = {
                 "id": f"bc_{len(bitchains):03d}",  # Use current list length for ID
                 "coordinates": {
                     "realm": realm,  # Different realm for each manifestation

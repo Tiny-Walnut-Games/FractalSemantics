@@ -944,7 +944,7 @@ class FractalSemanticsGUI:
 
     def run_experiments_sync(self, experiment_ids: list[str], quick_mode: bool, parallel_mode: bool):
         """Run experiments with real-time progress updates using background thread + polling."""
-        # Ensure session state is properly initialized before any access
+        # Ensure session state is properly initialized before Any access
         ensure_session_state_initialized()
 
         st.session_state.is_running = True
@@ -1214,7 +1214,7 @@ class FractalSemanticsGUI:
 
                 batch_result = batch_result_holder[0]
 
-            # Update session state with results (before any UI updates)
+            # Update session state with results (before Any UI updates)
             st.session_state.experiment_results.extend(batch_result.experiment_results)
             st.session_state.batch_result = batch_result
 
@@ -1350,7 +1350,7 @@ class FractalSemanticsGUI:
 def main():
     """Main entry point for the GUI application."""
     try:
-        # Ensure session state is initialized BEFORE any Streamlit operations
+        # Ensure session state is initialized BEFORE Any Streamlit operations
         gui_state_manager.ensure_session_state_initialized()
 
         # Create GUI instance (this will call setup_session_state again, but it's safe)

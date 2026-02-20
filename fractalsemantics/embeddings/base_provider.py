@@ -5,7 +5,7 @@ Base Embedding Provider - Abstract Interface for Semantic Grounding
 import math
 import time
 from abc import ABC, abstractmethod
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
@@ -14,7 +14,7 @@ JsonObject: TypeAlias = dict[str, JsonValue]
 class EmbeddingProvider(ABC):
     """Abstract base class for embedding providers."""
 
-    def __init__(self, config: Optional[dict[str, any]] = None):
+    def __init__(self, config: Optional[dict[str, Any]] = None):
         self.config = config or {}
         self.provider_id = self.__class__.__name__
         self.created_at = time.time()
@@ -48,7 +48,7 @@ class EmbeddingProvider(ABC):
 
         return dot_product / (magnitude1 * magnitude2)
 
-    def get_provider_info(self) -> dict[str, any]:
+    def get_provider_info(self) -> dict[str, Any]:
         """Get provider metadata."""
         return {
             "provider_id": self.provider_id,

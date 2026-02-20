@@ -310,7 +310,7 @@ EXPERIMENT_INFO = {
     }
 }
 
-def create_progress_chart(experiment_name: str, progress_data: list[tuple[float, float]]) -> any:
+def create_progress_chart(experiment_name: str, progress_data: list[tuple[float, float]]) -> Any:
     """Create a progress visualization chart for the experiment."""
     if not MATPLOTLIB_AVAILABLE:
         return None
@@ -345,7 +345,7 @@ def create_progress_chart(experiment_name: str, progress_data: list[tuple[float,
     plt.tight_layout()
     return fig
 
-def create_results_chart(experiment_name: str, results: dict[str, any]) -> any:
+def create_results_chart(experiment_name: str, results: dict[str, Any]) -> Any:
     """Create a results visualization chart for the experiment."""
     if not MATPLOTLIB_AVAILABLE:
         return None

@@ -8,7 +8,7 @@ High-quality embeddings using pre-trained transformer models with CUDA support
 import hashlib
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, TypeAlias
+from typing import TYPE_CHECKING, Any, Optional, TypeAlias
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 
@@ -32,7 +32,7 @@ except ImportError:
 class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
     """GPU-accelerated embedding provider using SentenceTransformers."""
 
-    def __init__(self, config: Optional[dict[str, any]] = None):
+    def __init__(self, config: Optional[dict[str, Any]] = None):
         super().__init__(config)
         model_name_default = "all-MiniLM-L6-v2"
         self.model_name: str = (
@@ -87,7 +87,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         self.cache_stats["misses"] += 1
         if self.model is None:
             raise RuntimeError("Model not initialized. Call _initialize_model first.")
-        embedding: any = self.model.encode(text, convert_to_tensor=False)  # type: ignore
+        embedding: Any = self.model.encode(text, convert_to_tensor=False)  # type: ignore
 
         embedding_list: list[float] = (
             embedding.tolist() if hasattr(embedding, "tolist") else list(embedding)
@@ -131,7 +131,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
                     raise ValueError("Model is not an instance of SentenceTransformer")
                 elif SentenceTransformer is None:
                     raise RuntimeError("SentenceTransformer not available but model is set")
-            batch_embeddings: any = self.model.encode(
+            batch_embeddings: Any = self.model.encode(
                 texts_to_embed,
                 batch_size=self.batch_size,
                 convert_to_tensor=False,
@@ -139,7 +139,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
             )
 
             for idx, batch_idx in enumerate(indices_to_embed):
-                embedding: any = batch_embeddings[idx]
+                embedding: Any = batch_embeddings[idx]
                 embedding_list: list[float] = (
                     embedding.tolist()
                     if hasattr(embedding, "tolist")
@@ -178,7 +178,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
             )
         return self.dimension
 
-    def get_provider_info(self) -> dict[str, any]:
+    def get_provider_info(self) -> dict[str, Any]:
         """Get detailed provider information."""
         info = super().get_provider_info()
         info.update(
@@ -224,7 +224,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         except Exception as e:
             print(f"Warning: Could not save cache to {cache_file}: {e}")
 
-    def compute_fractalsemantics_from_embedding(self, embedding: list[float]) -> dict[str, any]:
+    def compute_fractalsemantics_from_embedding(self, embedding: list[float]) -> dict[str, Any]:
         """
         Compute FractalSemantics coordinates from embedding vector.
 

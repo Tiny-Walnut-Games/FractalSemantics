@@ -39,7 +39,7 @@ import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
@@ -54,7 +54,7 @@ class ProgressMessage:
     progress_percent: float
     stage: str
     message: str
-    metadata: Optional[dict[str, any]] = None
+    metadata: Optional[dict[str, Any]] = None
     message_type: str = "progress"  # progress, status, warning, error, complete
 
     def to_json(self) -> str:
@@ -160,7 +160,7 @@ class ProgressReporter:
         return success
 
     def update(self, progress_percent: float, stage: str, message: str = "",
-               metadata: Optional[dict[str, any]] = None) -> bool:
+               metadata: Optional[dict[str, Any]] = None) -> bool:
         """
         Report progress update.
 
@@ -191,7 +191,7 @@ class ProgressReporter:
 
         return self._send_message(message_obj)
 
-    def status(self, stage: str, message: str, metadata: Optional[dict[str, any]] = None) -> bool:
+    def status(self, stage: str, message: str, metadata: Optional[dict[str, Any]] = None) -> bool:
         """
         Report a status update (non-progress message).
 
@@ -218,7 +218,7 @@ class ProgressReporter:
 
         return self._send_message(message_obj)
 
-    def warning(self, stage: str, message: str, metadata: Optional[dict[str, any]] = None) -> bool:
+    def warning(self, stage: str, message: str, metadata: Optional[dict[str, Any]] = None) -> bool:
         """
         Report a warning message.
 
@@ -245,7 +245,7 @@ class ProgressReporter:
 
         return self._send_message(message_obj)
 
-    def error(self, stage: str, message: str, metadata: Optional[dict[str, any]] = None) -> bool:
+    def error(self, stage: str, message: str, metadata: Optional[dict[str, Any]] = None) -> bool:
         """
         Report an error message.
 
@@ -273,7 +273,7 @@ class ProgressReporter:
         return self._send_message(message_obj)
 
     def complete(self, message: str = "Experiment completed",
-                 metadata: Optional[dict[str, any]] = None) -> bool:
+                 metadata: Optional[dict[str, Any]] = None) -> bool:
         """
         Report experiment completion.
 
@@ -448,7 +448,7 @@ def create_progress_reporter(experiment_id: str, enabled: bool = True) -> Progre
 
 
 def report_progress(experiment_id: str, progress_percent: float, stage: str,
-                   message: str = "", metadata: Optional[dict[str, any]] = None) -> bool:
+                   message: str = "", metadata: Optional[dict[str, Any]] = None) -> bool:
     """
     Convenience function to report progress without creating a reporter instance.
 
@@ -470,7 +470,7 @@ def report_progress(experiment_id: str, progress_percent: float, stage: str,
 
 
 def report_status(experiment_id: str, stage: str, message: str,
-                 metadata: Optional[dict[str, any]] = None) -> bool:
+                 metadata: Optional[dict[str, Any]] = None) -> bool:
     """
     Convenience function to report a status message.
 
@@ -488,7 +488,7 @@ def report_status(experiment_id: str, stage: str, message: str,
 
 
 def report_completion(experiment_id: str, message: str = "Experiment completed",
-                     metadata: Optional[dict[str, any]] = None) -> bool:
+                     metadata: Optional[dict[str, Any]] = None) -> bool:
     """
     Convenience function to report experiment completion.
 

@@ -18,7 +18,7 @@ Usage:
 import os
 import sys
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 # Handle Python 3.11+ vs earlier versions for tomllib/tomli
 
@@ -54,7 +54,7 @@ class ExperimentConfig:
             config_file: Base configuration file name (default: experiments.toml)
         """
         self.config_dir = Path(__file__).parent
-        self.config: dict[str, any] = {}
+        self.config: dict[str, Any] = {}
         self.env = os.getenv("FRACTALSEMANTICS_ENV", "dev")
 
         # Load base configuration
@@ -87,7 +87,7 @@ class ExperimentConfig:
         # Merge environment config into base config
         self._merge_configs(env_config)
 
-    def _merge_configs(self, override_config: dict[str, any]) -> None:
+    def _merge_configs(self, override_config: dict[str, Any]) -> None:
         """
         Merge override configuration into base configuration.
 
@@ -132,7 +132,7 @@ class ExperimentConfig:
         enabled_list = self.config.get("experiments", {}).get("enabled", [])
         return experiment in enabled_list
 
-    def get(self, experiment: str, key: str, default: any = None) -> any:
+    def get(self, experiment: str, key: str, default: Any = None) -> Any:
         """
         Get a configuration value for an experiment.
 
@@ -147,7 +147,7 @@ class ExperimentConfig:
         exp_config = self.config.get("experiments", {}).get(experiment, {})
         return exp_config.get(key, default)
 
-    def get_all(self, experiment: str) -> dict[str, any]:
+    def get_all(self, experiment: str) -> dict[str, Any]:
         """
         Get all configuration for an experiment.
 

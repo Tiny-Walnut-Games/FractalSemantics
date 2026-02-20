@@ -38,7 +38,7 @@ from collections import deque
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 import psutil
 
@@ -144,15 +144,15 @@ class MemoryPressureResults:
     optimization_improvement: float = 0.0
 
     # Detailed metrics
-    pressure_phases: list[dict[str, any]] = field(default_factory=list)
-    optimization_results: list[dict[str, any]] = field(default_factory=list)
+    pressure_phases: list[dict[str, Any]] = field(default_factory=list)
+    optimization_results: list[dict[str, Any]] = field(default_factory=list)
     memory_timeline: list[MemoryPressureMetrics] = field(default_factory=list)
 
     def __post_init__(self):
         if self.timestamp == "":
             self.timestamp = datetime.now(timezone.utc).isoformat()
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> JsonObject:
         """Convert to dictionary."""
         result = asdict(self)
         # Convert memory timeline to list of dicts
@@ -221,7 +221,7 @@ class MemoryPressureTester:
         # Test state
         self.active_objects: dict[str, BitChain] = {}
         self.access_log: deque = deque(maxlen=1000)
-        self.gc_count_start: list[dict[str, any]] = []
+        self.gc_count_start: list[dict[str, Any]] = []
 
         # Threading for background monitoring
         self.monitoring_active = False
@@ -377,7 +377,7 @@ class MemoryPressureTester:
         # Keep allocation alive
         self._current_allocations = [spike_allocation]
 
-    def test_optimization_strategies(self) -> list[dict[str, any]]:
+    def test_optimization_strategies(self) -> list[dict[str, Any]]:
         """Test each optimization strategy under memory pressure."""
         optimization_results = []
 
@@ -398,15 +398,15 @@ class MemoryPressureTester:
             optimization_start = time.time()
 
             if strategy.strategy_name == "Lazy Loading":
-                result: dict[str, any] = self._test_lazy_loading_optimization()
+                result: dict[str, Any] = self._test_lazy_loading_optimization()
             elif strategy.strategy_name == "Compression":
-                result: dict[str, any] = self._test_compression_optimization()
+                result: dict[str, Any] = self._test_compression_optimization()
             elif strategy.strategy_name == "Eviction Policy":
-                result: dict[str, any] = self._test_eviction_policy_optimization()
+                result: dict[str, Any] = self._test_eviction_policy_optimization()
             elif strategy.strategy_name == "Memory Pooling":
-                result: dict[str, any] = self._test_memory_pooling_optimization()
+                result: dict[str, Any] = self._test_memory_pooling_optimization()
             else:
-                result: dict[str, any] = {"error": "Unknown optimization strategy"}
+                result: dict[str, Any] = {"error": "Unknown optimization strategy"}
 
             optimization_time = time.time() - optimization_start
 
@@ -422,7 +422,7 @@ class MemoryPressureTester:
 
         return optimization_results
 
-    def _test_lazy_loading_optimization(self) -> dict[str, any]:
+    def _test_lazy_loading_optimization(self) -> JsonObject:
         """Test lazy loading optimization."""
         # Generate many bit-chains but don't load them all
         num_chains = 1000
@@ -451,7 +451,7 @@ class MemoryPressureTester:
             'performance_overhead': 0.1  # Small overhead for on-demand loading
         }
 
-    def _test_compression_optimization(self) -> dict[str, any]:
+    def _test_compression_optimization(self) -> JsonObject:
         """Test compression optimization."""
         # Generate test data
         original_data = [generate_random_bitchain(seed=i) for i in range(500)]
@@ -469,7 +469,7 @@ class MemoryPressureTester:
             'performance_overhead': 0.2  # Compression/decompression cost
         }
 
-    def _test_eviction_policy_optimization(self) -> dict[str, any]:
+    def _test_eviction_policy_optimization(self) -> JsonObject:
         """Test eviction policy optimization."""
         # Fill memory with objects
         for i in range(1000):
@@ -494,7 +494,7 @@ class MemoryPressureTester:
             'memory_used_mb': mem_usage
         }
 
-    def _test_memory_pooling_optimization(self) -> dict[str, any]:
+    def _test_memory_pooling_optimization(self) -> JsonObject:
         """Test memory pooling optimization."""
         # Simulate memory pooling benefits
         return {
@@ -601,7 +601,7 @@ class MemoryPressureTester:
         fragmentation = min(1.0, variance / max(1.0, mean))
         return fragmentation
 
-    def analyze_stress_results(self) -> dict[str, any]:
+    def analyze_stress_results(self) -> JsonObject:
         """Analyze results from stress testing."""
         if not self.memory_timeline:
             return {}
@@ -809,7 +809,7 @@ class MemoryPressureExperiment:
 
         return results
 
-    def _calculate_stability_score(self, stress_analysis: dict[str, any]) -> float:
+    def _calculate_stability_score(self, stress_analysis: dict[str, Any]) -> float:
         """Calculate overall system stability score."""
         scores = []
 
@@ -830,7 +830,7 @@ class MemoryPressureExperiment:
 
         return statistics.mean(scores) if scores else 0.5
 
-    def _calculate_optimization_improvement(self, optimization_results: list[dict[str, any]]) -> float:
+    def _calculate_optimization_improvement(self, optimization_results: list[dict[str, Any]]) -> float:
         """Calculate overall optimization improvement."""
         if not optimization_results:
             return 0.0

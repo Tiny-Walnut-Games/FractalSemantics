@@ -4,10 +4,10 @@ FRACTALSEMANTICS EXPERIMENT SUITE - COMPREHENSIVE ANALYSIS
 
 EXECUTIVE SUMMARY
 ----------------------------------------
-Total Experiments: 22
-Passed Experiments: 18
-Failed Experiments: 4
-Overall Success Rate: 81.8%
+Total Experiments: 20
+Passed Experiments: 17
+Failed Experiments: 3
+Overall Success Rate: 85.0%
 
 SYSTEM STATUS
 ----------------------------------------
@@ -21,8 +21,8 @@ SYSTEM STATUS
 KEY FINDINGS
 ----------------------------------------
  1. ✓ Geometric transition confirmed - collision resistance validated
- 2. ✓ High-dimensional collision rate: 0.000039
- 3. ✓ Scale 100: Mean latency 0.000ms
+ 2. ✓ High-dimensional collision rate: 0.000022
+ 3. ✓ Scale 100: Mean latency 0.001ms
  4. ✓ Scale 1000: Mean latency 0.001ms
  5. ✓ All scales show sub-millisecond retrieval performance
  6. ✓ Test with dimensions ['realm', 'lineage', 'adjacency', 'horizon', 'luminosity', 'polarity', 'dimensionality', 'alignment'] meets threshold
@@ -35,14 +35,14 @@ KEY FINDINGS
 13. ✓ Test with dimensions ['realm', 'lineage', 'adjacency', 'horizon', 'luminosity', 'polarity', 'alignment'] meets threshold
 14. ✓ Test with dimensions ['realm', 'lineage', 'adjacency', 'horizon', 'luminosity', 'polarity', 'dimensionality'] meets threshold
 15. ✓ All dimensions necessary for collision avoidance
-    ... and 32 more findings
+    ... and 29 more findings
 
 EXPERIMENT DETAILS
 ----------------------------------------
 ✓ exp01_geometric: PASSED
     - ✓ Geometric transition confirmed - collision resistance validated
 ✓ exp02_retrieval: PASSED
-    - ✓ Scale 100: Mean latency 0.000ms
+    - ✓ Scale 100: Mean latency 0.001ms
 ✓ exp03_coordinate: PASSED
     - ✓ Test with dimensions ['realm', 'lineage', 'adjacency', 'horizon', 'luminosity', 'polarity', 'dimensionality', 'alignment'] meets threshold
 ✓ exp04_fractal: PASSED
@@ -53,8 +53,6 @@ EXPERIMENT DETAILS
     - ✓ Entanglement detection confirmed - overall success
 ✓ exp07_luca: PASSED
     - ✓ Luca bootstrap validated - perfect reconstruction confirmed
-✓ exp08_self: PASSED
-    - ✓ Self-organizing memory validated - high semantic cohesion confirmed
 ✓ exp09_memory: PASSED
     - ✓ Memory pressure validated - graceful degradation confirmed
 ✓ exp10_multidimensional: PASSED
@@ -81,12 +79,10 @@ EXPERIMENT DETAILS
     - ✗ Orbital equivalence failed - celestial mechanics not properly simulated
 ✓ exp20_vector: PASSED
     - ✓ Vector field derivation confirmed - force emergence validated
-✗ exp21_earth: FAILED
-    - ✗ Unified physics validation failed - no confirmation data
 
 CONCLUSIONS
 ----------------------------------------
-🎉 SYSTEM VALIDATION SUCCESSFUL
+celebration SYSTEM VALIDATION SUCCESSFUL
 The FractalSemantics system demonstrates robust performance across
 multiple validation criteria. Key strengths include:
 - Zero collision rates in geometric addressing

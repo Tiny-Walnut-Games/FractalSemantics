@@ -21,7 +21,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Any, Optional, TypeAlias
 
 import numpy as np
 
@@ -222,7 +222,7 @@ def create_fractal_region_with_falloff(hierarchy: FractalHierarchy,
 # EXPERIMENT IMPLEMENTATION
 # ============================================================================
 
-def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> dict[str, any]:
+def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> JsonObject:
     """
     Run EXP-18: Falloff Injection in Thermodynamics.
 
@@ -471,7 +471,7 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> dict
 # CLI & RESULTS PERSISTENCE
 # ============================================================================
 
-def save_results(results: dict[str, any], output_file: Optional[str] = None) -> str:
+def save_results(results: JsonObject, output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
         exponent = results.get("falloff_exponent", 2.0)
