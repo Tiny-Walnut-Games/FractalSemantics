@@ -3,7 +3,7 @@
 - **A complete validation suite for the FractalSemantics 8-dimensional addressing system**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 
 > 🔬 **Recent Discovery (Nov 2025):** EXP-11 testing confirms **8 dimensions are optimal** and superior to the original 7-dimension design. See [!5](https://gitlab.com/tiny-walnut-games/fractalsemantics/-/merge_requests/5) for details. EXP-01 validation results remain valid as they are dimension-count agnostic. FractalSemantics implementation complete.
 
@@ -43,7 +43,7 @@ FractalSemantics is a research package containing **21 validation experiments** 
 | **EXP-11b** | Dimension Stress Test | Extreme dimension testing | [Success] PASS |
 | **EXP-12** | Benchmark Comparison | FractalSemantics vs. common systems | [Success] PASS |
 
-### Advanced Physics & Thermodynamics (EXP-13 to EXP-20)
+### Advanced Physics & Thermodynamics (EXP-13 to EXP-21)
 
 | Exp | Name | Tests | Status |
 | ----- | ------ | ------- | -------- |
@@ -55,6 +55,7 @@ FractalSemantics is a research package containing **21 validation experiments** 
 | **EXP-18** | Falloff Thermodynamics | Falloff behavior analysis | [Success] PASS |
 | **EXP-19** | Orbital Equivalence | Orbital mechanics equivalence | [Success] PASS |
 | **EXP-20** | Vector Field Derivation | Vector field from fractal hierarchy | [Success] PASS |
+| **EXP-21** | Earth-Moon-Sun Critical Scaling | Hierarchical scaling under orbital dynamics | [Success] PASS |
 
 ### Experiment Descriptions
 
@@ -124,6 +125,9 @@ Tests the equivalence of orbital mechanics within the fractal system compared to
 
 **EXP-20: Vector Field Derivation**
 Derives vector fields from fractal hierarchy, demonstrating that directional force vectors emerge naturally from hierarchical relationships.
+
+**EXP-21: Earth-Moon-Sun Critical Scaling**
+Stress-tests hierarchical scaling claims against a constrained orbital scenario and records scientifically valid positive/negative outcomes independent of runtime status.
 
 ## The GUI Application
 
@@ -222,24 +226,21 @@ EXP-01 has been rewritten to illustrate how increasing the number of dimensions 
 
 ### Documentation
 
-- **[Methodology](docs/EXP01_METHODOLOGY.md)** - Detailed experimental design and statistical analysis
-- **[Results Tables](docs/EXP01_RESULTS_TABLES.md)** - Complete iteration-by-iteration results
-- **[Reproducibility Guide](docs/EXP01_REPRODUCIBILITY.md)** - Step-by-step reproduction instructions
-- **[Peer Review Guide](docs/EXP01_PEER_REVIEW_GUIDE.md)** - Checklist for reviewers
-- **[Publication Checklist](docs/EXP01_PUBLICATION_CHECKLIST.md)** - Publication readiness tracking
-- **[Executive Summary](docs/EXP01_SUMMARY.md)** - High-level overview and conclusions
+- **Experiment implementation:** `fractalsemantics/exp01_geometric_collision.py`
+- **Most recent artifacts:** `results/exp01_*.json`
+- **Suite analysis report:** `comprehensive_experiment_analysis.txt`
 
 ### Running EXP-01
 
 ```bash
-# Run all experiments (includes EXP-01)
-python -m fractalsemantics.fractalsemantics_experiments
+# Run EXP-01 only
+python fractalsemantics/experiment_runner.py EXP-01 --full --format=text
 
-# Archive results with metadata
-python scripts/archive_exp01_results.py
+# Fast EXP-01 iteration
+python fractalsemantics/experiment_runner.py EXP-01 --quick --format=text
 
-# Generate figures (requires matplotlib)
-python scripts/generate_exp01_figures.py
+# Disable persisted artifacts (terminal output only)
+python fractalsemantics/experiment_runner.py EXP-01 --quick --softcopy=false --format=text
 ```
 
 ### Citation
@@ -258,6 +259,13 @@ If you use EXP-01 results in your research, please cite:
 
 ## Quick Start
 
+### Public CLI/API Index
+
+For a GitBook-ready documentation archive (CLI + API + operations), see:
+
+- `docs/gitbook-archive/README.md`
+- `docs/gitbook-archive/SUMMARY.md`
+
 ### Command Line Interface
 
 ```bash
@@ -267,9 +275,52 @@ pip install -r requirements.txt
 # Install the package in development mode
 pip install -e .
 
-# Run experiments
-python -m fractalsemantics.fractalsemantics_experiments
+# Run all experiments
+python fractalsemantics/experiment_runner.py --all --full --format=text
+
+# Run all experiments in explicit parallel mode
+python fractalsemantics/experiment_runner.py --all --full --parallel --format=text
+
+# Run targeted experiments
+python fractalsemantics/experiment_runner.py EXP-01 EXP-03 EXP-21 --serial --full --format=text
+
+# Reproducibility reruns
+python fractalsemantics/experiment_runner.py EXP-13 --full --repro-runs=3 --format=text
+
+# Run analysis from cached results
+python comprehensive_experiment_analysis.py
+
+# Refresh + analyze with argument pass-through to runner
+python comprehensive_experiment_analysis.py --refresh --all --full --serial --format=text
 ```
+
+### Analysis CLI Options
+
+`comprehensive_experiment_analysis.py` analyzes cached results by default and supports optional refresh/wipe workflows.
+
+```bash
+# Cached analysis only (no reruns)
+python comprehensive_experiment_analysis.py
+
+# Refresh from runner before analysis (arguments after --refresh are passed through)
+python comprehensive_experiment_analysis.py --refresh --all --full --serial --format=text
+
+# Wipe history first (prompts to archive vs delete), then refresh and analyze
+python comprehensive_experiment_analysis.py --wipe-history --refresh --all --full --serial --format=text
+
+# Nuclear mode: delete archive store and force-delete history (no archive prompt)
+python comprehensive_experiment_analysis.py --wipe-archive --wipe-history --refresh --all --full --serial --format=text
+
+# Show analysis CLI help
+python comprehensive_experiment_analysis.py --help
+```
+
+Key behavior:
+
+- `--refresh`: runs `fractalsemantics/experiment_runner.py` first, then performs analysis.
+- `--wipe-history`: targets `results/*.json`, `results/figures/*`, and `results/reports/*` before refresh/analysis.
+- `--wipe-archive`: deletes `results/archive` and forces delete mode for `--wipe-history`.
+- Without `--refresh`, extra runner flags are ignored by the analysis script.
 
 ### GUI Application (Recommended)
 
@@ -310,7 +361,7 @@ pip install -r requirements.txt
 pip install -e .
 
 # Run experiments (may be slower on ARM without GPU)
-python -m fractalsemantics.fractalsemantics_experiments
+python fractalsemantics/experiment_runner.py --all --quick --format=text
 ```
 
 **ARM Considerations:**
@@ -338,15 +389,15 @@ FractalSemantics uses **feature flags** to configure experiments. This allows yo
 ```bash
 # Use development config (fast iteration)
 export FRACTALSEMANTICS_ENV=dev
-python -m fractalsemantics.fractalsemantics_experiments
+python fractalsemantics/experiment_runner.py --all --quick --format=text
 
 # Use CI config (balanced testing)
 export FRACTALSEMANTICS_ENV=ci
-python -m fractalsemantics.exp04_fractal_scaling
+python fractalsemantics/experiment_runner.py --all --full --format=text
 
 # Use production config (full validation)
 export FRACTALSEMANTICS_ENV=production
-python -m fractalsemantics.exp05_compression_expansion
+python fractalsemantics/experiment_runner.py --all --full --serial --format=text
 ```
 
 ### Example Configuration
@@ -388,3 +439,30 @@ For more details, see `fractalsemantics/config/feature_flags.py`.
 ## License
 
 MIT License
+
+## Documentation Lifecycle
+
+To keep docs useful and reduce clutter, this repository uses a simple lifecycle:
+
+- Keep: active operational docs tied to current workflows and supported commands.
+- Update: long-lived guides when flags, tools, or processes change.
+- Remove: one-off fix summaries and stale status snapshots once superseded.
+- Recover: rely on git history for historical context instead of preserving stale files in-tree.
+
+### Recovering Removed or Older Docs Quickly
+
+```bash
+# See deleted/renamed documentation files
+git log --diff-filter=D --name-status -- "*.md"
+
+# Trace history for a specific file path (even through renames)
+git log --follow -- path/to/file.md
+
+# View the last committed version of a removed file
+git show <commit_sha>:path/to/file.md
+
+# Search history for a phrase that existed in old docs
+git log -S "search phrase" -- "*.md"
+```
+
+This keeps the working tree focused on current truth while preserving full project memory in commit history.

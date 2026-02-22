@@ -42,6 +42,26 @@ lint:
     - merge_requests
     - main
 
+docs_sync:
+  stage: quality
+  image: python:${PYTHON_VERSION}
+  script:
+    - python scripts/check_docs_sync.py
+  allow_failure: false
+  only:
+    - merge_requests
+    - main
+
+docs_command_shape:
+  stage: quality
+  image: python:${PYTHON_VERSION}
+  script:
+    - python scripts/check_docs_command_shape.py
+  allow_failure: false
+  only:
+    - merge_requests
+    - main
+
 type_check:
   stage: quality
   image: python:${PYTHON_VERSION}
