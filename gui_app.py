@@ -30,18 +30,17 @@ import streamlit as st
 from plotly.subplots import make_subplots
 from streamlit_autorefresh import st_autorefresh
 
-import gui_state_manager
-from fractalsemantics.progress_comm import clear_progress_file, read_progress_from_file
-
-# Add the fractalsemantics module to the path
+# Add the fractalsemantics module to the path (must be done before local/package imports)
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+import gui_state_manager
 from fractalsemantics.experiment_runner import (
     BatchRunResult,
     ExperimentResult,
     ExperimentRunner,
 )
+from fractalsemantics.progress_comm import clear_progress_file, read_progress_from_file
 from gui_state_manager import (
     cleanup_session_state,
     ensure_session_state_initialized,

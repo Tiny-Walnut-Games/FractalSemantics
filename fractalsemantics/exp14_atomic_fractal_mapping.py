@@ -46,10 +46,17 @@ try:
     )
 except ImportError:
     # Fallback if subprocess communication is not available
-    def send_subprocess_progress(*args, **kwargs) -> bool: return False
-    def send_subprocess_status(*args, **kwargs) -> bool: return False
-    def send_subprocess_completion(*args, **kwargs) -> bool: return False
-    def is_subprocess_communication_enabled() -> bool: return False
+    def send_subprocess_progress(*args, **kwargs) -> bool:
+        return False
+
+    def send_subprocess_status(*args, **kwargs) -> bool:
+        return False
+
+    def send_subprocess_completion(*args, **kwargs) -> bool:
+        return False
+
+    def is_subprocess_communication_enabled() -> bool:
+        return False
 
     class _NoopProgressReporter:
         def update(self, *_args, **_kwargs) -> None:
@@ -619,12 +626,12 @@ def run_atomic_fractal_mapping_experiment_v2(
 
     Tests whether electron shell structure naturally maps to fractal hierarchy.
     """
-    if elements_to_test is None:
-        # Use all available elements from the periodic table
-        shell_data = get_electron_shell_data()
-        elements_to_test = list(shell_data.keys())
-
     shell_data = get_electron_shell_data()
+    if not elements_to_test:
+        # Use all available elements from the periodic table
+        elements_to_test = list(shell_data.keys())
+    elif isinstance(elements_to_test, str):
+        elements_to_test = [elements_to_test]
 
     print("\n" + "=" * 80)
     print("EXP-14 v2: SHELL-BASED ATOMIC-FRACTAL MAPPING")
@@ -751,7 +758,7 @@ def run_atomic_fractal_mapping_experiment_v2(
     structure_success = (
         depth_accuracy >= EXP14_STRUCTURE_DEPTH_THRESHOLD and
         branching_accuracy >= EXP14_STRUCTURE_BRANCHING_THRESHOLD and
-        exponential_consistency == EXP14_STRUCTURE_EXPONENTIAL_THRESHOLD
+        exponential_consistency >= EXP14_STRUCTURE_EXPONENTIAL_THRESHOLD
     )
 
     results = {
