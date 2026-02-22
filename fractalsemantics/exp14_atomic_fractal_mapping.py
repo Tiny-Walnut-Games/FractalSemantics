@@ -14,6 +14,7 @@ Success Criteria:
 - Prediction errors decrease with shell depth (negative correlation)
 """
 
+import argparse
 import json
 import statistics
 import sys
@@ -36,6 +37,7 @@ JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
 try:
+    from fractalsemantics.progress_comm import create_progress_reporter
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
         send_subprocess_completion,
@@ -49,7 +51,22 @@ except ImportError:
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
 
-secure_random = np.random.RandomState(42)
+    class _NoopProgressReporter:
+        def update(self, *_args, **_kwargs) -> None:
+            return
+
+        def complete(self, *_args, **_kwargs) -> None:
+            return
+
+    def create_progress_reporter(*_args, **_kwargs):
+        return _NoopProgressReporter()
+
+EXP14_RANDOM_SEED: int = 42
+EXP14_STRUCTURE_DEPTH_THRESHOLD: float = 0.95
+EXP14_STRUCTURE_BRANCHING_THRESHOLD: float = 0.80
+EXP14_STRUCTURE_EXPONENTIAL_THRESHOLD: float = 1.0
+
+secure_random = np.random.RandomState(EXP14_RANDOM_SEED)
 
 # ============================================================================
 # EXP-14 v2: ELECTRON SHELL DATA STRUCTURES
@@ -615,12 +632,32 @@ def run_atomic_fractal_mapping_experiment_v2(
     print(f"Testing elements: {', '.join(elements_to_test)}")
     print()
 
-    # Send initial status update
-    if is_subprocess_communication_enabled():
-        send_subprocess_status("EXP-14", "starting", "Starting atomic fractal mapping experiment")
-
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
+
+    progress = create_progress_reporter("EXP-14")
+    subprocess_enabled = is_subprocess_communication_enabled()
+
+    def report_status(stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_status("EXP-14", stage, message)
+            return
+        progress.update(0, stage, message)
+
+    def report_progress(progress_percent: float, stage: str, message: str) -> None:
+        bounded_progress = max(0.0, min(100.0, progress_percent))
+        if subprocess_enabled:
+            send_subprocess_progress("EXP-14", bounded_progress, stage, message)
+            return
+        progress.update(bounded_progress, stage, message)
+
+    def report_completion(success: bool, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_completion("EXP-14", success, message)
+            return
+        progress.complete(message)
+
+    report_status("Initialization", "Starting atomic fractal mapping experiment")
 
     mappings = {}
     density_errors = []
@@ -635,7 +672,13 @@ def run_atomic_fractal_mapping_experiment_v2(
     print(f"{'Element':<10} {'Config':<15} {'Shells':<7} {'Valence':<8} {'Depth':<6} {'Branch':<7} {'Nodes':<8} {'D=S':<5} {'B~V':<5}")
     print("-" * 90)
 
-    for element in elements_to_test:
+    for i, element in enumerate(elements_to_test):
+        progress_percent = (i + 1) / max(1, len(elements_to_test)) * 90.0
+        report_progress(
+            progress_percent,
+            "Element Mapping",
+            f"Mapping {element}",
+        )
         try:
             mapping = create_shell_based_fractal_mapping(element, shell_data)
             mappings[element] = mapping
@@ -655,6 +698,10 @@ def run_atomic_fractal_mapping_experiment_v2(
         except Exception as e:
             print(f"{element:<10} ERROR: {str(e)[:20]}")
             continue
+
+    if not mappings:
+        report_completion(False, "Atomic fractal mapping failed: no elements mapped")
+        raise RuntimeError("No elements were successfully mapped")
 
     # Calculate structure validation statistics
     depth_accuracy = sum(structure_validation["depth_matches"]) / len(structure_validation["depth_matches"]) if structure_validation["depth_matches"] else 0
@@ -702,9 +749,9 @@ def run_atomic_fractal_mapping_experiment_v2(
 
     # CORRECTED SUCCESS CRITERIA (focus on structure, not density)
     structure_success = (
-        depth_accuracy >= 0.95 and  # 95% of elements have depth = shell count
-        branching_accuracy >= 0.80 and  # 80% have reasonable branching-valence match
-        exponential_consistency == 1.0  # 100% show exponential growth
+        depth_accuracy >= EXP14_STRUCTURE_DEPTH_THRESHOLD and
+        branching_accuracy >= EXP14_STRUCTURE_BRANCHING_THRESHOLD and
+        exponential_consistency == EXP14_STRUCTURE_EXPONENTIAL_THRESHOLD
     )
 
     results = {
@@ -747,12 +794,22 @@ def run_atomic_fractal_mapping_experiment_v2(
         },
         "success_criteria": {
             "structure_success": structure_success,
-            "depth_threshold": 0.95,
-            "branching_threshold": 0.80,
-            "exponential_threshold": 1.0,
+            "depth_threshold": EXP14_STRUCTURE_DEPTH_THRESHOLD,
+            "branching_threshold": EXP14_STRUCTURE_BRANCHING_THRESHOLD,
+            "exponential_threshold": EXP14_STRUCTURE_EXPONENTIAL_THRESHOLD,
             "passed": structure_success
         }
     }
+
+    report_progress(
+        100.0,
+        "Finalization",
+        f"Atomic fractal mapping completed with {len(mappings)} mapped elements",
+    )
+    report_completion(
+        structure_success,
+        f"Atomic fractal mapping completed with {len(mappings)} mapped elements",
+    )
 
     return results
 
@@ -785,6 +842,14 @@ def save_results(results: JsonObject, output_file: Optional[str] = None) -> str:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run EXP-14 atomic fractal mapping")
+    parser.add_argument("--quick", action="store_true", help="Run smaller/faster validation")
+    parser.add_argument("--full", action="store_true", help="Run larger/full validation")
+    args = parser.parse_args()
+
+    if args.quick and args.full:
+        raise ValueError("Use only one of --quick or --full")
+
     # Load from config or use defaults
     try:
         from fractalsemantics.config import ExperimentConfig
@@ -804,7 +869,17 @@ if __name__ == "__main__":
         shell_data = get_electron_shell_data()
         elements_to_test = list(shell_data.keys())
 
+    if args.quick:
+        elements_to_test = list(get_electron_shell_data().keys())[:20]
+        mode_label = "Quick"
+    elif args.full:
+        elements_to_test = list(get_electron_shell_data().keys())
+        mode_label = "Full"
+    else:
+        mode_label = "Standard"
+
     try:
+        print(f"[MODE] {mode_label} | elements={len(elements_to_test)}")
         results = run_atomic_fractal_mapping_experiment_v2(elements_to_test)
         output_file = save_results(results)
 
@@ -812,8 +887,12 @@ if __name__ == "__main__":
         print("EXP-14 COMPLETE")
         print("=" * 80)
 
-        status = "PASSED" if results["success_criteria"]["passed"] else "FAILED"
-        print(f"Status: {status}")
+        scientific_supported = bool(results["success_criteria"]["passed"])
+        print("Technical Run Status: PASS (execution completed)")
+        if scientific_supported:
+            print("Scientific Outcome: Hypothesis supported by this run")
+        else:
+            print("Scientific Outcome: Scientifically valid negative result (hypothesis not supported under tested conditions)")
         print(f"Output: {output_file}")
 
         if results["success_criteria"]["passed"]:
@@ -823,8 +902,8 @@ if __name__ == "__main__":
             print("   Y Branching correlates with valence electrons")
             print("   Y Node growth follows exponential pattern")
         else:
-            print("\nSTRUCTURE MAPPING NEEDS REFINEMENT")
-            print("   Some elements don't follow shell to fractal mapping.")
+            print("\nSCIENTIFIC NEGATIVE RESULT: structure mapping criteria were not met")
+            print("   The current postulate is not supported under these tested conditions.")
             print(f"   Depth accuracy: {results['structure_validation']['depth_accuracy']:.1%}")
             print(f"   Branching accuracy: {results['structure_validation']['branching_accuracy']:.1%}")
 

@@ -28,9 +28,10 @@ BREAKTHROUGH CONFIRMED:
 - All validation criteria met - fractal physics model COMPLETE
 """
 
+import argparse
 import json
 import math
-import secrets
+import random
 import statistics
 import sys
 import time
@@ -45,7 +46,16 @@ JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
-secure_random = secrets.SystemRandom()
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parent
+for path_entry in (str(PROJECT_ROOT), str(CURRENT_DIR)):
+    if path_entry not in sys.path:
+        sys.path.insert(0, path_entry)
+
+EXP20_RANDOM_SEED: int = 42
+EXP20_INVERSE_SQUARE_CONFIRMATION_RATIO: float = 0.8
+
+secure_random = random.Random(EXP20_RANDOM_SEED)
 
 # Import subprocess communication for enhanced progress reporting
 try:
@@ -56,11 +66,38 @@ try:
         send_subprocess_status,
     )
 except ImportError:
-    # Fallback if subprocess communication is not available
-    def send_subprocess_progress(*args, **kwargs) -> bool: return False
-    def send_subprocess_status(*args, **kwargs) -> bool: return False
-    def send_subprocess_completion(*args, **kwargs) -> bool: return False
-    def is_subprocess_communication_enabled() -> bool: return False
+    try:
+        from subprocess_comm import (  # type: ignore[no-redef]
+            is_subprocess_communication_enabled,
+            send_subprocess_completion,
+            send_subprocess_progress,
+            send_subprocess_status,
+        )
+    except ImportError:
+        # Fallback if subprocess communication is not available
+        def send_subprocess_progress(*args, **kwargs) -> bool: return False
+        def send_subprocess_status(*args, **kwargs) -> bool: return False
+        def send_subprocess_completion(*args, **kwargs) -> bool: return False
+        def is_subprocess_communication_enabled() -> bool: return False
+
+try:
+    from fractalsemantics.progress_comm import create_progress_reporter
+except ImportError:
+    try:
+        from progress_comm import create_progress_reporter  # type: ignore[no-redef]
+    except ImportError:
+        class _FallbackProgressReporter:
+            def __init__(self, experiment_id: str):
+                self.experiment_id = experiment_id
+
+            def update(self, progress_percent: float, stage: str, message: str) -> None:
+                print(f"[{self.experiment_id}] {progress_percent:.1f}% | {stage}: {message}")
+
+            def complete(self, message: str) -> None:
+                print(f"[{self.experiment_id}] COMPLETE: {message}")
+
+        def create_progress_reporter(experiment_id: str):
+            return _FallbackProgressReporter(experiment_id)
 
 # ============================================================================
 # VECTOR FIELD DERIVATION APPROACHES
@@ -942,7 +979,9 @@ class EXP20_VectorFieldResults:
 
 def test_vector_field_approaches(
     system_name: str = "Earth-Sun",
-    scalar_magnitude: float = 3.54e22  # From EXP-13 results
+    scalar_magnitude: float = 3.54e22,  # From EXP-13 results
+    trajectory_time_span: float = 365.25 * 24 * 3600,
+    trajectory_time_steps: int = 1000,
 ) -> dict[str, VectorFieldTestResult]:
     """
     Test all vector field derivation approaches on a celestial system.
@@ -956,10 +995,30 @@ def test_vector_field_approaches(
     """
     print(f"Testing vector field approaches on {system_name} system...")
 
-    # Send subprocess communication if enabled
-    if is_subprocess_communication_enabled():
-        send_subprocess_status("EXP-20: Vector Field Derivation", f"Testing {system_name} system")
-        send_subprocess_progress("EXP-20", 0, 100, "Initializing vector field derivation test")
+    progress = create_progress_reporter("EXP-20")
+    subprocess_enabled = is_subprocess_communication_enabled()
+
+    def report_status(stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_status("EXP-20", stage, message)
+            return
+        progress.update(0, stage, message)
+
+    def report_progress(progress_percent: float, stage: str, message: str) -> None:
+        bounded_progress = max(0.0, min(100.0, progress_percent))
+        if subprocess_enabled:
+            send_subprocess_progress("EXP-20", bounded_progress, stage, message)
+            return
+        progress.update(bounded_progress, stage, message)
+
+    def report_completion(success: bool, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_completion("EXP-20", success, message)
+            return
+        progress.complete(message)
+
+    report_status("Initialization", f"Testing {system_name} system")
+    report_progress(0.0, "Initialization", "Initializing vector field derivation test")
 
     # Create fractal entities
     if system_name == "Earth-Sun":
@@ -973,11 +1032,10 @@ def test_vector_field_approaches(
     results = {}
 
     for i, approach in enumerate(derivation_system.approaches):
-        progress_percent = int((i + 1) / len(derivation_system.approaches) * 100)
+        progress_percent = ((i + 1) / len(derivation_system.approaches)) * 90.0
         print(f"  Testing {approach.name} approach...")
 
-        if is_subprocess_communication_enabled():
-            send_subprocess_progress("EXP-20", progress_percent, 100, f"Testing {approach.name} approach")
+        report_progress(progress_percent, "Approach Testing", f"Testing {approach.name} approach")
 
         # Phase 1: Derive vector field
         start_time = time.time()
@@ -991,8 +1049,8 @@ def test_vector_field_approaches(
         integration_start = time.time()
         trajectory = integrate_orbit_with_vector_field(
             orbiting_body, central_body, approach,
-            scalar_magnitude, time_span=365.25 * 24 * 3600,  # 1 year
-            time_steps=1000
+            scalar_magnitude, time_span=trajectory_time_span,
+            time_steps=trajectory_time_steps,
         )
         integration_time = time.time() - integration_start
 
@@ -1035,16 +1093,15 @@ def test_vector_field_approaches(
         print(f"    Trajectory similarity: {result.trajectory_similarity:.6f}")
         print(f"    Period accuracy: {result.period_accuracy:.6f}")
         print(f"    Position correlation: {result.position_correlation:.6f}")
-        print(f"    Status: {'SUCCESS' if approach_successful else 'FAILED'}")
+        print(f"    Scientific outcome: {'SUPPORTED' if approach_successful else 'NOT SUPPORTED'}")
 
-    # Send completion status
-    if is_subprocess_communication_enabled():
-        successful_approaches = sum(1 for result in results.values() if result.approach_successful)
-        if successful_approaches > 0:
-            send_subprocess_status("EXP-20: Vector Field Derivation", f"SUCCESS - {successful_approaches} approaches successful")
-        else:
-            send_subprocess_status("EXP-20: Vector Field Derivation", "PARTIAL - No approaches fully successful")
-        send_subprocess_progress("EXP-20", 100, 100, "Vector field derivation test completed")
+    successful_approaches = sum(1 for result in results.values() if result.approach_successful)
+    report_progress(95.0, "Finalization", "Vector field derivation test completed")
+    if successful_approaches > 0:
+        report_status("Summary", f"SUCCESS - {successful_approaches} approaches successful")
+    else:
+        report_status("Summary", "NEGATIVE RESULT - no approach supported under tested criteria")
+    report_completion(successful_approaches > 0, f"Vector approach testing completed for {system_name}")
 
     return results
 
@@ -1111,7 +1168,9 @@ def compute_newtonian_trajectory(
 
 def validate_inverse_square_law_for_approach(
     approach_name: str,
-    scalar_magnitude: float = 3.54e22
+    scalar_magnitude: float = 3.54e22,
+    grid_resolution: int = 50,
+    distance_samples: int = 10,
 ) -> InverseSquareValidation:
     """
     Validate that a vector field approach produces inverse-square behavior.
@@ -1135,12 +1194,12 @@ def validate_inverse_square_law_for_approach(
     # Create continuous field with higher resolution for better inverse-square validation
     X, Y, Z, Fx, Fy, Fz = create_continuous_vector_field(
         earth, sun, approach, scalar_magnitude,
-        grid_resolution=50, field_bounds=2e11
+        grid_resolution=grid_resolution, field_bounds=2e11
     )
 
     # Test at various distances
     origin = sun.position
-    test_distances = np.logspace(10, 11.3, 10)  # 10^10 to ~2e11 meters
+    test_distances = np.logspace(10, 11.3, distance_samples)  # 10^10 to ~2e11 meters
 
     correlation = verify_inverse_square_law(X, Y, Z, Fx, Fy, Fz, origin, test_distances)
 
@@ -1164,14 +1223,18 @@ def validate_inverse_square_law_for_approach(
     )
 
     print(f"  Correlation: {correlation:.6f}")
-    print(f"  Status: {'CONFIRMED' if validation.inverse_square_confirmed else 'FAILED'}")
+    print(f"  Scientific outcome: {'CONFIRMED' if validation.inverse_square_confirmed else 'NOT CONFIRMED'}")
 
     return validation
 
 
 def run_exp20_vector_field_derivation(
     systems_to_test: list[str] = None,
-    validate_inverse_square: bool = True
+    validate_inverse_square: bool = True,
+    trajectory_time_span: float = 365.25 * 24 * 3600,
+    trajectory_time_steps: int = 1000,
+    inverse_square_grid_resolution: int = 50,
+    inverse_square_distance_samples: int = 10,
 ) -> EXP20_VectorFieldResults:
     """
     Run EXP-20: Complete vector field derivation experiment.
@@ -1194,6 +1257,10 @@ def run_exp20_vector_field_derivation(
     print("=" * 80)
     print(f"Systems to test: {', '.join(systems_to_test)}")
     print(f"Inverse-square validation: {'YES' if validate_inverse_square else 'NO'}")
+    print(
+        f"Trajectory settings: time_span={trajectory_time_span:.0f}s, steps={trajectory_time_steps}; "
+        f"field_grid={inverse_square_grid_resolution}, distance_samples={inverse_square_distance_samples}"
+    )
     print()
 
     # Phase 1: Test all approaches on all systems
@@ -1202,7 +1269,11 @@ def run_exp20_vector_field_derivation(
 
     approach_results = {}
     for system_name in systems_to_test:
-        system_results = test_vector_field_approaches(system_name)
+        system_results = test_vector_field_approaches(
+            system_name,
+            trajectory_time_span=trajectory_time_span,
+            trajectory_time_steps=trajectory_time_steps,
+        )
         approach_results[system_name] = system_results
         print()
 
@@ -1214,7 +1285,11 @@ def run_exp20_vector_field_derivation(
     if validate_inverse_square:
         derivation_system = VectorFieldDerivationSystem()
         for approach in derivation_system.approaches:
-            validation = validate_inverse_square_law_for_approach(approach.name)
+            validation = validate_inverse_square_law_for_approach(
+                approach.name,
+                grid_resolution=inverse_square_grid_resolution,
+                distance_samples=inverse_square_distance_samples,
+            )
             inverse_square_validations[approach.name] = validation
         print()
 
@@ -1244,7 +1319,9 @@ def run_exp20_vector_field_derivation(
     if inverse_square_validations:
         confirmed_count = sum(1 for validation in inverse_square_validations.values()
                              if validation.inverse_square_confirmed)
-        inverse_square_emergent = confirmed_count >= len(inverse_square_validations) * 0.8
+        inverse_square_emergent = (
+            confirmed_count >= len(inverse_square_validations) * EXP20_INVERSE_SQUARE_CONFIRMATION_RATIO
+        )
     else:
         inverse_square_emergent = False
 
@@ -1355,6 +1432,22 @@ def save_results(results: EXP20_VectorFieldResults, output_file: Optional[str] =
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Run EXP-20 vector field derivation experiment"
+    )
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
+        "--quick",
+        action="store_true",
+        help="Run quick mode with reduced trajectory and field validation settings",
+    )
+    mode_group.add_argument(
+        "--full",
+        action="store_true",
+        help="Run full mode using config/default settings",
+    )
+    args = parser.parse_args()
+
     # Load from config or use defaults
     try:
         from fractalsemantics.config import ExperimentConfig
@@ -1362,14 +1455,42 @@ if __name__ == "__main__":
         config = ExperimentConfig()
         systems_to_test = config.get("EXP-20", "systems_to_test", ["Earth-Sun"])
         validate_inverse_square = config.get("EXP-20", "validate_inverse_square", True)
+        trajectory_time_span = config.get("EXP-20", "trajectory_time_span", 365.25 * 24 * 3600)
+        trajectory_time_steps = config.get("EXP-20", "trajectory_time_steps", 1000)
+        inverse_square_grid_resolution = config.get("EXP-20", "inverse_square_grid_resolution", 50)
+        inverse_square_distance_samples = config.get("EXP-20", "inverse_square_distance_samples", 10)
     except Exception:
         systems_to_test = ["Earth-Sun"]
         validate_inverse_square = True
+        trajectory_time_span = 365.25 * 24 * 3600
+        trajectory_time_steps = 1000
+        inverse_square_grid_resolution = 50
+        inverse_square_distance_samples = 10
+
+    if args.quick:
+        systems_to_test = ["Earth-Sun"]
+        validate_inverse_square = True
+        trajectory_time_span = 90.0 * 24 * 3600
+        trajectory_time_steps = 300
+        inverse_square_grid_resolution = 20
+        inverse_square_distance_samples = 6
+    elif args.full:
+        pass
+
+    mode = "Quick" if args.quick else "Full"
+    print(
+        f"[MODE] {mode} | systems={systems_to_test} | validate_inverse_square={validate_inverse_square} "
+        f"| trajectory_steps={trajectory_time_steps} | field_grid={inverse_square_grid_resolution}"
+    )
 
     try:
         results = run_exp20_vector_field_derivation(
             systems_to_test=systems_to_test,
-            validate_inverse_square=validate_inverse_square
+            validate_inverse_square=validate_inverse_square,
+            trajectory_time_span=trajectory_time_span,
+            trajectory_time_steps=trajectory_time_steps,
+            inverse_square_grid_resolution=inverse_square_grid_resolution,
+            inverse_square_distance_samples=inverse_square_distance_samples,
         )
         output_file = save_results(results)
 
@@ -1377,8 +1498,11 @@ if __name__ == "__main__":
         print("EXP-20 COMPLETE")
         print("=" * 80)
 
-        status = "PASSED" if results.model_complete else "FAILED"
-        print(f"Status: {status}")
+        print("Technical Run Status: PASS (execution completed)")
+        if results.model_complete:
+            print("Scientific Outcome: Hypothesis supported by this run")
+        else:
+            print("Scientific Outcome: Scientifically valid negative result (hypothesis not supported under tested conditions)")
         print(f"Best approach: {results.best_approach}")
         print(f"Output: {output_file}")
         print()
@@ -1392,8 +1516,8 @@ if __name__ == "__main__":
             print("The fractal physics model is now COMPLETE.")
             print("Ready for publication and further validation.")
         else:
-            print("Vector field derivation incomplete.")
-            print("Further investigation needed.")
+            print("SCIENTIFIC NEGATIVE RESULT: vector-field derivation postulate not supported in this run.")
+            print("Result is scientifically valid; refine derivation assumptions or validation regime.")
 
     except Exception as e:
         print(f"\nEXPERIMENT FAILED: {e}")
@@ -1401,7 +1525,3 @@ if __name__ == "__main__":
 
         traceback.print_exc()
         sys.exit(1)
-        print(f"\nEXPERIMENT FAILED: {e}")
-        import traceback
-        sys.exit(1)
-        import traceback

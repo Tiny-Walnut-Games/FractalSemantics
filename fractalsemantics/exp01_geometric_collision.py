@@ -29,6 +29,7 @@ Success Criteria:
 
 import ast
 import json
+import os
 import secrets
 import sys
 import time
@@ -37,15 +38,20 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, TypeAlias
 
-from fractalsemantics.progress_comm import ProgressReporter
-
-# Import tqdm for progress bars (CLI execution)
+try:
+    from fractalsemantics.progress_comm import ProgressReporter
+except ImportError:
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+    from fractalsemantics.progress_comm import ProgressReporter
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
 try:
+# Import tqdm for progress bars (CLI execution)
     from tqdm import tqdm
     TQDM_AVAILABLE = True
 except ImportError:
@@ -67,6 +73,14 @@ except ImportError:
     def is_subprocess_communication_enabled() -> bool: return False
 
 secure_random = secrets.SystemRandom()
+
+
+def _is_runner_managed_execution() -> bool:
+    """Return True when execution is orchestrated by experiment_runner."""
+    return (
+        os.environ.get("FRACTALSEMANTICS_VALIDATION_MODE") == "1"
+        or os.environ.get("FRACTALSEMANTICS_SUPPRESS_EXPERIMENT_REPORT") == "1"
+    )
 
 @dataclass
 class EXP01_Result:
@@ -126,10 +140,15 @@ class EXP01_GeometricCollisionResistance:
         12: [0, 100],  # 12D coordinates
     }
 
-    def __init__(self, sample_size: int = 100000):  # 100K default for hardware-constrained testing
+    def __init__(
+        self,
+        sample_size: int = 100000,
+        emit_console_report: bool = True,
+    ):  # 100K default for hardware-constrained testing
         self.sample_size = sample_size
         self.dimensions = list(self.DIMENSION_RANGES.keys())
         self.results: list[EXP01_Result] = []
+        self.emit_console_report = emit_console_report
 
     def _calculate_coordinate_space_size(self, dimension: int) -> int:
         """Calculate total possible coordinates for a given dimension."""
@@ -296,10 +315,6 @@ class EXP01_GeometricCollisionResistance:
         except Exception:
             pass
 
-        print(f"{'=' * 80}")
-        print("GEOMETRIC VALIDATION SUMMARY")
-        print(f"{'=' * 80}")
-
         # Analyze results for geometric collision resistance pattern
         low_dim_results = [r for r in self.results if r.dimension < 4]
         high_dim_results = [r for r in self.results if r.dimension >= 4]
@@ -308,29 +323,44 @@ class EXP01_GeometricCollisionResistance:
         high_dim_collision_rate = sum(r.collision_rate for r in high_dim_results) / len(high_dim_results)
         geometric_improvement = low_dim_collision_rate / high_dim_collision_rate if high_dim_collision_rate > 0 else float('inf')
 
-        print("2D/3D (Low Dimensional - Birthday Paradox):")
-        print(f"  Avg collision rate: {low_dim_collision_rate*100:.2f}%")
-        print(f"  Total collisions: {sum(r.collisions for r in low_dim_results)}")
-        print()
-
-        print("4D+ (High Dimensional - Geometric Resistance):")
-        print(f"  Avg collision rate: {high_dim_collision_rate*100:.2f}%")
-        print(f"  Total collisions: {sum(r.collisions for r in high_dim_results)}")
-        print(f"  Geometric improvement: {geometric_improvement:.0f}x lower collision rate")
-        print()
-
         # Success criteria: High dimensions must show dramatically lower collision rates
         geometric_threshold_met = high_dim_collision_rate * 100 < low_dim_collision_rate  # 100x+ improvement
 
         if geometric_threshold_met and low_dim_collision_rate > 0:
-            print("[Pass] GEOMETRIC COLLISION RESISTANCE VALIDATED")
-            print(f"   * Low dimensions: {low_dim_collision_rate*100:.2f}% collision rate (expected)")
-            print(f"   * High dimensions: {high_dim_collision_rate*100:.2f}% collision rate (excellent)")
-            print(f"   * Geometric improvement: {geometric_improvement:.0f}x reduction")
-            print("   * Higher dimensions exhibit strong geometric collision resistance")
+            if self.emit_console_report:
+                print(f"{'=' * 80}")
+                print("GEOMETRIC VALIDATION SUMMARY")
+                print(f"{'=' * 80}")
+                print("2D/3D (Low Dimensional - Birthday Paradox):")
+                print(f"  Avg collision rate: {low_dim_collision_rate*100:.2f}%")
+                print(f"  Total collisions: {sum(r.collisions for r in low_dim_results)}")
+                print()
+                print("4D+ (High Dimensional - Geometric Resistance):")
+                print(f"  Avg collision rate: {high_dim_collision_rate*100:.2f}%")
+                print(f"  Total collisions: {sum(r.collisions for r in high_dim_results)}")
+                print(f"  Geometric improvement: {geometric_improvement:.0f}x lower collision rate")
+                print()
+                print("[Pass] GEOMETRIC COLLISION RESISTANCE VALIDATED")
+                print(f"   * Low dimensions: {low_dim_collision_rate*100:.2f}% collision rate (expected)")
+                print(f"   * High dimensions: {high_dim_collision_rate*100:.2f}% collision rate (excellent)")
+                print(f"   * Geometric improvement: {geometric_improvement:.0f}x reduction")
+                print("   * Higher dimensions exhibit strong geometric collision resistance")
         else:
-            print("[Fail] GEOMETRIC VALIDATION INSUFFICIENT")
-            print("   * Insufficient geometric collision resistance improvement")
+            if self.emit_console_report:
+                print(f"{'=' * 80}")
+                print("GEOMETRIC VALIDATION SUMMARY")
+                print(f"{'=' * 80}")
+                print("2D/3D (Low Dimensional - Birthday Paradox):")
+                print(f"  Avg collision rate: {low_dim_collision_rate*100:.2f}%")
+                print(f"  Total collisions: {sum(r.collisions for r in low_dim_results)}")
+                print()
+                print("4D+ (High Dimensional - Geometric Resistance):")
+                print(f"  Avg collision rate: {high_dim_collision_rate*100:.2f}%")
+                print(f"  Total collisions: {sum(r.collisions for r in high_dim_results)}")
+                print(f"  Geometric improvement: {geometric_improvement:.0f}x lower collision rate")
+                print()
+                print("[Fail] GEOMETRIC VALIDATION INSUFFICIENT")
+                print("   * Insufficient geometric collision resistance improvement")
             all_validated = False
 
         return self.results, all_validated
@@ -388,18 +418,23 @@ def save_results(results: dict[str, Any], output_file: Optional[str] = None) -> 
         output_file = f"exp01_geometric_collision_{timestamp}.json"
 
     results_dir = Path(__file__).resolve().parent.parent / "results"
-    results_dir.mkdir(exist_ok=True)
-    output_path = str(results_dir / output_file)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    output_path = Path(output_file)
+    if not output_path.is_absolute():
+        output_path = results_dir / output_path
+    output_path = output_path.resolve()
 
     with open(output_path, "w") as f:
         json.dump(results, f, indent=2)
         f.write("\n")
 
     print(f"Results saved to: {output_path}")
-    return output_path
+    return str(output_path)
 
 
 if __name__ == "__main__":
+    runner_managed = _is_runner_managed_execution()
+
     # Load from config or use defaults
     # Parse command line arguments for sample size
     sample_size = 100000  # Default to 100k sample size
@@ -423,21 +458,26 @@ if __name__ == "__main__":
         sample_size = 1000000  # 1M for maximum scale testing
 
     # Debug output
-    print(f"[DEBUG] sys.argv: {sys.argv}")
-    print(f"[DEBUG] Using sample_size: {sample_size:,}")
+    if not runner_managed:
+        print(f"[DEBUG] sys.argv: {sys.argv}")
+        print(f"[DEBUG] Using sample_size: {sample_size:,}")
 
     try:
-        experiment = EXP01_GeometricCollisionResistance(sample_size=sample_size)
+        experiment = EXP01_GeometricCollisionResistance(
+            sample_size=sample_size,
+            emit_console_report=not runner_managed,
+        )
         results_list, success = experiment.run()
         summary = experiment.get_summary()
 
         output_file = save_results(summary)
 
-        print("\n" + "=" * 80)
-        print("GEOMETRIC COLLISION RESISTANCE VALIDATION COMPLETE")
-        print("=" * 80)
-        print(f"Results: {output_file}")
-        print()
+        if not runner_managed:
+            print("\n" + "=" * 80)
+            print("GEOMETRIC COLLISION RESISTANCE VALIDATION COMPLETE")
+            print("=" * 80)
+            print(f"Results: {output_file}")
+            print()
 
         sys.exit(0 if success else 1)
 

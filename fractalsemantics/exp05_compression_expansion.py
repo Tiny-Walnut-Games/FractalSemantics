@@ -26,6 +26,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, TypeAlias
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from fractalsemantics.dynamic_enum import Alignment, Polarity
 
 # Reuse canonical serialization from Phase 1
@@ -506,13 +509,16 @@ def _compress_bitchains(pipeline: CompressionPipeline, num_bitchains: int) -> li
     print("Compressing bit-chains...")
     print("-" * 80)
 
+    progress_step = max(1, num_bitchains // 20)  # roughly every 5%
+
     for i in range(num_bitchains):
-        bc = generate_random_bitchain()
+        bc = generate_random_bitchain(seed=i)
         path = pipeline.compress_bitchain(bc)
         compression_paths.append(path)
 
-        if (i + 1) % 25 == 0:
-            print(f"  [OK] Processed {i + 1}/{num_bitchains} bit-chains")
+        if (i + 1) % progress_step == 0 or (i + 1) == num_bitchains:
+            percent = ((i + 1) / max(num_bitchains, 1)) * 100
+            print(f"  [OK] Processed {i + 1:,}/{num_bitchains:,} bit-chains ({percent:.0f}%)")
 
     print()
     return compression_paths
@@ -549,6 +555,16 @@ def _print_sample_paths(compression_paths: list[BitChainCompressionPath]):
 
 def _compute_aggregate_metrics(compression_paths: list[BitChainCompressionPath]) -> dict[str, float]:
     """Compute aggregate statistics from compression paths."""
+    if not compression_paths:
+        return {
+            "avg_compression_ratio": 0.0,
+            "avg_luminosity_decay_ratio": 0.0,
+            "avg_coordinate_accuracy": 0.0,
+            "percent_provenance": 0.0,
+            "percent_narrative": 0.0,
+            "percent_expandable": 0.0,
+        }
+
     compression_ratios = [p.final_compression_ratio for p in compression_paths]
     luminosity_decay_ratios = [
         (max(p.original_luminosity, 0.01) - max(p.luminosity_final, 0)) / max(p.original_luminosity, 0.01)
@@ -595,7 +611,7 @@ def _determine_losslessness(metrics: dict[str, float]) -> bool:
     )
 
 
-def _generate_major_findings(metrics: dict[str, float], compression_paths: list[BitChainCompressionPath]) -> list[str]:
+def _generate_major_findings(metrics: dict[str, float]) -> list[str]:
     """Generate major findings based on metrics."""
     findings = []
 
@@ -656,13 +672,26 @@ def run_compression_expansion_test(
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
+    if num_bitchains <= 0:
+        raise ValueError("num_bitchains must be > 0")
+
     _print_experiment_header(num_bitchains)
 
-    # Send subprocess status message
-    send_subprocess_status("EXP-05", "Initialization", f"Starting compression/expansion test with {num_bitchains} bit-chains")
+    subprocess_enabled = is_subprocess_communication_enabled()
+
+    def report_status(stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_status("EXP-05", stage, message)
+
+    def report_progress(progress_percent: float, stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_progress("EXP-05", progress_percent, stage, message)
+
+    report_status("Initialization", f"Starting compression/expansion test with {num_bitchains} bit-chains")
 
     pipeline = CompressionPipeline()
     compression_paths = _compress_bitchains(pipeline, num_bitchains)
+    report_progress(50.0, "Compression", f"Compressed {len(compression_paths):,} bit-chains")
 
     if show_samples:
         _print_sample_paths(compression_paths)
@@ -671,8 +700,10 @@ def run_compression_expansion_test(
     _print_aggregate_metrics(metrics)
 
     is_lossless = _determine_losslessness(metrics)
-    major_findings = _generate_major_findings(metrics, compression_paths)
+    major_findings = _generate_major_findings(metrics)
     _print_losslessness_analysis(is_lossless, major_findings)
+
+    report_progress(100.0, "Analysis", "Compression/expansion analysis complete")
 
     overall_end = time.time()
     end_time = datetime.now(timezone.utc).isoformat()
@@ -729,10 +760,11 @@ if __name__ == "__main__":
     except Exception:
         num_bitchains = 1000000  # Default to 1M for extreme scale testing
         show_samples = True
-        if "--quick" in sys.argv:
-            num_bitchains = 10000  # Reduced for quick testing
-        elif "--full" in sys.argv:
-            num_bitchains = 10000000  # 10M for maximum testing
+
+    if "--quick" in sys.argv:
+        num_bitchains = 10000  # Reduced for quick testing
+    elif "--full" in sys.argv:
+        num_bitchains = 10000000  # 10M for maximum testing
 
     try:
         results = run_compression_expansion_test(

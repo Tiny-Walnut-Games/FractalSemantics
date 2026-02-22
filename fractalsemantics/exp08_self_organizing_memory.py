@@ -28,8 +28,7 @@ Success Criteria:
 """
 
 import json
-import os
-import secrets
+import random
 import statistics
 import sys
 import time
@@ -39,20 +38,22 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, TypeAlias
 
-from fractalsemantics_entity import BitChain, generate_random_bitchain
-
 # Add the current directory to Python path to allow direct imports
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from fractalsemantics_entity import BitChain, generate_random_bitchain  # noqa: E402
 
 # Import progress communication
 
 # Import subprocess communication for enhanced progress reporting
 try:
+    from fractalsemantics.progress_comm import create_progress_reporter
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
         send_subprocess_completion,
@@ -66,7 +67,29 @@ except ImportError:
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
 
-secure_random = secrets.SystemRandom()
+    class _NoopProgressReporter:
+        def update(self, *_args, **_kwargs) -> None:
+            return
+
+        def complete(self, *_args, **_kwargs) -> None:
+            return
+
+    def create_progress_reporter(*_args, **_kwargs):
+        return _NoopProgressReporter()
+
+query_random = random.Random(42)
+
+# Heuristic constants (policy/UX), not physics constants.
+CLUSTER_AUTO_CREATE_LIMIT = 25
+CLUSTER_SIMILARITY_REALM_MISMATCH = 0.8
+CLUSTER_SIMILARITY_POLARITY_MISMATCH = 0.8
+SIMILARITY_LINEAGE_DISTANCE_PENALTY = 0.05
+SIMILARITY_LUMINOSITY_DISTANCE_PENALTY = 0.3
+SIMILARITY_DIMENSIONALITY_DISTANCE_PENALTY = 0.1
+SIMILARITY_WEIGHTS = (0.35, 0.2, 0.15, 0.2, 0.1)
+SEMANTIC_NEIGHBOR_THRESHOLD = 0.5
+SEMANTIC_NEIGHBOR_LIMIT = 5
+RETRIEVAL_MIN_SIMILARITY = 0.1
 
 # ============================================================================
 # EXP-08 DATA STRUCTURES
@@ -251,7 +274,7 @@ class SelfOrganizingMemoryNetwork:
                 best_cluster = cluster
 
         # Create new cluster if no good match or similarity below threshold
-        if best_cluster is None or len(self.clusters) < 25:
+        if best_cluster is None or len(self.clusters) < CLUSTER_AUTO_CREATE_LIMIT:
             cluster_id = f"cluster_{len(self.clusters) + 1:04d}"
             self.clusters[cluster_id] = MemoryCluster(
                 cluster_id=cluster_id,
@@ -286,34 +309,34 @@ class SelfOrganizingMemoryNetwork:
             similarities.append(1.0)
         else:
             # Different realms can still have semantic similarity
-            similarities.append(0.8)  # Increased similarity between different realms
+            similarities.append(CLUSTER_SIMILARITY_REALM_MISMATCH)
 
         # Lineage similarity (generational closeness)
         lineage1 = coords1.get('lineage', 0)
         lineage2 = coords2.get('lineage', 0)
-        lineage_sim = 1.0 / (1.0 + abs(lineage1 - lineage2) * 0.05)  # Further reduced penalty
+        lineage_sim = 1.0 / (1.0 + abs(lineage1 - lineage2) * SIMILARITY_LINEAGE_DISTANCE_PENALTY)
         similarities.append(max(0.0, lineage_sim))
 
         # Luminosity similarity (activity level)
         lum1 = float(coords1.get('luminosity', 0.5))
         lum2 = float(coords2.get('luminosity', 0.5))
-        lum_sim = 1.0 - abs(lum1 - lum2) * 0.3  # Further reduced penalty
+        lum_sim = 1.0 - abs(lum1 - lum2) * SIMILARITY_LUMINOSITY_DISTANCE_PENALTY
         similarities.append(max(0.0, lum_sim))
 
         # Polarity similarity
         pol1 = coords1.get('polarity', 'VOID')
         pol2 = coords2.get('polarity', 'VOID')
-        pol_sim = 1.0 if pol1 == pol2 else 0.8  # Increased similarity for different polarities
+        pol_sim = 1.0 if pol1 == pol2 else CLUSTER_SIMILARITY_POLARITY_MISMATCH
         similarities.append(pol_sim)
 
         # Dimensionality similarity
         dim1 = coords1.get('dimensionality', 0)
         dim2 = coords2.get('dimensionality', 0)
-        dim_sim = 1.0 / (1.0 + abs(dim1 - dim2) * 0.1)  # Further reduced penalty
+        dim_sim = 1.0 / (1.0 + abs(dim1 - dim2) * SIMILARITY_DIMENSIONALITY_DISTANCE_PENALTY)
         similarities.append(max(0.0, dim_sim))
 
         # Return weighted average similarity (emphasize realm and polarity more)
-        weights = [0.35, 0.2, 0.15, 0.2, 0.1]  # Realm: 35%, Polarity: 20%, Lineage: 20%, Luminosity: 15%, Dimensionality: 10%
+        weights = SIMILARITY_WEIGHTS
 
         if len(similarities) == len(weights):
             weighted_sum = sum(sim * weight for sim, weight in zip(similarities, weights))
@@ -363,15 +386,15 @@ class SelfOrganizingMemoryNetwork:
                 continue
 
             similarity = self._calculate_semantic_similarity(node.coordinates, other_addr)
-            if similarity > 0.5:  # Semantic threshold
+            if similarity > SEMANTIC_NEIGHBOR_THRESHOLD:
                 neighbors.append((other_addr, similarity))
 
-        # Keep top 5 neighbors
+        # Keep top semantic neighbors
         neighbors.sort(key=lambda x: x[1], reverse=True)
-        node.semantic_neighbors = [addr for addr, sim in neighbors[:5]]
+        node.semantic_neighbors = [addr for addr, sim in neighbors[:SEMANTIC_NEIGHBOR_LIMIT]]
 
         # Update graph
-        self.semantic_graph[node.address] = neighbors[:5]
+        self.semantic_graph[node.address] = neighbors[:SEMANTIC_NEIGHBOR_LIMIT]
 
     def retrieve_memory(self, query_coords: dict[str, Any]) -> list[tuple[str, float]]:
         """
@@ -384,7 +407,7 @@ class SelfOrganizingMemoryNetwork:
         results = []
         for address, _node in self.memories.items():
             similarity = self._calculate_semantic_similarity(query_coords, address)
-            if similarity > 0.1:  # Minimum similarity threshold
+            if similarity > RETRIEVAL_MIN_SIMILARITY:
                 results.append((address, similarity))
 
         # Sort by similarity
@@ -455,8 +478,8 @@ class SelfOrganizingMemoryNetwork:
 
                 # Remove from memory
                 del self.memories[address]
-                del self.access_pattern[address]
-                del self.semantic_graph[address]
+                self.access_pattern.pop(address, None)
+                self.semantic_graph.pop(address, None)
                 forgotten_count += 1
 
         return forgotten_count
@@ -560,13 +583,34 @@ class SelfOrganizingMemoryExperiment:
         print("=" * 80)
         print(f"Generating {self.num_memories} memories...")
 
-        # Send subprocess status message
-        send_subprocess_status("EXP-08", "Initialization", "Starting self-organizing memory experiment")
+        progress = create_progress_reporter("EXP-08")
+        subprocess_enabled = is_subprocess_communication_enabled()
+
+        def report_status(stage: str, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_status("EXP-08", stage, message)
+                return
+            progress.update(0, stage, message)
+
+        def report_progress(progress_percent: float, stage: str, message: str) -> None:
+            bounded_progress = max(0.0, min(100.0, progress_percent))
+            if subprocess_enabled:
+                send_subprocess_progress("EXP-08", bounded_progress, stage, message)
+                return
+            progress.update(bounded_progress, stage, message)
+
+        def report_completion(success: bool, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_completion("EXP-08", success, message)
+                return
+            progress.complete(message)
+
+        report_status("Initialization", "Starting self-organizing memory experiment")
 
         # Phase 1: Memory Generation and Organization
         print("\nPhase 1: Memory Generation and Self-Organization")
         print("-" * 60)
-        send_subprocess_progress("EXP-08", 10, 100, "Generating and organizing memories")
+        report_progress(10.0, "Generation", "Generating and organizing memories")
 
         start_time = time.time()
 
@@ -577,6 +621,12 @@ class SelfOrganizingMemoryExperiment:
 
             if (i + 1) % 100 == 0:
                 print(f"  Added {i + 1}/{self.num_memories} memories")
+                generation_progress = 10.0 + ((i + 1) / max(1, self.num_memories)) * 20.0
+                report_progress(
+                    generation_progress,
+                    "Generation",
+                    f"Added {i + 1:,}/{self.num_memories:,} memories",
+                )
 
         generation_time = time.time() - start_time
         print(f"Memory generation completed in {generation_time:.2f} seconds")
@@ -584,7 +634,7 @@ class SelfOrganizingMemoryExperiment:
         # Phase 2: Self-Organization and Consolidation
         print("\nPhase 2: Self-Organization and Consolidation")
         print("-" * 60)
-        send_subprocess_progress("EXP-08", 30, 100, "Applying consolidation and forgetting")
+        report_progress(35.0, "Organization", "Applying consolidation and forgetting")
 
         start_time = time.time()
 
@@ -602,7 +652,7 @@ class SelfOrganizingMemoryExperiment:
         # Phase 3: Retrieval Testing
         print("\nPhase 3: Retrieval Testing")
         print("-" * 60)
-        send_subprocess_progress("EXP-08", 60, 100, "Testing semantic retrieval")
+        report_progress(60.0, "Retrieval", "Testing semantic retrieval")
 
         start_time = time.time()
 
@@ -611,11 +661,11 @@ class SelfOrganizingMemoryExperiment:
         for i in range(retrieval_tests):
             # Generate random query coordinates
             query_coords = {
-                'realm': secure_random.choice(['data', 'narrative', 'system', 'faculty', 'event', 'pattern', 'void']),
-                'lineage': secure_random.randint(1, 50),
-                'luminosity': secure_random.uniform(0.1, 0.9),
-                'polarity': secure_random.choice(['logic', 'creativity', 'order', 'chaos', 'balance']),
-                'dimensionality': secure_random.randint(0, 5)
+                'realm': query_random.choice(['data', 'narrative', 'system', 'faculty', 'event', 'pattern', 'void']),
+                'lineage': query_random.randint(1, 50),
+                'luminosity': query_random.uniform(0.1, 0.9),
+                'polarity': query_random.choice(['logic', 'creativity', 'order', 'chaos', 'balance']),
+                'dimensionality': query_random.randint(0, 5)
             }
 
             # Actually perform retrieval to test the network
@@ -623,6 +673,12 @@ class SelfOrganizingMemoryExperiment:
 
             if i % 10 == 0:
                 print(f"  Completed {i + 1}/{retrieval_tests} retrieval tests")
+                retrieval_progress = 60.0 + ((i + 1) / max(1, retrieval_tests)) * 20.0
+                report_progress(
+                    retrieval_progress,
+                    "Retrieval",
+                    f"Completed {i + 1}/{retrieval_tests} retrieval tests",
+                )
 
         retrieval_time = time.time() - start_time
         print(f"Retrieval testing completed in {retrieval_time:.2f} seconds")
@@ -630,7 +686,7 @@ class SelfOrganizingMemoryExperiment:
         # Phase 4: Network Analysis
         print("\nPhase 4: Network Analysis")
         print("-" * 60)
-        send_subprocess_progress("EXP-08", 80, 100, "Analyzing network metrics")
+        report_progress(85.0, "Analysis", "Analyzing network metrics")
 
         metrics = self.network.get_network_metrics()
 
@@ -640,26 +696,40 @@ class SelfOrganizingMemoryExperiment:
         organic_growth_validated = self._validate_organic_growth()
 
         # Create results
+        total_memories = int(metrics.get('total_memories', len(self.network.memories)))
+        num_clusters = int(metrics.get('num_clusters', len(self.network.clusters)))
+        avg_cluster_size = float(metrics.get('avg_cluster_size', 0.0))
+        semantic_cohesion = float(metrics.get('semantic_cohesion', 0.0))
+        retrieval_efficiency = float(metrics.get('retrieval_efficiency', 0.0))
+        semantic_accuracy = float(metrics.get('semantic_accuracy', 0.0))
+        consolidation_ratio = float(metrics.get('consolidation_ratio', 0.0))
+        forgetting_events = int(metrics.get('forgetting_events', len(self.network.forgetting_log)))
+        memory_pressure = float(metrics.get('memory_pressure', 0.0))
+        emergent_intelligence = float(metrics.get('emergent_intelligence', 0.0))
+        connectivity = float(metrics.get('connectivity', 0.0))
+
         results = SelfOrganizingMemoryResults(
-            total_memories=int(metrics['total_memories']),
-            num_clusters=int(metrics['num_clusters']),
-            avg_cluster_size=metrics['avg_cluster_size'],
-            semantic_cohesion_score=metrics['semantic_cohesion'],
-            cluster_efficiency=metrics['semantic_cohesion'] * metrics['retrieval_efficiency'],
-            retrieval_efficiency=metrics['retrieval_efficiency'],
-            semantic_retrieval_accuracy=metrics['semantic_accuracy'],
+            total_memories=total_memories,
+            num_clusters=num_clusters,
+            avg_cluster_size=avg_cluster_size,
+            semantic_cohesion_score=semantic_cohesion,
+            cluster_efficiency=semantic_cohesion * retrieval_efficiency,
+            retrieval_efficiency=retrieval_efficiency,
+            semantic_retrieval_accuracy=semantic_accuracy,
             self_organization_improvement=semantic_improvement,
-            consolidation_ratio=metrics['consolidation_ratio'],
-            forgetting_events=int(metrics['forgetting_events']),
-            memory_pressure=metrics['memory_pressure'],
+            consolidation_ratio=consolidation_ratio,
+            forgetting_events=forgetting_events,
+            memory_pressure=memory_pressure,
             storage_overhead_reduction=storage_reduction,
-            emergent_intelligence_score=metrics['emergent_intelligence'],
+            emergent_intelligence_score=emergent_intelligence,
             organic_growth_validated=organic_growth_validated,
-            network_connectivity=metrics['connectivity']
+            network_connectivity=connectivity,
         )
 
         # Determine success
         results.status = self._determine_success(results)
+        report_progress(100.0, "Finalization", f"Self-organizing memory experiment completed with status {results.status}")
+        report_completion(results.status == "PASS", f"Self-organizing memory experiment {results.status.lower()}")
 
         return results
 
@@ -747,7 +817,15 @@ def save_results(results: SelfOrganizingMemoryResults, output_file: Optional[str
 
 def main():
     """Main entry point for EXP-08."""
-    import sys
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run EXP-08 Self-Organizing Memory test")
+    parser.add_argument("--quick", action="store_true", help="Run smaller/faster validation")
+    parser.add_argument("--full", action="store_true", help="Run larger/full validation")
+    args = parser.parse_args()
+
+    if args.quick and args.full:
+        raise ValueError("Use only one of --quick or --full")
 
     # Load from config or use defaults
     num_memories = 1000
@@ -762,16 +840,21 @@ def main():
         pass
 
     # Override based on command line
-    if "--quick" in sys.argv:
+    if args.quick:
         num_memories = 100
-    elif "--full" in sys.argv:
+        mode_label = "Quick"
+    elif args.full:
         num_memories = 5000
+        mode_label = "Full"
+    else:
+        mode_label = "Standard"
 
     try:
         experiment = SelfOrganizingMemoryExperiment(
             num_memories=num_memories,
             consolidation_threshold=consolidation_threshold
         )
+        print(f"[MODE] {mode_label} | memories={num_memories:,}")
         results = experiment.run()
 
         output_file = save_results(results)

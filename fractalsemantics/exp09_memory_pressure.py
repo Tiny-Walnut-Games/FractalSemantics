@@ -29,7 +29,7 @@ Success Criteria:
 
 import gc
 import json
-import secrets
+import random
 import statistics
 import sys
 import threading
@@ -42,7 +42,19 @@ from typing import Any, Optional, TypeAlias
 
 import psutil
 
-from fractalsemantics.fractalsemantics_entity import BitChain, generate_random_bitchain
+try:
+    from fractalsemantics.fractalsemantics_entity import (
+        BitChain,
+        generate_random_bitchain,
+    )
+except ImportError:
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+    from fractalsemantics.fractalsemantics_entity import (
+        BitChain,
+        generate_random_bitchain,
+    )
 
 # Import progress communication
 
@@ -53,6 +65,7 @@ JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
 try:
+    from fractalsemantics.progress_comm import create_progress_reporter
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
         send_subprocess_completion,
@@ -66,7 +79,88 @@ except ImportError:
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
 
-secure_random = secrets.SystemRandom()
+    class _NoopProgressReporter:
+        def update(self, *_args, **_kwargs) -> None:
+            return
+
+        def complete(self, *_args, **_kwargs) -> None:
+            return
+
+    def create_progress_reporter(*_args, **_kwargs):
+        return _NoopProgressReporter()
+
+EXP09_RANDOM_SEED: int = 42
+EXP09_ACCESS_LOG_MAXLEN: int = 1_000
+EXP09_BASELINE_SIZE: int = 100
+EXP09_BASELINE_RETRIEVAL_SAMPLES: int = 50
+EXP09_BACKGROUND_MONITOR_INTERVAL_SECONDS: float = 1.0
+EXP09_MONITOR_THREAD_JOIN_TIMEOUT_SECONDS: int = 5
+EXP09_LINEAR_ALLOCATION_MB_CAP: int = 50
+EXP09_LINEAR_ALLOCATION_MULTIPLIER: int = 10
+EXP09_LINEAR_ALLOCATION_SLEEP_SECONDS: float = 0.1
+EXP09_EXPONENTIAL_ALLOCATION_MB_CAP: int = 100
+EXP09_EXPONENTIAL_ALLOCATION_BASE_STEP: int = 5
+EXP09_EXPONENTIAL_ALLOCATION_MULTIPLIER: int = 20
+EXP09_EXPONENTIAL_SLEEP_SECONDS: float = 0.2
+EXP09_EXPONENTIAL_COUNT_GROWTH_FACTOR: int = 2
+EXP09_SPIKE_ALLOCATION_MULTIPLIER: int = 20
+EXP09_LAZY_LOADING_NUM_CHAINS: int = 1_000
+EXP09_LAZY_LOADING_SUBSET_SIZE: int = 100
+EXP09_LAZY_LOADING_HASH_MODULO: int = 1_000
+EXP09_LAZY_LOADING_ACTUAL_REDUCTION_ESTIMATE: float = 0.7
+EXP09_LAZY_LOADING_OVERHEAD_ESTIMATE: float = 0.1
+EXP09_COMPRESSION_SAMPLE_SIZE: int = 500
+EXP09_COMPRESSION_SIZE_RATIO: float = 0.4
+EXP09_COMPRESSION_TARGET_REDUCTION: float = 0.6
+EXP09_COMPRESSION_ACTUAL_REDUCTION_ESTIMATE: float = 0.55
+EXP09_COMPRESSION_OVERHEAD_ESTIMATE: float = 0.2
+EXP09_EVICTION_SAMPLE_SIZE: int = 1_000
+EXP09_EVICTION_KEEP_RATIO: float = 0.5
+EXP09_EVICTION_ACTUAL_REDUCTION_ESTIMATE: float = 0.45
+EXP09_EVICTION_OVERHEAD_ESTIMATE: float = 0.05
+EXP09_POOLING_TARGET_REDUCTION: float = 0.2
+EXP09_POOLING_ACTUAL_REDUCTION_ESTIMATE: float = 0.18
+EXP09_POOLING_OVERHEAD_ESTIMATE: float = 0.02
+EXP09_RETRIEVAL_LATENCY_SAMPLES: int = 10
+EXP09_FRAGMENTATION_WINDOW_SIZE: int = 10
+EXP09_BASELINE_LATENCY_EPSILON: float = 1e-6
+EXP09_BREAKING_POINT_WINDOW: int = 10
+EXP09_BREAKING_POINT_LATENCY_MULTIPLIER: float = 6.0
+EXP09_GRACEFUL_MIN_TIMELINE_POINTS: int = 5
+EXP09_GRACEFUL_CHANGE_SPIKE_RATIO: float = 0.5
+EXP09_GRACEFUL_CHANGE_RATIO_THRESHOLD: float = 0.7
+EXP09_STATUS_BASELINE_PROGRESS: float = 10.0
+EXP09_STATUS_STRESS_PROGRESS: float = 20.0
+EXP09_STATUS_STRESS_PROGRESS_SPAN: float = 35.0
+EXP09_STATUS_OPTIMIZATION_PROGRESS: float = 60.0
+EXP09_STATUS_RECOVERY_PROGRESS: float = 80.0
+EXP09_STATUS_ANALYSIS_PROGRESS: float = 92.0
+EXP09_STATUS_COMPLETE_PROGRESS: float = 100.0
+EXP09_QUICK_MODE_MEMORY_THRESHOLD_MB: int = 300
+EXP09_QUICK_PHASES: list[tuple[str, int, int, str, str]] = [
+    ("Light Pressure", 80, 3, "linear", "Minimal performance impact expected"),
+    ("Moderate Pressure", 140, 4, "linear", "Moderate performance degradation expected"),
+    ("Heavy Pressure", 180, 5, "exponential", "Significant performance impact expected"),
+    ("Critical Pressure", 0, 3, "spike", "System stress testing"),
+]
+EXP09_STANDARD_PHASES: list[tuple[str, int, int, str, str]] = [
+    ("Light Pressure", 200, 30, "linear", "Minimal performance impact expected"),
+    ("Moderate Pressure", 500, 45, "linear", "Moderate performance degradation expected"),
+    ("Heavy Pressure", 800, 60, "exponential", "Significant performance impact expected"),
+    ("Critical Pressure", 0, 30, "spike", "System stress testing"),
+]
+EXP09_STABILITY_LATENCY_VARIANCE_SCALE: float = 1000.0
+EXP09_SUCCESS_MAX_DEGRADATION_RATIO: float = 10.0
+EXP09_SUCCESS_MIN_STABILITY_SCORE: float = 0.6
+EXP09_SUCCESS_MIN_MEMORY_EFFICIENCY: float = 0.5
+EXP09_SUCCESS_MIN_OPTIMIZATION_IMPROVEMENT: float = 0.2
+EXP09_SUCCESS_PASS_RATE: float = 0.8
+EXP09_SUCCESS_PARTIAL_RATE: float = 0.6
+EXP09_DEFAULT_MAX_MEMORY_TARGET_MB: int = 1_000
+EXP09_QUICK_MAX_MEMORY_TARGET_MB: int = 200
+EXP09_FULL_MAX_MEMORY_TARGET_MB: int = 2_000
+
+random_selector = random.Random(EXP09_RANDOM_SEED)
 
 # ============================================================================
 # EXP-09 DATA STRUCTURES
@@ -220,7 +314,7 @@ class MemoryPressureTester:
 
         # Test state
         self.active_objects: dict[str, BitChain] = {}
-        self.access_log: deque = deque(maxlen=1000)
+        self.access_log: deque = deque(maxlen=EXP09_ACCESS_LOG_MAXLEN)
         self.gc_count_start: list[dict[str, Any]] = []
 
         # Threading for background monitoring
@@ -243,7 +337,7 @@ class MemoryPressureTester:
         baseline_memory = self._get_memory_metrics()
 
         # Generate test data for baseline
-        baseline_size = 100
+        baseline_size = EXP09_BASELINE_SIZE
         print(f"Generating {baseline_size} baseline bit-chains...")
 
         start_time = time.time()
@@ -257,8 +351,8 @@ class MemoryPressureTester:
         retrieval_times = []
         addresses = list(self.active_objects.keys())
 
-        for _ in range(50):
-            target_addr = secure_random.choice(addresses)
+        for _ in range(EXP09_BASELINE_RETRIEVAL_SAMPLES):
+            target_addr = random_selector.choice(addresses)
             start_lookup = time.perf_counter()
             self.active_objects.get(target_addr)
             end_lookup = time.perf_counter()
@@ -317,7 +411,7 @@ class MemoryPressureTester:
             # Stop monitoring
             self.monitoring_active = False
             if self.monitoring_thread:
-                self.monitoring_thread.join(timeout=5)
+                self.monitoring_thread.join(timeout=EXP09_MONITOR_THREAD_JOIN_TIMEOUT_SECONDS)
 
         print("Memory pressure phase completed")
         return metrics
@@ -336,14 +430,14 @@ class MemoryPressureTester:
             # Calculate how much more memory to allocate
             if current_memory < target_total:
                 # Allocate more memory
-                allocation_size = min(50, int(target_total - current_memory))
+                allocation_size = min(EXP09_LINEAR_ALLOCATION_MB_CAP, int(target_total - current_memory))
                 if allocation_size > 0:
                     # Create large objects to consume memory
-                    allocation = [generate_random_bitchain(seed=i) for i in range(allocation_size * 10)]
+                    allocation = [generate_random_bitchain(seed=i) for i in range(allocation_size * EXP09_LINEAR_ALLOCATION_MULTIPLIER)]
                     allocations.append(allocation)
 
             # Small delay to control allocation rate
-            time.sleep(0.1)
+            time.sleep(EXP09_LINEAR_ALLOCATION_SLEEP_SECONDS)
 
         # Keep allocations alive to maintain pressure
         self._current_allocations = allocations
@@ -356,20 +450,20 @@ class MemoryPressureTester:
 
         while time.time() - start_time < duration_seconds:
             # Exponential growth in allocation size
-            allocation_size = min(100, allocation_count * 5)
+            allocation_size = min(EXP09_EXPONENTIAL_ALLOCATION_MB_CAP, allocation_count * EXP09_EXPONENTIAL_ALLOCATION_BASE_STEP)
             if allocation_size > 0:
-                allocation = [generate_random_bitchain(seed=i) for i in range(allocation_size * 20)]
+                allocation = [generate_random_bitchain(seed=i) for i in range(allocation_size * EXP09_EXPONENTIAL_ALLOCATION_MULTIPLIER)]
                 allocations.append(allocation)
-                allocation_count *= 2
+                allocation_count *= EXP09_EXPONENTIAL_COUNT_GROWTH_FACTOR
 
-            time.sleep(0.2)
+            time.sleep(EXP09_EXPONENTIAL_SLEEP_SECONDS)
 
         self._current_allocations = allocations
 
     def _apply_spike_pressure(self, target_mb: int, duration_seconds: int):
         """Apply spike memory pressure."""
         # Quick spike
-        spike_allocation = [generate_random_bitchain(seed=i) for i in range(target_mb * 20)]
+        spike_allocation = [generate_random_bitchain(seed=i) for i in range(target_mb * EXP09_SPIKE_ALLOCATION_MULTIPLIER)]
 
         # Hold spike for duration
         time.sleep(duration_seconds)
@@ -425,7 +519,7 @@ class MemoryPressureTester:
     def _test_lazy_loading_optimization(self) -> JsonObject:
         """Test lazy loading optimization."""
         # Generate many bit-chains but don't load them all
-        num_chains = 1000
+        num_chains = EXP09_LAZY_LOADING_NUM_CHAINS
         chain_addresses = []
 
         # Store addresses but not the actual objects
@@ -438,41 +532,41 @@ class MemoryPressureTester:
 
         # Load a subset on demand
         loaded_subset = {}
-        for addr in chain_addresses[:100]:  # Load only 10%
-            bitchain = generate_random_bitchain(seed=hash(addr) % 1000)
+        for addr in chain_addresses[:EXP09_LAZY_LOADING_SUBSET_SIZE]:
+            bitchain = generate_random_bitchain(seed=hash(addr) % EXP09_LAZY_LOADING_HASH_MODULO)
             loaded_subset[addr] = bitchain
 
         mem_usage = self._get_memory_metrics().memory_usage_mb
 
         return {
             'memory_used_mb': mem_usage,
-            'memory_reduction': (num_chains - 100) / num_chains,
-            'actual_reduction': 0.7,  # Estimated based on typical lazy loading
-            'performance_overhead': 0.1  # Small overhead for on-demand loading
+            'memory_reduction': (num_chains - EXP09_LAZY_LOADING_SUBSET_SIZE) / num_chains,
+            'actual_reduction': EXP09_LAZY_LOADING_ACTUAL_REDUCTION_ESTIMATE,
+            'performance_overhead': EXP09_LAZY_LOADING_OVERHEAD_ESTIMATE
         }
 
     def _test_compression_optimization(self) -> JsonObject:
         """Test compression optimization."""
         # Generate test data
-        original_data = [generate_random_bitchain(seed=i) for i in range(500)]
+        original_data = [generate_random_bitchain(seed=i) for i in range(EXP09_COMPRESSION_SAMPLE_SIZE)]
 
         # Measure original size
         original_size = sys.getsizeof(original_data)
 
         # Simulate compression (in practice would use actual compression)
-        original_size * 0.4  # 60% reduction
+        compressed_size = original_size * EXP09_COMPRESSION_SIZE_RATIO
 
         return {
-            'memory_used_mb': original_size * 0.4 / 1024 / 1024,  # Convert bytes to MB
-            'memory_reduction': 0.6,
-            'actual_reduction': 0.55,  # Slightly less due to compression overhead
-            'performance_overhead': 0.2  # Compression/decompression cost
+            'memory_used_mb': compressed_size / 1024 / 1024,  # Convert bytes to MB
+            'memory_reduction': EXP09_COMPRESSION_TARGET_REDUCTION,
+            'actual_reduction': EXP09_COMPRESSION_ACTUAL_REDUCTION_ESTIMATE,
+            'performance_overhead': EXP09_COMPRESSION_OVERHEAD_ESTIMATE
         }
 
     def _test_eviction_policy_optimization(self) -> JsonObject:
         """Test eviction policy optimization."""
         # Fill memory with objects
-        for i in range(1000):
+        for i in range(EXP09_EVICTION_SAMPLE_SIZE):
             bitchain = generate_random_bitchain(seed=i)
             self.active_objects[bitchain.compute_address()] = bitchain
 
@@ -480,7 +574,7 @@ class MemoryPressureTester:
 
         # Apply LRU eviction (keep only most recent 50%)
         sorted_objects = sorted(self.active_objects.items(), key=lambda x: x[1].id)
-        eviction_count = len(sorted_objects) // 2
+        eviction_count = int(len(sorted_objects) * EXP09_EVICTION_KEEP_RATIO)
 
         for addr, _ in sorted_objects[:eviction_count]:
             del self.active_objects[addr]
@@ -489,8 +583,8 @@ class MemoryPressureTester:
 
         return {
             'memory_reduction': eviction_count / len(sorted_objects),
-            'actual_reduction': 0.45,
-            'performance_overhead': 0.05,  # Minimal overhead for eviction
+            'actual_reduction': EXP09_EVICTION_ACTUAL_REDUCTION_ESTIMATE,
+            'performance_overhead': EXP09_EVICTION_OVERHEAD_ESTIMATE,
             'memory_used_mb': mem_usage
         }
 
@@ -498,9 +592,9 @@ class MemoryPressureTester:
         """Test memory pooling optimization."""
         # Simulate memory pooling benefits
         return {
-            'memory_reduction': 0.2,
-            'actual_reduction': 0.18,
-            'performance_overhead': 0.02,  # Very minimal overhead
+            'memory_reduction': EXP09_POOLING_TARGET_REDUCTION,
+            'actual_reduction': EXP09_POOLING_ACTUAL_REDUCTION_ESTIMATE,
+            'performance_overhead': EXP09_POOLING_OVERHEAD_ESTIMATE,
             'memory_used_mb': self._get_memory_metrics().memory_usage_mb
         }
 
@@ -510,7 +604,7 @@ class MemoryPressureTester:
             try:
                 metrics = self._get_memory_metrics()
                 self.memory_timeline.append(metrics)
-                time.sleep(1.0)  # Monitor every second
+                time.sleep(EXP09_BACKGROUND_MONITOR_INTERVAL_SECONDS)
             except Exception:
                 # Ignore monitoring errors
                 pass
@@ -569,8 +663,8 @@ class MemoryPressureTester:
         addresses = list(self.active_objects.keys())
         latencies = []
 
-        for _ in range(10):
-            target_addr = secure_random.choice(addresses)
+        for _ in range(EXP09_RETRIEVAL_LATENCY_SAMPLES):
+            target_addr = random_selector.choice(addresses)
             start_time = time.perf_counter()
             self.active_objects.get(target_addr)
             end_time = time.perf_counter()
@@ -585,7 +679,7 @@ class MemoryPressureTester:
         if not self.memory_timeline:
             return 0.0
 
-        recent_metrics = self.memory_timeline[-10:]
+        recent_metrics = self.memory_timeline[-EXP09_FRAGMENTATION_WINDOW_SIZE:]
         if len(recent_metrics) < 2:
             return 0.0
 
@@ -628,7 +722,7 @@ class MemoryPressureTester:
         # Calculate degradation ratio
         baseline_latency = self.baseline_performance.get('retrieval_mean_ms', 0.0)
         current_latency = results['avg_retrieval_latency_ms']
-        results['degradation_ratio'] = current_latency / max(1e-6, baseline_latency)
+        results['degradation_ratio'] = current_latency / max(EXP09_BASELINE_LATENCY_EPSILON, baseline_latency)
 
         # Check for graceful degradation
         results['graceful_degradation'] = self._check_graceful_degradation()
@@ -662,19 +756,21 @@ class MemoryPressureTester:
             return None
 
         # Look for sudden performance degradation
-        for i in range(10, len(self.memory_timeline)):
-            recent_latency = statistics.mean([m.retrieval_latency_ms for m in self.memory_timeline[i-10:i]])
+        for i in range(EXP09_BREAKING_POINT_WINDOW, len(self.memory_timeline)):
+            recent_latency = statistics.mean([
+                m.retrieval_latency_ms for m in self.memory_timeline[i - EXP09_BREAKING_POINT_WINDOW:i]
+            ])
             current_latency = self.memory_timeline[i].retrieval_latency_ms
 
             # If latency increases by more than 500%, consider it a breaking point
-            if current_latency > recent_latency * 6.0:
+            if current_latency > recent_latency * EXP09_BREAKING_POINT_LATENCY_MULTIPLIER:
                 return self.memory_timeline[i].memory_usage_mb
 
         return None
 
     def _check_graceful_degradation(self) -> bool:
         """Check if performance degrades gracefully."""
-        if not self.memory_timeline or len(self.memory_timeline) < 5:
+        if not self.memory_timeline or len(self.memory_timeline) < EXP09_GRACEFUL_MIN_TIMELINE_POINTS:
             return False
 
         # Check if latency increases gradually rather than suddenly
@@ -687,8 +783,8 @@ class MemoryPressureTester:
             changes.append(change)
 
         # If most changes are gradual (not sudden spikes), consider graceful
-        gradual_changes = sum(1 for change in changes if change < max(changes) * 0.5)
-        return gradual_changes > len(changes) * 0.7
+        gradual_changes = sum(1 for change in changes if change < max(changes) * EXP09_GRACEFUL_CHANGE_SPIKE_RATIO)
+        return gradual_changes > len(changes) * EXP09_GRACEFUL_CHANGE_RATIO_THRESHOLD
 
 
 # ============================================================================
@@ -721,29 +817,62 @@ class MemoryPressureExperiment:
         print("=" * 80)
         print(f"Max memory target: {self.max_memory_target_mb}MB")
 
-        # Send subprocess status message
-        send_subprocess_status("EXP-09", "Initialization", "Starting memory pressure experiment")
+        experiment_start = time.time()
+        progress = create_progress_reporter("EXP-09")
+        subprocess_enabled = is_subprocess_communication_enabled()
+
+        def report_status(stage: str, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_status("EXP-09", stage, message)
+                return
+            progress.update(0, stage, message)
+
+        def report_progress(progress_percent: float, stage: str, message: str) -> None:
+            bounded_progress = max(0.0, min(100.0, progress_percent))
+            if subprocess_enabled:
+                send_subprocess_progress("EXP-09", bounded_progress, stage, message)
+                return
+            progress.update(bounded_progress, stage, message)
+
+        def report_completion(success: bool, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_completion("EXP-09", success, message)
+                return
+            progress.complete(message)
+
+        report_status("Initialization", "Starting memory pressure experiment")
 
         # Phase 1: Baseline Measurement
         print("\nPhase 1: Baseline Measurement")
         print("-" * 60)
-        send_subprocess_progress("EXP-09", 10, 100, "Establishing baseline performance")
+        report_progress(EXP09_STATUS_BASELINE_PROGRESS, "Baseline", "Establishing baseline performance")
         baseline = self.tester.start_baseline_measurement()
 
         # Phase 2: Progressive Memory Pressure
         print("\nPhase 2: Progressive Memory Pressure")
         print("-" * 60)
-        send_subprocess_progress("EXP-09", 20, 100, "Applying progressive memory pressure")
+        report_progress(EXP09_STATUS_STRESS_PROGRESS, "Stress", "Applying progressive memory pressure")
 
-        pressure_phases = [
-            StressTestPhase("Light Pressure", 200, 30, "linear", True, "Minimal performance impact expected"),
-            StressTestPhase("Moderate Pressure", 500, 45, "linear", True, "Moderate performance degradation expected"),
-            StressTestPhase("Heavy Pressure", 800, 60, "exponential", True, "Significant performance impact expected"),
-            StressTestPhase("Critical Pressure", self.max_memory_target_mb, 30, "spike", True, "System stress testing")
-        ]
+        quick_mode = self.max_memory_target_mb <= EXP09_QUICK_MODE_MEMORY_THRESHOLD_MB
+        if quick_mode:
+            pressure_phases = [
+                StressTestPhase(name, target or self.max_memory_target_mb, duration, pattern, True, expected)
+                for name, target, duration, pattern, expected in EXP09_QUICK_PHASES
+            ]
+        else:
+            pressure_phases = [
+                StressTestPhase(name, target or self.max_memory_target_mb, duration, pattern, True, expected)
+                for name, target, duration, pattern, expected in EXP09_STANDARD_PHASES
+            ]
 
         all_metrics = []
-        for phase in pressure_phases:
+        for idx, phase in enumerate(pressure_phases, start=1):
+            phase_progress = EXP09_STATUS_STRESS_PROGRESS + (idx / len(pressure_phases)) * EXP09_STATUS_STRESS_PROGRESS_SPAN
+            report_progress(
+                phase_progress,
+                "Stress",
+                f"Executing {phase.phase_name} ({phase.target_memory_mb}MB, {phase.duration_seconds}s)",
+            )
             print(f"\nExecuting: {phase.phase_name} ({phase.target_memory_mb}MB, {phase.duration_seconds}s)")
             metrics = self.tester.apply_memory_pressure(
                 phase.target_memory_mb,
@@ -755,13 +884,13 @@ class MemoryPressureExperiment:
         # Phase 3: Optimization Testing
         print("\nPhase 3: Optimization Strategy Testing")
         print("-" * 60)
-        send_subprocess_progress("EXP-09", 60, 100, "Testing optimization strategies")
+        report_progress(EXP09_STATUS_OPTIMIZATION_PROGRESS, "Optimization", "Testing optimization strategies")
         optimization_results = self.tester.test_optimization_strategies()
 
         # Phase 4: Recovery Testing
         print("\nPhase 4: Recovery Testing")
         print("-" * 60)
-        send_subprocess_progress("EXP-09", 80, 100, "Testing system recovery")
+        report_progress(EXP09_STATUS_RECOVERY_PROGRESS, "Recovery", "Testing system recovery")
 
         # Clear memory and measure recovery
         self.tester.active_objects.clear()
@@ -774,13 +903,13 @@ class MemoryPressureExperiment:
         # Phase 5: Analysis
         print("\nPhase 5: Results Analysis")
         print("-" * 60)
-        send_subprocess_progress("EXP-09", 90, 100, "Analyzing results")
+        report_progress(EXP09_STATUS_ANALYSIS_PROGRESS, "Analysis", "Analyzing results")
 
         stress_analysis = self.tester.analyze_stress_results()
 
         # Calculate overall results
         results = MemoryPressureResults(
-            total_duration_seconds=time.time() - recovery_start,
+            total_duration_seconds=time.time() - experiment_start,
             max_memory_target_mb=self.max_memory_target_mb,
             optimization_strategies=[s.strategy_name for s in self.tester.optimization_strategies if s.enabled],
             baseline_performance=baseline,
@@ -806,6 +935,8 @@ class MemoryPressureExperiment:
 
         # Determine success
         results.status = self._determine_success(results)
+        report_progress(EXP09_STATUS_COMPLETE_PROGRESS, "Finalization", f"Memory pressure experiment completed with status {results.status}")
+        report_completion(results.status == "PASS", f"Memory pressure experiment {results.status.lower()}")
 
         return results
 
@@ -816,7 +947,7 @@ class MemoryPressureExperiment:
         # Memory stability (less variance is better)
         if 'latency_variance' in stress_analysis:
             latency_variance = stress_analysis['latency_variance']
-            memory_stability = max(0.0, 1.0 - (latency_variance / 1000.0))
+            memory_stability = max(0.0, 1.0 - (latency_variance / EXP09_STABILITY_LATENCY_VARIANCE_SCALE))
             scores.append(memory_stability)
 
         # Performance stability (degradation ratio)
@@ -841,18 +972,18 @@ class MemoryPressureExperiment:
     def _determine_success(self, results: MemoryPressureResults) -> str:
         """Determine if experiment succeeded based on criteria."""
         criteria = [
-            results.degradation_ratio <= 10.0,  # Max 10x performance degradation
+            results.degradation_ratio <= EXP09_SUCCESS_MAX_DEGRADATION_RATIO,
             results.graceful_degradation,      # Performance degrades gracefully
-            results.stability_score >= 0.6,    # System remains stable
-            results.memory_efficiency_score >= 0.5,  # Good memory efficiency
-            results.optimization_improvement >= 0.2  # Optimizations provide benefit
+            results.stability_score >= EXP09_SUCCESS_MIN_STABILITY_SCORE,
+            results.memory_efficiency_score >= EXP09_SUCCESS_MIN_MEMORY_EFFICIENCY,
+            results.optimization_improvement >= EXP09_SUCCESS_MIN_OPTIMIZATION_IMPROVEMENT
         ]
 
         success_rate = sum(criteria) / len(criteria)
 
-        if success_rate >= 0.8:
+        if success_rate >= EXP09_SUCCESS_PASS_RATE:
             return "PASS"
-        elif success_rate >= 0.6:
+        elif success_rate >= EXP09_SUCCESS_PARTIAL_RATE:
             return "PARTIAL"
         else:
             return "FAIL"
@@ -887,25 +1018,38 @@ def save_results(results: MemoryPressureResults, output_file: Optional[str] = No
 
 def main():
     """Main entry point for EXP-09."""
-    import sys
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run EXP-09 Memory Pressure test")
+    parser.add_argument("--quick", action="store_true", help="Run smaller/faster validation")
+    parser.add_argument("--full", action="store_true", help="Run larger/full validation")
+    args = parser.parse_args()
+
+    if args.quick and args.full:
+        raise ValueError("Use only one of --quick or --full")
 
     # Load from config or use defaults
-    max_memory_target_mb = 1000
+    max_memory_target_mb = EXP09_DEFAULT_MAX_MEMORY_TARGET_MB
 
     try:
         from fractalsemantics.config import ExperimentConfig
         config = ExperimentConfig()
-        max_memory_target_mb = config.get("EXP-09", "max_memory_target_mb", 1000)
+        max_memory_target_mb = config.get("EXP-09", "max_memory_target_mb", EXP09_DEFAULT_MAX_MEMORY_TARGET_MB)
     except Exception:
         pass
 
     # Override based on command line
-    if "--quick" in sys.argv:
-        max_memory_target_mb = 200
-    elif "--full" in sys.argv:
-        max_memory_target_mb = 2000
+    if args.quick:
+        max_memory_target_mb = EXP09_QUICK_MAX_MEMORY_TARGET_MB
+        mode_label = "Quick"
+    elif args.full:
+        max_memory_target_mb = EXP09_FULL_MAX_MEMORY_TARGET_MB
+        mode_label = "Full"
+    else:
+        mode_label = "Standard"
 
     try:
+        print(f"[MODE] {mode_label} | max_memory_target_mb={max_memory_target_mb}")
         experiment = MemoryPressureExperiment(max_memory_target_mb=max_memory_target_mb)
         results = experiment.run()
 

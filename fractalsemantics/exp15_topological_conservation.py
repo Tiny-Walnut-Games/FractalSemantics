@@ -23,6 +23,7 @@ SUCCESS CRITERIA:
 - Structure entropy stays constant
 """
 
+import argparse
 import json
 import math
 import secrets
@@ -42,6 +43,7 @@ JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
 try:
+    from fractalsemantics.progress_comm import create_progress_reporter
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
         send_subprocess_completion,
@@ -54,6 +56,19 @@ except ImportError:
     def send_subprocess_status(*args, **kwargs) -> bool: return False
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
+
+    class _NoopProgressReporter:
+        def update(self, *_args, **_kwargs) -> None:
+            return
+
+        def complete(self, *_args, **_kwargs) -> None:
+            return
+
+    def create_progress_reporter(*_args, **_kwargs):
+        return _NoopProgressReporter()
+
+
+EXP15_TOPOLOGY_CONSERVATION_MIN_RATE: float = 0.999
 
 # Import from EXP-20 for orbital mechanics
 try:
@@ -356,11 +371,11 @@ class TopologicalConservationAnalysis:
 
         # Topology is fully conserved if ALL invariants are perfectly conserved
         self.topology_fully_conserved = (
-            nodes_conserved >= 0.999 and  # Allow for tiny numerical errors
-            depth_conserved >= 0.999 and
-            connectivity_conserved >= 0.999 and
-            collisions_conserved >= 0.999 and
-            entropy_conserved >= 0.999
+            nodes_conserved >= EXP15_TOPOLOGY_CONSERVATION_MIN_RATE and
+            depth_conserved >= EXP15_TOPOLOGY_CONSERVATION_MIN_RATE and
+            connectivity_conserved >= EXP15_TOPOLOGY_CONSERVATION_MIN_RATE and
+            collisions_conserved >= EXP15_TOPOLOGY_CONSERVATION_MIN_RATE and
+            entropy_conserved >= EXP15_TOPOLOGY_CONSERVATION_MIN_RATE
         )
 
 
@@ -716,7 +731,10 @@ class EXP15_TopologicalConservationResults:
 def test_topological_conservation_in_orbit(
     system_name: str = "Earth-Sun",
     approach_name: str = "Branching Vector (Ratio)",
-    scalar_magnitude: float = 3.54e22
+    scalar_magnitude: float = 3.54e22,
+    time_steps: int = 1000,
+    topological_check_steps: int = 50,
+    time_span_days: float = 365.25,
 ) -> TopologicalConservationTestResult:
     """
     Test topological conservation during orbital dynamics.
@@ -751,9 +769,9 @@ def test_topological_conservation_in_orbit(
     start_time = time.time()
     trajectory, topological_analysis = integrate_orbit_with_topological_tracking(
         orbiting_body, central_body, approach, scalar_magnitude,
-        time_span=365.25 * 24 * 3600,  # 1 year
-        time_steps=1000,
-        topological_check_steps=50  # Check topology every 50 steps
+        time_span=time_span_days * 24 * 3600,
+        time_steps=time_steps,
+        topological_check_steps=topological_check_steps,
     )
     integration_time = time.time() - start_time
 
@@ -787,7 +805,10 @@ def test_topological_conservation_in_orbit(
 
 def run_exp15_topological_conservation_experiment(
     systems_to_test: list[str] = None,
-    approaches_to_test: list[str] = None
+    approaches_to_test: list[str] = None,
+    time_steps: int = 1000,
+    topological_check_steps: int = 50,
+    time_span_days: float = 365.25,
 ) -> EXP15_TopologicalConservationResults:
     """
     Run EXP-15: Complete topological conservation experiment.
@@ -808,6 +829,30 @@ def run_exp15_topological_conservation_experiment(
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
+    progress = create_progress_reporter("EXP-15")
+    subprocess_enabled = is_subprocess_communication_enabled()
+
+    def report_status(stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_status("EXP-15", stage, message)
+            return
+        progress.update(0, stage, message)
+
+    def report_progress(progress_percent: float, stage: str, message: str) -> None:
+        bounded_progress = max(0.0, min(100.0, progress_percent))
+        if subprocess_enabled:
+            send_subprocess_progress("EXP-15", bounded_progress, stage, message)
+            return
+        progress.update(bounded_progress, stage, message)
+
+    def report_completion(success: bool, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_completion("EXP-15", success, message)
+            return
+        progress.complete(message)
+
+    report_status("Initialization", "Starting topological conservation experiment")
+
     print("\n" + "=" * 80)
     print("EXP-15: TOPOLOGICAL CONSERVATION LAWS")
     print("=" * 80)
@@ -818,12 +863,25 @@ def run_exp15_topological_conservation_experiment(
     # Run tests for all combinations
     conservation_results = {}
 
+    total_runs = max(1, len(systems_to_test) * len(approaches_to_test))
+    run_index = 0
+
     for system_name in systems_to_test:
         system_results = {}
         for approach_name in approaches_to_test:
+            run_index += 1
+            report_progress(
+                run_index / total_runs * 90.0,
+                "Conservation Testing",
+                f"Testing {system_name} with {approach_name}",
+            )
             try:
                 result = test_topological_conservation_in_orbit(
-                    system_name, approach_name
+                    system_name=system_name,
+                    approach_name=approach_name,
+                    time_steps=time_steps,
+                    topological_check_steps=topological_check_steps,
+                    time_span_days=time_span_days,
                 )
                 system_results[approach_name] = result
             except Exception as e:
@@ -862,6 +920,16 @@ def run_exp15_topological_conservation_experiment(
     print(f"Classical energy non-conservation confirmed: {'YES' if classical_energy_nonconservation_confirmed else 'NO'}")
     print(f"Fractal physics validated: {'YES' if fractal_physics_validated else 'NO'}")
     print()
+
+    report_progress(
+        100.0,
+        "Finalization",
+        f"Topological conservation experiment completed with {len(all_results)} successful runs",
+    )
+    report_completion(
+        fractal_physics_validated,
+        f"Topological conservation experiment completed with {len(all_results)} successful runs",
+    )
 
     results = EXP15_TopologicalConservationResults(
         start_time=start_time,
@@ -945,6 +1013,14 @@ def save_results(results: EXP15_TopologicalConservationResults, output_file: Opt
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run EXP-15 topological conservation experiment")
+    parser.add_argument("--quick", action="store_true", help="Run smaller/faster validation")
+    parser.add_argument("--full", action="store_true", help="Run larger/full validation")
+    args = parser.parse_args()
+
+    if args.quick and args.full:
+        raise ValueError("Use only one of --quick or --full")
+
     # Load from config or use defaults
     try:
         from fractalsemantics.config import ExperimentConfig
@@ -962,10 +1038,34 @@ if __name__ == "__main__":
     if approaches_to_test is None:
         approaches_to_test = ["Branching Vector (Ratio)"]
 
+    if args.quick:
+        time_steps = 300
+        topological_check_steps = 30
+        time_span_days = 60.0
+        mode_label = "Quick"
+    elif args.full:
+        time_steps = 2000
+        topological_check_steps = 50
+        time_span_days = 365.25
+        mode_label = "Full"
+    else:
+        time_steps = 1000
+        topological_check_steps = 50
+        time_span_days = 365.25
+        mode_label = "Standard"
+
     try:
+        print(
+            f"[MODE] {mode_label} | time_steps={time_steps} "
+            f"| topological_check_steps={topological_check_steps} "
+            f"| time_span_days={time_span_days}"
+        )
         results = run_exp15_topological_conservation_experiment(
             systems_to_test=systems_to_test,
-            approaches_to_test=approaches_to_test
+            approaches_to_test=approaches_to_test,
+            time_steps=time_steps,
+            topological_check_steps=topological_check_steps,
+            time_span_days=time_span_days,
         )
         output_file = save_results(results)
 
@@ -973,8 +1073,12 @@ if __name__ == "__main__":
         print("EXP-15 COMPLETE")
         print("=" * 80)
 
-        status = "PASSED" if results.fractal_physics_validated else "FAILED"
-        print(f"Status: {status}")
+        scientific_supported = bool(results.fractal_physics_validated)
+        print("Technical Run Status: PASS (execution completed)")
+        if scientific_supported:
+            print("Scientific Outcome: Hypothesis supported by this run")
+        else:
+            print("Scientific Outcome: Scientifically valid negative result (hypothesis not supported under tested conditions)")
         print(f"Output: {output_file}")
         print()
 
@@ -987,8 +1091,8 @@ if __name__ == "__main__":
             print()
             print("Fractal physics is validated as a fundamentally different ontology!")
         else:
-            print("Topological conservation not fully demonstrated.")
-            print("Further investigation needed.")
+            print("SCIENTIFIC NEGATIVE RESULT: topological conservation postulate not supported in this run.")
+            print("Result remains scientifically valid; refine model assumptions or test conditions.")
 
     except Exception as e:
         print(f"\nEXPERIMENT FAILED: {e}")

@@ -21,6 +21,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, TypeAlias
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 # Reuse canonical serialization from Phase 1
 from fractalsemantics.fractalsemantics_entity import (
     BitChain,
@@ -68,7 +71,7 @@ class ScaleTestConfig:
     def name(self) -> str:
         """Human-readable scale name."""
         if self.scale >= 10_000_000:
-            return f"{self.scale // 10_000_000}M"
+            return f"{self.scale // 1_000_000}M"
         elif self.scale >= 1_000:
             return f"{self.scale // 1_000}K"
         return str(self.scale)
@@ -176,19 +179,26 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
     """
     start_time = time.time()
 
+    def percentile(values: list[float], p: float) -> float:
+        """Return percentile p (0-1) with index clamping."""
+        if not values:
+            return 0.0
+        sorted_values = sorted(values)
+        index = max(0, min(len(sorted_values) - 1, int(len(sorted_values) * p)))
+        return sorted_values[index]
+
     # Step 1: Generate bit-chains
-    print(f"  Generating {config.scale} bit-chains...", end="", flush=True)
+    print(f"  Generating {config.scale:,} bit-chains...")
+    generation_start = time.time()
     bitchains: list[BitChain] = []
     for i in range(config.scale):
-        bitchains.append(generate_random_bitchain())
-        # use variable i to report progress every 10% of generation
-        if (i + 1) % (config.scale // 10) == 0:
-            gen_progress = ((i + 1) / config.scale) * 100
-            print(f" {gen_progress:.0f}%", end="", flush=True)
-    print(" OK")
+        bitchains.append(generate_random_bitchain(seed=i))
+    generation_time = time.time() - generation_start
+    print(f"  Generation complete in {generation_time:.2f}s")
 
     # Step 2: Compute addresses and check for collisions (EXP-01)
-    print("  Computing addresses (EXP-01)...", end="", flush=True)
+    print("  Computing addresses (EXP-01)...")
+    address_start = time.time()
     address_map: dict[str, int] = defaultdict(int)
     addresses = []
 
@@ -201,24 +211,25 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
     collision_groups = sum(1 for count in address_map.values() if count > 1)
     collision_count = sum(count - 1 for count in address_map.values() if count > 1)
     collision_rate = collision_count / config.scale if config.scale > 0 else 0.0
+    address_time = time.time() - address_start
     print(
-        f" OK ({unique_addresses} unique, {collision_groups} collision groups, {collision_count} total collisions)"
+        f"  Address computation complete in {address_time:.2f}s "
+        f"({unique_addresses:,} unique, {collision_groups:,} collision groups, {collision_count:,} total collisions)"
     )
 
     # Step 3: Build retrieval index
-    print("  Building retrieval index...", end="", flush=True)
+    print("  Building retrieval index...")
+    index_start = time.time()
     address_to_bitchain = {addr: bc for bc, addr in zip(bitchains, addresses)}
-    print(" OK")
+    index_time = time.time() - index_start
+    print(f"  Retrieval index built in {index_time:.2f}s")
 
     # Step 4: Test retrieval performance (EXP-02)
-    print(
-        f"  Testing retrieval ({config.num_retrievals} queries)...",
-        end="",
-        flush=True,
-    )
+    print(f"  Testing retrieval ({config.num_retrievals:,} queries)...")
+    retrieval_start = time.time()
     retrieval_times = []
 
-    for i, _ in enumerate(range(config.num_retrievals)):
+    for _ in range(config.num_retrievals):
         idx = secure_random.randint(0, len(addresses) - 1)
         target_addr = addresses[idx]
 
@@ -232,12 +243,8 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
 
         retrieval_times.append((end_lookup - start_lookup) * 1000)  # Convert to ms
 
-        # Report progress every 10% of queries
-        if (i + 1) % (config.num_retrievals // 10) == 0:
-            query_progress = ((i + 1) / config.num_retrievals) * 100
-            print(f" {query_progress:.0f}%", end="", flush=True)
-
-    print(" OK")
+    retrieval_time = time.time() - retrieval_start
+    print(f"  Retrieval benchmark complete in {retrieval_time:.2f}s")
 
     # Step 5: Calculate statistics
     end_time = time.time()
@@ -245,8 +252,8 @@ def run_scale_test(config: ScaleTestConfig) -> ScaleTestResults:
 
     retrieval_mean = statistics.mean(retrieval_times)
     retrieval_median = statistics.median(retrieval_times)
-    retrieval_p95 = sorted(retrieval_times)[int(len(retrieval_times) * 0.95)]
-    retrieval_p99 = sorted(retrieval_times)[int(len(retrieval_times) * 0.99)]
+    retrieval_p95 = percentile(retrieval_times, 0.95)
+    retrieval_p99 = percentile(retrieval_times, 0.99)
 
     # Prevent division by zero for very fast tests
     addresses_per_second = config.scale / max(total_time, 0.001)
@@ -360,18 +367,35 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
     print(f"Mode: {'Quick' if quick_mode else 'Full'} (scales: {scales})")
     print()
 
-    # Report initial progress
-    progress.update(0, "Initialization", f"Starting fractal scaling test with {len(scales)} scales")
+    subprocess_enabled = is_subprocess_communication_enabled()
 
-    # Send subprocess progress message
-    send_subprocess_status("EXP-04", "Initialization", f"Starting fractal scaling test with {len(scales)} scales")
+    def report_status(stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_status("EXP-04", stage, message)
+            return
+        progress.update(0, stage, message)
+
+    def report_progress(progress_percent: float, stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_progress("EXP-04", progress_percent, stage, message)
+            return
+        progress.update(progress_percent, stage, message)
+
+    def report_completion(success: bool, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_completion("EXP-04", success, message)
+            return
+        progress.complete(message)
+
+    # Report initial progress
+    report_status("Initialization", f"Starting fractal scaling test with {len(scales)} scales")
 
     scale_results = []
 
     for i, scale in enumerate(scales):
         # Calculate progress percentage
         progress_percent = (i / len(scales)) * 100
-        progress.update(progress_percent, f"Scale {scale:,}", f"Starting test for {scale:,} bit-chains")
+        report_progress(progress_percent, f"Scale {scale:,}", f"Starting test for {scale:,} bit-chains")
 
         print(f"SCALE: {scale:,} bit-chains")
         print("-" * 70)
@@ -388,10 +412,7 @@ def run_fractal_scaling_test(quick_mode: bool = True) -> FractalScalingResults:
 
             # Update progress for completed scale
             completed_progress = ((i + 1) / len(scales)) * 100
-            progress.update(completed_progress, f"Scale {scale:,} Complete", f"Processed {scale:,} bit-chains successfully")
-
-            # Send subprocess progress message
-            send_subprocess_progress("EXP-04", completed_progress, f"Scale {scale:,} Complete", f"Processed {scale:,} bit-chains successfully")
+            report_progress(completed_progress, f"Scale {scale:,} Complete", f"Processed {scale:,} bit-chains successfully")
 
             # Print summary for this scale
             print(f"  RESULT: {result.num_addresses} unique addresses")
@@ -489,7 +510,8 @@ if __name__ == "__main__":
 
         # Send subprocess completion message
         success = all(r.is_valid() for r in results.scale_results) and results.is_fractal
-        send_subprocess_completion("EXP-04", success, f"Fractal scaling test completed with {len(results.scale_results)} scales tested")
+        if is_subprocess_communication_enabled():
+            send_subprocess_completion("EXP-04", success, f"Fractal scaling test completed with {len(results.scale_results)} scales tested")
 
     except Exception as e:
         print(f"\nTEST FAILED: {e}")

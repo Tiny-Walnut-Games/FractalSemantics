@@ -26,30 +26,88 @@ TECHNICAL APPROACH:
 5. Measure predicted vs. actual orbital period
 """
 
+import argparse
 import datetime
 import json
 import math
-import secrets
 import statistics
 import sys
 import time
 from dataclasses import dataclass, field
 from datetime import timezone
 from pathlib import Path
-from typing import Optional, TypeAlias
+from typing import Callable, Optional, TypeAlias
 
 import numpy as np
-
-from fractalsemantics.exp02_retrieval_efficiency import (
-    is_subprocess_communication_enabled,
-)
-from fractalsemantics.progress_comm import report_progress
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
-secure_random = secrets.SystemRandom()
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parent
+for path_entry in (str(PROJECT_ROOT), str(CURRENT_DIR)):
+    if path_entry not in sys.path:
+        sys.path.insert(0, path_entry)
+
+try:
+    from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
+        send_subprocess_progress,
+        send_subprocess_status,
+    )
+except ImportError:
+    try:
+        from subprocess_comm import (  # type: ignore[no-redef]
+            is_subprocess_communication_enabled,
+            send_subprocess_completion,
+            send_subprocess_progress,
+            send_subprocess_status,
+        )
+    except ImportError:
+        def send_subprocess_progress(*args, **kwargs) -> bool: return False
+        def send_subprocess_status(*args, **kwargs) -> bool: return False
+        def send_subprocess_completion(*args, **kwargs) -> bool: return False
+        def is_subprocess_communication_enabled() -> bool: return False
+
+try:
+    from fractalsemantics.progress_comm import create_progress_reporter
+except ImportError:
+    try:
+        from progress_comm import create_progress_reporter  # type: ignore[no-redef]
+    except ImportError:
+        class _FallbackProgressReporter:
+            def __init__(self, experiment_id: str):
+                self.experiment_id = experiment_id
+
+            def update(self, progress_percent: float, stage: str, message: str) -> None:
+                print(f"[{self.experiment_id}] {progress_percent:.1f}% | {stage}: {message}")
+
+            def complete(self, message: str) -> None:
+                print(f"[{self.experiment_id}] COMPLETE: {message}")
+
+        def create_progress_reporter(experiment_id: str):
+            return _FallbackProgressReporter(experiment_id)
+
+
+EXP21_SECONDS_PER_DAY: int = 24 * 3600
+EXP21_AU_IN_METERS: float = 1.496e11
+EXP21_METERS_PER_KILOMETER: float = 1000.0
+EXP21_DEFAULT_COMPLEXITY_RATIO: float = 1.0
+EXP21_PROGRESS_SETUP_PERCENT: float = 10.0
+EXP21_PROGRESS_INTEGRATION_START: float = 20.0
+EXP21_PROGRESS_INTEGRATION_SPAN: float = 0.6
+EXP21_PROGRESS_INTEGRATION_COMPLETE: float = 80.0
+EXP21_PROGRESS_VALIDATION_START: float = 85.0
+EXP21_MOON_TOLERANCE_PERCENT: float = 1.0
+EXP21_EARTH_TOLERANCE_PERCENT: float = 5.0
+EXP21_DEFAULT_SIMULATION_DAYS: float = 30.0
+EXP21_DEFAULT_TIME_STEPS: int = 1000
+EXP21_DEFAULT_HIERARCHY_COEFFICIENT: float = 1.0
+EXP21_DEFAULT_NO_TUNING: bool = True
+EXP21_QUICK_SIMULATION_DAYS: float = 10.0
+EXP21_QUICK_TIME_STEPS: int = 300
 
 # ============================================================================
 # HIERARCHICAL ORBITAL ENTITIES
@@ -271,7 +329,7 @@ def derive_fractal_force_vector_branching(
         if min_complexity > 0:
             complexity_ratio = max(complexity_a, complexity_b) / min_complexity
         else:
-            complexity_ratio = 1.0  # Default ratio when complexity is zero
+            complexity_ratio = EXP21_DEFAULT_COMPLEXITY_RATIO
 
         directional_magnitude = effective_magnitude * complexity_ratio
 
@@ -403,7 +461,7 @@ class OrbitalTrajectory:
 
         # Calculate orbital radius (semi-major axis approximation)
         radii = [np.linalg.norm(pos) for pos in self.positions]
-        self.orbital_radius_au = statistics.mean(radii) / 1.496e11  # Convert to AU
+        self.orbital_radius_au = statistics.mean(radii) / EXP21_AU_IN_METERS
 
         # Calculate eccentricity from radial variation
         if len(radii) > 10:
@@ -433,7 +491,7 @@ class OrbitalTrajectory:
 
         if len(peaks) < 2:
             # Fallback: estimate from circular orbit assumption
-            a = self.orbital_radius_au * 1.496e11  # AU to meters
+            a = self.orbital_radius_au * EXP21_AU_IN_METERS
 
             if self.body_name == "EarthMoon_Barycenter":
                 central_mass = 1.989e30  # Sun mass
@@ -444,13 +502,13 @@ class OrbitalTrajectory:
 
             G = 6.67430e-11
             period_seconds = 2 * np.pi * np.sqrt(a**3 / (G * central_mass))
-            return period_seconds / (24 * 3600)  # Convert to days
+            return period_seconds / EXP21_SECONDS_PER_DAY
 
         # Calculate average period from peak intervals
         intervals = np.diff(peaks)
         if len(intervals) > 0:
             avg_period_seconds = statistics.mean(intervals)
-            return avg_period_seconds / (24 * 3600)  # Convert to days
+            return avg_period_seconds / EXP21_SECONDS_PER_DAY
 
         return 0.0
 
@@ -459,7 +517,8 @@ def integrate_hierarchical_orbits(
     system: HierarchicalOrbitalSystem,
     simulation_days: float,
     time_steps: int = 1000,
-    hierarchy_coefficient: float = 1.0
+    hierarchy_coefficient: float = 1.0,
+    progress_callback: Optional[Callable[[float, str, str], None]] = None,
 ) -> dict[str, OrbitalTrajectory]:
     """
     Integrate orbital trajectories using hierarchical force calculations.
@@ -473,8 +532,8 @@ def integrate_hierarchical_orbits(
     Returns:
         Trajectories for all bodies
     """
-    dt_seconds = (simulation_days * 24 * 3600) / time_steps  # Time step in seconds
-    times = np.linspace(0, simulation_days * 24 * 3600, time_steps)
+    dt_seconds = (simulation_days * EXP21_SECONDS_PER_DAY) / time_steps
+    times = np.linspace(0, simulation_days * EXP21_SECONDS_PER_DAY, time_steps)
 
     # Initialize trajectories
     trajectories = {}
@@ -491,7 +550,9 @@ def integrate_hierarchical_orbits(
     current_positions = {name: body.position.copy() for name, body in system.bodies.items()}
     current_velocities = {name: body.velocity.copy() for name, body in system.bodies.items()}
 
-    for step in range(1, time_steps): # step is currently unused and should be utilized for progress reporting
+    progress_interval = max(1, time_steps // 100)
+
+    for step in range(1, time_steps):
         new_positions = {}
         new_velocities = {}
 
@@ -548,19 +609,13 @@ def integrate_hierarchical_orbits(
             else:
                 trajectories[body_name]['relative_positions'].append(new_pos.copy())
 
-            # Handle the step variable for progress reporting
-            if is_subprocess_communication_enabled():
-                progress_percent = (step / time_steps) * 100.0
-                report_progress("EXP-21", progress_percent, f"Integration step {step}/{time_steps}")
-
         # Update for next iteration
         current_positions = new_positions
         current_velocities = new_velocities
 
-        # Handle the step variable for progress reporting
-        if is_subprocess_communication_enabled():
+        if progress_callback and (step % progress_interval == 0 or step == time_steps - 1):
             progress_percent = (step / time_steps) * 100.0
-            report_progress("EXP-21", progress_percent, f"Integration step {step}/{time_steps}")
+            progress_callback(progress_percent, "Orbit Integration", f"Integration step {step}/{time_steps}")
 
     # Convert to OrbitalTrajectory objects
     orbital_trajectories = {}
@@ -572,11 +627,6 @@ def integrate_hierarchical_orbits(
             velocities=traj_data['velocities'],
             energies=traj_data['energies']
         )
-
-    # Handle the step variable for progress reporting
-    if is_subprocess_communication_enabled():
-        progress_percent = (step / time_steps) * 100.0
-        report_progress("EXP-21", progress_percent, f"Integration step {step}/{time_steps}")
 
     return orbital_trajectories
 
@@ -776,8 +826,32 @@ def run_exp21_earth_moon_sun_test(
         Complete test results
     """
 
-    start_time = time.time()
+    progress = create_progress_reporter("EXP-21")
+    subprocess_enabled = is_subprocess_communication_enabled()
+
+    def report_status(stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_status("EXP-21", stage, message)
+            return
+        progress.update(0.0, stage, message)
+
+    def report_progress(progress_percent: float, stage: str, message: str) -> None:
+        bounded_progress = max(0.0, min(100.0, progress_percent))
+        if subprocess_enabled:
+            send_subprocess_progress("EXP-21", bounded_progress, stage, message)
+            return
+        progress.update(bounded_progress, stage, message)
+
+    def report_completion(success: bool, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_completion("EXP-21", success, message)
+            return
+        progress.complete(message)
+
+    start_time = datetime.datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
+    report_status("Initialization", "Starting EXP-21 Earth-Moon-Sun simulation")
+    report_progress(0.0, "Initialization", "Preparing hierarchical orbital system")
 
     print("\n" + "=" * 80)
     print("EXP-21: EARTH-MOON-SUN SYSTEM - CRITICAL SCALING TEST")
@@ -790,23 +864,35 @@ def run_exp21_earth_moon_sun_test(
     # Create the Earth-Moon-Sun system
     print("Setting up Earth-Moon-Sun system...")
     system = create_earth_moon_sun_system()
+    report_progress(EXP21_PROGRESS_SETUP_PERCENT, "System Setup", "Earth-Moon-Sun system initialized")
     print(f"System created with {len(system.bodies)} bodies:")
     for name, body in system.bodies.items():
-        distance_au = body.orbital_distance / 1.496e11
-        velocity_km_s = body.orbital_velocity / 1000
+        distance_au = body.orbital_distance / EXP21_AU_IN_METERS
+        velocity_km_s = body.orbital_velocity / EXP21_METERS_PER_KILOMETER
         print(f"  {name}: {distance_au:.2f} AU, {velocity_km_s:.1f} km/s, depth {body.hierarchical_depth}")
     print()
 
     # Integrate orbits using hierarchical forces
     print("Integrating orbits with hierarchical forces...")
+    report_progress(EXP21_PROGRESS_INTEGRATION_START, "Orbit Integration", "Starting orbital integration")
     trajectories = integrate_hierarchical_orbits(
-        system, simulation_days, time_steps, hierarchy_coefficient
+        system,
+        simulation_days,
+        time_steps,
+        hierarchy_coefficient,
+        progress_callback=lambda p, stage, message: report_progress(
+            EXP21_PROGRESS_INTEGRATION_START + (p * EXP21_PROGRESS_INTEGRATION_SPAN),
+            stage,
+            message,
+        ),
     )
+    report_progress(EXP21_PROGRESS_INTEGRATION_COMPLETE, "Orbit Integration", "Orbital integration complete")
     print("Integration complete.")
     print()
 
     # Validate orbital periods
     print("Validating orbital periods...")
+    report_progress(EXP21_PROGRESS_VALIDATION_START, "Validation", "Validating predicted orbital periods")
     period_validations = {}
 
     for body_name, trajectory in trajectories.items():
@@ -842,8 +928,8 @@ def run_exp21_earth_moon_sun_test(
     earth_period_accuracy = 100.0 - (earth_validation.relative_error_percent if earth_validation else 100.0)
 
     # Critical success criteria: Moon period within 1% accuracy
-    moon_within_1_percent = moon_validation.within_tolerance(1.0) if moon_validation else False
-    earth_within_5_percent = earth_validation.within_tolerance(5.0) if earth_validation else False
+    moon_within_1_percent = moon_validation.within_tolerance(EXP21_MOON_TOLERANCE_PERCENT) if moon_validation else False
+    earth_within_5_percent = earth_validation.within_tolerance(EXP21_EARTH_TOLERANCE_PERCENT) if earth_validation else False
 
     hierarchical_scaling_confirmed = moon_within_1_percent and earth_within_5_percent
     universality_claim_supported = hierarchical_scaling_confirmed and (hierarchy_coefficient == 1.0)
@@ -862,9 +948,11 @@ def run_exp21_earth_moon_sun_test(
         print("BREAKTHROUGH: Hierarchical framework scales to multi-body systems!")
         print("   Moon's orbit emerges naturally from Earth-Sun hierarchy.")
         print("   No parameter tuning required - universality confirmed.")
+        report_status("Validation", "SUCCESS - Universality claim supported")
     else:
-        print("WARNING: Scaling test failed - recalibration needed.")
-        print("   Hierarchy may be useful but not foundational.")
+        print("SCIENTIFIC NEGATIVE RESULT: Scaling postulate not supported under tested conditions.")
+        print("   Hierarchy may still be useful, but universality is not established in this run.")
+        report_status("Validation", "NEGATIVE RESULT - Universality claim not supported")
 
     overall_end = time.time()
     end_time = datetime.datetime.now(timezone.utc).isoformat()
@@ -882,6 +970,12 @@ def run_exp21_earth_moon_sun_test(
         earth_period_accuracy_percent=earth_period_accuracy,
         hierarchical_scaling_confirmed=hierarchical_scaling_confirmed,
         universality_claim_supported=universality_claim_supported,
+    )
+
+    report_progress(100.0, "Completion", "EXP-21 simulation complete")
+    report_completion(
+        universality_claim_supported,
+        "Earth-Moon-Sun simulation complete"
     )
 
     return results
@@ -947,19 +1041,57 @@ def save_results(results: EXP21_EarthMoonSunResults, output_file: Optional[str] 
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run EXP-21 Earth-Moon-Sun simulation")
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument("--quick", action="store_true", help="Run reduced-size quick validation")
+    mode_group.add_argument("--full", action="store_true", help="Run full simulation")
+    parser.add_argument("--simulation-days", type=float, default=None, help="Override simulation duration in days")
+    parser.add_argument("--time-steps", type=int, default=None, help="Override integration step count")
+    parser.add_argument("--hierarchy-coefficient", type=float, default=None, help="Override hierarchy coefficient")
+    args = parser.parse_args()
+
+    quick_mode = bool(args.quick)
+
     # Load from config or use defaults
     try:
         from fractalsemantics.config import ExperimentConfig
 
         config = ExperimentConfig()
-        simulation_days = config.get("EXP-21", "simulation_days", 30.0)
-        time_steps = config.get("EXP-21", "time_steps", 1000)
-        no_tuning = config.get("EXP-21", "no_tuning", True)
-        hierarchy_coefficient = 1.0 if no_tuning else config.get("EXP-21", "hierarchy_coefficient", 1.0)
+        default_simulation_days = config.get("EXP-21", "simulation_days", EXP21_DEFAULT_SIMULATION_DAYS)
+        default_time_steps = config.get("EXP-21", "time_steps", EXP21_DEFAULT_TIME_STEPS)
+        no_tuning = config.get("EXP-21", "no_tuning", EXP21_DEFAULT_NO_TUNING)
+        default_hierarchy_coefficient = (
+            EXP21_DEFAULT_HIERARCHY_COEFFICIENT
+            if no_tuning
+            else config.get("EXP-21", "hierarchy_coefficient", EXP21_DEFAULT_HIERARCHY_COEFFICIENT)
+        )
     except Exception:
-        simulation_days = 30.0
-        time_steps = 1000
-        hierarchy_coefficient = 1.0  # No tuning allowed
+        default_simulation_days = EXP21_DEFAULT_SIMULATION_DAYS
+        default_time_steps = EXP21_DEFAULT_TIME_STEPS
+        default_hierarchy_coefficient = EXP21_DEFAULT_HIERARCHY_COEFFICIENT
+
+    if quick_mode:
+        simulation_days = EXP21_QUICK_SIMULATION_DAYS
+        time_steps = EXP21_QUICK_TIME_STEPS
+    else:
+        simulation_days = float(default_simulation_days)
+        time_steps = int(default_time_steps)
+
+    hierarchy_coefficient = float(default_hierarchy_coefficient)
+
+    if args.simulation_days is not None:
+        simulation_days = float(args.simulation_days)
+    if args.time_steps is not None:
+        time_steps = int(args.time_steps)
+    if args.hierarchy_coefficient is not None:
+        hierarchy_coefficient = float(args.hierarchy_coefficient)
+
+    mode_label = "QUICK" if quick_mode else "FULL"
+    print(f"Running EXP-21 in {mode_label} mode")
+    print(
+        f"Runtime settings: simulation_days={simulation_days}, "
+        f"time_steps={time_steps}, hierarchy_coefficient={hierarchy_coefficient}"
+    )
 
     try:
         results = run_exp21_earth_moon_sun_test(
@@ -974,8 +1106,11 @@ if __name__ == "__main__":
         print("EXP-21 COMPLETE")
         print("=" * 80)
 
-        status = "PASSED" if results.universality_claim_supported else "FAILED"
-        print(f"Status: {status}")
+        print("Technical Run Status: PASS (execution completed)")
+        if results.universality_claim_supported:
+            print("Scientific Outcome: Hypothesis supported by this run")
+        else:
+            print("Scientific Outcome: Scientifically valid negative result (hypothesis not supported under tested conditions)")
         print(f"Moon period accuracy: {results.moon_period_accuracy_percent:.2f}%")
         print(f"Hierarchy coefficient used: {hierarchy_coefficient}")
         print(f"Output: {output_file}")
@@ -985,11 +1120,13 @@ if __name__ == "__main__":
             print("- CRITICAL SUCCESS: Hierarchical framework scales to multi-body systems!")
             print("   Proceed to EXP-22 (Jupiter moons) - scaling laws confirmed.")
         else:
-            print("CRITICAL FAILURE: Framework needs recalibration.")
-            print("   Moon's orbit does not emerge from Earth-Sun hierarchy.")
-            print("   Proceed to EXP-22 only after fixing hierarchical model.")
+            print("SCIENTIFIC NEGATIVE RESULT: universality/scaling postulate not supported in this run.")
+            print("   Moon's orbit did not emerge from Earth-Sun hierarchy under tested conditions.")
+            print("   Revisit assumptions before extending to EXP-22.")
 
     except Exception as e:
+        if is_subprocess_communication_enabled():
+            send_subprocess_completion("EXP-21", False, f"Experiment failed: {e}")
         print(f"\nEXPERIMENT FAILED: {e}")
         import traceback
 

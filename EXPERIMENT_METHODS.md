@@ -282,7 +282,7 @@
 - Clear advantages in specific use cases
 - Validated unique value proposition
 
-## Physics Unification (EXP-13 to EXP-20)
+## Physics Unification (EXP-13 to EXP-21)
 
 ### EXP-13: Fractal Gravity Test
 

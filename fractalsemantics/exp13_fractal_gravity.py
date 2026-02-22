@@ -23,9 +23,9 @@ Success Criteria:
 - Element-specific cohesion magnitudes correlate with atomic properties
 """
 
+import argparse
 import json
 import random
-import secrets
 import statistics
 import sys
 import time
@@ -43,6 +43,7 @@ JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
 try:
+    from fractalsemantics.progress_comm import create_progress_reporter
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
         send_subprocess_completion,
@@ -56,7 +57,33 @@ except ImportError:
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
 
-secure_random = secrets.SystemRandom()
+    class _NoopProgressReporter:
+        def update(self, *_args, **_kwargs) -> None:
+            return
+
+        def complete(self, *_args, **_kwargs) -> None:
+            return
+
+    def create_progress_reporter(*_args, **_kwargs):
+        return _NoopProgressReporter()
+
+EXP13_RANDOM_SEED: int = 42
+EXP13_DEFAULT_ELEMENTS: list[str] = ["gold", "nickel", "copper"]
+EXP13_ELEMENT_DEFAULT_DENSITY: float = 0.8
+EXP13_PROGRESS_ELEMENT_PHASE_MAX: float = 90.0
+EXP13_FLATNESS_CV_TOLERANCE: float = 0.01
+EXP13_FLATNESS_STD_TOLERANCE: float = 0.001
+EXP13_FALLOFF_PATTERN_MIN_CORRELATION: float = 0.9
+EXP13_CONFIG_DEFAULT_POPULATION_SIZE: int = 100
+EXP13_CONFIG_DEFAULT_INTERACTION_SAMPLES: int = 1000
+EXP13_FALLBACK_POPULATION_SIZE: int = 5
+EXP13_FALLBACK_INTERACTION_SAMPLES: int = 1000
+EXP13_QUICK_POPULATION_SIZE: int = 4
+EXP13_QUICK_INTERACTION_SAMPLES: int = 500
+EXP13_FULL_POPULATION_SIZE: int = 6
+EXP13_FULL_INTERACTION_SAMPLES: int = 10000
+
+random_selector = random.Random(EXP13_RANDOM_SEED)
 
 # ============================================================================
 # EXP-13 v2: PURE HIERARCHICAL DATA STRUCTURES
@@ -364,7 +391,7 @@ def get_element_fractal_density(element: str) -> float:
         "iron": 0.75,    # Z=26, least complex in our test set
     }
 
-    return element_densities.get(element, 0.8)  # Default density
+    return element_densities.get(element, EXP13_ELEMENT_DEFAULT_DENSITY)
 
 
 # ============================================================================
@@ -409,8 +436,8 @@ def run_hierarchical_gravity_test_for_element(
     # Test gravitational interactions between random node pairs
     for _ in range(interaction_samples):
         # Select two random nodes from the hierarchy
-        node_a = random.choice(all_nodes)
-        node_b = random.choice(all_nodes)
+        node_a = random_selector.choice(all_nodes)
+        node_b = random_selector.choice(all_nodes)
 
         # Skip self-interaction
         if node_a is node_b:
@@ -504,9 +531,29 @@ def run_fractal_gravity_experiment_v2(
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
-    # Send initial status update
-    if is_subprocess_communication_enabled():
-        send_subprocess_status("EXP-13", "starting", "Starting fractal gravity experiment")
+    progress = create_progress_reporter("EXP-13")
+    subprocess_enabled = is_subprocess_communication_enabled()
+
+    def report_status(stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_status("EXP-13", stage, message)
+            return
+        progress.update(0, stage, message)
+
+    def report_progress(progress_percent: float, stage: str, message: str) -> None:
+        bounded_progress = max(0.0, min(100.0, progress_percent))
+        if subprocess_enabled:
+            send_subprocess_progress("EXP-13", bounded_progress, stage, message)
+            return
+        progress.update(bounded_progress, stage, message)
+
+    def report_completion(success: bool, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_completion("EXP-13", success, message)
+            return
+        progress.complete(message)
+
+    report_status("Initialization", "Starting fractal gravity experiment")
 
     print("\n" + "=" * 70)
     print("EXP-13 v2: FRACTAL GRAVITY WITHOUT FALLOFF (REDESIGNED)")
@@ -521,10 +568,12 @@ def run_fractal_gravity_experiment_v2(
 
     for i, element_type in enumerate(elements_to_test):
         try:
-            # Send progress update
-            if is_subprocess_communication_enabled():
-                progress_percent = (i + 1) / len(elements_to_test) * 100
-                send_subprocess_progress("EXP-13", progress_percent, "Element Testing", f"Testing {element_type}", "info")
+            progress_percent = (i + 1) / max(1, len(elements_to_test)) * EXP13_PROGRESS_ELEMENT_PHASE_MAX
+            report_progress(
+                progress_percent,
+                "Element Testing",
+                f"Testing {element_type}",
+            )
 
             result = run_hierarchical_gravity_test_for_element(
                 element_type, max_hierarchy_depth, interaction_samples
@@ -535,6 +584,10 @@ def run_fractal_gravity_experiment_v2(
         except Exception as e:
             print(f"    FAILED: {e}")
             print()
+
+    if not element_results:
+        report_completion(False, "Fractal gravity experiment failed: no elements completed")
+        raise RuntimeError("No element tests completed successfully")
 
     # Cross-element analysis
     fractal_no_falloff_confirmed = analyze_fractal_no_falloff(element_results)
@@ -564,15 +617,16 @@ def run_fractal_gravity_experiment_v2(
         mass_fractal_density_correlation=mass_fractal_density_correlation,
     )
 
-    # Send completion message
-    if is_subprocess_communication_enabled():
-        send_subprocess_completion("EXP-13", fractal_no_falloff_confirmed and universal_falloff_mechanism, {
-            "message": f"Fractal gravity experiment completed with {len(elements_to_test)} elements",
-            "elements_tested": len(elements_to_test),
-            "total_duration": overall_end - overall_start,
-            "fractal_no_falloff_confirmed": fractal_no_falloff_confirmed,
-            "universal_falloff_mechanism": universal_falloff_mechanism
-        })
+    success = fractal_no_falloff_confirmed and universal_falloff_mechanism
+    report_progress(
+        100.0,
+        "Finalization",
+        f"Fractal gravity experiment completed with {len(elements_to_test)} elements",
+    )
+    report_completion(
+        success,
+        f"Fractal gravity experiment completed with {len(elements_to_test)} elements",
+    )
 
     return results
 
@@ -600,9 +654,9 @@ def analyze_fractal_no_falloff(element_results: dict[str, ElementGravityResults]
     # Flatness should be nearly identical across elements (low coefficient of variation)
     if mean_flatness > 0:
         coefficient_of_variation = std_flatness / mean_flatness
-        return coefficient_of_variation < 0.01  # Less than 1% variation = identical
+        return coefficient_of_variation < EXP13_FLATNESS_CV_TOLERANCE
     else:
-        return std_flatness < 0.001  # Absolute tolerance for near-zero means
+        return std_flatness < EXP13_FLATNESS_STD_TOLERANCE
 
 
 def analyze_universal_falloff_mechanism(element_results: dict[str, ElementGravityResults]) -> bool:
@@ -613,7 +667,7 @@ def analyze_universal_falloff_mechanism(element_results: dict[str, ElementGravit
     consistency_scores = [result.falloff_pattern_consistency for result in element_results.values()]
 
     # All elements should follow inverse-square pattern consistently (>0.9 correlation)
-    return all(score > 0.9 for score in consistency_scores)
+    return all(score > EXP13_FALLOFF_PATTERN_MIN_CORRELATION for score in consistency_scores)
 
 
 def analyze_mass_fractal_correlation(element_results: dict[str, ElementGravityResults]) -> float:
@@ -701,24 +755,47 @@ def save_results(
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run EXP-13 fractal gravity experiment")
+    parser.add_argument("--quick", action="store_true", help="Run smaller/faster validation")
+    parser.add_argument("--full", action="store_true", help="Run larger/full validation")
+    args = parser.parse_args()
+
+    if args.quick and args.full:
+        raise ValueError("Use only one of --quick or --full")
+
     # Load from config or use defaults
     try:
         from fractalsemantics.config import ExperimentConfig
 
         config = ExperimentConfig()
-        elements_to_test = config.get("EXP-13", "elements_to_test", ["gold", "nickel", "copper"])
-        population_size = config.get("EXP-13", "population_size", 100)
-        interaction_samples = config.get("EXP-13", "interaction_samples", 1000)
+        elements_to_test = config.get("EXP-13", "elements_to_test", EXP13_DEFAULT_ELEMENTS)
+        population_size = config.get("EXP-13", "population_size", EXP13_CONFIG_DEFAULT_POPULATION_SIZE)
+        interaction_samples = config.get("EXP-13", "interaction_samples", EXP13_CONFIG_DEFAULT_INTERACTION_SAMPLES)
     except Exception:
-        elements_to_test = ["gold", "nickel", "copper"]
-        population_size = 5  # Max hierarchy depth, not number of entities
-        interaction_samples = 1000
+        elements_to_test = EXP13_DEFAULT_ELEMENTS
+        population_size = EXP13_FALLBACK_POPULATION_SIZE
+        interaction_samples = EXP13_FALLBACK_INTERACTION_SAMPLES
 
     # Ensure elements_to_test is always a list
     if elements_to_test is None:
-        elements_to_test = ["gold", "nickel", "copper"]
+        elements_to_test = EXP13_DEFAULT_ELEMENTS
+
+    if args.quick:
+        population_size = EXP13_QUICK_POPULATION_SIZE
+        interaction_samples = EXP13_QUICK_INTERACTION_SAMPLES
+        mode_label = "Quick"
+    elif args.full:
+        population_size = EXP13_FULL_POPULATION_SIZE
+        interaction_samples = EXP13_FULL_INTERACTION_SAMPLES
+        mode_label = "Full"
+    else:
+        mode_label = "Standard"
 
     try:
+        print(
+            f"[MODE] {mode_label} | population_size={population_size} "
+            f"| interaction_samples={interaction_samples:,}"
+        )
         results = run_fractal_gravity_experiment(
             elements_to_test=elements_to_test,
             population_size=population_size,
@@ -730,12 +807,16 @@ if __name__ == "__main__":
         print("EXP-13 COMPLETE")
         print("=" * 70)
 
-        status = "PASSED" if (
+        scientific_supported = (
             results.fractal_no_falloff_confirmed and
             results.universal_falloff_mechanism
-        ) else "FAILED"
+        )
 
-        print(f"Status: {status}")
+        print("Technical Run Status: PASS (execution completed)")
+        if scientific_supported:
+            print("Scientific Outcome: Hypothesis supported by this run")
+        else:
+            print("Scientific Outcome: Scientifically valid negative result (hypothesis not supported under tested conditions)")
         print(f"Output: {output_file}")
         print()
 

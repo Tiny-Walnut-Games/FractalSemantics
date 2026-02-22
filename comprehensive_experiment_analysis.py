@@ -4,13 +4,232 @@ Comprehensive Analysis of All FractalSemantics Experiments
 Based on actual experiment results structure
 """
 
+import argparse
+import asyncio
 import json
+import shutil
+import subprocess
+import sys
+from datetime import datetime
 from pathlib import Path
 from typing import TypeAlias
+
+from fractalsemantics.experiment_runner import ExperimentRunner
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
+
+
+def _parse_cli_args(argv: list[str] | None = None) -> tuple[argparse.Namespace, list[str]]:
+    """Parse analysis options while allowing pass-through runner arguments."""
+    parser = argparse.ArgumentParser(
+        description="Analyze experiment outputs, with optional refresh/wipe workflow.",
+    )
+    parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Run experiment_runner.py before analysis. Unknown args are forwarded to the runner.",
+    )
+    parser.add_argument(
+        "--wipe-history",
+        action="store_true",
+        help="Clear prior result JSON files, figures, and report logs before refresh/analysis.",
+    )
+    parser.add_argument(
+        "--wipe-archive",
+        action="store_true",
+        help="Nuclear option: delete archive history and force delete (no archive prompt).",
+    )
+    return parser.parse_known_args(argv)
+
+
+def _collect_history_paths(project_root: Path) -> list[Path]:
+    """Collect persisted outputs that represent experiment history."""
+    results_dir = project_root / "results"
+    targets: list[Path] = []
+
+    if results_dir.exists():
+        targets.extend(sorted(results_dir.glob("*.json")))
+
+    for subdir in (results_dir / "figures", results_dir / "reports"):
+        if subdir.exists():
+            targets.extend(sorted(subdir.iterdir()))
+
+    return targets
+
+
+def _should_archive_before_wipe() -> bool:
+    """Prompt user whether to archive instead of delete before wipe-history."""
+    if not sys.stdin.isatty():
+        print("Non-interactive session detected; defaulting to archive before wipe.")
+        return True
+
+    while True:
+        choice = input("Archive existing history before wipe? [Y/n]: ").strip().lower()
+        if choice in {"", "y", "yes"}:
+            return True
+        if choice in {"n", "no"}:
+            return False
+        print("Please answer 'y' or 'n'.")
+
+
+def _archive_paths(paths: list[Path], project_root: Path) -> Path | None:
+    """Archive paths under results/archive/<timestamp>/ preserving project-relative structure."""
+    if not paths:
+        return None
+
+    archive_dir = project_root / "results" / "archive" / datetime.now().strftime("%Y%m%d_%H%M%S")
+    for path in paths:
+        if not path.exists():
+            continue
+        destination = archive_dir / path.relative_to(project_root)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(path), str(destination))
+    return archive_dir
+
+
+def _delete_paths(paths: list[Path]) -> int:
+    """Delete a collection of files/directories and return count deleted."""
+    deleted = 0
+    for path in paths:
+        if not path.exists():
+            continue
+        if path.is_dir():
+            shutil.rmtree(path)
+        else:
+            path.unlink()
+        deleted += 1
+    return deleted
+
+
+def _wipe_archive_store(project_root: Path) -> None:
+    """Delete entire archive store (nuclear option)."""
+    archive_root = project_root / "results" / "archive"
+    if archive_root.exists():
+        shutil.rmtree(archive_root)
+        print(f"Deleted archive store: {archive_root}")
+    else:
+        print(f"Archive store not found (nothing to delete): {archive_root}")
+
+
+def _wipe_history(project_root: Path, force_delete: bool) -> None:
+    """Wipe history paths, optionally archiving first."""
+    targets = _collect_history_paths(project_root)
+    if not targets:
+        print("No history files found to wipe.")
+        return
+
+    if force_delete:
+        deleted = _delete_paths(targets)
+        print(f"Wipe complete (force delete): removed {deleted} entries.")
+        return
+
+    if _should_archive_before_wipe():
+        archive_dir = _archive_paths(targets, project_root)
+        if archive_dir:
+            print(f"Wipe complete (archived): moved history to {archive_dir}")
+        return
+
+    deleted = _delete_paths(targets)
+    print(f"Wipe complete (delete): removed {deleted} entries.")
+
+
+def _run_runner_refresh(project_root: Path, runner_args: list[str]) -> None:
+    """Run experiment runner with pass-through arguments before analysis."""
+    default_runner_args = ["--all", "--full", "--format=text"]
+    effective_args = runner_args if runner_args else default_runner_args
+    runner_script = project_root / "fractalsemantics" / "experiment_runner.py"
+    cmd = [sys.executable, str(runner_script), *effective_args]
+
+    print(f"Refreshing experiment outputs via runner: {' '.join(cmd)}")
+    subprocess.run(cmd, check=True)
+
+
+def _exp_name_to_experiment_id(exp_name: str) -> str | None:
+    """Convert exp-style name (e.g., exp01_geometric, exp11b_dimension) to EXP ID."""
+    prefix = exp_name.split("_")[0].lower()
+    if prefix == "exp11b":
+        return "EXP-11b"
+    if prefix.startswith("exp") and len(prefix) == 5 and prefix[3:].isdigit():
+        return f"EXP-{prefix[3:]}"
+    return None
+
+
+def _infer_technical_success_from_result(result: JsonObject) -> bool:
+    """Infer technical success from a saved experiment result payload."""
+    status = str(result.get("status", "")).upper()
+    if status in {"ERROR", "CRASH"}:
+        return False
+    return not (isinstance(result.get("error"), str) and result.get("error"))
+
+
+def _infer_result_type_from_result(result: JsonObject, technical_success: bool) -> str:
+    """Infer runner-like result_type from a saved experiment result payload."""
+    if not technical_success:
+        return "failure"
+
+    status = str(result.get("status", "")).upper()
+    if status == "PASS":
+        return "success"
+    if status == "PARTIAL":
+        return "partial_success"
+    if status in {"FAIL", "FAILED"}:
+        return "warning"
+
+    success_criteria = result.get("success_criteria")
+    if isinstance(success_criteria, dict) and "passed" in success_criteria:
+        return "success" if bool(success_criteria.get("passed")) else "warning"
+
+    summary = result.get("summary")
+    if isinstance(summary, dict) and "overall_success" in summary:
+        return "success" if bool(summary.get("overall_success")) else "warning"
+
+    return "unknown"
+
+
+def collect_runner_classifications(
+    loaded_results: dict[str, list[JsonObject]],
+    refresh_from_runner: bool = False,
+) -> dict[str, JsonObject]:
+    """Collect technical/scientific classifications.
+
+    By default, this uses already-saved result files and does not rerun experiments.
+    Set refresh_from_runner=True only when a fresh rerun is explicitly desired.
+    """
+
+    if not refresh_from_runner:
+        print("Collecting classifications from cached result files (no reruns)...")
+        classifications: dict[str, JsonObject] = {}
+
+        for exp_name, exp_results in loaded_results.items():
+            exp_id = _exp_name_to_experiment_id(exp_name)
+            if not exp_id or not exp_results:
+                continue
+
+            latest = exp_results[-1]
+            technical_success = _infer_technical_success_from_result(latest)
+            result_type = _infer_result_type_from_result(latest, technical_success)
+            classifications[exp_id] = {
+                "technical_success": technical_success,
+                "result_type": result_type,
+            }
+
+        return classifications
+
+    async def _collect() -> dict[str, JsonObject]:
+        runner = ExperimentRunner(softcopy_enabled=False)
+        classifications: dict[str, JsonObject] = {}
+        for experiment_id in runner.experiment_configs:
+            result = await runner.run_experiment(experiment_id, quick_mode=False)
+            classifications[experiment_id] = {
+                "technical_success": bool(result.success),
+                "result_type": result.result_type,
+            }
+        return classifications
+
+    print("Collecting runner-aligned technical/scientific classifications (fresh rerun, softcopy disabled)...")
+    return asyncio.run(_collect())
 
 def load_experiment_results() -> dict[str, list[JsonObject]]:
     """Load all experiment results from the results directory."""
@@ -59,11 +278,19 @@ def load_experiment_results() -> dict[str, list[JsonObject]]:
 
     return experiment_results
 
-def analyze_experiment_results(results: dict[str, list[JsonObject]]) -> dict[str, JsonValue]:
+def analyze_experiment_results(
+    results: dict[str, list[JsonObject]],
+    runner_classifications: dict[str, JsonObject] | None = None,
+) -> dict[str, JsonValue]:
     """Analyze all experiment results and generate summary statistics."""
 
     analysis = {
         "total_experiments": len(results),
+        "technical_successes": 0,
+        "technical_failures": 0,
+        "runner_scientific_warnings": 0,
+        "runner_partial_successes": 0,
+        "runner_true_successes": 0,
         "passed_experiments": 0,
         "failed_experiments": 0,
         "experiment_details": {},
@@ -103,12 +330,32 @@ def analyze_experiment_results(results: dict[str, list[JsonObject]]) -> dict[str
 
     for exp_name, exp_results in results.items():
         print(f"  Processing {exp_name}...")
+        exp_id = _exp_name_to_experiment_id(exp_name)
+        runner_status = runner_classifications.get(exp_id, {}) if (runner_classifications and exp_id) else {}
+        technical_success = bool(runner_status.get("technical_success", len(exp_results) > 0))
+        runner_result_type = str(runner_status.get("result_type", "unknown"))
+
         exp_analysis = {
             "status": "UNKNOWN",
             "success": False,
+            "technical_status": "PASS" if technical_success else "FAIL",
+            "runner_result_type": runner_result_type,
+            "scientific_status": "UNKNOWN",
             "metrics": {},
             "findings": []
         }
+
+        if technical_success:
+            analysis["technical_successes"] += 1
+        else:
+            analysis["technical_failures"] += 1
+
+        if runner_result_type == "warning":
+            analysis["runner_scientific_warnings"] += 1
+        elif runner_result_type == "partial_success":
+            analysis["runner_partial_successes"] += 1
+        elif runner_result_type == "success" and technical_success:
+            analysis["runner_true_successes"] += 1
 
         # Get validation function
         exp_prefix = exp_name.split('_')[0]  # e.g., "exp01"
@@ -125,9 +372,11 @@ def analyze_experiment_results(results: dict[str, list[JsonObject]]) -> dict[str
 
             if success:
                 exp_analysis["status"] = "PASSED"
+                exp_analysis["scientific_status"] = "PASS"
                 analysis["passed_experiments"] += 1
             else:
                 exp_analysis["status"] = "FAILED"
+                exp_analysis["scientific_status"] = "WARN" if runner_result_type == "warning" else "FAIL"
                 analysis["failed_experiments"] += 1
         else:
             exp_analysis["status"] = "UNKNOWN"
@@ -1133,9 +1382,14 @@ def generate_summary_report(analysis: dict[str, JsonObject]) -> str:
     report.append("EXECUTIVE SUMMARY")
     report.append("-" * 40)
     report.append(f"Total Experiments: {analysis['total_experiments']}")
-    report.append(f"Passed Experiments: {analysis['passed_experiments']}")
-    report.append(f"Failed Experiments: {analysis['failed_experiments']}")
-    report.append(f"Overall Success Rate: {analysis['overall_success_rate']:.1f}%")
+    report.append(f"Technical Successes: {analysis['technical_successes']}")
+    report.append(f"Technical Failures: {analysis['technical_failures']}")
+    report.append(f"Scientific Warnings (runner): {analysis['runner_scientific_warnings']}")
+    report.append(f"Partial Successes (runner): {analysis['runner_partial_successes']}")
+    report.append(f"True Successes (technical + scientific): {analysis['runner_true_successes']}")
+    report.append(f"Scientific Passes (validator): {analysis['passed_experiments']}")
+    report.append(f"Scientific Fails (validator): {analysis['failed_experiments']}")
+    report.append(f"Scientific Success Rate (validator): {analysis['overall_success_rate']:.1f}%")
     report.append("")
 
     # System Status
@@ -1160,8 +1414,14 @@ def generate_summary_report(analysis: dict[str, JsonObject]) -> str:
     report.append("EXPERIMENT DETAILS")
     report.append("-" * 40)
     for exp_name, details in analysis["experiment_details"].items():
-        status_symbol = "✓" if details["success"] else "✗"
-        report.append(f"{status_symbol} {exp_name}: {details['status']}")
+        tech_symbol = "✓" if details.get("technical_status") == "PASS" else "✗"
+        sci_symbol = "✓" if details.get("success") else "✗"
+        report.append(
+            f"{tech_symbol}/{sci_symbol} {exp_name}: "
+            f"technical={details.get('technical_status', 'UNKNOWN')}, "
+            f"scientific={details.get('scientific_status', 'UNKNOWN')}, "
+            f"runner_result_type={details.get('runner_result_type', 'unknown')}"
+        )
         if details["findings"]:
             for finding in details["findings"][:1]:  # Show first finding
                 report.append(f"    - {finding}")
@@ -1170,6 +1430,11 @@ def generate_summary_report(analysis: dict[str, JsonObject]) -> str:
     # Conclusions
     report.append("CONCLUSIONS")
     report.append("-" * 40)
+    if analysis["technical_failures"] == 0:
+        report.append("SYSTEM STABLE: No technical failures detected.")
+    else:
+        report.append("SYSTEM INSTABILITY DETECTED: Technical failures present.")
+
     if analysis["overall_success_rate"] >= 80:
         report.append("celebration SYSTEM VALIDATION SUCCESSFUL")
         report.append("The FractalSemantics system demonstrates robust performance across")
@@ -1215,6 +1480,23 @@ def generate_summary_report(analysis: dict[str, JsonObject]) -> str:
 
 def main():
     """Main analysis function."""
+    args, runner_args = _parse_cli_args()
+    project_root = Path(__file__).parent
+
+    if args.wipe_archive:
+        _wipe_archive_store(project_root)
+
+    if args.wipe_history:
+        _wipe_history(project_root, force_delete=args.wipe_archive)
+
+    if args.refresh:
+        _run_runner_refresh(project_root, runner_args)
+    elif runner_args:
+        print(
+            "Runner arguments were provided without --refresh; "
+            "they will be ignored in analysis-only mode."
+        )
+
     print("Loading experiment results...")
     results = load_experiment_results()
 
@@ -1222,8 +1504,10 @@ def main():
         print("No experiment results found. Please run experiments first.")
         return
 
+    runner_classifications = collect_runner_classifications(results)
+
     print(f"Analyzing {len(results)} experiment types...")
-    analysis = analyze_experiment_results(results)
+    analysis = analyze_experiment_results(results, runner_classifications)
 
     print("Generating comprehensive report...")
     report = generate_summary_report(analysis)
@@ -1237,8 +1521,16 @@ def main():
     print("\n" + "=" * 80)
     print("ANALYSIS COMPLETE")
     print("=" * 80)
-    print(f"Success Rate: {analysis['overall_success_rate']:.1f}%")
-    print(f"Passed: {analysis['passed_experiments']}/{analysis['total_experiments']}")
+    print(f"Technical Failures: {analysis['technical_failures']}")
+    print(f"Scientific Warnings (runner): {analysis['runner_scientific_warnings']}")
+    print(f"True Successes (technical + scientific): {analysis['runner_true_successes']}/{analysis['total_experiments']}")
+    print(f"Scientific Success Rate (validator): {analysis['overall_success_rate']:.1f}%")
+    print(f"Scientific Passes (validator): {analysis['passed_experiments']}/{analysis['total_experiments']}")
+
+    if analysis["technical_failures"] == 0:
+        print("\nSYSTEM STABLE: No technical failures detected")
+    else:
+        print("\nSYSTEM INSTABILITY DETECTED: Technical failures present")
 
     if analysis["overall_success_rate"] >= 80:
         print("\ncelebration SYSTEM VALIDATION SUCCESSFUL - READY FOR PRODUCTION")

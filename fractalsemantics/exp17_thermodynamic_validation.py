@@ -15,6 +15,7 @@ Success Criteria:
 - Temperature equilibration (0th Law) occurs between fractal regions
 """
 
+import argparse
 import json
 import statistics
 import sys
@@ -26,10 +27,22 @@ from typing import Any, Optional, TypeAlias
 
 import numpy as np
 
-from fractalsemantics.exp13_fractal_gravity import (
-    FractalHierarchy,
-    compute_natural_cohesion,
-)
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parent
+for path_entry in (str(PROJECT_ROOT), str(CURRENT_DIR)):
+    if path_entry not in sys.path:
+        sys.path.insert(0, path_entry)
+
+try:
+    from fractalsemantics.exp13_fractal_gravity import (
+        FractalHierarchy,
+        compute_natural_cohesion,
+    )
+except ImportError:
+    from exp13_fractal_gravity import (  # type: ignore[no-redef]
+        FractalHierarchy,
+        compute_natural_cohesion,
+    )
 
 # Import subprocess communication for enhanced progress reporting
 
@@ -40,16 +53,60 @@ JsonObject: TypeAlias = dict[str, JsonValue]
 try:
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
     )
 except ImportError:
-    # Fallback if subprocess communication is not available
-    def send_subprocess_progress(*args, **kwargs) -> bool: return False
-    def send_subprocess_status(*args, **kwargs) -> bool: return False
-    def is_subprocess_communication_enabled() -> bool: return False
+    try:
+        from subprocess_comm import (  # type: ignore[no-redef]
+            is_subprocess_communication_enabled,
+            send_subprocess_completion,
+            send_subprocess_progress,
+            send_subprocess_status,
+        )
+    except ImportError:
+        # Fallback if subprocess communication is not available
+        def send_subprocess_progress(*args, **kwargs) -> bool: return False
+        def send_subprocess_status(*args, **kwargs) -> bool: return False
+        def send_subprocess_completion(*args, **kwargs) -> bool: return False
+        def is_subprocess_communication_enabled() -> bool: return False
 
-secure_random = np.random.RandomState(42)
+try:
+    from fractalsemantics.progress_comm import create_progress_reporter
+except ImportError:
+    try:
+        from progress_comm import create_progress_reporter  # type: ignore[no-redef]
+    except ImportError:
+        class _FallbackProgressReporter:
+            def __init__(self, experiment_id: str):
+                self.experiment_id = experiment_id
+
+            def update(self, progress_percent: float, stage: str, message: str) -> None:
+                print(f"[{self.experiment_id}] {progress_percent:.1f}% | {stage}: {message}")
+
+            def complete(self, message: str) -> None:
+                print(f"[{self.experiment_id}] COMPLETE: {message}")
+
+        def create_progress_reporter(experiment_id: str):
+            return _FallbackProgressReporter(experiment_id)
+
+EXP17_RANDOM_SEED: int = 42
+EXP17_SAMPLE_NODE_LIMIT: int = 20
+EXP17_NEIGHBOR_SAMPLE_LIMIT: int = 10
+EXP17_VOID_REGION_DENSITY: float = 0.1
+EXP17_DENSE_REGION_DENSITY: float = 0.9
+EXP17_DEFAULT_REGION_DENSITY: float = 0.5
+EXP17_FIRST_LAW_TOLERANCE_FACTOR: float = 0.01
+EXP17_SECOND_LAW_CONFIDENCE: float = 0.8
+EXP17_ZEROTH_LAW_CONFIDENCE: float = 0.7
+EXP17_EVOLUTION_ENERGY_NOISE_FACTOR: float = 0.01
+EXP17_EVOLUTION_ENTROPY_GROWTH_FACTOR: float = 0.02
+EXP17_TEMPERATURE_PROXY_SCALE: float = 100.0
+EXP17_TEMPERATURE_REGION_MULTIPLIER: float = 0.9
+EXP17_REQUIRED_VALIDATION_PASS_RATE: float = 0.75
+
+secure_random = np.random.RandomState(EXP17_RANDOM_SEED)
 
 # ============================================================================
 # THERMODYNAMIC MEASUREMENT STRUCTURES
@@ -112,7 +169,7 @@ class ThermodynamicValidation:
     confidence: float  # 0-1 scale
 
     def __str__(self):
-        status = "Y PASS" if self.passed else "X FAIL"
+        status = "Y PASS" if self.passed else "N NOT SATISFIED"
         return f"{self.law_tested}: {status} ({self.measured_value:.4f} in {self.expected_range})"
 
 
@@ -235,8 +292,8 @@ def create_fractal_region(hierarchy: FractalHierarchy, region_type: str) -> Ther
     # Calculate average cohesion
     all_nodes = hierarchy.get_all_nodes()
     cohesions = []
-    for node in all_nodes[:min(20, len(all_nodes))]:  # Sample for efficiency
-        neighbors = all_nodes[:min(10, len(all_nodes))]
+    for node in all_nodes[:min(EXP17_SAMPLE_NODE_LIMIT, len(all_nodes))]:
+        neighbors = all_nodes[:min(EXP17_NEIGHBOR_SAMPLE_LIMIT, len(all_nodes))]
         node_cohesions = [
             compute_natural_cohesion(node, neighbor, hierarchy)
             for neighbor in neighbors if neighbor != node
@@ -247,11 +304,11 @@ def create_fractal_region(hierarchy: FractalHierarchy, region_type: str) -> Ther
 
     # Fractal density based on region type
     if region_type == "void":
-        fractal_density = 0.1  # Low density region
+        fractal_density = EXP17_VOID_REGION_DENSITY
     elif region_type == "dense":
-        fractal_density = 0.9  # High density region
+        fractal_density = EXP17_DENSE_REGION_DENSITY
     else:
-        fractal_density = 0.5  # Default
+        fractal_density = EXP17_DEFAULT_REGION_DENSITY
 
     return ThermodynamicState(
         region_id=f"{region_type}_{id(hierarchy)}",
@@ -285,7 +342,7 @@ def validate_first_law(energy_measurements: list[float]) -> ThermodynamicValidat
 
     # Allow small numerical tolerance
     energy_conservation = abs(final_energy - initial_energy)
-    tolerance = abs(initial_energy) * 0.01  # 1% tolerance
+    tolerance = abs(initial_energy) * EXP17_FIRST_LAW_TOLERANCE_FACTOR
 
     passed = energy_conservation <= tolerance
     confidence = max(0.0, 1.0 - (energy_conservation / tolerance))
@@ -320,7 +377,7 @@ def validate_second_law(entropy_measurements: list[float]) -> ThermodynamicValid
 
     # Use hierarchical thermodynamics (more permissive)
     passed = hierarchical_passed
-    confidence = 0.8  # High confidence in hierarchical thermodynamics
+    confidence = EXP17_SECOND_LAW_CONFIDENCE
 
     return ThermodynamicValidation(
         "2nd Law", "Hierarchical Entropy Dynamics",
@@ -358,7 +415,7 @@ def validate_zeroth_law(temperature_measurements: list[list[float]]) -> Thermody
 
     # Use hierarchical thermodynamics
     passed = hierarchical_passed
-    confidence = 0.7  # Moderate confidence in hierarchical thermal structure
+    confidence = EXP17_ZEROTH_LAW_CONFIDENCE
 
     return ThermodynamicValidation(
         "0th Law", "Hierarchical Thermal Structure",
@@ -401,7 +458,13 @@ def validate_fractal_void_density(void_states: list[ThermodynamicState],
 # EXPERIMENT IMPLEMENTATION
 # ============================================================================
 
-def run_thermodynamic_validation_experiment() -> JsonObject:
+def run_thermodynamic_validation_experiment(
+    void_depth: int = 3,
+    void_branching_factor: int = 2,
+    dense_depth: int = 5,
+    dense_branching_factor: int = 5,
+    evolution_steps: int = 5,
+) -> JsonObject:
     """
     Run EXP-17: Thermodynamic Validation of Fractal Systems.
 
@@ -413,26 +476,43 @@ def run_thermodynamic_validation_experiment() -> JsonObject:
     print("Testing if fractal simulations satisfy thermodynamic equations...")
     print()
 
-    # Send subprocess communication if enabled
-    if is_subprocess_communication_enabled():
-        send_subprocess_status("EXP-17: Thermodynamic Validation", "Starting thermodynamic validation experiment")
-        send_subprocess_progress("EXP-17", 0, 100, "Initializing experiment")
+    progress = create_progress_reporter("EXP-17")
+    subprocess_enabled = is_subprocess_communication_enabled()
+
+    def report_status(stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_status("EXP-17", stage, message)
+            return
+        progress.update(0, stage, message)
+
+    def report_progress(progress_percent: float, stage: str, message: str) -> None:
+        bounded_progress = max(0.0, min(100.0, progress_percent))
+        if subprocess_enabled:
+            send_subprocess_progress("EXP-17", bounded_progress, stage, message)
+            return
+        progress.update(bounded_progress, stage, message)
+
+    def report_completion(success: bool, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_completion("EXP-17", success, message)
+            return
+        progress.complete(message)
+
+    report_status("Initialization", "Starting thermodynamic validation experiment")
 
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
     # Create test fractal systems
     print("Creating test fractal systems...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-17", 10, 100, "Creating test fractal systems")
+    report_progress(10.0, "Setup", "Creating test fractal systems")
 
-    void_hierarchy = FractalHierarchy.build("void_test", max_depth=3, branching_factor=2)
-    dense_hierarchy = FractalHierarchy.build("dense_test", max_depth=5, branching_factor=5)
+    void_hierarchy = FractalHierarchy.build("void_test", max_depth=void_depth, branching_factor=void_branching_factor)
+    dense_hierarchy = FractalHierarchy.build("dense_test", max_depth=dense_depth, branching_factor=dense_branching_factor)
 
     # Measure thermodynamic states
     print("Measuring thermodynamic properties...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-17", 20, 100, "Measuring thermodynamic properties")
+    report_progress(20.0, "Measurement", "Measuring thermodynamic properties")
 
     void_state = create_fractal_region(void_hierarchy, "void")
     dense_state = create_fractal_region(dense_hierarchy, "dense")
@@ -442,23 +522,28 @@ def run_thermodynamic_validation_experiment() -> JsonObject:
 
     # Simulate evolution (simplified)
     print("Simulating fractal evolution...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-17", 30, 100, "Simulating fractal evolution")
+    report_progress(30.0, "Evolution", "Simulating fractal evolution")
 
     # Track energy and entropy over "time steps"
     energy_history = [void_state.total_energy, dense_state.total_energy]
     entropy_history = [void_state.entropy_estimate, dense_state.entropy_estimate]
 
     # Simulate some evolution (in real implementation, would run actual dynamics)
-    for step in range(5):
+    evolution_progress_span = 25.0
+    for step in range(evolution_steps):
+        report_progress(
+            35.0 + ((step + 1) / max(1, evolution_steps)) * evolution_progress_span,
+            "Evolution",
+            f"Simulation step {step + 1}/{evolution_steps}",
+        )
         # Simplified evolution: energy redistributes, entropy increases slightly
         current_energy = energy_history[-1]
         current_entropy = entropy_history[-1]
 
         # Energy conservation with small fluctuations
-        new_energy = current_energy + secure_random.normal(0, abs(current_energy) * 0.01)
+        new_energy = current_energy + secure_random.normal(0, abs(current_energy) * EXP17_EVOLUTION_ENERGY_NOISE_FACTOR)
         # Entropy increases (2nd law)
-        new_entropy = current_entropy + abs(current_entropy) * 0.02
+        new_entropy = current_entropy + abs(current_entropy) * EXP17_EVOLUTION_ENTROPY_GROWTH_FACTOR
 
         energy_history.append(new_energy)
         entropy_history.append(new_entropy)
@@ -469,13 +554,12 @@ def run_thermodynamic_validation_experiment() -> JsonObject:
     temperature_history = []
     for energy_val in energy_history:
         # Simplified temperature proxy
-        temp_proxy = energy_val / 100.0  # Arbitrary scaling
-        temperature_history.append([temp_proxy, temp_proxy * 0.9])  # Multiple regions
+        temp_proxy = energy_val / EXP17_TEMPERATURE_PROXY_SCALE
+        temperature_history.append([temp_proxy, temp_proxy * EXP17_TEMPERATURE_REGION_MULTIPLIER])
 
     # Validate thermodynamic laws
     print("Validating thermodynamic laws...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-17", 60, 100, "Validating thermodynamic laws")
+    report_progress(70.0, "Validation", "Validating thermodynamic laws")
 
     validations = []
 
@@ -502,19 +586,16 @@ def run_thermodynamic_validation_experiment() -> JsonObject:
     # Overall assessment
     passed_validations = sum(1 for v in validations if v.passed)
     total_validations = len(validations)
-    overall_success = passed_validations >= total_validations * 0.75  # 75% pass rate
+    overall_success = passed_validations >= total_validations * EXP17_REQUIRED_VALIDATION_PASS_RATE
 
     overall_end = time.time()
     end_time = datetime.now(timezone.utc).isoformat()
 
-    # Send completion status
-    if is_subprocess_communication_enabled():
-        passed_validations / total_validations if total_validations > 0 else 0
-        if overall_success:
-            send_subprocess_status("EXP-17: Thermodynamic Validation", f"SUCCESS - {passed_validations}/{total_validations} validations passed")
-        else:
-            send_subprocess_status("EXP-17: Thermodynamic Validation", f"PARTIAL - {passed_validations}/{total_validations} validations passed")
-        send_subprocess_progress("EXP-17", 100, 100, "Experiment completed")
+    report_progress(95.0, "Finalization", "Preparing experiment summary")
+    report_status(
+        "Summary",
+        f"{passed_validations}/{total_validations} validations passed",
+    )
 
     results = {
         "experiment": "EXP-17",
@@ -570,11 +651,16 @@ def run_thermodynamic_validation_experiment() -> JsonObject:
         },
 
         "success_criteria": {
-            "required_success_rate": 0.75,
+            "required_success_rate": EXP17_REQUIRED_VALIDATION_PASS_RATE,
             "achieved_success_rate": round(passed_validations / total_validations, 4),
             "passed": overall_success
         }
     }
+
+    report_completion(
+        overall_success,
+        f"Thermodynamic validation completed with {passed_validations}/{total_validations} checks passed",
+    )
 
     return results
 
@@ -601,8 +687,47 @@ def save_results(results: JsonObject, output_file: Optional[str] = None) -> str:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Run EXP-17 thermodynamic validation experiment"
+    )
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
+        "--quick",
+        action="store_true",
+        help="Run quick mode with smaller hierarchies and fewer evolution steps",
+    )
+    mode_group.add_argument(
+        "--full",
+        action="store_true",
+        help="Run full mode with default parameters",
+    )
+    args = parser.parse_args()
+
+    if args.quick:
+        runtime = {
+            "void_depth": 3,
+            "void_branching_factor": 2,
+            "dense_depth": 4,
+            "dense_branching_factor": 4,
+            "evolution_steps": 3,
+        }
+    else:
+        runtime = {
+            "void_depth": 3,
+            "void_branching_factor": 2,
+            "dense_depth": 5,
+            "dense_branching_factor": 5,
+            "evolution_steps": 5,
+        }
+
+    mode = "Quick" if args.quick else "Full"
+    print(
+        f"[MODE] {mode} | void_depth={runtime['void_depth']} | dense_depth={runtime['dense_depth']} "
+        f"| evolution_steps={runtime['evolution_steps']}"
+    )
+
     try:
-        results = run_thermodynamic_validation_experiment()
+        results = run_thermodynamic_validation_experiment(**runtime)
         output_file = save_results(results)
 
         print("\n" + "=" * 80)
@@ -612,8 +737,11 @@ if __name__ == "__main__":
         success_rate = results["summary"]["success_rate"]
         overall_success = results["summary"]["overall_success"]
 
-        status = "PASSED" if overall_success else "FAILED"
-        print(f"Status: {status}")
+        print("Technical Run Status: PASS (execution completed)")
+        if overall_success:
+            print("Scientific Outcome: Hypothesis supported by this run")
+        else:
+            print("Scientific Outcome: Scientifically valid negative result (hypothesis not supported under tested conditions)")
         print(f"Thermodynamic validations passed: {results['summary']['validations_passed']}/{results['summary']['total_validations']}")
         print(f"Success rate: {success_rate:.1%}")
         print(f"Output: {output_file}")
@@ -626,9 +754,9 @@ if __name__ == "__main__":
             print("   Y Temperature equilibration (0th Law)")
             print("   Y Void/dense regions follow thermodynamic principles")
         else:
-            print("\nerror THERMODYNAMIC INCONSISTENCY DETECTED")
-            print("   Fractal systems don't fully satisfy thermodynamic laws.")
-            print("   May indicate limitations of the current fractal model.")
+            print("\nSCIENTIFIC NEGATIVE RESULT: thermodynamic postulate not supported in this run.")
+            print("   The outcome is scientifically valid and narrows the model claim scope.")
+            print("   Re-test with revised assumptions or constrained parameter regimes.")
 
         print()
 

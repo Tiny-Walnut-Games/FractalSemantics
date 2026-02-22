@@ -45,6 +45,13 @@ JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
+# Progress protocol constants (transport/UI semantics, not experiment physics).
+PROGRESS_PERCENT_MIN = 0.0
+PROGRESS_PERCENT_MAX = 100.0
+NON_PROGRESS_SENTINEL = -1.0
+PROGRESS_COMPLETION_PERCENT = 100.0
+MIN_MESSAGE_INTERVAL_SECONDS = 0.1
+
 @dataclass
 class ProgressMessage:
     """Structured progress message for experiment communication."""
@@ -88,7 +95,7 @@ class ProgressReporter:
         self.enabled = enabled
         self._lock = threading.Lock()
         self._last_message_time = 0.0
-        self._min_message_interval = 0.1  # Minimum 100ms between messages
+        self._min_message_interval = MIN_MESSAGE_INTERVAL_SECONDS
 
         # Check for progress file path from environment
         self._progress_file = None
@@ -177,7 +184,7 @@ class ProgressReporter:
             return False
 
         # Clamp progress to valid range
-        progress_percent = max(0.0, min(100.0, progress_percent))
+        progress_percent = max(PROGRESS_PERCENT_MIN, min(PROGRESS_PERCENT_MAX, progress_percent))
 
         message_obj = ProgressMessage(
             timestamp=datetime.now(timezone.utc).isoformat(),
@@ -209,7 +216,7 @@ class ProgressReporter:
         message_obj = ProgressMessage(
             timestamp=datetime.now(timezone.utc).isoformat(),
             experiment_id=self.experiment_id,
-            progress_percent=-1.0,  # Use -1.0 to indicate this is not a progress update
+            progress_percent=NON_PROGRESS_SENTINEL,
             stage=stage,
             message=message,
             metadata=metadata,
@@ -236,7 +243,7 @@ class ProgressReporter:
         message_obj = ProgressMessage(
             timestamp=datetime.now(timezone.utc).isoformat(),
             experiment_id=self.experiment_id,
-            progress_percent=-1.0,  # Use -1.0 to indicate this is not a progress update
+            progress_percent=NON_PROGRESS_SENTINEL,
             stage=stage,
             message=message,
             metadata=metadata,
@@ -263,7 +270,7 @@ class ProgressReporter:
         message_obj = ProgressMessage(
             timestamp=datetime.now(timezone.utc).isoformat(),
             experiment_id=self.experiment_id,
-            progress_percent=-1.0,  # Use -1.0 to indicate this is not a progress update
+            progress_percent=NON_PROGRESS_SENTINEL,
             stage=stage,
             message=message,
             metadata=metadata,
@@ -287,7 +294,7 @@ class ProgressReporter:
         message_obj = ProgressMessage(
             timestamp=datetime.now(timezone.utc).isoformat(),
             experiment_id=self.experiment_id,
-            progress_percent=100.0,
+            progress_percent=PROGRESS_COMPLETION_PERCENT,
             stage="Complete",
             message=message,
             metadata=metadata,

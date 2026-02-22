@@ -166,6 +166,27 @@ class FractalSemanticsGUI:
         self.is_running = False
         self.setup_session_state()
 
+    def _deduplicate_progress_records(self, records: list[dict]) -> list[dict]:
+        """Deduplicate progress records while preserving order."""
+        seen = set()
+        deduplicated: list[dict] = []
+
+        for record in records:
+            key = (
+                record.get('timestamp'),
+                record.get('experiment_id'),
+                record.get('progress_percent', record.get('progress')),
+                record.get('stage'),
+                record.get('message'),
+                record.get('message_type'),
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            deduplicated.append(record)
+
+        return deduplicated
+
     def setup_session_state(self):
         """Initialize session state variables."""
         try:
@@ -659,6 +680,7 @@ class FractalSemanticsGUI:
 
             # Read current progress from file
             experiment_progress = {}
+            all_progress_messages: list[dict] = []
             if progress_file.exists():
                 try:
                     with open(progress_file, encoding='utf-8') as f:
@@ -666,14 +688,15 @@ class FractalSemanticsGUI:
                             if line.strip():
                                 try:
                                     message = json.loads(line.strip())
-                                    if all(field in message for field in ['experiment_id', 'progress', 'stage']):
+                                    all_progress_messages.append(message)
+                                    if all(field in message for field in ['experiment_id', 'stage']):
                                         exp_id = message['experiment_id']
-                                        progress_value = message['progress']
+                                        progress_raw = message.get('progress_percent', message.get('progress', -1))
 
                                         # Only update progress for actual progress messages (progress >= 0)
-                                        if progress_value >= 0:
+                                        if progress_raw >= 0:
                                             # Validate and clamp progress value to prevent negative values
-                                            progress_value = max(0.0, min(100.0, float(progress_value)))
+                                            progress_value = max(0.0, min(100.0, float(progress_raw)))
 
                                             experiment_progress[exp_id] = {
                                                 'progress': progress_value,
@@ -685,6 +708,8 @@ class FractalSemanticsGUI:
                                     continue
                 except Exception as e:
                     logger.error(f"Error reading progress file: {e}")
+
+            all_progress_messages = self._deduplicate_progress_records(all_progress_messages)
 
             if experiment_progress:
                 # Display individual progress bars for each experiment
@@ -720,23 +745,22 @@ class FractalSemanticsGUI:
 
                 # Read all progress data for timeline
                 progress_data = []
-                if progress_file.exists():
-                    try:
-                        with open(progress_file, encoding='utf-8') as f:
-                            for line in f:
-                                if line.strip():
-                                    try:
-                                        message = json.loads(line.strip())
-                                        if 'timestamp' in message and 'progress' in message:
-                                            progress_data.append({
-                                                'time': message['timestamp'],
-                                                'progress': message['progress'],
-                                                'experiment': message.get('experiment_id', 'Unknown')
-                                            })
-                                    except json.JSONDecodeError:
-                                        continue
-                    except Exception:
-                        pass
+                for message in all_progress_messages:
+                    progress_value = message.get('progress_percent', message.get('progress'))
+                    if (
+                        'timestamp' in message
+                        and progress_value is not None
+                        and float(progress_value) >= 0
+                    ):
+                        progress_data.append({
+                            'time': message['timestamp'],
+                            'progress': float(progress_value),
+                            'experiment': message.get('experiment_id', 'Unknown')
+                        })
+
+                # Keep timeline readable in GUI
+                if len(progress_data) > 1000:
+                    progress_data = progress_data[-1000:]
 
                 if progress_data:
                     # Add progress line

@@ -19,9 +19,10 @@ Validates:
 Status: Phase 2 validation experiment
 """
 
+import argparse
 import hashlib
 import json
-import secrets
+import random
 import statistics
 import sys
 import time
@@ -31,12 +32,23 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, TypeAlias
 
-from fractalsemantics.fractalsemantics_entity import (
-    BitChain,
-    canonical_serialize,
-    compute_address_hash,
-    generate_random_bitchain,
-)
+try:
+    from fractalsemantics.fractalsemantics_entity import (
+        BitChain,
+        canonical_serialize,
+        compute_address_hash,
+        generate_random_bitchain,
+    )
+except ImportError:
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+    from fractalsemantics.fractalsemantics_entity import (
+        BitChain,
+        canonical_serialize,
+        compute_address_hash,
+        generate_random_bitchain,
+    )
 
 # Import subprocess communication for enhanced progress reporting
 
@@ -45,6 +57,7 @@ JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
 try:
+    from fractalsemantics.progress_comm import create_progress_reporter
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
         send_subprocess_completion,
@@ -58,7 +71,31 @@ except ImportError:
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
 
-secure_random = secrets.SystemRandom()
+    class _NoopProgressReporter:
+        def update(self, *_args, **_kwargs) -> None:
+            return
+
+        def complete(self, *_args, **_kwargs) -> None:
+            return
+
+    def create_progress_reporter(*_args, **_kwargs):
+        return _NoopProgressReporter()
+
+random_selector = random.Random(42)
+
+# Benchmark policy constants (scoring/normalization), not physics constants.
+UUID_QUERY_FLEXIBILITY_SCORE = 0.1
+SHA256_SEMANTIC_EXPRESSIVENESS_SCORE = 0.1
+SHA256_QUERY_FLEXIBILITY_SCORE = 0.2
+
+NORMALIZATION_COLLISION_FLOOR = 0.0001
+NORMALIZATION_LATENCY_FLOOR = 0.0001
+NORMALIZATION_STORAGE_FLOOR = 1
+
+OVERALL_WEIGHT_COLLISION = 0.25
+OVERALL_WEIGHT_LATENCY = 0.25
+OVERALL_WEIGHT_STORAGE = 0.20
+OVERALL_WEIGHT_SEMANTIC = 0.30
 
 # ============================================================================
 # EXP-12 DATA STRUCTURES
@@ -221,7 +258,7 @@ class UUIDSystem(BenchmarkSystem):
         return 0.0  # No built-in relationships
 
     def get_query_flexibility(self) -> float:
-        return 0.1  # Only exact match queries
+        return UUID_QUERY_FLEXIBILITY_SCORE  # Only exact match queries
 
 
 class SHA256System(BenchmarkSystem):
@@ -239,13 +276,13 @@ class SHA256System(BenchmarkSystem):
         return hashlib.sha256(content.encode()).hexdigest()
 
     def get_semantic_expressiveness(self) -> float:
-        return 0.1  # Content-based, but no semantic structure
+        return SHA256_SEMANTIC_EXPRESSIVENESS_SCORE  # Content-based, but no semantic structure
 
     def get_relationship_support(self) -> float:
         return 0.0  # No built-in relationships
 
     def get_query_flexibility(self) -> float:
-        return 0.2  # Exact match + content verification
+        return SHA256_QUERY_FLEXIBILITY_SCORE  # Exact match + content verification
 
 
 class VectorDBSystem(BenchmarkSystem):
@@ -457,7 +494,7 @@ class BenchmarkComparisonExperiment:
         latencies = []
 
         for _ in range(min(self.num_queries, scale)):
-            target_addr = secure_random.choice(addresses)
+            target_addr = random_selector.choice(addresses)
             start = time.perf_counter()
             _ = system.retrieve(target_addr)
             elapsed = (time.perf_counter() - start) * 1000  # ms
@@ -511,10 +548,29 @@ class BenchmarkComparisonExperiment:
         """
         start_time = datetime.now(timezone.utc).isoformat()
         overall_start = time.time()
+        progress = create_progress_reporter("EXP-12")
+        subprocess_enabled = is_subprocess_communication_enabled()
 
-        # Send initial status update
-        if is_subprocess_communication_enabled():
-            send_subprocess_status("EXP-12", "starting", "Starting benchmark comparison")
+        def report_status(stage: str, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_status("EXP-12", stage, message)
+                return
+            progress.update(0, stage, message)
+
+        def report_progress(progress_percent: float, stage: str, message: str) -> None:
+            bounded_progress = max(0.0, min(100.0, progress_percent))
+            if subprocess_enabled:
+                send_subprocess_progress("EXP-12", bounded_progress, stage, message)
+                return
+            progress.update(bounded_progress, stage, message)
+
+        def report_completion(success: bool, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_completion("EXP-12", success, message)
+                return
+            progress.complete(message)
+
+        report_status("Initialization", "Starting benchmark comparison")
 
         print("\n" + "=" * 80)
         print("EXP-12: BENCHMARK COMPARISON")
@@ -532,16 +588,45 @@ class BenchmarkComparisonExperiment:
         # Benchmark each system
         for i, system_name in enumerate(self.benchmark_systems):
             try:
-                # Send progress update
-                if is_subprocess_communication_enabled():
-                    progress_percent = (i + 1) / len(self.benchmark_systems) * 100
-                    send_subprocess_progress("EXP-12", progress_percent, "System Benchmarking", f"Benchmarking {system_name}", "info")
+                progress_percent = (i + 1) / max(1, len(self.benchmark_systems)) * 90
+                report_progress(
+                    progress_percent,
+                    "System Benchmarking",
+                    f"Benchmarking {system_name}",
+                )
 
                 system = self._create_system(system_name)
                 bench_result = self._benchmark_system(system, test_scale)
                 self.results.append(bench_result)
             except Exception as e:
                 print(f"  [ERROR] Failed to benchmark {system_name}: {e}")
+
+        if not self.results:
+            end_time = datetime.now(timezone.utc).isoformat()
+            empty_result = BenchmarkComparisonResult(
+                start_time=start_time,
+                end_time=end_time,
+                total_duration_seconds=time.time() - overall_start,
+                sample_size=self.sample_size,
+                scales_tested=[test_scale],
+                num_queries=self.num_queries,
+                systems_tested=self.benchmark_systems,
+                system_results=[],
+                best_collision_rate_system="N/A",
+                best_retrieval_latency_system="N/A",
+                best_storage_efficiency_system="N/A",
+                best_semantic_expressiveness_system="N/A",
+                best_overall_system="N/A",
+                fractalsemantics_rank_collision=0,
+                fractalsemantics_rank_retrieval=0,
+                fractalsemantics_rank_storage=0,
+                fractalsemantics_rank_semantic=0,
+                fractalsemantics_overall_score=0.0,
+                major_findings=["No benchmark systems completed successfully"],
+                fractalsemantics_competitive=False,
+            )
+            report_completion(False, "Benchmark comparison failed: no systems completed")
+            return empty_result, False
 
         # Comparative analysis
         print()
@@ -564,17 +649,17 @@ class BenchmarkComparisonExperiment:
             max_storage = max(res.avg_storage_bytes_per_entity for res in self.results)
 
             collision_score = (
-                1.0 - (r.collision_rate / max(max_collision, 0.0001))
+                1.0 - (r.collision_rate / max(max_collision, NORMALIZATION_COLLISION_FLOOR))
                 if max_collision > 0
                 else 1.0
             )
             latency_score = (
-                1.0 - (r.mean_retrieval_latency_ms / max(max_latency, 0.0001))
+                1.0 - (r.mean_retrieval_latency_ms / max(max_latency, NORMALIZATION_LATENCY_FLOOR))
                 if max_latency > 0
                 else 1.0
             )
             storage_score = (
-                1.0 - (r.avg_storage_bytes_per_entity / max(max_storage, 1))
+                1.0 - (r.avg_storage_bytes_per_entity / max(max_storage, NORMALIZATION_STORAGE_FLOOR))
                 if max_storage > 0
                 else 1.0
             )
@@ -582,10 +667,10 @@ class BenchmarkComparisonExperiment:
 
             # Weighted average
             return (
-                collision_score * 0.25
-                + latency_score * 0.25
-                + storage_score * 0.20
-                + semantic_score * 0.30
+                collision_score * OVERALL_WEIGHT_COLLISION
+                + latency_score * OVERALL_WEIGHT_LATENCY
+                + storage_score * OVERALL_WEIGHT_STORAGE
+                + semantic_score * OVERALL_WEIGHT_SEMANTIC
             )
 
         best_overall = max(self.results, key=overall_score)
@@ -751,15 +836,21 @@ class BenchmarkComparisonExperiment:
             )
         print("=" * 80)
 
-        # Send completion message
-        if is_subprocess_communication_enabled():
-            send_subprocess_completion("EXP-12", success, {
-                "message": f"Benchmark comparison completed with FractalSemantics score {fractalsemantics_score:.3f}",
-                "fractalsemantics_score": fractalsemantics_score,
-                "total_duration": overall_end - overall_start,
-                "best_system": best_overall.system_name,
-                "systems_tested": len(self.benchmark_systems)
-            })
+        report_progress(
+            100.0,
+            "Finalization",
+            (
+                "Benchmark comparison completed with FractalSemantics score "
+                f"{fractalsemantics_score:.3f}"
+            ),
+        )
+        report_completion(
+            success,
+            (
+                "Benchmark comparison completed with FractalSemantics score "
+                f"{fractalsemantics_score:.3f}"
+            ),
+        )
 
         return result, success
 
@@ -789,6 +880,14 @@ def save_results(
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run EXP-12 benchmark comparison")
+    parser.add_argument("--quick", action="store_true", help="Run smaller/faster validation")
+    parser.add_argument("--full", action="store_true", help="Run larger/full validation")
+    args = parser.parse_args()
+
+    if args.quick and args.full:
+        raise ValueError("Use only one of --quick or --full")
+
     # Load from config or fall back to command-line args
     try:
         from fractalsemantics.config import ExperimentConfig
@@ -815,16 +914,24 @@ if __name__ == "__main__":
         scales = [10000, 100000, 1000000]
         num_queries = 1000
 
-        if "--quick" in sys.argv:
-            sample_size = 1000
-            scales = [1000]
-            num_queries = 100
-        elif "--full" in sys.argv:
-            sample_size = 1000000
-            scales = [10000, 100000, 1000000]
-            num_queries = 5000
+    if args.quick:
+        sample_size = 1000
+        scales = [1000]
+        num_queries = 100
+        mode_label = "Quick"
+    elif args.full:
+        sample_size = 1000000
+        scales = [10000, 100000, 1000000]
+        num_queries = 5000
+        mode_label = "Full"
+    else:
+        mode_label = "Standard"
 
     try:
+        print(
+            f"[MODE] {mode_label} | sample_size={sample_size:,} "
+            f"| scales={scales} | num_queries={num_queries:,}"
+        )
         experiment = BenchmarkComparisonExperiment(
             sample_size=sample_size,
             benchmark_systems=benchmark_systems,

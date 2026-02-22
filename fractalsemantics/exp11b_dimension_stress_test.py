@@ -22,8 +22,9 @@ doing all the heavy lifting.
 Status: Experimental - Issue #37 investigation
 """
 
+import argparse
 import json
-import secrets
+import random
 import sys
 import time
 from dataclasses import asdict, dataclass, field
@@ -31,25 +32,66 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, TypeAlias
 
-from fractalsemantics.dynamic_enum import Alignment, Polarity
+try:
+    from fractalsemantics.dynamic_enum import Alignment, Polarity
 
-# Import core components
-from fractalsemantics.fractalsemantics_entity import (
-    ALIGNMENT_LIST,
-    ENTITY_TYPES,
-    HORIZONS,
-    POLARITY_LIST,
-    REALMS,
-    BitChain,
-    Coordinates,
-    compute_address_hash,
-)
+    # Import core components
+    from fractalsemantics.fractalsemantics_entity import (
+        ALIGNMENT_LIST,
+        ENTITY_TYPES,
+        HORIZONS,
+        POLARITY_LIST,
+        REALMS,
+        BitChain,
+        Coordinates,
+        compute_address_hash,
+    )
+except ImportError:
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+    from fractalsemantics.dynamic_enum import Alignment, Polarity
+    from fractalsemantics.fractalsemantics_entity import (
+        ALIGNMENT_LIST,
+        ENTITY_TYPES,
+        HORIZONS,
+        POLARITY_LIST,
+        REALMS,
+        BitChain,
+        Coordinates,
+        compute_address_hash,
+    )
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
-secure_random = secrets.SystemRandom()
+try:
+    from fractalsemantics.progress_comm import create_progress_reporter
+    from fractalsemantics.subprocess_comm import (
+        is_subprocess_communication_enabled,
+        send_subprocess_completion,
+        send_subprocess_progress,
+        send_subprocess_status,
+    )
+except ImportError:
+    def send_subprocess_progress(*args, **kwargs) -> bool: return False
+    def send_subprocess_status(*args, **kwargs) -> bool: return False
+    def send_subprocess_completion(*args, **kwargs) -> bool: return False
+    def is_subprocess_communication_enabled() -> bool: return False
+
+    class _NoopProgressReporter:
+        def update(self, *_args, **_kwargs) -> None:
+            return
+
+        def complete(self, *_args, **_kwargs) -> None:
+            return
+
+    def create_progress_reporter(*_args, **_kwargs):
+        return _NoopProgressReporter()
+
+
+random_selector = random.Random(42)
 
 # ============================================================================
 # CONSTANTS AND CONFIGURATION
@@ -269,6 +311,8 @@ class DimensionStressTest:
             coordinate_range_limit: If set, limit coordinate ranges (e.g., 0.1 = +/-10%)
             dimensions_to_use: If set, only vary these dimensions
         """
+        selected_dimensions = set(dimensions_to_use or FRACTALSEMANTICS_DIMENSIONS)
+
         # ID: unique or fixed
         id_str = f"test-{index:08d}" if use_unique_id else "fixed-id-000000"
 
@@ -278,32 +322,55 @@ class DimensionStressTest:
         else:
             state = {"value": 0, "index": 0}
 
-        # Coordinates: constrained or full range
+        # Default/fixed coordinates for non-selected dimensions
+        realm = REALMS[0]
+        lineage = 1
+        adjacency: list[str] = []
+        horizon = HORIZONS[0]
+        luminosity = 0.5
+        polarity = Polarity(POLARITY_LIST[0])
+        dimensionality = 2
+        alignment = Alignment(ALIGNMENT_LIST[0])
+
+        # Coordinates: vary selected dimensions within constrained or full range
         if coordinate_range_limit is not None:
-            # Limited range around center values
-            realm = secure_random.choice(REALMS[:3])  # Only first 3 realms
-            lineage = secure_random.randint(1, 10)  # Only 1-10 instead of 1-100
-            adjacency = []  # No adjacency relationships
-            horizon = secure_random.choice(HORIZONS[:2])  # Only first 2 horizons
-            luminosity = secure_random.uniform(
-                -coordinate_range_limit, coordinate_range_limit
-            )  # Limited range
-            polarity = Polarity(secure_random.choice(POLARITY_LIST[-2:]))  # Limited polarity values
-            dimensionality = int(secure_random.uniform(
-                0.5 - coordinate_range_limit, 0.5 + coordinate_range_limit
-            ))
-            alignment = Alignment(secure_random.choice(ALIGNMENT_LIST[:2]))  # Limited alignment values
+            if "realm" in selected_dimensions:
+                realm = random_selector.choice(REALMS[:3])
+            if "lineage" in selected_dimensions:
+                lineage = random_selector.randint(1, 10)
+            if "adjacency" in selected_dimensions:
+                adjacency_count = random_selector.randint(0, 1)
+                adjacency = [f"adj-{index}-{i}" for i in range(adjacency_count)]
+            if "horizon" in selected_dimensions:
+                horizon = random_selector.choice(HORIZONS[:2])
+            if "luminosity" in selected_dimensions:
+                luminosity = random_selector.uniform(
+                    -coordinate_range_limit, coordinate_range_limit
+                )
+            if "polarity" in selected_dimensions:
+                polarity = Polarity(random_selector.choice(POLARITY_LIST[-2:]))
+            if "dimensionality" in selected_dimensions:
+                dimensionality = int(random_selector.uniform(0, 1))
+            if "alignment" in selected_dimensions:
+                alignment = Alignment(random_selector.choice(ALIGNMENT_LIST[:2]))
         else:
-            # Full range
-            realm = secure_random.choice(REALMS)
-            lineage = secure_random.randint(1, 100)
-            adjacency_count = secure_random.randint(0, 5)
-            adjacency = [f"adj-{index}-{i}" for i in range(adjacency_count)]
-            horizon = secure_random.choice(HORIZONS)
-            luminosity = secure_random.uniform(0.0, 1.0)
-            polarity = Polarity(secure_random.choice(POLARITY_LIST))
-            dimensionality = secure_random.randint(0, 5)
-            alignment = Alignment(secure_random.choice(ALIGNMENT_LIST))
+            if "realm" in selected_dimensions:
+                realm = random_selector.choice(REALMS)
+            if "lineage" in selected_dimensions:
+                lineage = random_selector.randint(1, 100)
+            if "adjacency" in selected_dimensions:
+                adjacency_count = random_selector.randint(0, 5)
+                adjacency = [f"adj-{index}-{i}" for i in range(adjacency_count)]
+            if "horizon" in selected_dimensions:
+                horizon = random_selector.choice(HORIZONS)
+            if "luminosity" in selected_dimensions:
+                luminosity = random_selector.uniform(0.0, 1.0)
+            if "polarity" in selected_dimensions:
+                polarity = Polarity(random_selector.choice(POLARITY_LIST))
+            if "dimensionality" in selected_dimensions:
+                dimensionality = random_selector.randint(0, 5)
+            if "alignment" in selected_dimensions:
+                alignment = Alignment(random_selector.choice(ALIGNMENT_LIST))
 
         coords = Coordinates(
             realm=realm,
@@ -318,7 +385,7 @@ class DimensionStressTest:
 
         return BitChain(
             id=id_str,
-            entity_type=secure_random.choice(ENTITY_TYPES),
+            entity_type=ENTITY_TYPES[0],
             realm=realm,
             coordinates=coords,
             created_at="2024-01-01T00:00:00.000Z",  # Fixed timestamp
@@ -354,11 +421,7 @@ class DimensionStressTest:
 
         # Create data dict for hashing
         data = {
-            "id": bc.id,
-            "entity_type": bc.entity_type,
-            "realm": bc.realm,
             "fractalsemantics_coordinates": coords_dict,
-            "state": bc.state,
         }
 
         return compute_address_hash(data)
@@ -466,6 +529,30 @@ class DimensionStressTest:
         start_time = datetime.now(timezone.utc).isoformat()
         overall_start = time.time()
 
+        progress = create_progress_reporter("EXP-11b")
+        subprocess_enabled = is_subprocess_communication_enabled()
+
+        def report_status(stage: str, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_status("EXP-11b", stage, message)
+                return
+            progress.update(0, stage, message)
+
+        def report_progress(progress_percent: float, stage: str, message: str) -> None:
+            bounded_progress = max(0.0, min(100.0, progress_percent))
+            if subprocess_enabled:
+                send_subprocess_progress("EXP-11b", bounded_progress, stage, message)
+                return
+            progress.update(bounded_progress, stage, message)
+
+        def report_completion(success: bool, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_completion("EXP-11b", success, message)
+                return
+            progress.complete(message)
+
+        report_status("Initialization", "Initializing dimensional stress test")
+
         print("\n" + "=" * 80)
         print("EXP-11b: DIMENSIONAL COLLISION STRESS TEST")
         print("=" * 80)
@@ -474,7 +561,13 @@ class DimensionStressTest:
         print()
 
         # Run all test scenarios
-        for scenario in TEST_SCENARIOS:
+        for i, scenario in enumerate(TEST_SCENARIOS):
+            progress_percent = (i + 1) / max(1, len(TEST_SCENARIOS)) * 90.0
+            report_progress(
+                progress_percent,
+                "Stress Testing",
+                f"Running {scenario.name}",
+            )
             result = self._run_stress_test(
                 test_name=scenario.name,
                 description=scenario.description,
@@ -515,14 +608,12 @@ class DimensionStressTest:
         max_collision_test = max(self.results, key=lambda r: r.collision_rate)
         if max_collision_test.collision_rate > 0:
             key_findings.append(
-                f"Highest collision rate: {max_collision_test.collision_rate:.4%} in {
-                    max_collision_test.test_name
-                }"
+                f"Highest collision rate: {max_collision_test.collision_rate:.4%} "
+                f"in {max_collision_test.test_name}"
             )
             key_findings.append(
-                f"  Max collisions per address: {
-                    max_collision_test.max_collisions_per_address
-                }"
+                f"  Max collisions per address: "
+                f"{max_collision_test.max_collisions_per_address}"
             )
 
         # Dimension count analysis
@@ -570,6 +661,9 @@ class DimensionStressTest:
         print("[OK] EXP-11b COMPLETE")
         print("=" * 80)
 
+        report_progress(100.0, "Finalization", "Dimensional stress test completed")
+        report_completion(True, "Dimensional stress test completed")
+
         return final_result, True
 
 
@@ -598,6 +692,15 @@ def save_results(
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run EXP-11b Dimension Stress Test")
+    parser.add_argument("--quick", action="store_true", help="Run smaller/faster validation")
+    parser.add_argument("--full", action="store_true", help="Run larger/full validation")
+    parser.add_argument("--extreme", action="store_true", help="Run extreme-size stress validation")
+    args = parser.parse_args()
+
+    if sum([args.quick, args.full, args.extreme]) > 1:
+        raise ValueError("Use only one of --quick, --full, or --extreme")
+
     # Load from config or use defaults
     sample_size = 10000
     try:
@@ -608,15 +711,21 @@ if __name__ == "__main__":
     except Exception:
         pass  # Use default value set above
 
-    # Check CLI args regardless of config success (these override config)
-    if "--quick" in sys.argv:
+    # Apply CLI overrides regardless of config success
+    if args.quick:
         sample_size = 1000
-    elif "--full" in sys.argv:
+        mode_label = "Quick"
+    elif args.full:
         sample_size = 100000
-    elif "--extreme" in sys.argv:
+        mode_label = "Full"
+    elif args.extreme:
         sample_size = 1000000
+        mode_label = "Extreme"
+    else:
+        mode_label = "Standard"
 
     try:
+        print(f"[MODE] {mode_label} | sample_size={sample_size:,}")
         experiment = DimensionStressTest(sample_size=sample_size)
         test_results, success = experiment.run()
         output_file = save_results(test_results)

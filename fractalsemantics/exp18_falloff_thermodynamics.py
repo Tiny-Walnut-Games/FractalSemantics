@@ -15,6 +15,7 @@ Success Criteria:
 - With falloff injection, void/dense entropy follows classical expectations
 """
 
+import argparse
 import json
 import statistics
 import sys
@@ -25,18 +26,41 @@ from typing import Any, Optional, TypeAlias
 
 import numpy as np
 
-from fractalsemantics.exp13_fractal_gravity import (
-    FractalHierarchy,
-    compute_natural_cohesion,
-)
-from fractalsemantics.exp17_thermodynamic_validation import (
-    ThermodynamicState,
-    create_fractal_region,
-    validate_first_law,
-    validate_fractal_void_density,
-    validate_second_law,
-    validate_zeroth_law,
-)
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parent
+for path_entry in (str(PROJECT_ROOT), str(CURRENT_DIR)):
+    if path_entry not in sys.path:
+        sys.path.insert(0, path_entry)
+
+try:
+    from fractalsemantics.exp13_fractal_gravity import (
+        FractalHierarchy,
+        compute_natural_cohesion,
+    )
+except ImportError:
+    from exp13_fractal_gravity import (  # type: ignore[no-redef]
+        FractalHierarchy,
+        compute_natural_cohesion,
+    )
+
+try:
+    from fractalsemantics.exp17_thermodynamic_validation import (
+        ThermodynamicState,
+        create_fractal_region,
+        validate_first_law,
+        validate_fractal_void_density,
+        validate_second_law,
+        validate_zeroth_law,
+    )
+except ImportError:
+    from exp17_thermodynamic_validation import (  # type: ignore[no-redef]
+        ThermodynamicState,
+        create_fractal_region,
+        validate_first_law,
+        validate_fractal_void_density,
+        validate_second_law,
+        validate_zeroth_law,
+    )
 
 # Import subprocess communication for enhanced progress reporting
 
@@ -47,24 +71,61 @@ JsonObject: TypeAlias = dict[str, JsonValue]
 try:
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
+        send_subprocess_completion,
         send_subprocess_progress,
         send_subprocess_status,
     )
 except ImportError:
-    # Fallback if subprocess communication is not available
-    def send_subprocess_progress(*args, **kwargs) -> bool: return False
-    def send_subprocess_status(*args, **kwargs) -> bool: return False
-    def send_subprocess_completion(*args, **kwargs) -> bool: return False
-    def is_subprocess_communication_enabled() -> bool: return False
+    try:
+        from subprocess_comm import (  # type: ignore[no-redef]
+            is_subprocess_communication_enabled,
+            send_subprocess_completion,
+            send_subprocess_progress,
+            send_subprocess_status,
+        )
+    except ImportError:
+        # Fallback if subprocess communication is not available
+        def send_subprocess_progress(*args, **kwargs) -> bool: return False
+        def send_subprocess_status(*args, **kwargs) -> bool: return False
+        def send_subprocess_completion(*args, **kwargs) -> bool: return False
+        def is_subprocess_communication_enabled() -> bool: return False
 
-secure_random = np.random.RandomState(42)
+try:
+    from fractalsemantics.progress_comm import create_progress_reporter
+except ImportError:
+    try:
+        from progress_comm import create_progress_reporter  # type: ignore[no-redef]
+    except ImportError:
+        class _FallbackProgressReporter:
+            def __init__(self, experiment_id: str):
+                self.experiment_id = experiment_id
+
+            def update(self, progress_percent: float, stage: str, message: str) -> None:
+                print(f"[{self.experiment_id}] {progress_percent:.1f}% | {stage}: {message}")
+
+            def complete(self, message: str) -> None:
+                print(f"[{self.experiment_id}] COMPLETE: {message}")
+
+        def create_progress_reporter(experiment_id: str):
+            return _FallbackProgressReporter(experiment_id)
+
+EXP18_RANDOM_SEED: int = 42
+EXP18_NO_FALLOFF_ENERGY_NOISE_FACTOR: float = 0.01
+EXP18_NO_FALLOFF_ENTROPY_GROWTH_FACTOR: float = 0.02
+EXP18_WITH_FALLOFF_ENERGY_NOISE_FACTOR: float = 0.005
+EXP18_WITH_FALLOFF_ENTROPY_GROWTH_FACTOR: float = 0.01
+EXP18_TEMPERATURE_PROXY_SCALE: float = 100.0
+EXP18_TEMPERATURE_REGION_MULTIPLIER: float = 0.9
+EXP18_DEFAULT_FALLOFF_EXPONENT: float = 2.0
+
+secure_random = np.random.RandomState(EXP18_RANDOM_SEED)
 
 # ============================================================================
 # FALLOFF-INJECTED THERMODYNAMIC MEASUREMENTS
 # ============================================================================
 
 def measure_fractal_energy_with_falloff(hierarchy: FractalHierarchy,
-                                       falloff_exponent: float = 2.0) -> float:
+                                       falloff_exponent: float = EXP18_DEFAULT_FALLOFF_EXPONENT) -> float:
     """
     Measure fractal energy WITH falloff injection.
 
@@ -222,7 +283,14 @@ def create_fractal_region_with_falloff(hierarchy: FractalHierarchy,
 # EXPERIMENT IMPLEMENTATION
 # ============================================================================
 
-def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> JsonObject:
+def run_falloff_thermodynamics_experiment(
+    falloff_exponent: float = 2.0,
+    void_depth: int = 3,
+    void_branching_factor: int = 2,
+    dense_depth: int = 5,
+    dense_branching_factor: int = 5,
+    evolution_steps: int = 5,
+) -> JsonObject:
     """
     Run EXP-18: Falloff Injection in Thermodynamics.
 
@@ -234,34 +302,50 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Json
     print(f"Testing thermodynamic behavior with falloff exponent: {falloff_exponent}")
     print()
 
-    # Send subprocess communication if enabled
-    if is_subprocess_communication_enabled():
-        send_subprocess_status("EXP-18: Falloff Thermodynamics", "Starting falloff injection experiment")
-        send_subprocess_progress("EXP-18", 0, 100, "Initializing experiment")
+    progress = create_progress_reporter("EXP-18")
+    subprocess_enabled = is_subprocess_communication_enabled()
+
+    def report_status(stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_status("EXP-18", stage, message)
+            return
+        progress.update(0, stage, message)
+
+    def report_progress(progress_percent: float, stage: str, message: str) -> None:
+        bounded_progress = max(0.0, min(100.0, progress_percent))
+        if subprocess_enabled:
+            send_subprocess_progress("EXP-18", bounded_progress, stage, message)
+            return
+        progress.update(bounded_progress, stage, message)
+
+    def report_completion(success: bool, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_completion("EXP-18", success, message)
+            return
+        progress.complete(message)
+
+    report_status("Initialization", "Starting falloff injection experiment")
 
     start_time = datetime.now(timezone.utc).isoformat()
     overall_start = time.time()
 
     # Create test fractal systems
     print("Creating test fractal systems...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-18", 10, 100, "Creating test fractal systems")
+    report_progress(10.0, "Setup", "Creating test fractal systems")
 
-    void_hierarchy = FractalHierarchy.build("void_test", max_depth=3, branching_factor=2)
-    dense_hierarchy = FractalHierarchy.build("dense_test", max_depth=5, branching_factor=5)
+    void_hierarchy = FractalHierarchy.build("void_test", max_depth=void_depth, branching_factor=void_branching_factor)
+    dense_hierarchy = FractalHierarchy.build("dense_test", max_depth=dense_depth, branching_factor=dense_branching_factor)
 
     # Measure thermodynamic states WITHOUT falloff
     print("Measuring thermodynamic properties WITHOUT falloff...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-18", 20, 100, "Measuring properties without falloff")
+    report_progress(20.0, "Measurement", "Measuring properties without falloff")
 
     void_state_no_falloff = create_fractal_region(void_hierarchy, "void")
     dense_state_no_falloff = create_fractal_region(dense_hierarchy, "dense")
 
     # Measure thermodynamic states WITH falloff
     print(f"Measuring thermodynamic properties WITH falloff (exponent={falloff_exponent})...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-18", 30, 100, f"Measuring properties with falloff (exponent={falloff_exponent})")
+    report_progress(30.0, "Measurement", f"Measuring properties with falloff (exponent={falloff_exponent})")
 
     void_state_with_falloff = create_fractal_region_with_falloff(void_hierarchy, "void", falloff_exponent)
     dense_state_with_falloff = create_fractal_region_with_falloff(dense_hierarchy, "dense", falloff_exponent)
@@ -273,8 +357,7 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Json
 
     # Simulate evolution with falloff
     print("Simulating fractal evolution WITH falloff...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-18", 40, 100, "Simulating fractal evolution")
+    report_progress(40.0, "Evolution", "Simulating fractal evolution")
 
     energy_history_no_falloff = [void_state_no_falloff.total_energy, dense_state_no_falloff.total_energy]
     entropy_history_no_falloff = [void_state_no_falloff.entropy_estimate, dense_state_no_falloff.entropy_estimate]
@@ -283,12 +366,18 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Json
     entropy_history_with_falloff = [void_state_with_falloff.entropy_estimate, dense_state_with_falloff.entropy_estimate]
 
     # Simulate evolution
-    for step in range(5):
+    evolution_progress_span = 25.0
+    for step in range(evolution_steps):
+        report_progress(
+            45.0 + ((step + 1) / max(1, evolution_steps)) * evolution_progress_span,
+            "Evolution",
+            f"Simulation step {step + 1}/{evolution_steps}",
+        )
         # No falloff evolution
         current_energy = energy_history_no_falloff[-1]
         current_entropy = entropy_history_no_falloff[-1]
-        new_energy = current_energy + secure_random.normal(0, abs(current_energy) * 0.01)
-        new_entropy = current_entropy + abs(current_entropy) * 0.02
+        new_energy = current_energy + secure_random.normal(0, abs(current_energy) * EXP18_NO_FALLOFF_ENERGY_NOISE_FACTOR)
+        new_entropy = current_entropy + abs(current_entropy) * EXP18_NO_FALLOFF_ENTROPY_GROWTH_FACTOR
         energy_history_no_falloff.append(new_energy)
         entropy_history_no_falloff.append(new_entropy)
 
@@ -296,8 +385,8 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Json
         current_energy_f = energy_history_with_falloff[-1]
         current_entropy_f = entropy_history_with_falloff[-1]
         # Falloff makes evolution more constrained (smaller fluctuations)
-        new_energy_f = current_energy_f + secure_random.normal(0, abs(current_energy_f) * 0.005)
-        new_entropy_f = current_entropy_f + abs(current_entropy_f) * 0.01
+        new_energy_f = current_energy_f + secure_random.normal(0, abs(current_energy_f) * EXP18_WITH_FALLOFF_ENERGY_NOISE_FACTOR)
+        new_entropy_f = current_entropy_f + abs(current_entropy_f) * EXP18_WITH_FALLOFF_ENTROPY_GROWTH_FACTOR
         energy_history_with_falloff.append(new_energy_f)
         entropy_history_with_falloff.append(new_entropy_f)
 
@@ -308,17 +397,16 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Json
     temperature_history_with_falloff = []
 
     for energy_val in energy_history_no_falloff:
-        temp_proxy = energy_val / 100.0
-        temperature_history_no_falloff.append([temp_proxy, temp_proxy * 0.9])
+        temp_proxy = energy_val / EXP18_TEMPERATURE_PROXY_SCALE
+        temperature_history_no_falloff.append([temp_proxy, temp_proxy * EXP18_TEMPERATURE_REGION_MULTIPLIER])
 
     for energy_val in energy_history_with_falloff:
-        temp_proxy = energy_val / 100.0
-        temperature_history_with_falloff.append([temp_proxy, temp_proxy * 0.9])
+        temp_proxy = energy_val / EXP18_TEMPERATURE_PROXY_SCALE
+        temperature_history_with_falloff.append([temp_proxy, temp_proxy * EXP18_TEMPERATURE_REGION_MULTIPLIER])
 
     # Validate thermodynamic laws WITHOUT falloff
     print("Validating thermodynamic laws WITHOUT falloff...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-18", 60, 100, "Validating laws without falloff")
+    report_progress(75.0, "Validation", "Validating laws without falloff")
 
     validations_no_falloff = []
 
@@ -340,8 +428,7 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Json
 
     # Validate thermodynamic laws WITH falloff
     print("Validating thermodynamic laws WITH falloff...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-18", 80, 100, "Validating laws with falloff")
+    report_progress(85.0, "Validation", "Validating laws with falloff")
 
     validations_with_falloff = []
 
@@ -376,13 +463,11 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Json
     overall_end = time.time()
     end_time = datetime.now(timezone.utc).isoformat()
 
-    # Send completion status
-    if is_subprocess_communication_enabled():
-        if improvement > 0:
-            send_subprocess_status("EXP-18: Falloff Thermodynamics", f"SUCCESS - {improvement} improvement in validations")
-        else:
-            send_subprocess_status("EXP-18: Falloff Thermodynamics", f"NO IMPROVEMENT - {improvement} change in validations")
-        send_subprocess_progress("EXP-18", 100, 100, "Experiment completed")
+    report_progress(95.0, "Finalization", "Preparing experiment summary")
+    if improvement > 0:
+        report_status("Summary", f"SUCCESS - {improvement} improvement in validations")
+    else:
+        report_status("Summary", f"NEGATIVE RESULT - postulate not supported ({improvement} change in validations)")
 
     # Success criteria: falloff injection improves thermodynamic behavior
     success = passed_with_falloff > passed_no_falloff
@@ -464,6 +549,11 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Json
         }
     }
 
+    report_completion(
+        success,
+        f"Falloff thermodynamics experiment completed with improvement={improvement}",
+    )
+
     return results
 
 
@@ -474,7 +564,7 @@ def run_falloff_thermodynamics_experiment(falloff_exponent: float = 2.0) -> Json
 def save_results(results: JsonObject, output_file: Optional[str] = None) -> str:
     """Save results to JSON file."""
     if output_file is None:
-        exponent = results.get("falloff_exponent", 2.0)
+        exponent = results.get("falloff_exponent", EXP18_DEFAULT_FALLOFF_EXPONENT)
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         output_file = f"exp18_falloff_thermodynamics_exp{exponent}_{timestamp}.json"
 
@@ -490,9 +580,56 @@ def save_results(results: JsonObject, output_file: Optional[str] = None) -> str:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Run EXP-18 falloff thermodynamics experiment"
+    )
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
+        "--quick",
+        action="store_true",
+        help="Run quick mode with reduced hierarchy size and fewer evolution steps",
+    )
+    mode_group.add_argument(
+        "--full",
+        action="store_true",
+        help="Run full mode with default parameters",
+    )
+    parser.add_argument(
+        "--falloff-exponent",
+        type=float,
+        default=EXP18_DEFAULT_FALLOFF_EXPONENT,
+        help=f"Falloff exponent to test (default: {EXP18_DEFAULT_FALLOFF_EXPONENT})",
+    )
+    args = parser.parse_args()
+
+    if args.quick:
+        runtime = {
+            "falloff_exponent": args.falloff_exponent,
+            "void_depth": 3,
+            "void_branching_factor": 2,
+            "dense_depth": 4,
+            "dense_branching_factor": 4,
+            "evolution_steps": 3,
+        }
+    else:
+        runtime = {
+            "falloff_exponent": args.falloff_exponent,
+            "void_depth": 3,
+            "void_branching_factor": 2,
+            "dense_depth": 5,
+            "dense_branching_factor": 5,
+            "evolution_steps": 5,
+        }
+
+    mode = "Quick" if args.quick else "Full"
+    print(
+        f"[MODE] {mode} | falloff_exponent={runtime['falloff_exponent']} | "
+        f"void_depth={runtime['void_depth']} | dense_depth={runtime['dense_depth']} "
+        f"| evolution_steps={runtime['evolution_steps']}"
+    )
+
     try:
-        # Test with the same falloff exponent used in gravity (2.0)
-        results = run_falloff_thermodynamics_experiment(falloff_exponent=2.0)
+        results = run_falloff_thermodynamics_experiment(**runtime)
         output_file = save_results(results)
 
         print("\n" + "=" * 80)
@@ -502,8 +639,11 @@ if __name__ == "__main__":
         comparison = results["comparison"]
         success = results["success_criteria"]["passed"]
 
-        status = "PASSED" if success else "FAILED"
-        print(f"Status: {status}")
+        print("Technical Run Status: PASS (execution completed)")
+        if success:
+            print("Scientific Outcome: Hypothesis supported by this run")
+        else:
+            print("Scientific Outcome: Scientifically valid negative result (hypothesis not supported under tested conditions)")
         print(f"Falloff injection improves thermodynamics: {comparison['falloff_improves_thermodynamics']}")
         print(f"Validations without falloff: {comparison['passed_no_falloff']}/4")
         print(f"Validations with falloff: {comparison['passed_with_falloff']}/4")
@@ -515,8 +655,8 @@ if __name__ == "__main__":
             print("   This confirms that gravity and thermodynamics share the same falloff mechanism.")
             print("   ✓ Same falloff formula works for both energy and gravitational interactions")
         else:
-            print("\nX NO IMPROVEMENT: Falloff injection doesn't help thermodynamics")
-            print("   Gravity and thermodynamics may have different falloff characteristics.")
+            print("\nSCIENTIFIC NEGATIVE RESULT: falloff-injection postulate not supported in this run.")
+            print("   Gravity and thermodynamics may require distinct falloff characterizations.")
 
         print()
 

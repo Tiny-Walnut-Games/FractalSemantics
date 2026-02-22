@@ -48,6 +48,9 @@ from typing import Any, Optional, TypeAlias
 
 import numpy as np
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from fractalsemantics.dynamic_enum import (
     ALIGNMENT_REGISTRY,
     HORIZON_REGISTRY,
@@ -370,6 +373,43 @@ class EXP03_CoordinateEntropy:
         "dimensionality",
         "alignment",
     ]
+
+    def _print_ablation_summary_table(self) -> None:
+        """Print compact ablation results table."""
+        if len(self.results) <= 1:
+            return
+
+        print("\nAblation summary:")
+        print("-" * 88)
+        print(
+            f"{'Removed':>14}  {'Entropy(bits)':>14}  {'Reduction(%)':>12}  "
+            f"{'Expressive(%)':>13}  {'Unique':>8}  {'Status':>8}"
+        )
+        print("-" * 88)
+
+        ranked = sorted(
+            self.results[1:],
+            key=lambda result_item: result_item.entropy_reduction_pct,
+            reverse=True,
+        )
+
+        for result in ranked:
+            removed_dim = [
+                dim_name
+                for dim_name in self.FractalSemantics_DIMENSIONS
+                if dim_name not in result.dimensions_used
+            ][0]
+            status = "MEASURED" if result.entropy_reduction_pct > 0.0 else "NONE"
+            print(
+                f"{removed_dim:>14}  "
+                f"{result.shannon_entropy:>14.4f}  "
+                f"{result.entropy_reduction_pct:>12.2f}  "
+                f"{result.expressiveness_contribution:>13.2f}  "
+                f"{result.unique_coordinates:>8}  "
+                f"{status:>8}"
+            )
+
+        print("-" * 88)
 
     def __init__(self, sample_size: int = 1000000, random_seed: int = 42):
         """
@@ -707,6 +747,37 @@ class EXP03_CoordinateEntropy:
         import time
 
         start_time = time.time()
+
+        subprocess_enabled = is_subprocess_communication_enabled()
+        progress_reporter = None
+        if not subprocess_enabled:
+            with contextlib.suppress(Exception):
+                progress_reporter = ProgressReporter("EXP-03")
+
+        def report_status(stage: str, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_status("EXP-03", stage, message)
+                return
+            if progress_reporter is not None:
+                with contextlib.suppress(Exception):
+                    progress_reporter.status(stage, message)
+
+        def report_progress(progress_percent: float, stage: str, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_progress("EXP-03", progress_percent, stage, message)
+                return
+            if progress_reporter is not None:
+                with contextlib.suppress(Exception):
+                    progress_reporter.update(progress_percent, stage, message)
+
+        def report_completion(success: bool, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_completion("EXP-03", success, message)
+                return
+            if progress_reporter is not None:
+                with contextlib.suppress(Exception):
+                    progress_reporter.complete(message)
+
         print(f"\n{'=' * 70}")
         print("EXP-03: COORDINATE SPACE ENTROPY TEST")
         print(f"{'=' * 70}")
@@ -714,9 +785,7 @@ class EXP03_CoordinateEntropy:
         print(f"Random seed: {self.random_seed} (for reproducibility)")
         print()
 
-        # Send progress message for experiment start (use 0.0 progress instead of status)
-        with contextlib.suppress(Exception):
-            send_subprocess_status("EXP-03", 0.0, "Initialization", "Starting coordinate entropy test")
+        report_status("Initialization", "Starting coordinate entropy test")
 
         # Generate bit-chains once for all tests
         print("Generating bit-chains...")
@@ -726,13 +795,11 @@ class EXP03_CoordinateEntropy:
             for i in range(self.sample_size)
         ]
         generation_time = time.time() - generation_start
-        print(f"Generated {len(bitchains)} bit-chains (took {generation_time:.1f}s)")
+        print(f"Generated {len(bitchains):,} bit-chains in {generation_time:.1f}s")
         print()
 
         # Baseline: all 8 dimensions
-        print("=" * 70)
-        print("BASELINE: All 8 dimensions")
-        print("=" * 70)
+        print("Baseline: all 8 dimensions")
 
         baseline_start = time.time()
         baseline_coords = self.extract_coordinates(bitchains, self.FractalSemantics_DIMENSIONS)
@@ -743,7 +810,6 @@ class EXP03_CoordinateEntropy:
             baseline_coords, baseline_unique
         )
         baseline_computation_time = time.time() - baseline_start
-        print(f"Baseline computation took {baseline_computation_time:.1f}s")
 
         self.baseline_entropy = baseline_entropy
 
@@ -763,10 +829,12 @@ class EXP03_CoordinateEntropy:
         )
         self.results.append(result)
 
-        print(f"  Shannon Entropy:      {baseline_entropy:.4f} bits")
-        print(f"  Normalized Entropy:   {baseline_normalized:.4f}")
-        print(f"  Unique Coordinates:   {baseline_unique} / {self.sample_size}")
-        print(f"  Disambiguation Score: {baseline_disambiguation:.4f}")
+        print(
+            "Baseline results: "
+            f"entropy={baseline_entropy:.4f} bits, normalized={baseline_normalized:.4f}, "
+            f"unique={baseline_unique:,}/{self.sample_size:,}, "
+            f"disambiguation={baseline_disambiguation:.4f}, elapsed={baseline_computation_time:.1f}s"
+        )
         print()
 
         # Ablation: remove each dimension
@@ -774,13 +842,14 @@ class EXP03_CoordinateEntropy:
 
         for i, removed_dim in enumerate(self.FractalSemantics_DIMENSIONS, 1):
             progress_percent = (i / len(self.FractalSemantics_DIMENSIONS)) * 100
-            print("=" * 70)
-            print(f"ABLATION: Remove '{removed_dim}' ({i}/8)")
-            print("=" * 70)
+            print(f"[{i}/{len(self.FractalSemantics_DIMENSIONS)}] Ablation: remove '{removed_dim}'")
 
             # Send progress message for dimension ablation with actual progress percentage
-            with contextlib.suppress(Exception):
-                send_subprocess_progress("EXP-03", progress_percent, f"Ablation {removed_dim}", f"Testing entropy without {removed_dim}")
+            report_progress(
+                progress_percent,
+                f"Ablation {removed_dim}",
+                f"Testing entropy without {removed_dim}",
+            )
 
             dim_start = time.time()
             # Get dimensions without the removed one
@@ -797,7 +866,6 @@ class EXP03_CoordinateEntropy:
                 ablation_coords, ablation_unique
             )
             dim_time = time.time() - dim_start
-            print(f"Ablation for '{removed_dim}' took {dim_time:.1f}s")
 
             # Calculate entropy reduction
             entropy_reduction_pct = (
@@ -832,47 +900,26 @@ class EXP03_CoordinateEntropy:
 
             # Determine if dimension is critical
             status = "CRITICAL" if meets_threshold else "OPTIONAL"
-            print(f"  {status}")
-            print(f"  Shannon Entropy:      {ablation_entropy:.4f} bits")
-            print(f"  Normalized Entropy:   {ablation_normalized:.4f}")
-            print(f"  Entropy Reduction:    {entropy_reduction_pct:.2f}%")
-            print(f"  Unique Coordinates:   {ablation_unique} / {self.sample_size}")
-            print(f"  Disambiguation Score: {ablation_disambiguation:.4f}")
+            print(
+                f"[{i}/{len(self.FractalSemantics_DIMENSIONS)}] {removed_dim}: {status} | "
+                f"entropy={ablation_entropy:.4f} bits, reduction={entropy_reduction_pct:.2f}%, "
+                f"expressive={composite_score:.2f}%, unique={ablation_unique:,}/{self.sample_size:,}, "
+                f"disambiguation={ablation_disambiguation:.4f}, elapsed={dim_time:.1f}s"
+            )
             print()
 
             # For overall success, we expect all dimensions to be critical
             all_success = all_success and meets_threshold
 
         # Summary
-        print("=" * 70)
-        print("SUMMARY")
-        print("=" * 70)
+        print("Summary")
 
-        # Actually, we want to identify which dimensions ARE critical
-        # A dimension is critical if removing it causes >5% entropy reduction
-        critical_count = sum(1 for r in self.results[1:] if r.meets_threshold)
+        measurable_count = sum(1 for result in self.results[1:] if result.entropy_reduction_pct > 0.0)
+        expressive_count = sum(1 for result in self.results[1:] if result.meets_threshold)
 
-        print(f"Critical dimensions (>0% entropy reduction): {critical_count} / 8")
-        print()
-
-        # Rank dimensions by entropy contribution
-        print("Dimension Ranking by Entropy Contribution:")
-        ranked = sorted(
-            self.results[1:],  # Skip baseline
-            key=lambda r: r.entropy_reduction_pct,
-            reverse=True,
-        )
-
-        for i, result in enumerate(ranked, 1):
-            removed_dim = [
-                d for d in self.FractalSemantics_DIMENSIONS if d not in result.dimensions_used
-            ][0]
-            status = "PASS" if result.meets_threshold else "FAIL"
-            print(
-                f"  {i}. {removed_dim:12s} - {result.entropy_reduction_pct:6.2f}% reduction [{status}]"
-            )
-
-        print()
+        print(f"Dimensions with measurable entropy contribution (>0% reduction): {measurable_count} / 8")
+        print(f"Dimensions meeting composite expressiveness threshold (>=5.0%): {expressive_count} / 8")
+        self._print_ablation_summary_table()
 
         total_time = time.time() - start_time
         print(f"\nTotal experiment time: {total_time:.1f}s")
@@ -886,10 +933,7 @@ class EXP03_CoordinateEntropy:
             print("[Warn]  RESULT: Some dimensions may be optional")
             print("   (not all show measurable entropy reduction when removed)")
 
-        # Send completion progress message
-        with contextlib.suppress(Exception):
-            progress = ProgressReporter("EXP-03")
-            progress.complete("Coordinate entropy test completed")
+        report_completion(all_success, "Coordinate entropy test completed")
 
         return self.results, bool(all_success)
 
@@ -920,19 +964,36 @@ class EXP03_CoordinateEntropy:
         # Extract dimension names and entropy reductions
         dimensions = []
         entropy_reductions = []
+        expressiveness_contributions = []
 
         for result in self.results[1:]:  # Skip baseline
-            removed_dim = [
+            removed_candidates = [
                 d for d in self.FractalSemantics_DIMENSIONS if d not in result.dimensions_used
-            ][0]
+            ]
+            if not removed_candidates:
+                continue
+
+            removed_dim = removed_candidates[0]
             dimensions.append(removed_dim)
-            entropy_reductions.append(result.entropy_reduction_pct)
+            entropy_val = result.entropy_reduction_pct
+            if entropy_val is None or not np.isfinite(entropy_val):
+                entropy_val = 0.0
+            entropy_reductions.append(float(entropy_val))
+
+            expressive_val = result.expressiveness_contribution
+            if expressive_val is None or not np.isfinite(expressive_val):
+                expressive_val = 0.0
+            expressiveness_contributions.append(float(expressive_val))
+
+        if not dimensions:
+            return {}
 
         return {
             "dimensions": dimensions,
             "entropy_reductions": entropy_reductions,
+            "expressiveness_contributions": expressiveness_contributions,
             "baseline_entropy": self.baseline_entropy,
-            "threshold": 0.05,  # Use 0.05% instead of 5.0% to match actual data scale
+            "threshold": 5.0,
         }
 
 
@@ -1006,14 +1067,21 @@ def plot_entropy_contributions(
 
     dimensions = viz_data["dimensions"]
     entropy_reductions = viz_data["entropy_reductions"]
+    expressiveness_contributions = viz_data.get("expressiveness_contributions", [])
     threshold = viz_data["threshold"]
 
+    metric_label = "Entropy Reduction (%)"
+    metric_values = entropy_reductions
+    if not any(abs(val) > 1e-9 for val in entropy_reductions) and expressiveness_contributions:
+        metric_label = "Composite Expressiveness Contribution (%)"
+        metric_values = expressiveness_contributions
+
     # Create figure
-    fig, ax = plt.subplots(fig_size=(10, 6))
+    fig, ax = plt.subplots(figsize=(10, 6))
 
     # Create bar chart
-    colors = ["green" if er > threshold else "orange" for er in entropy_reductions]
-    bars = ax.bar(dimensions, entropy_reductions, color=colors, alpha=0.7)
+    colors = ["green" if value > threshold else "orange" for value in metric_values]
+    bars = ax.bar(dimensions, metric_values, color=colors, alpha=0.7)
 
     # Add threshold line
     ax.axhline(
@@ -1026,22 +1094,36 @@ def plot_entropy_contributions(
 
     # Labels and title
     ax.set_xlabel("FractalSemantics Dimension", fontsize=12, fontweight="bold")
-    ax.set_ylabel("Entropy Reduction (%)", fontsize=12, fontweight="bold")
+    ax.set_ylabel(metric_label, fontsize=12, fontweight="bold")
     ax.set_title(
-        "EXP-03: Entropy Contribution by Dimension\n(When Dimension is Removed)",
+        f"EXP-03: {metric_label} by Dimension\n(When Dimension is Removed)",
         fontsize=14,
         fontweight="bold",
     )
 
+    max_val = max(metric_values) if metric_values else 0.0
+    y_upper = max(threshold * 1.25, max_val * 1.25, 1.0)
+    ax.set_ylim(0, y_upper)
+
     # Add value labels on bars
-    for bar, value in zip(bars, entropy_reductions):
+    for bar, value in zip(bars, metric_values):
         height = bar.get_height()
         ax.text(
             bar.get_x() + bar.get_width() / 2.0,
-            height,
+            max(height, 0.02 * y_upper),
             f"{value:.1f}%",
             ha="center",
             va="bottom",
+            fontsize=10,
+        )
+
+    if max_val <= 1e-9:
+        ax.text(
+            0.5,
+            0.9,
+            "All measured contributions are near zero in this run.",
+            transform=ax.transAxes,
+            ha="center",
             fontsize=10,
         )
 
@@ -1059,8 +1141,8 @@ def plot_entropy_contributions(
         plt.savefig(output_file, dpi=300, bbox_inches="tight")
         print(f"Visualization saved to: {output_file}")
     else:
-        results_dir = Path(__file__).resolve().parent.parent / "results"
-        results_dir.mkdir(exist_ok=True)
+        results_dir = Path(__file__).resolve().parent.parent / "results" / "figures"
+        results_dir.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
         output_path = results_dir / f"exp03_entropy_chart_{timestamp}.png"
         plt.savefig(output_path, dpi=300, bbox_inches="tight")
@@ -1102,7 +1184,10 @@ if __name__ == "__main__":
         # Generate visualization
         viz_data = experiment.generate_visualization_data()
         if viz_data:
-            plot_entropy_contributions(viz_data)
+            try:
+                plot_entropy_contributions(viz_data)
+            except Exception as plot_error:
+                print(f"[Warn]  Visualization failed (results are still valid): {plot_error}")
 
         print("\n" + "=" * 70)
         print("[OK] EXP-03 COMPLETE")

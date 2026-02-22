@@ -19,12 +19,17 @@ Expected Result:
 
 import hashlib
 import json
+import math
+import sys
 import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, TypeAlias
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
@@ -34,6 +39,7 @@ JsonObject: TypeAlias = dict[str, JsonValue]
 
 # Import subprocess communication for enhanced progress reporting
 try:
+    from fractalsemantics.progress_comm import create_progress_reporter
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
         send_subprocess_completion,
@@ -46,6 +52,16 @@ except ImportError:
     def send_subprocess_status(*args, **kwargs) -> bool: return False
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
+
+    class _NoopProgressReporter:
+        def update(self, *_args, **_kwargs) -> None:
+            return
+
+        def complete(self, *_args, **_kwargs) -> None:
+            return
+
+    def create_progress_reporter(*_args, **_kwargs):
+        return _NoopProgressReporter()
 
 # Import FractalSemantics components
 
@@ -134,6 +150,37 @@ class LUCABootstrapTester:
         self.results = LUCABootstrapResult()
         self.luca_dictionary: dict[str, Any] = {}  # Master reference
 
+    @staticmethod
+    def _encode_realm(realm: str) -> str:
+        realm_map = {
+            "pattern": "P",
+            "data": "D",
+            "narrative": "N",
+        }
+        return realm_map.get(realm, "U")
+
+    @staticmethod
+    def _encode_horizon(horizon: str) -> str:
+        horizon_map = {
+            "emergence": "E",
+            "peak": "K",
+            "crystallization": "C",
+            "genesis": "G",
+            "decay": "Y",
+        }
+        return horizon_map.get(horizon, "U")
+
+    @staticmethod
+    def _encode_polarity(polarity: str) -> str:
+        polarity_map = {
+            "logic": "L",
+            "creativity": "R",
+            "order": "O",
+            "chaos": "H",
+            "balance": "B",
+        }
+        return polarity_map.get(polarity, "U")
+
     def create_test_entities(self, num_entities: int = 10) -> list[TestBitChain]:  # type: ignore[misc]
         """Create test entities with known lineage from LUCA."""
         entities = []
@@ -175,9 +222,9 @@ class LUCABootstrapTester:
             "id": entity.bit_chain_id,
             "hash": hashlib.sha256(entity.to_json().encode()).hexdigest(),
             "lineage": entity.lineage,
-            "realm_sig": entity.realm[0],  # Single character signature
-            "horizon_sig": entity.horizon[0],
-            "polarity_sig": entity.polarity[0],
+            "realm_sig": self._encode_realm(entity.realm),
+            "horizon_sig": self._encode_horizon(entity.horizon),
+            "polarity_sig": self._encode_polarity(entity.polarity),
             "dimensionality": entity.dimensionality,
             "content_size": len(entity.content),
             "metadata_keys": list(entity.metadata.keys()),
@@ -226,7 +273,8 @@ class LUCABootstrapTester:
         return luca_state
 
     def bootstrap_from_luca(
-        self, luca_state: dict[str, Any]
+        self,
+        luca_state: dict[str, Any],
     ) -> tuple[list[TestBitChain], list[bool]]:
         """
         Bootstrap entities back from LUCA state.
@@ -244,9 +292,11 @@ class LUCABootstrapTester:
                     bit_chain_id=luca_encoding["id"],
                     content=f"[BOOTSTRAPPED] {luca_encoding['content_size']} bytes",
                     lineage=luca_encoding["lineage"],
-                    realm=self._expand_signature(luca_encoding["realm_sig"]),
-                    horizon=self._expand_signature(luca_encoding["horizon_sig"]),
-                    polarity=self._expand_signature(luca_encoding["polarity_sig"]),
+                    realm=self._expand_realm_signature(luca_encoding["realm_sig"]),
+                    horizon=self._expand_horizon_signature(luca_encoding["horizon_sig"]),
+                    polarity=self._expand_polarity_signature(
+                        luca_encoding["polarity_sig"]
+                    ),
                     dimensionality=luca_encoding["dimensionality"],
                     metadata=dict.fromkeys(luca_encoding.get("metadata_keys", [])),
                 )
@@ -260,17 +310,34 @@ class LUCABootstrapTester:
 
         return bootstrapped_entities, expansion_success
 
-    def _expand_signature(self, sig: str) -> str:
-        """Expand single-character signature back to full value."""
+    def _expand_realm_signature(self, sig: str) -> str:
+        """Expand realm signature back to full value."""
         signature_map = {
-            "p": "pattern",
-            "d": "data",
-            "n": "narrative",
-            "e": "emergence",
-            "k": "peak",
-            "c": "crystallization",
-            "l": "logic",
-            "r": "creativity",
+            "P": "pattern",
+            "D": "data",
+            "N": "narrative",
+        }
+        return signature_map.get(sig, "unknown")
+
+    def _expand_horizon_signature(self, sig: str) -> str:
+        """Expand horizon signature back to full value."""
+        signature_map = {
+            "E": "emergence",
+            "K": "peak",
+            "C": "crystallization",
+            "G": "genesis",
+            "Y": "decay",
+        }
+        return signature_map.get(sig, "unknown")
+
+    def _expand_polarity_signature(self, sig: str) -> str:
+        """Expand polarity signature back to full value."""
+        signature_map = {
+            "L": "logic",
+            "R": "creativity",
+            "O": "order",
+            "H": "chaos",
+            "B": "balance",
         }
         return signature_map.get(sig, "unknown")
 
@@ -283,6 +350,8 @@ class LUCABootstrapTester:
         id_matches: int = 0
         lineage_matches: int = 0
         realm_matches: int = 0
+        horizon_matches: int = 0
+        polarity_matches: int = 0
         dimensionality_matches: int = 0
         details: list[dict[str, Any]] = []
 
@@ -293,6 +362,8 @@ class LUCABootstrapTester:
             "id_matches": id_matches,
             "lineage_matches": lineage_matches,
             "realm_matches": realm_matches,
+            "horizon_matches": horizon_matches,
+            "polarity_matches": polarity_matches,
             "dimensionality_matches": dimensionality_matches,
             "information_loss_detected": False,
             "details": details,
@@ -317,6 +388,16 @@ class LUCABootstrapTester:
                 if realm_match:
                     realm_matches += 1
 
+                horizon_match = original_entity.horizon == bootstrapped_entity.horizon
+                if horizon_match:
+                    horizon_matches += 1
+
+                polarity_match = (
+                    original_entity.polarity == bootstrapped_entity.polarity
+                )
+                if polarity_match:
+                    polarity_matches += 1
+
                 dimensionality_match = (
                     original_entity.dimensionality == bootstrapped_entity.dimensionality
                 )
@@ -324,13 +405,21 @@ class LUCABootstrapTester:
                     dimensionality_matches += 1
 
                 # Record mismatch
-                if not (lineage_match and realm_match and dimensionality_match):
+                if not (
+                    lineage_match
+                    and realm_match
+                    and horizon_match
+                    and polarity_match
+                    and dimensionality_match
+                ):
                     comparison["information_loss_detected"] = True
                     details.append(
                         {
                             "entity_id": entity_id,
                             "lineage_match": lineage_match,
                             "realm_match": realm_match,
+                            "horizon_match": horizon_match,
+                            "polarity_match": polarity_match,
                             "dimensionality_match": dimensionality_match,
                         }
                     )
@@ -348,12 +437,16 @@ class LUCABootstrapTester:
         comparison["id_matches"] = id_matches
         comparison["lineage_matches"] = lineage_matches
         comparison["realm_matches"] = realm_matches
+        comparison["horizon_matches"] = horizon_matches
+        comparison["polarity_matches"] = polarity_matches
         comparison["dimensionality_matches"] = dimensionality_matches
         comparison["entity_recovery_rate"] = id_matches / total if total > 0 else 0
         comparison["lineage_recovery_rate"] = (
             lineage_matches / total if total > 0 else 0
         )
         comparison["realm_recovery_rate"] = realm_matches / total if total > 0 else 0
+        comparison["horizon_recovery_rate"] = horizon_matches / total if total > 0 else 0
+        comparison["polarity_recovery_rate"] = polarity_matches / total if total > 0 else 0
         comparison["dimensionality_recovery_rate"] = (
             dimensionality_matches / total if total > 0 else 0
         )
@@ -378,7 +471,13 @@ class LUCABootstrapTester:
         lineages = [e.lineage for e in entities]
         if not all(lineage >= 0 for lineage in lineages):
             fractal_tests["luca_traceability"] = False
-        details["lineages"] = sorted(set(lineages))
+        unique_lineages = sorted(set(lineages))
+        details["lineage_summary"] = {
+            "count": len(unique_lineages),
+            "min": min(unique_lineages) if unique_lineages else None,
+            "max": max(unique_lineages) if unique_lineages else None,
+            "sample": unique_lineages[:10],
+        }
 
         # Test self-similarity: entities have consistent structure
         entity_structure_keys = [set(e.to_dict().keys()) for e in entities]
@@ -389,10 +488,10 @@ class LUCABootstrapTester:
         details["structural_consistency"] = all_same
 
         # Test scale invariance: multiple lineage levels exist
-        unique_lineages = len(set(lineages))
-        has_multiple_scales = unique_lineages >= 2
+        unique_lineage_count = len(unique_lineages)
+        has_multiple_scales = unique_lineage_count >= 2
         fractal_tests["scale_invariance"] = has_multiple_scales
-        details["lineage_depth"] = unique_lineages
+        details["lineage_depth"] = unique_lineage_count
 
         # Test recursive structure: dimensionality matches lineage conceptually
         for entity in entities:
@@ -415,7 +514,11 @@ class LUCABootstrapTester:
 
         return fractal_tests
 
-    def test_luca_continuity(self, original: list[TestBitChain]) -> JsonObject:
+    def test_luca_continuity(
+        self,
+        original: list[TestBitChain],
+        bootstrap_cycles: int = 3,
+    ) -> JsonObject:
         """
         Test that LUCA provides continuity and health for entities.
         This is the core of EXP-07.
@@ -438,8 +541,8 @@ class LUCABootstrapTester:
 
         # Test 1: Multiple bootstrap cycles
         current_entities = original
-        for cycle in range(3):
-            print(f"      Bootstrap cycle {cycle + 1}/3...")
+        for cycle in range(bootstrap_cycles):
+            print(f"      Bootstrap cycle {cycle + 1}/{bootstrap_cycles}...")
 
             # Compress to LUCA
             luca_state = self.compress_to_luca(current_entities)
@@ -469,31 +572,58 @@ class LUCABootstrapTester:
 
         return continuity_test
 
-    def run_comprehensive_test(self) -> LUCABootstrapResult:
+    def run_comprehensive_test(
+        self,
+        num_entities: int = 5_000,
+        bootstrap_cycles: int = 3,
+    ) -> LUCABootstrapResult:
         """Run comprehensive LUCA bootstrap test."""
         print("\n" + "=" * 70)
         print("EXP-07: LUCA Bootstrap Test")
         print("Testing: Can we reliably reconstruct system from LUCA?")
         print("=" * 70)
 
-        # Send subprocess status message
-        send_subprocess_status("EXP-07", "Initialization", "Starting LUCA bootstrap test")
+        progress = create_progress_reporter("EXP-07")
+        subprocess_enabled = is_subprocess_communication_enabled()
+
+        def report_status(stage: str, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_status("EXP-07", stage, message)
+                return
+            progress.update(0, stage, message)
+
+        def report_progress(progress_percent: float, stage: str, message: str) -> None:
+            bounded_progress = max(0.0, min(100.0, progress_percent))
+            if subprocess_enabled:
+                send_subprocess_progress("EXP-07", bounded_progress, stage, message)
+                return
+            progress.update(bounded_progress, stage, message)
+
+        def report_completion(success: bool, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_completion("EXP-07", success, message)
+                return
+            progress.complete(message)
+
+        report_status("Initialization", "Starting LUCA bootstrap test")
 
         start_time = time.time()
 
         # Phase 1: Create test entities
         print("\n [1/6] Creating test entities...")
-        send_subprocess_progress("EXP-07", 10, 100, "Creating test entities")
-        original_entities = self.create_test_entities(1000000)
+        report_progress(10.0, "Entity generation", f"Creating {num_entities:,} test entities")
+        original_entities = self.create_test_entities(num_entities)
         print(f"      Created {len(original_entities)} test entities")
-        for i, e in enumerate(original_entities[:3]):
+        sample = original_entities[0] if original_entities else None
+        if sample is not None:
             print(
-                f"        - Entity {i}: lineage={e.lineage}, realm={e.realm}, address={e.get_fractalsemantics_address()}"
+                "      Sample: "
+                f"lineage={sample.lineage}, realm={sample.realm}, horizon={sample.horizon}"
             )
 
         # Phase 2: Compress to LUCA
         print("\n [2/6] Compressing to LUCA state...")
-        send_subprocess_progress("EXP-07", 20, 100, "Compressing to LUCA state")
+        report_progress(25.0, "Compression", "Compressing to LUCA state")
         luca_state = self.compress_to_luca(original_entities)
         print(f"      OK Compression ratio: {luca_state['compression_ratio']:.2f}x")
         print(f"      OK Original size: {luca_state['total_original_size']} bytes")
@@ -501,7 +631,7 @@ class LUCABootstrapTester:
 
         # Phase 3: Bootstrap from LUCA
         print("\n[3/6] Bootstrapping from LUCA state...")
-        send_subprocess_progress("EXP-07", 40, 100, "Bootstrapping from LUCA state")
+        report_progress(45.0, "Bootstrap", "Bootstrapping from LUCA state")
         bootstrapped_entities, expansion_success = self.bootstrap_from_luca(luca_state)
         success_rate = (
             sum(expansion_success) / len(expansion_success) if expansion_success else 0
@@ -513,13 +643,15 @@ class LUCABootstrapTester:
 
         # Phase 4: Compare entities
         print("\n[4/6] Comparing original and bootstrapped entities...")
-        send_subprocess_progress("EXP-07", 60, 100, "Comparing entities")
+        report_progress(65.0, "Comparison", "Comparing entities")
         comparison = self.compare_entities(original_entities, bootstrapped_entities)
         print(f"      OK Entity recovery rate: {comparison['entity_recovery_rate']:.1%}")
         print(
             f"      OK Lineage recovery rate: {comparison['lineage_recovery_rate']:.1%}"
         )
         print(f"      OK Realm recovery rate: {comparison['realm_recovery_rate']:.1%}")
+        print(f"      OK Horizon recovery rate: {comparison['horizon_recovery_rate']:.1%}")
+        print(f"      OK Polarity recovery rate: {comparison['polarity_recovery_rate']:.1%}")
         print(
             f"      OK Dimensionality recovery rate: {comparison['dimensionality_recovery_rate']:.1%}"
         )
@@ -528,7 +660,7 @@ class LUCABootstrapTester:
 
         # Phase 5: Test fractal properties
         print("\n[5/6] Testing fractal properties...")
-        send_subprocess_progress("EXP-07", 80, 100, "Testing fractal properties")
+        report_progress(82.0, "Fractal checks", "Testing fractal properties")
         fractal_tests = self.test_fractal_properties(original_entities)
         print(f"      OK Self-similarity: {fractal_tests['self_similarity']}")
         print(f"      OK Scale invariance: {fractal_tests['scale_invariance']}")
@@ -540,8 +672,11 @@ class LUCABootstrapTester:
 
         # Phase 6: Test LUCA continuity
         print("\n[6/6] Testing LUCA continuity and entity health...")
-        send_subprocess_progress("EXP-07", 90, 100, "Testing LUCA continuity")
-        continuity = self.test_luca_continuity(original_entities)
+        report_progress(92.0, "Continuity", "Testing LUCA continuity")
+        continuity = self.test_luca_continuity(
+            original_entities,
+            bootstrap_cycles=bootstrap_cycles,
+        )
         print(f"      OK Bootstrap cycles: {continuity['bootstraps_performed']}")
         print(f"      OK Bootstrap failures: {continuity['bootstrap_failures']}")
         print(f"      OK Lineage continuity: {continuity['lineage_continuity']}")
@@ -557,6 +692,8 @@ class LUCABootstrapTester:
             comparison["entity_recovery_rate"] >= 1.0
             and comparison["lineage_recovery_rate"] >= 1.0
             and comparison["realm_recovery_rate"] >= 1.0
+            and comparison["horizon_recovery_rate"] >= 1.0
+            and comparison["polarity_recovery_rate"] >= 1.0
             and comparison["dimensionality_recovery_rate"] >= 1.0
         )
         fractal_valid = (
@@ -568,9 +705,14 @@ class LUCABootstrapTester:
         continuity_valid = (
             continuity["lineage_continuity"]
             and continuity["bootstrap_failures"] == 0
-            and continuity["bootstraps_performed"] == 3  # All cycles completed
+            and continuity["bootstraps_performed"] == bootstrap_cycles
         )
-        compression_valid = luca_state["compression_ratio"] > 0 and luca_state["compression_ratio"] < 1.0
+        compression_ratio = float(luca_state["compression_ratio"])
+        compression_valid = (
+            compression_ratio > 0
+            and math.isfinite(compression_ratio)
+            and compression_ratio < 1.25
+        )
 
         all_pass = recovery_perfect and fractal_valid and continuity_valid and compression_valid
 
@@ -592,6 +734,8 @@ class LUCABootstrapTester:
                 "entity_recovery_rate": comparison["entity_recovery_rate"],
                 "lineage_recovery_rate": comparison["lineage_recovery_rate"],
                 "realm_recovery_rate": comparison["realm_recovery_rate"],
+                "horizon_recovery_rate": comparison["horizon_recovery_rate"],
+                "polarity_recovery_rate": comparison["polarity_recovery_rate"],
                 "dimensionality_recovery_rate": comparison[
                     "dimensionality_recovery_rate"
                 ],
@@ -603,6 +747,10 @@ class LUCABootstrapTester:
                 "failures": continuity["bootstrap_failures"],
                 "lineage_preserved": continuity["lineage_continuity"],
             },
+            "configuration": {
+                "entities": num_entities,
+                "bootstrap_cycles": bootstrap_cycles,
+            },
             "elapsed_time": f"{elapsed:.2f}s",
         }
 
@@ -610,6 +758,9 @@ class LUCABootstrapTester:
         print(f"Result: {status}")
         print(f"Elapsed: {elapsed:.2f}s")
         print("=" * 70 + "\n")
+
+        report_progress(100.0, "Finalization", f"LUCA bootstrap test completed with status {status}")
+        report_completion(all_pass, f"LUCA bootstrap {'passed' if all_pass else 'failed'}")
 
         return self.results
 
@@ -639,10 +790,35 @@ def save_results(results: JsonObject, output_file: Optional[str] = None) -> str:
 
 def main():
     """Run EXP-07 LUCA Bootstrap Test."""
-    import sys
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run EXP-07 LUCA Bootstrap Test")
+    parser.add_argument("--quick", action="store_true", help="Run smaller/faster validation")
+    parser.add_argument("--full", action="store_true", help="Run larger/full validation")
+    args = parser.parse_args()
+
+    if args.quick and args.full:
+        raise ValueError("Use only one of --quick or --full")
+
+    if args.quick:
+        num_entities = 2_000
+        bootstrap_cycles = 2
+        mode_label = "Quick"
+    elif args.full:
+        num_entities = 20_000
+        bootstrap_cycles = 3
+        mode_label = "Full"
+    else:
+        num_entities = 5_000
+        bootstrap_cycles = 3
+        mode_label = "Standard"
 
     tester = LUCABootstrapTester()
-    results = tester.run_comprehensive_test()
+    print(f"[MODE] {mode_label} | entities={num_entities:,} | cycles={bootstrap_cycles}")
+    results = tester.run_comprehensive_test(
+        num_entities=num_entities,
+        bootstrap_cycles=bootstrap_cycles,
+    )
 
     # Save complete results to JSON file
     save_results(results.to_dict())

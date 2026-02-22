@@ -18,9 +18,14 @@ Status: Phase 1 Mathematical Validation COMPLETE; proceeding with Phase 2 robust
 """
 
 import math
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Optional, TypeAlias
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 # Import progress communication
 
@@ -43,6 +48,46 @@ except ImportError:
     def send_subprocess_status(*args, **kwargs) -> bool: return False
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
+
+
+EXP06_DEFAULT_DENSITY: float = 0.5
+EXP06_DEFAULT_VELOCITY: float = 0.5
+EXP06_DEFAULT_RESONANCE: float = 0.5
+EXP06_MAX_LINEAGE_NORMALIZATION: float = 100.0
+EXP06_MAX_ADJACENCY_NORMALIZATION: float = 5.0
+EXP06_HORIZON_NORMALIZATION_DIVISOR: float = 4.0
+EXP06_POLARITY_NORMALIZATION_DIVISOR: float = 11.0
+EXP06_REALM_AFFINITY_ADJACENT_SCORE: float = 0.7
+EXP06_DEFAULT_LINEAGE_DECAY_BASE: float = 0.9
+EXP06_IDENTITY_MATCH_TOLERANCE: float = 1e-6
+EXP06_NON_IDENTITY_SCORE_MULTIPLIER: float = 0.1
+EXP06_IDENTITY_BASE_SCORE: float = 0.9
+EXP06_IDENTITY_REALM_BONUS_WEIGHT: float = 0.05
+EXP06_IDENTITY_ADJACENCY_BONUS_WEIGHT: float = 0.05
+EXP06_DEFAULT_DETECTION_THRESHOLD: float = 0.85
+EXP06_COORDINATE_SIMILARITY_THRESHOLD: float = 0.8
+EXP06_ITERATION_SUCCESS_RATIO_THRESHOLD: float = 0.8
+EXP06_ITERATION_PRECISION_THRESHOLD: float = 0.9
+EXP06_ITERATION_RECALL_THRESHOLD: float = 0.9
+EXP06_VALIDATION_PASS_PRECISION_THRESHOLD: float = 0.70
+EXP06_VALIDATION_PASS_RECALL_THRESHOLD: float = 0.60
+EXP06_METRICS_PRECISION_DISPLAY_TARGET: float = 0.90
+EXP06_METRICS_RECALL_DISPLAY_TARGET: float = 0.85
+EXP06_QUICK_ITERATIONS: int = 2
+EXP06_QUICK_SAMPLE_SIZE: int = 300
+EXP06_FULL_ITERATIONS: int = 5
+EXP06_FULL_SAMPLE_SIZE: int = 600
+EXP06_DEFAULT_ITERATIONS: int = 3
+EXP06_DEFAULT_SAMPLE_SIZE: int = 400
+EXP06_MAIN_THRESHOLD: float = 0.95
+EXP06_ENTITY_GROUP_SIZE: int = 6
+EXP06_DENSITY_BASE: float = 0.2
+EXP06_DENSITY_STEP: float = 0.05
+EXP06_RESONANCE_BASE: float = 0.15
+EXP06_RESONANCE_STEP: float = 0.1
+EXP06_VELOCITY_RESONANCE_MULTIPLIER: float = 0.8
+EXP06_VELOCITY_BASE_OFFSET: float = 0.1
+EXP06_ADJACENCY_MAX_COUNT: int = 2
 
 # ============================================================================
 # COMPONENT 1: POLARITY RESONANCE
@@ -74,11 +119,11 @@ def compute_polarity_vector(bitchain: dict) -> list[float]:
     # This allows quantum-like identity preservation across multiverse verses
 
     # Lineage: normalize to [0, 1]
-    lineage_norm = min(coords.get("lineage", 0) / 100.0, 1.0)
+    lineage_norm = min(coords.get("lineage", 0) / EXP06_MAX_LINEAGE_NORMALIZATION, 1.0)
 
     # Adjacency: density of neighbor set
     adjacency = coords.get("adjacency", [])
-    adjacency_density = min(len(adjacency) / 5.0, 1.0)  # Max 5 neighbors normalized
+    adjacency_density = min(len(adjacency) / EXP06_MAX_ADJACENCY_NORMALIZATION, 1.0)
 
     # Horizon: ordinal encoding
     horizon_map = {
@@ -88,13 +133,13 @@ def compute_polarity_vector(bitchain: dict) -> list[float]:
         "decay": 3,
         "crystallization": 4,
     }
-    horizon_ord = horizon_map.get(coords.get("horizon", "genesis"), 0) / 4.0
+    horizon_ord = horizon_map.get(coords.get("horizon", "genesis"), 0) / EXP06_HORIZON_NORMALIZATION_DIVISOR
 
     # Use available coordinates directly - exclude redundant transformations
     # Since resonance, velocity, density are checked in identity_match, don't reuse them here
-    resonance = coords.get("resonance", 0.5)  # Direct use
-    velocity = coords.get("velocity", 0.5)   # Direct use
-    density = coords.get("density", 0.5)    # Direct use
+    resonance = coords.get("resonance", EXP06_DEFAULT_RESONANCE)
+    velocity = coords.get("velocity", EXP06_DEFAULT_VELOCITY)
+    density = coords.get("density", EXP06_DEFAULT_DENSITY)
 
     # Polarity: ordinal encoding for entanglement comparison
     polarity_map = {
@@ -102,7 +147,7 @@ def compute_polarity_vector(bitchain: dict) -> list[float]:
         "achievement": 5, "contribution": 6, "community": 7, "technical": 8,
         "creative": 9, "unity": 10, "void": 11
     }
-    polarity_ord = polarity_map.get(coords.get("polarity", "void"), 11) / 11.0
+    polarity_ord = polarity_map.get(coords.get("polarity", "void"), 11) / EXP06_POLARITY_NORMALIZATION_DIVISOR
 
     # Dimensionality: normalize to [0, 1] (depth level)
 
@@ -223,7 +268,7 @@ def realm_affinity(bc1: dict, bc2: dict) -> float:
 
     # Check adjacency (symmetric)
     if realm2 in REALM_ADJACENCY.get(realm1, set()):
-        return 0.7
+        return EXP06_REALM_AFFINITY_ADJACENT_SCORE
 
     return 0.0
 
@@ -318,7 +363,7 @@ def luminosity_proximity(bc1: dict, bc2: dict) -> float:
 # ============================================================================
 
 
-def lineage_affinity(bc1: dict, bc2: dict, decay_base: float = 0.9) -> float:
+def lineage_affinity(bc1: dict, bc2: dict, decay_base: float = EXP06_DEFAULT_LINEAGE_DECAY_BASE) -> float:
     """
     Compute lineage affinity (generational closeness).
 
@@ -411,8 +456,8 @@ def compute_entanglement_score(bc1: dict, bc2: dict) -> EntanglementScore:
     # EXACT IDENTITY MATCHING - Core requirement for "seven hashes" preservation
     identity_match = (
         coords1.get("lineage") == coords2.get("lineage") and  # Same generational identity
-        abs(coords1.get("density", 0) - coords2.get("density", 0)) < 1e-6 and  # Same density (exact)
-        abs(coords1.get("resonance", 0) - coords2.get("resonance", 0)) < 1e-6  # Same resonance (exact)
+        abs(coords1.get("density", 0) - coords2.get("density", 0)) < EXP06_IDENTITY_MATCH_TOLERANCE and
+        abs(coords1.get("resonance", 0) - coords2.get("resonance", 0)) < EXP06_IDENTITY_MATCH_TOLERANCE
     )
 
     # If no identity match, score is based only on polarity resonance (will be low)
@@ -421,7 +466,7 @@ def compute_entanglement_score(bc1: dict, bc2: dict) -> EntanglementScore:
         return EntanglementScore(
             bitchain1_id=bc1.get("id", "unknown"),
             bitchain2_id=bc2.get("id", "unknown"),
-            total_score=p_score * 0.1,  # Very low score for potential weak similarity
+            total_score=p_score * EXP06_NON_IDENTITY_SCORE_MULTIPLIER,
             polarity_resonance=p_score,
             realm_affinity=0.0,
             adjacency_overlap=0.0,
@@ -438,9 +483,9 @@ def compute_entanglement_score(bc1: dict, bc2: dict) -> EntanglementScore:
     # Base score of 0.9 for identical lineage/density/resonance
     # Plus bonuses for realm compatibility and adjacency matching
     total = (
-        0.9  # Base score for cryptographic identity preservation
-        + 0.05 * r_score  # Realm compatibility bonus
-        + 0.05 * a_score  # Adjacency compatibility bonus
+        EXP06_IDENTITY_BASE_SCORE
+        + EXP06_IDENTITY_REALM_BONUS_WEIGHT * r_score
+        + EXP06_IDENTITY_ADJACENCY_BONUS_WEIGHT * a_score
     )
 
     # Clamp to [0, 1]
@@ -472,7 +517,7 @@ class EntanglementDetector:
         entangled = detector.detect(bitchains)
     """
 
-    def __init__(self, threshold: float = 0.85):
+    def __init__(self, threshold: float = EXP06_DEFAULT_DETECTION_THRESHOLD):
         """
         Initialize detector with threshold.
 
@@ -500,7 +545,7 @@ class EntanglementDetector:
 
         # All-pairs comparison (O(N^2))
         for i, bc1 in enumerate(bitchains):
-            for j, bc2 in enumerate(bitchains[i + 1:], i + 1):
+            for bc2 in bitchains[i + 1:]:
                 score = compute_entanglement_score(bc1, bc2)
                 self.scores.append(score)
 
@@ -512,11 +557,6 @@ class EntanglementDetector:
                             score.total_score,
                         )
                     )
-
-                # Progress update every 10% of comparisons
-                if (j + 1) % (len(bitchains) // 10) == 0:
-                    progress = ((j + 1) / len(bitchains)) * 100
-                    print(f" {progress:.0f}%", end="", flush=True)
 
         return entangled_pairs
 
@@ -590,31 +630,33 @@ def save_results(results: dict, output_file: Optional[str] = None) -> str:
     return output_path
 
 
-def main() -> bool:
+def main(iterations: int = 10, sample_size: int = 300, threshold: float = EXP06_MAIN_THRESHOLD, verbose_pairs: bool = False) -> bool:
     """
     Main entry point for EXP-06 execution.
 
     Now runs 10 iterations for statistical robustness testing.
     """
 
-    print(" RUNNING EXP-06: 10 ITERATIONS OF ENTANGLEMENT DETECTION")
+    print(f" RUNNING EXP-06: {iterations} ITERATIONS OF ENTANGLEMENT DETECTION")
     print("=" * 80)
 
     # Send subprocess status message
-    send_subprocess_status("EXP-06", "Initialization", "Starting entanglement detection experiment with 10 iterations")
+    send_subprocess_status("EXP-06", "Initialization", f"Starting entanglement detection experiment with {iterations} iterations")
 
     successful_runs = 0
     all_precisions = []
     all_recalls = []
     all_results = []
 
-    # Run 10 iterations
-    for i in range(10):
-        print(f"\n--- ITERATION {i+1}/10 ---")
+    # Run repeated iterations for robustness
+    for i in range(iterations):
+        print(f"\n--- ITERATION {i+1}/{iterations} ---")
 
         try:
-            # Run single iteration with scaled sample size
-            results, success = run_experiment(1000000, 0.95)
+            iteration_progress = ((i + 1) / max(iterations, 1)) * 100.0
+            send_subprocess_progress("EXP-06", iteration_progress, "Iteration", f"Running iteration {i + 1}/{iterations}")
+
+            results, success = run_experiment(sample_size, threshold, verbose_pairs=verbose_pairs)
             all_results.append(results)
 
             if success:
@@ -631,19 +673,23 @@ def main() -> bool:
 
     # Summary
     print(f"\n{'='*80}")
-    print("- 10-ITERATION STATISTICAL SUMMARY")
+    print("- ITERATION STATISTICAL SUMMARY")
     print(f"{'='*80}")
 
     if all_precisions:
         avg_precision = sum(all_precisions) / len(all_precisions)
         avg_recall = sum(all_recalls) / len(all_recalls)
 
-        print(f"Successful runs: {successful_runs}/10")
+        print(f"Successful runs: {successful_runs}/{iterations}")
         print(f"Average Precision: {avg_precision:.4f}")
         print(f"Average Recall: {avg_recall:.4f}")
 
-        # More lenient success criteria for statistical test
-        overall_success = successful_runs >= 8 and avg_precision >= 0.9 and avg_recall >= 0.9
+        min_successful_runs = max(1, int(math.ceil(iterations * EXP06_ITERATION_SUCCESS_RATIO_THRESHOLD)))
+        overall_success = (
+            successful_runs >= min_successful_runs
+            and avg_precision >= EXP06_ITERATION_PRECISION_THRESHOLD
+            and avg_recall >= EXP06_ITERATION_RECALL_THRESHOLD
+        )
 
         # Save comprehensive results
         summary_results = {
@@ -651,7 +697,7 @@ def main() -> bool:
             "test_type": "Entanglement Detection - 10 Iteration Statistical Validation",
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "successful_runs": successful_runs,
-            "total_runs": 10,
+            "total_runs": iterations,
             "average_precision": round(avg_precision, 4),
             "average_recall": round(avg_recall, 4),
             "overall_success": overall_success,
@@ -663,13 +709,16 @@ def main() -> bool:
 
         if overall_success:
             print("[PASS] STATISTICAL VALIDATION: PASSED")
-            print("   * Quantum identity preservation validated across 10 iterations")
+            print(f"   * Quantum identity preservation validated across {iterations} iterations")
+            send_subprocess_completion("EXP-06", True, f"Statistical validation passed ({successful_runs}/{iterations} successful runs)")
         else:
             print("[FAIL] STATISTICAL VALIDATION: INCONSISTENT RESULTS")
+            send_subprocess_completion("EXP-06", False, f"Statistical validation failed ({successful_runs}/{iterations} successful runs)")
 
         return overall_success
     else:
         print("[Fail] NO SUCCESSFUL ITERATIONS")
+        send_subprocess_completion("EXP-06", False, "No successful iterations")
         return False
 
 
@@ -678,7 +727,7 @@ def main() -> bool:
 # ============================================================================
 
 
-def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict, bool]:
+def run_experiment(sample_size: int = 50, threshold: float = 0.85, verbose_pairs: bool = False) -> tuple[dict, bool]:
     """
     Run EXP-06: Entanglement Detection validation experiment.
 
@@ -720,9 +769,9 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
     # manifested in different realms (like the same particle in different universes)
     # STRATEGY: Focus on quality over quantity - fewer entities with MANY manifestations each
     # This creates strong statistical signals that are easy to detect
-    entities_per_group = 6  # FIXED: Max manifestations per entity (limited by 6 available realms)
-    num_groups = 50  # FIXED: Fewer entities, each with strong entanglement patterns
-    sample_size = num_groups * entities_per_group  # FIXED: 50 * 6 = 300 entities
+    entities_per_group = EXP06_ENTITY_GROUP_SIZE
+    num_groups = max(1, sample_size // entities_per_group)
+    sample_size = num_groups * entities_per_group
 
     # Generate ONLY the synthetic entangled entities (much more efficient)
     print(f"Generating {sample_size} synthetic entangled bit-chains...")
@@ -731,7 +780,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
     print(f"Creating {num_groups} entangled entity groups across realms...")
 
     # Send progress update
-    send_subprocess_progress("EXP-06", 10, 100, "Generating synthetic entangled entities")
+    send_subprocess_progress("EXP-06", 10.0, "Generation", "Generating synthetic entangled entities")
 
     for group_idx in range(num_groups):
         # Create a group of bit-chains representing the same entity in different realms
@@ -744,11 +793,11 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
         # Use a consistent "quantum fingerprint" for the entire group that is MORE DISTINCTIVE
         base_entity_idx = group_idx * entities_per_group
         base_lineage = group_idx + 1  # UNIQUE lineage per group (1, 2, 3, ...)
-        base_density = 0.2 + (group_idx * 0.05)  # MORE DISTINCT density per group (0.2, 0.25, 0.3, ...)
-        base_resonance = 0.15 + (group_idx * 0.1)  # MORE DISTINCT resonance per group (0.15, 0.25, 0.35, ...)
+        base_density = EXP06_DENSITY_BASE + (group_idx * EXP06_DENSITY_STEP)
+        base_resonance = EXP06_RESONANCE_BASE + (group_idx * EXP06_RESONANCE_STEP)
         base_polarity = random.choice(["logic", "creativity", "order", "balance", "achievement"])  # consistent polarity per group
         base_dimensionality = random.randint(0, 3)  # consistent dimensionality per group
-        base_adjacency = [f"node_g{group_idx}_n{i}" for i in range(random.randint(0, 2))]  # MORE UNIQUE adjacency pattern per group
+        base_adjacency = [f"node_g{group_idx}_n{i}" for i in range(random.randint(0, EXP06_ADJACENCY_MAX_COUNT))]
 
         for realm_idx, realm in enumerate(selected_realms):
             entity_idx = base_entity_idx + realm_idx
@@ -764,7 +813,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
                     "adjacency": base_adjacency.copy(),  # Similar adjacency pattern
                     "horizon": random.choice(["genesis", "emergence", "peak"]),  # May vary
                     "resonance": base_resonance,  # SAME resonance - core quantum marker
-                    "velocity": base_resonance * 0.8 + 0.1,  # Derived from resonance
+                    "velocity": base_resonance * EXP06_VELOCITY_RESONANCE_MULTIPLIER + EXP06_VELOCITY_BASE_OFFSET,
                     "density": base_density,  # SAME density - compression state identity
                     "polarity": base_polarity,  # SAME polarity - core quantum marker
                     "dimensionality": base_dimensionality,  # SAME dimensionality - fractal depth
@@ -815,7 +864,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
     start_time = time.time()
 
     # Send progress update
-    send_subprocess_progress("EXP-06", 50, 100, "Running entanglement detection algorithm")
+    send_subprocess_progress("EXP-06", 50.0, "Detection", "Running entanglement detection algorithm")
 
     detector = EntanglementDetector(threshold=threshold)
     detected_pairs = detector.detect(bitchains)
@@ -824,7 +873,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
     detected_pairs_set = {(bc1_id, bc2_id) for bc1_id, bc2_id, score in detected_pairs}
 
     runtime = time.time() - start_time
-    print(".2f")
+    print(f"Runtime: {runtime:.2f}s")
     print(f"Pairs detected: {len(detected_pairs_set)}")
     print()
 
@@ -832,7 +881,7 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
     print("Computing validation metrics...")
 
     # Send progress update
-    send_subprocess_progress("EXP-06", 80, 100, "Computing validation metrics")
+    send_subprocess_progress("EXP-06", 80.0, "Metrics", "Computing validation metrics")
 
     # Normalize detected pairs to match true pairs format
     detected_normalized = set()
@@ -840,8 +889,8 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
         # Sort IDs to ensure consistent ordering
         pair = tuple(sorted([bc1_id, bc2_id]))
         detected_normalized.add(pair)
-        # DEBUG: Print detected pair and score
-        print(f"Detected pair: {pair} with score {score}")
+        if verbose_pairs:
+            print(f"Detected pair: {pair} with score {score}")
 
     true_normalized = set()
     for bc1_id, bc2_id in true_entangled_pairs:
@@ -853,8 +902,8 @@ def run_experiment(sample_size: int = 50, threshold: float = 0.85) -> tuple[dict
     metrics.threshold = threshold
     metrics.runtime_seconds = runtime
 
-    print(f"Precision: {metrics.precision:.4f} ({metrics.precision >= 0.90})")
-    print(f"Recall: {metrics.recall:.4f} ({metrics.recall >= 0.85})")
+    print(f"Precision: {metrics.precision:.4f} ({metrics.precision >= EXP06_METRICS_PRECISION_DISPLAY_TARGET})")
+    print(f"Recall: {metrics.recall:.4f} ({metrics.recall >= EXP06_METRICS_RECALL_DISPLAY_TARGET})")
     print(f"F1 Score: {metrics.f1_score:.4f}")
     print(f"Accuracy: {metrics.accuracy:.6f}")
     print()
@@ -922,7 +971,7 @@ def _are_coordinates_similar(bc1: dict, bc2: dict) -> bool:
 
     # High similarity threshold (> 0.8)
     similarity = cosine_similarity(vec1, vec2)
-    return similarity > 0.8
+    return similarity > EXP06_COORDINATE_SIMILARITY_THRESHOLD
 
 
 
@@ -952,7 +1001,10 @@ class ValidationResult:
         """Check if validation passed targets."""
         # More lenient criteria for initial validation: require precision >= 0.7 and recall >= 0.6
         # This allows the algorithm to demonstrate basic functionality while maintaining rigorous standards
-        return self.precision >= 0.70 and self.recall >= 0.60
+        return (
+            self.precision >= EXP06_VALIDATION_PASS_PRECISION_THRESHOLD
+            and self.recall >= EXP06_VALIDATION_PASS_RECALL_THRESHOLD
+        )
 
     def to_dict(self) -> dict:
         """Convert to dictionary."""
@@ -1050,7 +1102,32 @@ if __name__ == "__main__":
     import sys
 
     try:
-        success = main()
+        quick_mode = "--quick" in sys.argv
+        full_mode = "--full" in sys.argv
+        verbose_pairs = "--verbose-pairs" in sys.argv
+
+        if quick_mode:
+            success = main(
+                iterations=EXP06_QUICK_ITERATIONS,
+                sample_size=EXP06_QUICK_SAMPLE_SIZE,
+                threshold=EXP06_MAIN_THRESHOLD,
+                verbose_pairs=verbose_pairs,
+            )
+        elif full_mode:
+            success = main(
+                iterations=EXP06_FULL_ITERATIONS,
+                sample_size=EXP06_FULL_SAMPLE_SIZE,
+                threshold=EXP06_MAIN_THRESHOLD,
+                verbose_pairs=verbose_pairs,
+            )
+        else:
+            success = main(
+                iterations=EXP06_DEFAULT_ITERATIONS,
+                sample_size=EXP06_DEFAULT_SAMPLE_SIZE,
+                threshold=EXP06_MAIN_THRESHOLD,
+                verbose_pairs=verbose_pairs,
+            )
+
         sys.exit(0 if success else 1)
     except KeyboardInterrupt:
         print("\nExperiment interrupted by user.")

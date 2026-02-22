@@ -1,8 +1,8 @@
 # FractalSemantics Installation Guide
 
-- **Complete validation suite for the STAT7 7-dimensional addressing system**
+- **Complete validation suite for the FractalSemantics 8-dimensional addressing system**
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Quick Start
@@ -21,14 +21,17 @@ python install.py
 pip install -e .
 
 # Run all experiments
-python -m fractalsemantics.fractalsemantics_experiments
+python fractalsemantics/experiment_runner.py --all --full --format=text
+
+# Analyze saved results
+python comprehensive_experiment_analysis.py
 ```
 
 ## System Requirements
 
 ### Minimum Requirements
 
-- **Python**: 3.9 or higher
+- **Python**: 3.11 or higher
 - **RAM**: 2GB (4GB recommended)
 - **Disk**: 2GB free space
 - **OS**: Linux, macOS, or Windows
@@ -77,7 +80,7 @@ conda install pytorch torchvision torchaudio -c pytorch
 docker build -t fractalsemantics .
 
 # Run experiments
-docker run --rm fractalsemantics python -m fractalsemantics.fractalsemantics_experiments
+docker run --rm fractalsemantics python fractalsemantics/experiment_runner.py --all --quick --format=text
 
 # For development with volume mounting
 docker run -it --rm -v $(pwd):/app fractalsemantics bash
@@ -122,7 +125,7 @@ If you encounter memory errors:
 ```bash
 # Use development config (smaller samples)
 export FRACTALSEMANTICS_ENV=dev
-python -m fractalsemantics.fractalsemantics_experiments
+python fractalsemantics/experiment_runner.py --all --quick --format=text
 
 # Or run individual lightweight experiments
 python -m fractalsemantics.exp01_geometric_collision
@@ -200,7 +203,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 !pip install -e .
 
 # Run experiments
-!python -m fractalsemantics.fractalsemantics_experiments
+!python fractalsemantics/experiment_runner.py --all --quick --format=text
 ```
 
 ## Lightweight Installation (Minimal Dependencies)
@@ -293,7 +296,7 @@ python -c "import sys; print(sys.path)"
 export FRACTALSEMANTICS_ENV=dev
 
 # Run with reduced batch size
-python -m fractalsemantics.exp08_llm_integration --batch-size 1
+python fractalsemantics/experiment_runner.py EXP-08 --quick --format=text
 ```
 
 #### PyTorch CUDA Issues
@@ -320,7 +323,7 @@ pip install --user -e .
 ### Getting Help
 
 1. **Check the logs**: Look for error messages in terminal output
-2. **Verify Python version**: `python --version` should be 3.9+
+2. **Verify Python version**: `python --version` should be 3.11+
 3. **Check dependencies**: `pip list` to see installed packages
 4. **Test basic import**: `python -c "import fractalsemantics"`
 
@@ -335,7 +338,7 @@ export DISABLE_EMBEDDINGS=1
 export DISABLE_LLM=1
 
 # Monitor resources
-python -m fractalsemantics.fractalsemantics_experiments --profile
+python fractalsemantics/experiment_runner.py --all --quick --format=text
 ```
 
 ## Running Experiments
@@ -343,7 +346,7 @@ python -m fractalsemantics.fractalsemantics_experiments --profile
 ### All Experiments
 
 ```bash
-python -m fractalsemantics.fractalsemantics_experiments
+python fractalsemantics/experiment_runner.py --all --quick --format=text
 ```
 
 ### Individual Experiments
@@ -363,7 +366,7 @@ python -m fractalsemantics.exp03_coordinate_entropy
 
 ```bash
 export FRACTALSEMANTICS_ENV=dev
-python -m fractalsemantics.fractalsemantics_experiments
+python fractalsemantics/experiment_runner.py --all --quick --format=text
 ```
 
 ## Docker Development
@@ -379,7 +382,7 @@ RUN pip install -r requirements.txt
 COPY . .
 RUN pip install -e .
 
-CMD ["python", "-m", "fractalsemantics.fractalsemantics_experiments"]
+CMD ["python", "fractalsemantics/experiment_runner.py", "--all", "--quick", "--format=text"]
 ```
 
 ### Raspberry Pi Docker
@@ -415,7 +418,7 @@ print(f'✅ Environment: {config.get_environment()}')
 pytest
 
 # Run specific test
-pytest tests/test_fractalsemantics_experiments.py
+pytest tests/
 ```
 
 ## Contributing

@@ -17,7 +17,7 @@ Status: Phase 2 validation experiment
 """
 
 import json
-import secrets
+import random
 import statistics
 import sys
 import time
@@ -26,11 +26,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, TypeAlias
 
-from fractalsemantics.fractalsemantics_entity import (
-    BitChain,
-    compute_address_hash,
-    generate_random_bitchain,
-)
+try:
+    from fractalsemantics.fractalsemantics_entity import (
+        BitChain,
+        compute_address_hash,
+        generate_random_bitchain,
+    )
+except ImportError:
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+    from fractalsemantics.fractalsemantics_entity import (
+        BitChain,
+        compute_address_hash,
+        generate_random_bitchain,
+    )
 
 # Import subprocess communication for enhanced progress reporting
 
@@ -39,6 +49,7 @@ JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
 try:
+    from fractalsemantics.progress_comm import create_progress_reporter
     from fractalsemantics.subprocess_comm import (
         is_subprocess_communication_enabled,
         send_subprocess_completion,
@@ -52,7 +63,44 @@ except ImportError:
     def send_subprocess_completion(*args, **kwargs) -> bool: return False
     def is_subprocess_communication_enabled() -> bool: return False
 
-secure_random = secrets.SystemRandom()
+    class _NoopProgressReporter:
+        def update(self, *_args, **_kwargs) -> None:
+            return
+
+        def complete(self, *_args, **_kwargs) -> None:
+            return
+
+    def create_progress_reporter(*_args, **_kwargs):
+        return _NoopProgressReporter()
+
+random_selector = random.Random(42)
+
+# Heuristic scoring/policy constants (not physics constants).
+SEMANTIC_EXPRESSIVENESS_WEIGHTS = {
+    "realm": 0.20,
+    "lineage": 0.15,
+    "adjacency": 0.15,
+    "horizon": 0.15,
+    "luminosity": 0.10,
+    "polarity": 0.10,
+    "dimensionality": 0.10,
+    "temperature": 0.05,
+    "entropy": 0.05,
+    "coherence": 0.05,
+}
+DIVERSITY_BONUS_CAP = 0.1
+REALM_DIVERSITY_FACTOR = 0.05
+LINEAGE_DIVERSITY_NORMALIZER = 100
+LINEAGE_DIVERSITY_FACTOR = 0.03
+ADJACENCY_COMPLEXITY_NORMALIZER = 5
+ADJACENCY_COMPLEXITY_FACTOR = 0.02
+DYNAMIC_PROPERTIES_BONUS = 0.15
+
+RETRIEVAL_LATENCY_SAMPLE_CAP = 1000
+OPTIMAL_SCORING_EXPRESSIVENESS_PENALTY = 0.1
+DIMINISHING_RETURNS_IMPROVEMENT_THRESHOLD = 0.10
+SEVEN_DIM_COLLISION_THRESHOLD = 0.001
+SEVEN_DIM_EXPRESSIVENESS_THRESHOLD = 0.9
 
 # ============================================================================
 # EXP-11 DATA STRUCTURES
@@ -271,18 +319,7 @@ class EXP11_DimensionCardinality:
         - coherence: +0.05 (consistency measure)
         """
         score = 0.0
-        weights = {
-            "realm": 0.20,
-            "lineage": 0.15,
-            "adjacency": 0.15,
-            "horizon": 0.15,
-            "luminosity": 0.10,
-            "polarity": 0.10,
-            "dimensionality": 0.10,
-            "temperature": 0.05,
-            "entropy": 0.05,
-            "coherence": 0.05,
-        }
+        weights = SEMANTIC_EXPRESSIVENESS_WEIGHTS
 
         for dim in dimensions:
             score += weights.get(dim, 0.0)
@@ -300,15 +337,18 @@ class EXP11_DimensionCardinality:
             adjacency_complexity = sum(len(bc.coordinates.adjacency) for bc in bitchains) / len(bitchains)
 
             # Bonus based on actual coordinate diversity
-            diversity_bonus = min(0.1, (realm_count / len(REALMS)) * 0.05 +
-                                      (lineage_variance / 100) * 0.03 +
-                                      (adjacency_complexity / 5) * 0.02)
+            diversity_bonus = min(
+                DIVERSITY_BONUS_CAP,
+                (realm_count / len(REALMS)) * REALM_DIVERSITY_FACTOR
+                + (lineage_variance / LINEAGE_DIVERSITY_NORMALIZER) * LINEAGE_DIVERSITY_FACTOR
+                + (adjacency_complexity / ADJACENCY_COMPLEXITY_NORMALIZER) * ADJACENCY_COMPLEXITY_FACTOR,
+            )
             score += diversity_bonus
 
             # If bitchains align with actual addressing strategy
             if any(bc.coordinates.luminosity != 0 for bc in bitchains) and  \
                any(bc.coordinates.dimensionality != 0 for bc in bitchains):
-                score += 0.15  # Apply additional bonus for dynamic properties
+                score += DYNAMIC_PROPERTIES_BONUS
 
         # Normalize to 0.0-1.0 range
         return min(score, 1.0)
@@ -361,8 +401,8 @@ class EXP11_DimensionCardinality:
             for bc in bitchains
         }
 
-        for _ in range(min(1000, self.sample_size)):
-            target_addr = secure_random.choice(address_list)
+        for _ in range(min(RETRIEVAL_LATENCY_SAMPLE_CAP, self.sample_size)):
+            target_addr = random_selector.choice(address_list)
             start = time.perf_counter()
             _ = address_to_bc.get(target_addr)
             elapsed = (time.perf_counter() - start) * 1000  # ms
@@ -402,9 +442,29 @@ class EXP11_DimensionCardinality:
         start_time = datetime.now(timezone.utc).isoformat()
         overall_start = time.time()
 
-        # Send initial status update
-        if is_subprocess_communication_enabled():
-            send_subprocess_status("EXP-11", "starting", "Initializing dimension cardinality analysis")
+        progress = create_progress_reporter("EXP-11")
+        subprocess_enabled = is_subprocess_communication_enabled()
+
+        def report_status(stage: str, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_status("EXP-11", stage, message)
+                return
+            progress.update(0, stage, message)
+
+        def report_progress(progress_percent: float, stage: str, message: str) -> None:
+            bounded_progress = max(0.0, min(100.0, progress_percent))
+            if subprocess_enabled:
+                send_subprocess_progress("EXP-11", bounded_progress, stage, message)
+                return
+            progress.update(bounded_progress, stage, message)
+
+        def report_completion(success: bool, message: str) -> None:
+            if subprocess_enabled:
+                send_subprocess_completion("EXP-11", success, message)
+                return
+            progress.complete(message)
+
+        report_status("Initialization", "Initializing dimension cardinality analysis")
 
         print("\n" + "=" * 80)
         print("EXP-11: DIMENSION CARDINALITY ANALYSIS")
@@ -421,10 +481,12 @@ class EXP11_DimensionCardinality:
         for i, dim_count in enumerate(self.dimension_counts):
             print(f"\nTesting {dim_count} dimensions:")
 
-            # Send progress update
-            if is_subprocess_communication_enabled():
-                progress_percent = (i + 1) / len(self.dimension_counts) * 100
-                send_subprocess_progress("EXP-11", progress_percent, "Dimension Testing", f"Testing {dim_count} dimensions", "info")
+            progress_percent = (i + 1) / max(1, len(self.dimension_counts)) * 90
+            report_progress(
+                progress_percent,
+                "Dimension Testing",
+                f"Testing {dim_count} dimensions",
+            )
 
             # Run multiple iterations and average results
             iteration_results = []
@@ -512,7 +574,7 @@ class EXP11_DimensionCardinality:
         optimal_result = min(
             self.results,
             key=lambda r: r.collision_rate
-            + (1.0 - r.semantic_expressiveness_score) * 0.1,
+            + (1.0 - r.semantic_expressiveness_score) * OPTIMAL_SCORING_EXPRESSIVENESS_PENALTY,
         )
 
         # Find diminishing returns threshold
@@ -528,7 +590,7 @@ class EXP11_DimensionCardinality:
                 improvement = (
                     current.collision_rate - next_result.collision_rate
                 ) / current.collision_rate
-                if improvement < 0.10:
+                if improvement < DIMINISHING_RETURNS_IMPROVEMENT_THRESHOLD:
                     diminishing_threshold = current.dimension_count
                     break
 
@@ -544,8 +606,8 @@ class EXP11_DimensionCardinality:
             # 2. Semantic expressiveness is high (> 0.9)
             # 3. It's at or near the optimal point
             seven_justified = (
-                seven_dim_result.collision_rate < 0.001
-                and seven_dim_result.semantic_expressiveness_score > 0.9
+                seven_dim_result.collision_rate < SEVEN_DIM_COLLISION_THRESHOLD
+                and seven_dim_result.semantic_expressiveness_score > SEVEN_DIM_EXPRESSIVENESS_THRESHOLD
                 and seven_dim_result.dimension_count
                 >= optimal_result.dimension_count - 1
             )
@@ -653,14 +715,21 @@ class EXP11_DimensionCardinality:
             )
         print("=" * 80)
 
-        # Send completion message
-        if is_subprocess_communication_enabled():
-            send_subprocess_completion("EXP-11", success, {
-                "message": f"Dimension cardinality analysis completed with optimal {optimal_result.dimension_count} dimensions",
-                "optimal_dimension_count": optimal_result.dimension_count,
-                "collision_rate": optimal_result.collision_rate,
-                "total_duration": overall_end - overall_start
-            })
+        report_progress(
+            100.0,
+            "Finalization",
+            (
+                "Dimension cardinality analysis completed with "
+                f"optimal {optimal_result.dimension_count} dimensions"
+            ),
+        )
+        report_completion(
+            success,
+            (
+                "Dimension cardinality analysis completed with "
+                f"optimal {optimal_result.dimension_count} dimensions"
+            ),
+        )
 
         return result, success
 
@@ -691,6 +760,16 @@ def save_results(
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run EXP-11 Dimension Cardinality analysis")
+    parser.add_argument("--quick", action="store_true", help="Run smaller/faster validation")
+    parser.add_argument("--full", action="store_true", help="Run larger/full validation")
+    args = parser.parse_args()
+
+    if args.quick and args.full:
+        raise ValueError("Use only one of --quick or --full")
+
     # Load from config or fall back to command-line args
     try:
         from fractalsemantics.config import ExperimentConfig
@@ -706,14 +785,22 @@ if __name__ == "__main__":
         dimension_counts = [3, 4, 5, 6, 7, 8, 9, 10]
         test_iterations = 5
 
-        if "--quick" in sys.argv:
-            sample_size = 100
-            test_iterations = 2
-        elif "--full" in sys.argv:
-            sample_size = 5000
-            test_iterations = 10
+    if args.quick:
+        sample_size = 100
+        test_iterations = 2
+        mode_label = "Quick"
+    elif args.full:
+        sample_size = 5000
+        test_iterations = 10
+        mode_label = "Full"
+    else:
+        mode_label = "Standard"
 
     try:
+        print(
+            f"[MODE] {mode_label} | sample_size={sample_size:,} "
+            f"| test_iterations={test_iterations}"
+        )
         experiment = EXP11_DimensionCardinality(
             sample_size=sample_size,
             dimension_counts=dimension_counts,

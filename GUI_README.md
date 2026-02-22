@@ -113,20 +113,12 @@ A comprehensive web-based GUI for running and visualizing FractalSemantics exper
 
 ### Experiment Selection
 
-Choose from 12 validation experiments:
+The GUI reads experiment configs from `ExperimentRunner`, so the selectable list stays in sync with the codebase.
 
-- **EXP-01**: Geometric Collisions (Address uniqueness)
-- **EXP-02**: Retrieval Efficiency (Performance validation)
-- **EXP-03**: Coordinate Space Entropy (Dimensional analysis)
-- **EXP-04**: Fractal Scaling (Scale invariance)
-- **EXP-05**: Compression/Expansion (Lossless encoding)
-- **EXP-06**: Entanglement Detection (Semantic relationships)
-- **EXP-07**: LUCA Bootstrap (System reconstruction)
-- **EXP-08**: RAG Integration (Storage compatibility)
-- **EXP-09**: Concurrency (Thread-safe queries)
-- **EXP-10**: Bob the Skeptic (Anti-hallucination)
-- **EXP-11**: Dimension Cardinality (Optimal dimension count)
-- **EXP-12**: Benchmark Comparison (System comparison)
+Current suite coverage includes:
+
+- **Core validation:** EXP-01 through EXP-12 (plus EXP-11b)
+- **Advanced validation:** EXP-13 through EXP-21
 
 ## 📊 Data Visualization
 

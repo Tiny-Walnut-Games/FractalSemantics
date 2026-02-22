@@ -137,7 +137,7 @@ EXPERIMENTS = [
     ("exp18_falloff_thermodynamics", "EXP-18 (Falloff Thermodynamics)"),
     ("exp19_orbital_equivalence", "EXP-19 (Orbital Equivalence)"),
     ("exp20_vector_field_derivation", "EXP-20 (Vector Field Derivation)"),
-    ("exp21_earth_moon_sun_simulation", "EXP-21 (Earth-Moon-Sun Simulation)"),
+    ("exp21_earth_moon_sun", "EXP-21 (Earth-Moon-Sun Simulation)"),
 ]
 
 

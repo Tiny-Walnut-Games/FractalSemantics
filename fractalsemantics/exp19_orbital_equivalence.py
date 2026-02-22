@@ -27,8 +27,9 @@ Postulates:
 4. Gravity emerges from fractal topology, not fundamental force
 """
 
+import argparse
 import json
-import secrets
+import random
 import statistics
 import sys
 import time
@@ -39,6 +40,12 @@ from typing import Any, Optional, TypeAlias
 
 import numpy as np
 from scipy.integrate import odeint
+
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parent
+for path_entry in (str(PROJECT_ROOT), str(CURRENT_DIR)):
+    if path_entry not in sys.path:
+        sys.path.insert(0, path_entry)
 
 # Import subprocess communication for enhanced progress reporting
 
@@ -54,13 +61,40 @@ try:
         send_subprocess_status,
     )
 except ImportError:
-    # Fallback if subprocess communication is not available
-    def send_subprocess_progress(*args, **kwargs) -> bool: return False
-    def send_subprocess_status(*args, **kwargs) -> bool: return False
-    def send_subprocess_completion(*args, **kwargs) -> bool: return False
-    def is_subprocess_communication_enabled() -> bool: return False
+    try:
+        from subprocess_comm import (  # type: ignore[no-redef]
+            is_subprocess_communication_enabled,
+            send_subprocess_completion,
+            send_subprocess_progress,
+            send_subprocess_status,
+        )
+    except ImportError:
+        # Fallback if subprocess communication is not available
+        def send_subprocess_progress(*args, **kwargs) -> bool: return False
+        def send_subprocess_status(*args, **kwargs) -> bool: return False
+        def send_subprocess_completion(*args, **kwargs) -> bool: return False
+        def is_subprocess_communication_enabled() -> bool: return False
 
-secure_random = secrets.SystemRandom()
+try:
+    from fractalsemantics.progress_comm import create_progress_reporter
+except ImportError:
+    try:
+        from progress_comm import create_progress_reporter  # type: ignore[no-redef]
+    except ImportError:
+        class _FallbackProgressReporter:
+            def __init__(self, experiment_id: str):
+                self.experiment_id = experiment_id
+
+            def update(self, progress_percent: float, stage: str, message: str) -> None:
+                print(f"[{self.experiment_id}] {progress_percent:.1f}% | {stage}: {message}")
+
+            def complete(self, message: str) -> None:
+                print(f"[{self.experiment_id}] COMPLETE: {message}")
+
+        def create_progress_reporter(experiment_id: str):
+            return _FallbackProgressReporter(experiment_id)
+
+secure_random = random.Random(42)
 
 # ============================================================================
 # ORBITAL MECHANICS IMPLEMENTATION
@@ -768,10 +802,30 @@ def run_orbital_equivalence_test(
     print(f"Simulation time: {simulation_time / (365.25 * 24 * 3600):.2f} years")
     print(f"Time steps: {time_steps}")
 
-    # Send subprocess communication if enabled
-    if is_subprocess_communication_enabled():
-        send_subprocess_status("EXP-19: Orbital Equivalence", f"Testing {system_name} system")
-        send_subprocess_progress("EXP-19", 0, 100, "Initializing orbital equivalence test")
+    progress = create_progress_reporter("EXP-19")
+    subprocess_enabled = is_subprocess_communication_enabled()
+
+    def report_status(stage: str, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_status("EXP-19", stage, message)
+            return
+        progress.update(0, stage, message)
+
+    def report_progress(progress_percent: float, stage: str, message: str) -> None:
+        bounded_progress = max(0.0, min(100.0, progress_percent))
+        if subprocess_enabled:
+            send_subprocess_progress("EXP-19", bounded_progress, stage, message)
+            return
+        progress.update(bounded_progress, stage, message)
+
+    def report_completion(success: bool, message: str) -> None:
+        if subprocess_enabled:
+            send_subprocess_completion("EXP-19", success, message)
+            return
+        progress.complete(message)
+
+    report_status("Initialization", f"Testing {system_name} system")
+    report_progress(0.0, "Initialization", "Initializing orbital equivalence test")
 
     # Create both representations of the system
     if system_name == "Earth-Sun":
@@ -806,8 +860,7 @@ def run_orbital_equivalence_test(
 
     # Run classical simulation
     print("Running classical orbital simulation...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-19", 20, 100, "Running classical orbital simulation")
+    report_progress(20.0, "Classical Simulation", "Running classical orbital simulation")
 
     classical_trajectories = simulate_orbital_trajectory(
         classical_system, simulation_time, time_steps, G
@@ -815,8 +868,7 @@ def run_orbital_equivalence_test(
 
     # Run fractal simulation
     print("Running fractal cohesion simulation...")
-    if is_subprocess_communication_enabled():
-        send_subprocess_progress("EXP-19", 40, 100, "Running fractal cohesion simulation")
+    report_progress(40.0, "Fractal Simulation", "Running fractal cohesion simulation")
 
     # Convert time to normalized units for fractal simulation
     fractal_time_span = simulation_time / (365.25 * 24 * 3600)  # Years
@@ -842,8 +894,7 @@ def run_orbital_equivalence_test(
     # Test with perturbation if requested
     if include_perturbation:
         print("Testing perturbation response...")
-        if is_subprocess_communication_enabled():
-            send_subprocess_progress("EXP-19", 60, 100, "Testing perturbation response")
+        report_progress(60.0, "Perturbation", "Testing perturbation response")
 
         # Add perturbation at halfway point
         perturbation_time = simulation_time / 2
@@ -900,13 +951,15 @@ def run_orbital_equivalence_test(
     print(f"Orbital period match: {test_results.average_orbital_period_match:.6f}")
     print(f"Equivalence confirmed: {'YES' if test_results.equivalence_confirmed else 'NO'}")
 
-    # Send completion status
-    if is_subprocess_communication_enabled():
-        if test_results.equivalence_confirmed:
-            send_subprocess_status("EXP-19: Orbital Equivalence", f"SUCCESS - {system_name} equivalence confirmed")
-        else:
-            send_subprocess_status("EXP-19: Orbital Equivalence", f"PARTIAL - {system_name} equivalence not confirmed")
-        send_subprocess_progress("EXP-19", 100, 100, "Orbital equivalence test completed")
+    report_progress(95.0, "Finalization", "Completing orbital equivalence test")
+    if test_results.equivalence_confirmed:
+        report_status("Summary", f"SUCCESS - {system_name} equivalence confirmed")
+    else:
+        report_status("Summary", f"PARTIAL - {system_name} equivalence not confirmed")
+    report_completion(
+        test_results.equivalence_confirmed,
+        f"Orbital equivalence test completed for {system_name}",
+    )
 
     return test_results
 
@@ -988,6 +1041,22 @@ def save_results(results: EXP19_Results, output_file: Optional[str] = None) -> s
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Run EXP-19 orbital equivalence experiment"
+    )
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
+        "--quick",
+        action="store_true",
+        help="Run quick mode with fewer systems and shorter simulation",
+    )
+    mode_group.add_argument(
+        "--full",
+        action="store_true",
+        help="Run full mode using config/default parameters",
+    )
+    args = parser.parse_args()
+
     # Load from config or use defaults
     try:
         from fractalsemantics.config import ExperimentConfig
@@ -1002,6 +1071,20 @@ if __name__ == "__main__":
         include_perturbation = True
         simulation_years = 1.0
         time_steps = 1000
+
+    if args.quick:
+        systems_to_test = ["Earth-Sun"]
+        include_perturbation = False
+        simulation_years = 0.25
+        time_steps = 300
+    elif args.full:
+        pass
+
+    mode = "Quick" if args.quick else "Full"
+    print(
+        f"[MODE] {mode} | systems={systems_to_test} | include_perturbation={include_perturbation} "
+        f"| simulation_years={simulation_years} | time_steps={time_steps}"
+    )
 
     try:
         start_time = datetime.now(timezone.utc).isoformat()
@@ -1090,8 +1173,11 @@ if __name__ == "__main__":
         print("EXP-19 COMPLETE")
         print("=" * 80)
 
-        status = "PASSED" if orbital_mechanics_proven_fractal else "FAILED"
-        print(f"Status: {status}")
+        print("Technical Run Status: PASS (execution completed)")
+        if orbital_mechanics_proven_fractal:
+            print("Scientific Outcome: Hypothesis supported by this run")
+        else:
+            print("Scientific Outcome: Scientifically valid negative result (hypothesis not supported under tested conditions)")
         print(f"Output: {output_file}")
         print()
 
@@ -1100,7 +1186,8 @@ if __name__ == "__main__":
             print("Orbital mechanics IS fractal mechanics under a different representation!")
             print("Newtonian gravity emerges from fractal hierarchical topology.")
         else:
-            print("Equivalence not confirmed. Further investigation needed.")
+            print("SCIENTIFIC NEGATIVE RESULT: orbital equivalence postulate not supported in this run.")
+            print("Outcome is scientifically valid; refine equivalence assumptions or test conditions.")
 
     except Exception as e:
         print(f"\nEXPERIMENT FAILED: {e}")

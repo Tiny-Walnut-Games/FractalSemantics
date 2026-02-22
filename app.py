@@ -21,6 +21,7 @@ import queue
 import threading
 import traceback
 from datetime import datetime
+from typing import Any, TypeAlias
 
 import gradio as gr
 
@@ -39,6 +40,9 @@ from fractalsemantics.fractalsemantics_experiments import (
     run_single_experiment,
 )
 
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 # Global state management
 class ExperimentState:
