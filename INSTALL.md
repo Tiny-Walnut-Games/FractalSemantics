@@ -1,8 +1,8 @@
-# FractalStat Installation Guide
+# FractalSemantics Installation Guide
 
-**Complete validation suite for the STAT7 7-dimensional addressing system**
+- **Complete validation suite for the FractalSemantics 8-dimensional addressing system**
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Quick Start
@@ -11,8 +11,8 @@ For most users, the easiest installation is:
 
 ```bash
 # Clone the repository
-git clone https://gitlab.com/tiny-walnut-games/fractalstat.git
-cd fractalstat
+git clone https://gitlab.com/tiny-walnut-games/fractalsemantics.git
+cd fractalsemantics
 
 # Automated installation (recommended - handles platform detection)
 python install.py
@@ -21,18 +21,23 @@ python install.py
 pip install -e .
 
 # Run all experiments
-python -m fractalstat.fractalstat_experiments
+python fractalsemantics/experiment_runner.py --all --full --format=text
+
+# Analyze saved results
+python comprehensive_experiment_analysis.py
 ```
 
 ## System Requirements
 
 ### Minimum Requirements
-- **Python**: 3.9 or higher
+
+- **Python**: 3.11 or higher
 - **RAM**: 2GB (4GB recommended)
 - **Disk**: 2GB free space
 - **OS**: Linux, macOS, or Windows
 
 ### Recommended Requirements
+
 - **Python**: 3.11+
 - **RAM**: 8GB+
 - **Disk**: 10GB+ free space
@@ -50,15 +55,15 @@ pip install -e .
 pip install -e ".[dev]"
 
 # Verify installation
-python -c "import fractalstat; print('FractalStat installed successfully!')"
+python -c "import fractalsemantics; print('FractalSemantics installed successfully!')"
 ```
 
 ### Method 2: Conda Install
 
 ```bash
 # Create a new conda environment
-conda create -n fractalstat python=3.11
-conda activate fractalstat
+conda create -n fractalsemantics python=3.11
+conda activate fractalsemantics
 
 # Install with conda
 conda install pip
@@ -72,13 +77,13 @@ conda install pytorch torchvision torchaudio -c pytorch
 
 ```bash
 # Build Docker image
-docker build -t fractalstat .
+docker build -t fractalsemantics .
 
 # Run experiments
-docker run --rm fractalstat python -m fractalstat.fractalstat_experiments
+docker run --rm fractalsemantics python fractalsemantics/experiment_runner.py --all --quick --format=text
 
 # For development with volume mounting
-docker run -it --rm -v $(pwd):/app fractalstat bash
+docker run -it --rm -v $(pwd):/app fractalsemantics bash
 ```
 
 ## Raspberry Pi Installation
@@ -96,8 +101,8 @@ sudo apt install python3.11 python3.11-venv python3.11-pip
 sudo apt install libopenblas-dev libblas-dev liblapack-dev libatlas-base-dev gfortran
 
 # Create virtual environment
-python3.11 -m venv fractalstat_env
-source fractalstat_env/bin/activate
+python3.11 -m venv fractalsemantics_env
+source fractalsemantics_env/bin/activate
 
 # Upgrade pip
 pip install --upgrade pip
@@ -105,27 +110,29 @@ pip install --upgrade pip
 # Install PyTorch for ARM64 (CPU only)
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
-# Install FractalStat
-git clone https://gitlab.com/tiny-walnut-games/fractalstat.git
-cd fractalstat
+# Install FractalSemantics
+git clone https://gitlab.com/tiny-walnut-games/fractalsemantics.git
+cd fractalsemantics
 pip install -e .
 ```
 
 ### Raspberry Pi Troubleshooting
 
 #### Memory Issues
+
 If you encounter memory errors:
 
 ```bash
 # Use development config (smaller samples)
-export FRACTALSTAT_ENV=dev
-python -m fractalstat.fractalstat_experiments
+export FRACTALSEMANTICS_ENV=dev
+python fractalsemantics/experiment_runner.py --all --quick --format=text
 
 # Or run individual lightweight experiments
-python -m fractalstat.exp01_geometric_collision
+python -m fractalsemantics.exp01_geometric_collision
 ```
 
 #### PyTorch Installation Issues
+
 ```bash
 # If PyTorch installation fails, try the nightly build
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cpu
@@ -136,6 +143,7 @@ pip install pydantic numpy fastapi uvicorn click tomli
 ```
 
 #### Alternative: Use Pre-built Wheels
+
 ```bash
 # For Raspberry Pi OS 64-bit
 pip install torch==2.0.1+cpu torchvision==0.15.2+cpu torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cpu
@@ -156,7 +164,7 @@ pip install torch==2.0.1+cpu torchvision==0.15.2+cpu torchaudio==2.0.1 --index-u
 # Install system dependencies
 sudo apt install python3 python3-pip python3-venv build-essential
 
-# Install FractalStat
+# Install FractalSemantics
 pip install -e .
 ```
 
@@ -166,7 +174,7 @@ pip install -e .
 # Using Homebrew
 brew install python@3.11
 
-# Install FractalStat
+# Install FractalSemantics
 pip install -e .
 
 # For Apple Silicon (M1/M2)
@@ -179,7 +187,7 @@ pip install torch torchvision torchaudio
 # Install Python 3.11+ from python.org
 # Open PowerShell as Administrator
 
-# Install FractalStat
+# Install FractalSemantics
 pip install -e .
 
 # For GPU support (NVIDIA only)
@@ -190,12 +198,12 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 ```python
 # In a Colab notebook
-!git clone https://gitlab.com/tiny-walnut-games/fractalstat.git
-%cd fractalstat
+!git clone https://gitlab.com/tiny-walnut-games/fractalsemantics.git
+%cd fractalsemantics
 !pip install -e .
 
 # Run experiments
-!python -m fractalstat.fractalstat_experiments
+!python fractalsemantics/experiment_runner.py --all --quick --format=text
 ```
 
 ## Lightweight Installation (Minimal Dependencies)
@@ -211,7 +219,7 @@ pip install -e . --no-deps
 pip install pydantic numpy click tomli
 
 # Run basic experiments (no embeddings/LLM features)
-python -m fractalstat.exp01_geometric_collision
+python -m fractalsemantics.exp01_geometric_collision
 ```
 
 ## Configuration
@@ -220,7 +228,7 @@ python -m fractalstat.exp01_geometric_collision
 
 ```bash
 # Set environment (dev/ci/production)
-export FRACTALSTAT_ENV=dev
+export FRACTALSEMANTICS_ENV=dev
 
 # Enable CUDA (if available)
 export USE_CUDA=1
@@ -231,7 +239,7 @@ export USE_CUDA=0
 
 ### Configuration Files
 
-FractalStat uses TOML configuration files in `fractalstat/config/`:
+FractalSemantics uses TOML configuration files in `fractalsemantics/config/`:
 
 - `experiments.toml` - Production configuration
 - `experiments.dev.toml` - Development (smaller samples, faster)
@@ -242,7 +250,7 @@ FractalStat uses TOML configuration files in `fractalstat/config/`:
 ### Core Dependencies
 
 | Package | Version | Purpose |
-|---------|---------|---------|
+| --------- | --------- | --------- |
 | `pydantic` | >=2.0.0 | Data validation and serialization |
 | `numpy` | >=1.20.0 | Numerical computing |
 | `click` | >=8.1.0 | Command-line interface |
@@ -251,7 +259,7 @@ FractalStat uses TOML configuration files in `fractalstat/config/`:
 ### ML Dependencies (Optional)
 
 | Package | Version | Purpose |
-|---------|---------|---------|
+| --------- | --------- | --------- |
 | `torch` | >=2.0.0 | PyTorch framework |
 | `transformers` | >=4.30.0 | Hugging Face models |
 | `sentence-transformers` | >=2.2.0 | Text embeddings |
@@ -261,7 +269,7 @@ FractalStat uses TOML configuration files in `fractalstat/config/`:
 ### Development Dependencies
 
 | Package | Version | Purpose |
-|---------|---------|---------|
+| --------- | --------- | --------- |
 | `pytest` | >=7.0.0 | Testing framework |
 | `black` | >=22.0.0 | Code formatting |
 | `ruff` | >=0.1.0 | Fast linter |
@@ -272,6 +280,7 @@ FractalStat uses TOML configuration files in `fractalstat/config/`:
 ### Common Issues
 
 #### Import Errors
+
 ```bash
 # Reinstall in development mode
 pip install -e .
@@ -281,15 +290,17 @@ python -c "import sys; print(sys.path)"
 ```
 
 #### Memory Errors
+
 ```bash
 # Use development configuration
-export FRACTALSTAT_ENV=dev
+export FRACTALSEMANTICS_ENV=dev
 
 # Run with reduced batch size
-python -m fractalstat.exp08_llm_integration --batch-size 1
+python fractalsemantics/experiment_runner.py EXP-08 --quick --format=text
 ```
 
 #### PyTorch CUDA Issues
+
 ```bash
 # Check CUDA availability
 python -c "import torch; print(torch.cuda.is_available())"
@@ -299,10 +310,11 @@ export USE_CUDA=0
 ```
 
 #### Permission Errors
+
 ```bash
 # Use virtual environment
-python -m venv fractalstat_env
-source fractalstat_env/bin/activate
+python -m venv fractalsemantics_env
+source fractalsemantics_env/bin/activate
 
 # Or install with --user
 pip install --user -e .
@@ -311,52 +323,56 @@ pip install --user -e .
 ### Getting Help
 
 1. **Check the logs**: Look for error messages in terminal output
-2. **Verify Python version**: `python --version` should be 3.9+
+2. **Verify Python version**: `python --version` should be 3.11+
 3. **Check dependencies**: `pip list` to see installed packages
-4. **Test basic import**: `python -c "import fractalstat"`
+4. **Test basic import**: `python -c "import fractalsemantics"`
 
 ### Performance Optimization
 
 ```bash
 # Use development config for faster testing
-export FRACTALSTAT_ENV=dev
+export FRACTALSEMANTICS_ENV=dev
 
 # Disable unnecessary features
 export DISABLE_EMBEDDINGS=1
 export DISABLE_LLM=1
 
 # Monitor resources
-python -m fractalstat.fractalstat_experiments --profile
+python fractalsemantics/experiment_runner.py --all --quick --format=text
 ```
 
 ## Running Experiments
 
 ### All Experiments
+
 ```bash
-python -m fractalstat.fractalstat_experiments
+python fractalsemantics/experiment_runner.py --all --quick --format=text
 ```
 
 ### Individual Experiments
+
 ```bash
 # Geometric collision test
-python -m fractalstat.exp01_geometric_collision
+python -m fractalsemantics.exp01_geometric_collision
 
 # Retrieval efficiency
-python -m fractalstat.exp02_retrieval_efficiency
+python -m fractalsemantics.exp02_retrieval_efficiency
 
 # Coordinate entropy
-python -m fractalstat.exp03_coordinate_entropy
+python -m fractalsemantics.exp03_coordinate_entropy
 ```
 
 ### Development Mode (Faster)
+
 ```bash
-export FRACTALSTAT_ENV=dev
-python -m fractalstat.fractalstat_experiments
+export FRACTALSEMANTICS_ENV=dev
+python fractalsemantics/experiment_runner.py --all --quick --format=text
 ```
 
 ## Docker Development
 
 ### Development Container
+
 ```dockerfile
 FROM python:3.11-slim
 
@@ -366,10 +382,11 @@ RUN pip install -r requirements.txt
 COPY . .
 RUN pip install -e .
 
-CMD ["python", "-m", "fractalstat.fractalstat_experiments"]
+CMD ["python", "fractalsemantics/experiment_runner.py", "--all", "--quick", "--format=text"]
 ```
 
 ### Raspberry Pi Docker
+
 ```dockerfile
 FROM balenalib/raspberrypi3-64-python:latest
 
@@ -377,29 +394,31 @@ WORKDIR /app
 COPY . .
 RUN pip install -e .
 
-CMD ["python", "-m", "fractalstat.exp01_geometric_collision"]
+CMD ["python", "-m", "fractalsemantics.exp01_geometric_collision"]
 ```
 
 ## Testing Installation
 
 ### Basic Test
+
 ```bash
 python -c "
-import fractalstat
-from fractalstat.config import ExperimentConfig
+import fractalsemantics
+from fractalsemantics.config import ExperimentConfig
 config = ExperimentConfig()
-print('✅ FractalStat installed successfully!')
+print('✅ FractalSemantics installed successfully!')
 print(f'✅ Environment: {config.get_environment()}')
 "
 ```
 
 ### Full Test Suite
+
 ```bash
 # Run all tests
 pytest
 
 # Run specific test
-pytest tests/test_fractalstat_experiments.py
+pytest tests/
 ```
 
 ## Contributing
@@ -412,10 +431,10 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- **Issues**: [GitLab Issues](https://gitlab.com/tiny-walnut-games/fractalstat/-/issues)
-- **Documentation**: [FractalStat Docs](docs/)
+- **Issues**: [GitLab Issues](https://gitlab.com/tiny-walnut-games/fractalsemantics/-/issues)
+- **Documentation**: [FractalSemantics Docs](docs/)
 - **Experiments**: See individual experiment documentation in `docs/`
 
 ---
 
-**Happy experimenting with FractalStat! 🚀**
+- **Happy experimenting with FractalSemantics! -**

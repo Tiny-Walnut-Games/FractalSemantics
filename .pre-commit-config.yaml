@@ -5,7 +5,7 @@ repos:
     hooks:
       - id: ruff
         name: ruff
-        files: ^(fractalstat|scripts)/
+        files: ^(fractalsemantics|scripts)/
 
   # - repo: https://github.com/pre-commit/mirrors-mypy
   #   rev: v1.13.0
@@ -13,7 +13,7 @@ repos:
   #     - id: mypy
   #       name: mypy
   #       args: [--ignore-missing-imports, --no-strict-optional]
-  #       files: ^fractalstat/
+  #       files: ^fractalsemantics/
   #       additional_dependencies:
   #         - types-click
   #         - types-requests

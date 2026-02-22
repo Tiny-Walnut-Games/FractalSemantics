@@ -1,0 +1,111 @@
+{
+  "dev_requirements": [
+    "black>=22.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pre-commit>=3.0.0",
+    "safety>=2.0.0",
+    "bandit>=1.7.0"
+  ],
+  "tool_versions": {
+    "ruff": ">=0.1.0",
+    "black": ">=22.0.0",
+    "mypy": ">=1.0.0",
+    "pytest": ">=7.0.0"
+  },
+  "skip_steps": [],
+  "virtual_env_path": "venv",
+  "test_patterns": ["tests/**/*.py", "**/test_*.py"],
+  "code_quality_settings": {
+    "ruff_config": {
+      "line_length": 88,
+      "target_version": "py39",
+      "select": ["E", "F", "W", "I", "B", "C4", "UP", "SIM"],
+      "ignore": ["E501", "E203", "E266", "E731", "E741", "F401", "F403", "F405", "F841"]
+    },
+    "black_config": {
+      "line_length": 88,
+      "target_version": ["py39", "py310", "py311", "py312"],
+      "include": "\\.pyi?$",
+      "exclude": "/(\\.eggs|\\.git|\\.hg|\\.mypy_cache|\\.tox|\\.venv|build|dist)/"
+    },
+    "mypy_config": {
+      "python_version": "3.9",
+      "warn_unused_configs": true,
+      "disallow_untyped_defs": true,
+      "disallow_incomplete_defs": true,
+      "check_untyped_defs": true,
+      "disallow_untyped_decorators": true,
+      "no_implicit_optional": true,
+      "warn_redundant_casts": true,
+      "warn_unused_ignores": true,
+      "warn_return_any": true,
+      "warn_no_return": true,
+      "strict_equality": true,
+      "ignore_missing_imports": true
+    }
+  },
+  "security_settings": {
+    "bandit_config": {
+      "recursive": true,
+      "exclude_dirs": [".eggs", ".git", ".hg", ".mypy_cache", ".tox", ".venv", "__pycache__", "_build", "binder", "build", "dist", "docs/source/conf.py", "old", "out", "prof", "results", "scripts", "tests", "venv"]
+    },
+    "safety_config": {
+      "check_all": true
+    }
+  },
+  "testing_settings": {
+    "pytest_config": {
+      "testpaths": ["tests"],
+      "python_files": ["test_*.py", "*_test.py"],
+      "python_classes": ["Test*"],
+      "python_functions": ["test_*"],
+      "addopts": "-xvs --tb=short --strict-markers --disable-warnings -p no:dotenv",
+      "markers": [
+        "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+        "integration: marks tests as integration tests",
+        "unit: marks tests as unit tests"
+      ]
+    },
+    "coverage_config": {
+      "source": ["fractalsemantics"],
+      "omit": ["*/tests/*", "*/test_*", "*/__init__.py", "*/config/*", "*results/*"],
+      "exclude_lines": [
+        "pragma: no cover",
+        "def __repr__",
+        "raise NotImplementedError",
+        "@abstract",
+        "if self.debug:",
+        "if settings.DEBUG",
+        "raise AssertionError",
+        "raise NotImplementedError()",
+        "@unittest.skip",
+        "if 0:",
+        "if __name__ == .__main__.:",
+        "class .*\\bProtocol\\):",
+        "@(abc\\.)?abstractmethod"
+      ]
+    }
+  },
+  "documentation_settings": {
+    "sphinx_config": {
+      "source_dir": "docs",
+      "build_dir": "docs/_build",
+      "builder": "html",
+      "extensions": ["sphinx.ext.autodoc", "sphinx.ext.viewcode", "sphinx.ext.napoleon"]
+    }
+  },
+  "performance_settings": {
+    "memory_limit_mb": 2048,
+    "timeout_seconds": 300,
+    "parallel_tests": true
+  },
+  "notifications": {
+    "on_failure": true,
+    "on_success": false,
+    "email": null,
+    "webhook": null
+  }
+}

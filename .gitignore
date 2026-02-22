@@ -138,4 +138,24 @@ task_progress.txt
 .venv_wsl
 
 # Results and logs that are generated during runtime
-results/
+
+__pycache__
+-p
+.benchmarks
+.cline
+.clinerules
+.embedding_cache
+.github
+.gitlab
+.history
+.mypy_cache
+.pytest_cache
+.ruff_cache
+.venv
+.venv_wsl
+.vscode
+.zencoder
+deploy
+deploy
+results
+patches

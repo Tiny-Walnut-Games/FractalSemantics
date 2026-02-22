@@ -1,0 +1,14 @@
+{
+  "enabled_checks": [
+    "linting",
+    "formatting",
+    "security"
+  ],
+  "linting": {
+    "tools": [
+      "ruff",
+      "flake8"
+    ],
+    "fail_on_warning": true
+  }
+}

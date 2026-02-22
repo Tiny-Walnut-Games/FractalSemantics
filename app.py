@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-FractalStat Interactive Experiments - Hugging Face Space Application
+FractalSemantics Interactive Experiments - Hugging Face Space Application
 
-This is the main application file for the FractalStat interactive experiments platform.
+This is the main application file for the FractalSemantics interactive experiments platform.
 It provides a web-based interface for running and visualizing the 12 validation experiments
 with real-time progress tracking, mathematical explanations, and data visualization.
 
@@ -15,13 +15,13 @@ Features:
 - Hugging Face Space deployment with automatic scaling
 """
 
-import os
 import json
-import threading
+import os
 import queue
-from datetime import datetime
-from typing import Dict, Any, List, Tuple
+import threading
 import traceback
+from datetime import datetime
+from typing import Any, TypeAlias
 
 import gradio as gr
 
@@ -33,9 +33,16 @@ except ImportError:
     MATPLOTLIB_AVAILABLE = False
     print("Warning: matplotlib not available, charts will be disabled")
 
-# Import FractalStat modules
-from fractalstat.fractalstat_experiments import run_single_experiment, EXPERIMENTS
-from fractalstat.config import ExperimentConfig
+# Import FractalSemantics modules
+from fractalsemantics.config import ExperimentConfig
+from fractalsemantics.fractalsemantics_experiments import (
+    EXPERIMENTS,
+    run_single_experiment,
+)
+
+JsonScalar: TypeAlias = str | int | float | bool | None
+JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
+JsonObject: TypeAlias = dict[str, JsonValue]
 
 # Global state management
 class ExperimentState:
@@ -57,17 +64,17 @@ config = ExperimentConfig()
 EXPERIMENT_INFO = {
     "exp01_geometric_collision": {
         "title": "EXP-01: Geometric Collision Resistance",
-        "description": "Tests the fundamental property that FractalStat addresses are unique across the 8-dimensional space.",
+        "description": "Tests the fundamental property that FractalSemantics addresses are unique across the 8-dimensional space.",
         "math_concept": "SHA-256 Hashing & 8-Dimensional Coordinate Systems",
         "educational_content": """
         **Mathematical Foundation:**
-        
-        FractalStat uses SHA-256 hashing of canonical serialization to guarantee zero collisions:
-        
+
+        FractalSemantics uses SHA-256 hashing of canonical serialization to guarantee zero collisions:
+
         ```
         address = SHA256(canonical_serialize(coordinates))
         ```
-        
+
         **8-Dimensional Space:**
         - Realm: Domain classification (data, narrative, system, etc.)
         - Lineage: Generation from LUCA (Last Universal Common Ancestor)
@@ -78,7 +85,7 @@ EXPERIMENT_INFO = {
         - Velocity: Rate of change
         - Density: Compression distance (0.0 to 1.0)
         - Alignment: Value based on alignment map
-        
+
         **Why 8 Dimensions?**
         Each dimension adds exponential capacity to the address space, making collisions mathematically impossible.
         """,
@@ -90,13 +97,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Hash Table Performance & O(1) Complexity",
         "educational_content": """
         **Computational Complexity:**
-        
-        FractalStat achieves O(1) retrieval time through:
-        
+
+        FractalSemantics achieves O(1) retrieval time through:
+
         ```
         retrieval_time = O(1)  # Constant time lookup
         ```
-        
+
         **Performance Characteristics:**
         - Hash-based indexing provides constant-time access
         - No tree traversal or search algorithms required
@@ -110,13 +117,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Shannon Entropy & Information Theory",
         "educational_content": """
         **Information Theory:**
-        
+
         Each dimension contributes to the total entropy of the address space:
-        
+
         ```
         H(total) = Σ H(dimension_i)
         ```
-        
+
         **Entropy Analysis:**
         - Measures how much information each dimension provides
         - Identifies critical vs. redundant dimensions
@@ -130,13 +137,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Fractal Geometry & Power Law Distributions",
         "educational_content": """
         **Fractal Properties:**
-        
-        FractalStat exhibits self-similar behavior across scales:
-        
+
+        FractalSemantics exhibits self-similar behavior across scales:
+
         ```
         performance(scale) ∝ scale^k  # Power law relationship
         ```
-        
+
         **Scale Invariance:**
         - Performance characteristics remain consistent across different entity counts
         - No degradation in collision resistance or retrieval efficiency
@@ -150,13 +157,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Lossless Compression & Huffman Coding",
         "educational_content": """
         **Compression Algorithms:**
-        
-        FractalStat uses hierarchical compression:
-        
+
+        FractalSemantics uses hierarchical compression:
+
         ```
-        fragments → clusters → glyphs → mist
+        fragments - clusters - glyphs - mist
         ```
-        
+
         **Lossless Properties:**
         - Each level maintains complete information
         - Compression ratios improve with scale
@@ -170,13 +177,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Cosine Similarity & Semantic Distance",
         "educational_content": """
         **Semantic Analysis:**
-        
+
         Entanglement is measured through coordinate similarity:
-        
+
         ```
-        similarity = cos(θ) = (A · B) / (|A| |B|)
+        similarity = cos(theta) = (A · B) / (|A| |B|)
         ```
-        
+
         **Entanglement Thresholds:**
         - Related entities have similar coordinate patterns
         - Semantic distance correlates with coordinate distance
@@ -190,13 +197,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Evolutionary Algorithms & Genetic Distance",
         "educational_content": """
         **Evolutionary Principles:**
-        
+
         System reconstruction through lineage expansion:
-        
+
         ```
-        LUCA → Generation 1 → Generation 2 → ... → Current State
+        LUCA - Generation 1 - Generation 2 - ... - Current State
         ```
-        
+
         **Bootstrap Process:**
         - Single entity contains enough information for full reconstruction
         - Lineage tracking maintains evolutionary relationships
@@ -210,13 +217,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Neural Networks & Self-Organization",
         "educational_content": """
         **Neural Organization:**
-        
+
         Memory self-organization through coordinate clustering:
-        
+
         ```
         cluster_center = mean(coordinates_in_cluster)
         ```
-        
+
         **Small-World Properties:**
         - High clustering coefficient
         - Short path lengths between entities
@@ -230,13 +237,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Memory Management & Resource Optimization",
         "educational_content": """
         **Resource Management:**
-        
+
         Memory optimization strategies:
-        
+
         ```
         memory_usage = f(entities, dimensions, compression)
         ```
-        
+
         **Pressure Testing:**
         - Performance under memory constraints
         - Resource optimization techniques
@@ -250,13 +257,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Multi-Dimensional Indexing & k-d Trees",
         "educational_content": """
         **Query Optimization:**
-        
+
         Multi-dimensional range queries:
-        
+
         ```
         query_time = O(log n)  # Logarithmic complexity
         ```
-        
+
         **Dimensional Pruning:**
         - Eliminates irrelevant dimensions during query
         - Optimizes search space
@@ -270,13 +277,13 @@ EXPERIMENT_INFO = {
         "math_concept": "Dimensional Trade-offs & Optimization",
         "educational_content": """
         **Dimensional Analysis:**
-        
+
         Optimal dimension count determination:
-        
+
         ```
         optimal_dimensions = argmax(expressiveness - complexity)
         ```
-        
+
         **Trade-off Analysis:**
         - Expressiveness vs. computational complexity
         - Storage requirements vs. addressing capacity
@@ -286,17 +293,17 @@ EXPERIMENT_INFO = {
     },
     "exp12_benchmark_comparison": {
         "title": "EXP-12: Benchmark Comparison",
-        "description": "Compares FractalStat performance against traditional addressing systems.",
+        "description": "Compares FractalSemantics performance against traditional addressing systems.",
         "math_concept": "Comparative Analysis & Performance Metrics",
         "educational_content": """
         **Benchmarking Methodology:**
-        
+
         Comparative performance analysis:
-        
+
         ```
         relative_performance = system_performance / baseline_performance
         ```
-        
+
         **Comparison Systems:**
         - UUID generation and lookup
         - SHA-256 hashing
@@ -307,7 +314,7 @@ EXPERIMENT_INFO = {
     }
 }
 
-def create_progress_chart(experiment_name: str, progress_data: List[Tuple[float, float]]) -> Any:
+def create_progress_chart(experiment_name: str, progress_data: list[tuple[float, float]]) -> Any:
     """Create a progress visualization chart for the experiment."""
     if not MATPLOTLIB_AVAILABLE:
         return None
@@ -342,7 +349,7 @@ def create_progress_chart(experiment_name: str, progress_data: List[Tuple[float,
     plt.tight_layout()
     return fig
 
-def create_results_chart(experiment_name: str, results: Dict[str, Any]) -> Any:
+def create_results_chart(experiment_name: str, results: dict[str, Any]) -> Any:
     """Create a results visualization chart for the experiment."""
     if not MATPLOTLIB_AVAILABLE:
         return None
@@ -399,7 +406,7 @@ def update_experiment_status():
         status = "Ready"
         progress = 0
         message = experiment_state.status_message
-    
+
     return status, progress, message
 
 def run_experiment_thread(experiment_name: str):
@@ -409,45 +416,45 @@ def run_experiment_thread(experiment_name: str):
         experiment_state.current_experiment = experiment_name
         experiment_state.progress = 0
         experiment_state.status_message = f"Starting {experiment_name}..."
-        
+
         # Get experiment info
         if experiment_name in EXPERIMENT_INFO:
             display_name = EXPERIMENT_INFO[experiment_name]['title']
         else:
             display_name = experiment_name
-        
+
         # Find the experiment in the list
         experiment_module = None
-        for module, name in EXPERIMENTS:
+        for module, display_name in EXPERIMENTS:
             if module == experiment_name:
                 experiment_module = module
                 break
-        
+
         if experiment_module:
             # Run the experiment
             experiment_state.status_message = f"Executing {display_name}..."
             experiment_state.progress = 25
-            
+
             result = run_single_experiment(experiment_module, display_name)
-            
+
             experiment_state.progress = 75
             experiment_state.status_message = f"Processing results for {display_name}..."
-            
+
             # Store results
             experiment_state.results[experiment_name] = result
-            
+
             experiment_state.progress = 100
             experiment_state.status_message = f"Completed {display_name}"
-            
+
         else:
             experiment_state.status_message = f"Experiment {experiment_name} not found"
             experiment_state.results[experiment_name] = {"success": False, "error": "Experiment not found"}
-    
+
     except Exception as e:
         experiment_state.status_message = f"Error in {experiment_name}: {str(e)}"
         experiment_state.results[experiment_name] = {"success": False, "error": str(e)}
         traceback.print_exc()
-    
+
     finally:
         experiment_state.is_running = False
         experiment_state.current_experiment = None
@@ -456,7 +463,7 @@ def start_experiment(experiment_name: str):
     """Start running an experiment."""
     if experiment_state.is_running:
         return "Error: Another experiment is already running", 0, "Please wait for the current experiment to complete"
-    
+
     # Start experiment in background thread
     experiment_state.experiment_thread = threading.Thread(
         target=run_experiment_thread,
@@ -464,7 +471,7 @@ def start_experiment(experiment_name: str):
     )
     experiment_state.experiment_thread.daemon = True
     experiment_state.experiment_thread.start()
-    
+
     return "Starting experiment...", 0, "Experiment started in background"
 
 def stop_experiment():
@@ -489,17 +496,17 @@ def get_experiment_results(experiment_name: str):
         stdout = result.get('stdout', '')
         stderr = result.get('stderr', '')
         exit_code = result.get('exit_code', -1)
-        
+
         # Create results text
         results_text = f"Success: {success}\n"
         results_text += f"Exit Code: {exit_code}\n\n"
         results_text += "STDOUT:\n" + stdout + "\n\n"
         if stderr:
             results_text += "STDERR:\n" + stderr + "\n\n"
-        
+
         # Create visualization
         fig = create_results_chart(experiment_name, result)
-        
+
         return results_text, fig
     else:
         return "No results available", None
@@ -516,28 +523,28 @@ def export_results():
         },
         "results": experiment_state.results
     }
-    
+
     # Save to file
-    export_file = f"fractalstat_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    export_file = f"fractalsemantics_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     with open(export_file, 'w') as f:
         json.dump(export_data, f, indent=2, default=str)
-    
+
     return f"Results exported to {export_file}"
 
 def create_gradio_interface():
     """Create the main Gradio interface."""
-    
-    with gr.Blocks(title="FractalStat Interactive Experiments") as demo:
+
+    with gr.Blocks(title="FractalSemantics Interactive Experiments") as demo:
         gr.Markdown("""
-        # FractalStat Interactive Experiments
-        
-        Welcome to the FractalStat validation experiments platform! This interactive interface allows you to run and visualize the 12 validation experiments that prove the FractalStat 8-dimensional addressing system works at scale.
-        
-        ## What is FractalStat?
-        
-        FractalStat is a research package containing **12 validation experiments** that prove the FractalStat addressing system works at scale. FractalStat expands FractalStat from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
+        # FractalSemantics Interactive Experiments
+
+        Welcome to the FractalSemantics validation experiments platform! This interactive interface allows you to run and visualize the 12 validation experiments that prove the FractalSemantics 8-dimensional addressing system works at scale.
+
+        ## What is FractalSemantics?
+
+        FractalSemantics is a research package containing **12 validation experiments** that prove the FractalSemantics addressing system works at scale. FractalSemantics expands FractalSemantics from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
         """)
-        
+
         # Experiment selection and controls
         with gr.Row():
             with gr.Column(scale=2):
@@ -546,93 +553,93 @@ def create_gradio_interface():
                     label="Select Experiment",
                     value="exp01_geometric_collision"
                 )
-                
+
                 with gr.Row():
                     start_btn = gr.Button("Start Experiment", variant="primary")
                     stop_btn = gr.Button("Stop Experiment", variant="secondary")
                     export_btn = gr.Button("Export Results", variant="secondary")
-                
+
                 status_text = gr.Textbox(label="Status", value="Ready to run experiments", interactive=False)
                 progress_bar = gr.Slider(minimum=0, maximum=100, value=0, label="Progress (%)", interactive=False)
-            
+
             with gr.Column(scale=3):
                 # Mathematical explanation panel
                 math_title = gr.Markdown("### Mathematical Foundation")
                 math_content = gr.Markdown(EXPERIMENT_INFO["exp01_geometric_collision"]["educational_content"])
-        
+
         # Results display
         with gr.Row():
             with gr.Column():
                 results_text = gr.Textbox(label="Experiment Results", lines=15, interactive=False)
                 results_chart = gr.Plot(label="Results Visualization")
-            
+
             with gr.Column():
                 gr.Plot(label="Real-time Progress")
-        
+
         # Update mathematical content when experiment changes
         def update_math_content(experiment_name):
             if experiment_name in EXPERIMENT_INFO:
                 info = EXPERIMENT_INFO[experiment_name]
                 return f"### {info['math_concept']}", info['educational_content']
             return "### Mathematical Foundation", "Select an experiment to view its mathematical foundation."
-        
+
         experiment_dropdown.change(
             fn=update_math_content,
             inputs=[experiment_dropdown],
             outputs=[math_title, math_content]
         )
-        
+
         # Experiment control functions
         start_btn.click(
             fn=start_experiment,
             inputs=[experiment_dropdown],
             outputs=[status_text, progress_bar, status_text]
         )
-        
+
         stop_btn.click(
             fn=stop_experiment,
             inputs=[],
             outputs=[status_text, progress_bar, status_text]
         )
-        
+
         # Update results when experiment completes
         def update_results(experiment_name):
             return get_experiment_results(experiment_name)
-        
+
         # Periodic updates for status and progress
         def periodic_update():
             status, progress, message = update_experiment_status()
             return status, progress, message
-        
+
         # Set up periodic updates
         demo.load(
             fn=periodic_update,
             inputs=[],
             outputs=[status_text, progress_bar, status_text]
         )
-        
+
         # Update results when experiment changes
         experiment_dropdown.change(
             fn=update_results,
             inputs=[experiment_dropdown],
             outputs=[results_text, results_chart]
         )
-        
+
         # Export functionality
         export_btn.click(
             fn=export_results,
             inputs=[],
             outputs=[status_text]
         )
-        
+
         # Footer
         gr.Markdown("""
         ---
-        **Note**: This is a research platform for validating the FractalStat addressing system. 
-        All experiments are designed to run safely and provide educational insights into 
+        **Note**: This is a research platform for validating the FractalSemantics addressing system.
+        All experiments are designed to run safely and provide educational insights into
         multi-dimensional coordinate systems and their applications.
         """)
-    
+
     return demo
 
 if __name__ == "__main__":

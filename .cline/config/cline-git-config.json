@@ -1,0 +1,10 @@
+{
+  "git_workflow": {
+    "base_branch": "main",
+    "pre_commit_hooks": [
+      "ruff",
+      "black",
+      "mypy"
+    ]
+  }
+}

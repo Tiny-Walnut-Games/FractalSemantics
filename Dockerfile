@@ -1,4 +1,4 @@
-# FractalStat Docker Image
+# FractalSemantics Docker Image
 FROM python:3.11-slim
 
 # Set working directory
@@ -18,15 +18,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
-# Install FractalStat in development mode
+# Install FractalSemantics in development mode
 RUN pip install -e .
 
 # Create non-root user for security
-RUN useradd --create-home --shell /bin/bash fractalstat
-USER fractalstat
+RUN useradd --create-home --shell /bin/bash fractalsemantics
+USER fractalsemantics
 
 # Set environment
-ENV FRACTALSTAT_ENV=production
+ENV FRACTALSEMANTICS_ENV=production
 
 # Default command
-CMD ["python", "-m", "fractalstat.fractalstat_experiments"]
+CMD ["python", "-m", "fractalsemantics.fractalsemantics_experiments"]

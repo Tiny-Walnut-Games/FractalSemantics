@@ -4,5 +4,17 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"cSpell.words": [
+			"apoapsis",
+			"bary",
+			"barycenters",
+			"Keplerian",
+			"linalg",
+			"periapsis",
+			"RDBMS",
+			"traj",
+			"Verlet"
+		]
+	}
 }

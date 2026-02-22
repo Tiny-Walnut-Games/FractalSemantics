@@ -1,92 +1,62 @@
-# FractalStat Quick Start
+# FractalSemantics Quick Start
+
+Quickstart intentionally covers the common path.
+For the full public CLI/API scope (all runner/analysis flags and behavior), see [README.md](README.md)
+and the GitBook-ready archive at [docs/gitbook-archive/SUMMARY.md](docs/gitbook-archive/SUMMARY.md).
 
 ## Prerequisites
 
-- Python 3.9+
-- pip (Python package installer)
+- Python 3.11+
+- pip
 
-### ARM/Raspberry Pi Notes
-
-FractalStat works on ARM architectures (like Raspberry Pi), but some dependencies may require additional setup:
-
-- **PyTorch**: Use ARM-compatible wheels or install from source
-- **Transformers/SentenceTransformers**: Generally work on ARM, but may be slower without GPU acceleration
-- **Memory**: Some experiments may require significant RAM (4GB+ recommended)
-
-For Raspberry Pi, you may need to install PyTorch specifically for ARM:
+## Install
 
 ```bash
-# For Raspberry Pi (ARM64)
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-
-# Then install other dependencies
 pip install -r requirements.txt
 pip install -e .
 ```
 
-## Build and Install
+## Run Experiments (Current Runner)
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
+# Full suite
+python fractalsemantics/experiment_runner.py --all --full --format=text
 
-# Install the package in development mode
-pip install -e .
+# Fast iteration run
+python fractalsemantics/experiment_runner.py --all --quick --format=text
+
+# Explicit parallel mode
+python fractalsemantics/experiment_runner.py --all --full --parallel --format=text
+
+# Specific experiments
+python fractalsemantics/experiment_runner.py EXP-01 EXP-03 EXP-21 --full --serial --format=text
+
+# Reproducibility reruns
+python fractalsemantics/experiment_runner.py EXP-13 --full --repro-runs=3 --format=text
+
+# Terminal-only mode (no persisted artifacts)
+python fractalsemantics/experiment_runner.py EXP-03 --quick --softcopy=false --format=text
 ```
 
-## Run Experiments
+## Run Analysis (Cached by Default)
 
 ```bash
-# Phase 1 validation experiments
-python -m fractalstat.fractalstat_experiments
+# Analyze existing results (does not rerun experiments)
+python comprehensive_experiment_analysis.py
 
-# Individual experiments
-python -m fractalstat.exp04_fractal_scaling
-python -m fractalstat.exp06_entanglement_detection
+# Refresh results first, forwarding runner arguments
+python comprehensive_experiment_analysis.py --refresh --all --full --serial --format=text
+
+# Wipe history before refresh (prompts to archive vs delete)
+python comprehensive_experiment_analysis.py --wipe-history --refresh --all --full --serial --format=text
+
+# Nuclear option: delete archive store + force delete history
+python comprehensive_experiment_analysis.py --wipe-archive --wipe-history --refresh --all --full --serial --format=text
 ```
 
-## Use as Library
-
-```python
-from fractalstat import BitChain, Coordinates
-
-# Create a bit-chain
-bc = BitChain(
-    id="example",
-    entity_type="concept",
-    realm="data",
-    coordinates=Coordinates(
-        realm="data",
-        lineage=1,
-        adjacency=[],
-        horizon="genesis",
-        resonance=0.5,
-        velocity=0.0,
-        density=0.5
-    ),
-    created_at="2024-01-01T00:00:00.000Z",
-    state={"value": 42}
-)
-
-# Compute FractalStat address
-address = bc.compute_address()
-print(f"FractalStat Address: {address}")
-```
-
-## Configuration
-
-FractalStat uses environment-specific configurations:
+## GUI
 
 ```bash
-# Development mode (fast iteration)
-export FRACTALSTAT_ENV=dev
-python -m fractalstat.fractalstat_experiments
-
-# CI mode (balanced testing)
-export FRACTALSTAT_ENV=ci
-python -m fractalstat.fractalstat_experiments
-
-# Production mode (full validation)
-export FRACTALSTAT_ENV=production
-python -m fractalstat.fractalstat_experiments
+pip install -r gui_requirements.txt
+python launch_gui.py
 ```
