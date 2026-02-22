@@ -181,7 +181,7 @@ EXPERIMENT_INFO = {
         Entanglement is measured through coordinate similarity:
 
         ```
-        similarity = cos(theta) = (A * B) / (|A| |B|)
+        similarity = cos(theta) = (A · B) / (|A| |B|)
         ```
 
         **Entanglement Thresholds:**

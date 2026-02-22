@@ -22,13 +22,25 @@ class PythonDevWorkflow:
 
     def __init__(self, project_root: Optional[str] = None):
         self.project_root = Path(project_root or os.getcwd())
-        self.venv_path = self.project_root / "venv"
+        self.venv_path = self._resolve_venv_path()
         self.python_executable = self._get_python_executable()
+
+    def _resolve_venv_path(self) -> Path:
+        """Resolve project virtual environment path, preferring .venv then venv."""
+        dot_venv = self.project_root / ".venv"
+        if dot_venv.exists():
+            return dot_venv
+        return self.project_root / "venv"
 
     def _get_python_executable(self) -> str:
         """Get the appropriate Python executable."""
         if self.venv_path.exists():
-            return str(self.venv_path / "bin" / "python")
+            if os.name == "nt":
+                candidate = self.venv_path / "Scripts" / "python.exe"
+            else:
+                candidate = self.venv_path / "bin" / "python"
+            if candidate.exists():
+                return str(candidate)
         return sys.executable
 
     def _run_command(self, cmd: list[str], description: str) -> bool:
@@ -68,6 +80,7 @@ class PythonDevWorkflow:
             )
             if not success:
                 return False
+            self.python_executable = self._get_python_executable()
 
         # Upgrade pip
         success = self._run_command(
@@ -102,9 +115,9 @@ class PythonDevWorkflow:
         print("🔍 Running code quality checks...")
 
         checks = [
-            (["ruff", "check", "."], "Ruff linting"),
-            (["black", "--check", "."], "Black formatting check"),
-            (["mypy", "."], "MyPy type checking")
+            ([self.python_executable, "-m", "ruff", "check", "."], "Ruff linting"),
+            ([self.python_executable, "-m", "black", "--check", "."], "Black formatting check"),
+            ([self.python_executable, "-m", "mypy", "."], "MyPy type checking")
         ]
 
         all_passed = True
@@ -120,8 +133,8 @@ class PythonDevWorkflow:
         print("🔒 Running security scans...")
 
         scans = [
-            (["safety", "check"], "Safety dependency security check"),
-            (["bandit", "-r", "."], "Bandit security linting")
+            ([self.python_executable, "-m", "safety", "check"], "Safety dependency security check"),
+            ([self.python_executable, "-m", "bandit", "-r", "."], "Bandit security linting")
         ]
 
         all_passed = True
@@ -137,8 +150,8 @@ class PythonDevWorkflow:
         print("🧪 Running test suite...")
 
         test_commands = [
-            (["pytest", "-v"], "Running pytest"),
-            (["pytest", "--cov", "."], "Running pytest with coverage")
+            ([self.python_executable, "-m", "pytest", "-v"], "Running pytest"),
+            ([self.python_executable, "-m", "pytest", "--cov", "."], "Running pytest with coverage")
         ]
 
         all_passed = True

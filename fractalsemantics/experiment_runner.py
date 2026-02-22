@@ -2598,7 +2598,8 @@ def main():
     try:
         if is_all:
             # Run all experiments
-            print(f"- Running ALL experiments in {'Quick' if quick_mode else 'Full'} mode...")
+            if output_format == "text":
+                print(f"- Running ALL experiments in {'Quick' if quick_mode else 'Full'} mode...")
             batch_result = asyncio.run(runner.run_batch_experiments(
                 experiment_ids=[],  # Empty list means run all
                 quick_mode=quick_mode,
@@ -2675,7 +2676,8 @@ def main():
                     print("=" * 80)
             else:
                 # Multiple specific experiments
-                print(f"- Running {len(experiment_ids)} specific experiments in {'Quick' if quick_mode else 'Full'} mode...")
+                if output_format == "text":
+                    print(f"- Running {len(experiment_ids)} specific experiments in {'Quick' if quick_mode else 'Full'} mode...")
                 batch_result = asyncio.run(runner.run_batch_experiments(
                     experiment_ids=experiment_ids,
                     quick_mode=quick_mode,
