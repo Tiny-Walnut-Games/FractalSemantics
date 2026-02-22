@@ -10,6 +10,7 @@ import getpass
 import hashlib
 import json
 import logging
+import os
 import shutil
 import subprocess
 import sys
@@ -17,13 +18,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import TypeAlias
 
-_audit_logger = logging.getLogger("fractalsemantics.audit")
-
 from fractalsemantics.experiment_runner import ExperimentRunner
 
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
+
+_audit_logger = logging.getLogger("fractalsemantics.audit")
+if not _audit_logger.handlers:
+    _audit_logger.addHandler(logging.NullHandler())
 
 
 def _parse_cli_args(argv: list[str] | None = None) -> tuple[argparse.Namespace, list[str]]:
@@ -82,7 +85,7 @@ def _should_archive_before_wipe() -> bool:
 def _write_audit_log(
     action: str,
     outcome: str,
-    details: dict,
+    details: JsonObject,
     audit_log_path: Path,
 ) -> None:
     """Append a structured JSON-L audit entry recording a critical file-system action.
@@ -99,7 +102,7 @@ def _write_audit_log(
         "actor": actor,
         "action": action,
         "outcome": outcome,
-        **details,
+        "details": details,
     }
     try:
         audit_log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -122,8 +125,12 @@ def _write_archive_manifest(archive_dir: Path, moved: list[dict]) -> None:
         "entries": moved,
     }
     manifest_path = archive_dir / "manifest.json"
-    with manifest_path.open("w", encoding="utf-8") as fh:
-        json.dump(manifest, fh, indent=2)
+    try:
+        archive_dir.mkdir(parents=True, exist_ok=True)
+        with manifest_path.open("w", encoding="utf-8") as fh:
+            json.dump(manifest, fh, indent=2)
+    except OSError as exc:
+        _audit_logger.warning("Could not write archive manifest to %s: %s", manifest_path, exc)
 
 
 def _file_sha256(path: Path) -> str:
@@ -140,9 +147,12 @@ def _archive_paths(paths: list[Path], results_dir: Path, project_root: Path) -> 
     if not paths:
         return None
 
-    archive_dir = project_root / "results" / "archive" / datetime.now().strftime("%Y%m%d_%H%M%S")
+    archive_dir = project_root / "results" / "archive" / datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     archive_dir.mkdir(parents=True, exist_ok=True)
     audit_log_path = project_root / "results" / "archive" / "audit.jsonl"
+    hash_enabled = os.environ.get("FRACTALSEMANTICS_ARCHIVE_HASH", "true").strip().lower() in {
+        "1", "true", "yes", "on"
+    }
     moved: list[dict] = []
     for path in paths:
         if not path.exists():
@@ -153,9 +163,35 @@ def _archive_paths(paths: list[Path], results_dir: Path, project_root: Path) -> 
             relative_path = Path(path.name)
         destination = archive_dir / relative_path
         destination.parent.mkdir(parents=True, exist_ok=True)
-        size = path.stat().st_size if path.is_file() else None
-        sha256 = _file_sha256(path) if path.is_file() else None
-        shutil.move(str(path), str(destination))
+        size = None
+        sha256 = None
+        if path.is_file():
+            try:
+                size = path.stat().st_size
+            except OSError as exc:
+                _audit_logger.warning("Could not stat file %s before archive move: %s", path, exc)
+            if hash_enabled:
+                try:
+                    sha256 = _file_sha256(path)
+                except OSError as exc:
+                    _audit_logger.warning("Failed to compute SHA-256 for %s: %s", path, exc)
+
+        try:
+            shutil.move(str(path), str(destination))
+        except OSError as exc:
+            _write_audit_log(
+                action="archive_move",
+                outcome="failure",
+                details={
+                    "source": str(path),
+                    "destination": str(destination),
+                    "error": str(exc),
+                },
+                audit_log_path=audit_log_path,
+            )
+            _audit_logger.warning("Failed to move %s to %s: %s", path, destination, exc)
+            continue
+
         entry: dict = {"source": str(path), "destination": str(destination)}
         if size is not None:
             entry["size_bytes"] = size
@@ -283,7 +319,9 @@ def _extract_numeric_collision_rates(collision_rates: object) -> list[float]:
 
     result: list[float] = []
     for value in candidates:
-        if not isinstance(value, (int, float, str, bool)):
+        if isinstance(value, bool):
+            continue
+        if not isinstance(value, (int, float, str)):
             continue
         try:
             result.append(float(value))

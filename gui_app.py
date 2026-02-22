@@ -40,14 +40,17 @@ if _pkg_dir not in sys.path:
 if _project_dir not in sys.path:
     sys.path.append(_project_dir)
 
-import gui_state_manager
-from fractalsemantics.experiment_runner import (
+import gui_state_manager  # noqa: E402
+from fractalsemantics.experiment_runner import (  # noqa: E402
     BatchRunResult,
     ExperimentResult,
     ExperimentRunner,
 )
-from fractalsemantics.progress_comm import clear_progress_file, read_progress_from_file
-from gui_state_manager import (
+from fractalsemantics.progress_comm import (  # noqa: E402
+    clear_progress_file,
+    read_progress_from_file,
+)
+from gui_state_manager import (  # noqa: E402
     cleanup_session_state,
     ensure_session_state_initialized,
     get_session_state_snapshot,
