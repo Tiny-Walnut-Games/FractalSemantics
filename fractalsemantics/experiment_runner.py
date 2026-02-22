@@ -1941,6 +1941,7 @@ Full Traceback:
                 python_executable,
                 "-X",
                 "utf8",
+                "-u",
                 "-I",
                 "-m",
                 module_qualname,
@@ -2093,10 +2094,12 @@ Full Traceback:
                     normalized_full_output = self._normalize_output_save_language(combined_output)
                     deleted_artifacts = self._cleanup_softcopy_artifacts(normalized_full_output)
                     if deleted_artifacts:
-                        display_output += (
+                        combined_output += (
                             "\n[SOFTCOPY DISABLED] Persisted artifacts were removed after execution "
                             "(terminal output retained)."
                         )
+                        display_output = self._compress_output_for_display(combined_output, max_lines=OUTPUT_DISPLAY_MAX_LINES)
+                        display_output = self._normalize_output_save_language(display_output)
 
                 metrics: dict[str, Any] = {
                     "return_code": result_return_code,

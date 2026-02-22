@@ -31,8 +31,14 @@ from plotly.subplots import make_subplots
 from streamlit_autorefresh import st_autorefresh
 
 # Add the fractalsemantics module to the path (must be done before local/package imports)
-sys.path.insert(0, str(Path(__file__).parent))
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Use append (not insert) so installed packages and the stdlib take precedence,
+# preventing import-hijacking via writable directories placed earlier on sys.path.
+_pkg_dir = str(Path(__file__).parent)
+_project_dir = str(Path(__file__).parent.parent)
+if _pkg_dir not in sys.path:
+    sys.path.append(_pkg_dir)
+if _project_dir not in sys.path:
+    sys.path.append(_project_dir)
 
 import gui_state_manager
 from fractalsemantics.experiment_runner import (
