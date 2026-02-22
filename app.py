@@ -428,7 +428,6 @@ def run_experiment_thread(experiment_name: str):
         for module, display_name in EXPERIMENTS:
             if module == experiment_name:
                 experiment_module = module
-                print(f"Found experiment module: {module} with display name: {display_name}")
                 break
 
         if experiment_module:
