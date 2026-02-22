@@ -1932,12 +1932,18 @@ Full Traceback:
 
             # Build isolated, deterministic subprocess command
             python_executable = sys.executable
+            module_qualname = (
+                module_name
+                if module_name.startswith("fractalsemantics.")
+                else f"fractalsemantics.{module_name}"
+            )
             cmd = [
                 python_executable,
                 "-X",
                 "utf8",
                 "-I",
-                str(Path(__file__).parent / f"{module_name}.py"),
+                "-m",
+                module_qualname,
             ]
 
             # Add quick mode flag if needed
@@ -1993,7 +1999,7 @@ Full Traceback:
                     stderr=subprocess.PIPE,
                     text=True,
                     env=env,
-                    cwd=str(Path(__file__).parent),
+                    cwd=str(Path(__file__).parent.parent),
                     encoding="utf-8",
                     errors="replace",
                 )
@@ -2084,7 +2090,8 @@ Full Traceback:
 
                 deleted_artifacts: list[str] = []
                 if not self.softcopy_enabled:
-                    deleted_artifacts = self._cleanup_softcopy_artifacts(display_output)
+                    normalized_full_output = self._normalize_output_save_language(combined_output)
+                    deleted_artifacts = self._cleanup_softcopy_artifacts(normalized_full_output)
                     if deleted_artifacts:
                         display_output += (
                             "\n[SOFTCOPY DISABLED] Persisted artifacts were removed after execution "

@@ -74,16 +74,17 @@ def _should_archive_before_wipe() -> bool:
         print("Please answer 'y' or 'n'.")
 
 
-def _archive_paths(paths: list[Path], project_root: Path) -> Path | None:
-    """Archive paths under results/archive/<timestamp>/ preserving project-relative structure."""
+def _archive_paths(paths: list[Path], results_dir: Path, project_root: Path) -> Path | None:
+    """Archive paths under results/archive/<timestamp>/ preserving results-relative structure."""
     if not paths:
         return None
 
     archive_dir = project_root / "results" / "archive" / datetime.now().strftime("%Y%m%d_%H%M%S")
+    archive_dir.mkdir(parents=True, exist_ok=True)
     for path in paths:
         if not path.exists():
             continue
-        destination = archive_dir / path.relative_to(project_root)
+        destination = archive_dir / path.relative_to(results_dir)
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.move(str(path), str(destination))
     return archive_dir
@@ -126,7 +127,7 @@ def _wipe_history(project_root: Path, force_delete: bool) -> None:
         return
 
     if _should_archive_before_wipe():
-        archive_dir = _archive_paths(targets, project_root)
+        archive_dir = _archive_paths(targets, project_root / "results", project_root)
         if archive_dir:
             print(f"Wipe complete (archived): moved history to {archive_dir}")
         return
@@ -449,11 +450,12 @@ def validate_exp02(results: list[JsonObject]) -> tuple[bool, list[str], dict[str
         all_fast = True
         for scale_result in last_result["results"]:
             mean_latency = scale_result.get("mean_latency_ms", 1000)
+            scale = scale_result.get("scale", "unknown")
             if mean_latency > 1.0:  # More than 1ms
                 all_fast = False
-                findings.append(f"✗ Scale {scale_result['scale']}: Mean latency {mean_latency:.3f}ms > 1ms")
+                findings.append(f"✗ Scale {scale}: Mean latency {mean_latency:.3f}ms > 1ms")
             else:
-                findings.append(f"✓ Scale {scale_result['scale']}: Mean latency {mean_latency:.3f}ms")
+                findings.append(f"✓ Scale {scale}: Mean latency {mean_latency:.3f}ms")
 
         if all_fast:
             findings.append("✓ All scales show sub-millisecond retrieval performance")
@@ -920,16 +922,29 @@ def validate_exp11b(results: list[JsonObject]) -> tuple[bool, list[str], dict[st
 
     elif "collision_rates" in last_result:
         # Fallback to direct collision_rates field
-        max_collision_rate = max(last_result["collision_rates"].values())
-        if max_collision_rate > 0.5:  # Should show significant stress
-            findings.append(f"✓ Stress test shows expected high collision rate: {max_collision_rate:.3f}")
-            findings.append("✓ Dimension stress test demonstrates expected behavior")
-            metrics["stress_resistance"] = True
-            success = True
-        else:
-            findings.append(f"✗ Stress test not stressful enough: Max collision rate {max_collision_rate:.3f}")
+        raw_rates = last_result.get("collision_rates") or {}
+        numeric_rates: list[float] = []
+        for value in raw_rates.values():
+            try:
+                numeric_rates.append(float(value))
+            except (TypeError, ValueError):
+                continue
+
+        if not numeric_rates:
+            findings.append("✗ No valid collision rate values found")
             metrics["stress_resistance"] = False
             success = False
+        else:
+            max_collision_rate = max(numeric_rates)
+            if max_collision_rate > 0.5:  # Should show significant stress
+                findings.append(f"✓ Stress test shows expected high collision rate: {max_collision_rate:.3f}")
+                findings.append("✓ Dimension stress test demonstrates expected behavior")
+                metrics["stress_resistance"] = True
+                success = True
+            else:
+                findings.append(f"✗ Stress test not stressful enough: Max collision rate {max_collision_rate:.3f}")
+                metrics["stress_resistance"] = False
+                success = False
     else:
         findings.append("✗ No collision rates data found")
         metrics["stress_resistance"] = False
