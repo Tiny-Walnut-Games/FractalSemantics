@@ -2,7 +2,7 @@
 
 `imports_reporter.py` is a **general-purpose Python dependency audit tool**.
 
-It is not FractalSemantics-specific: you can point it at any Python project to:
+You can point it at any Python project to:
 
 - list imported top-level modules,
 - compare imports against a `requirements.txt` (including nested `-r` includes),
