@@ -425,9 +425,10 @@ def run_experiment_thread(experiment_name: str):
 
         # Find the experiment in the list
         experiment_module = None
-        for module, display_name in EXPERIMENTS:
-            if module == experiment_name:
+        for module, loop_display_name in EXPERIMENTS:
+            if module == experiment_name or loop_display_name == experiment_name:
                 experiment_module = module
+                display_name = loop_display_name
                 break
 
         if experiment_module:

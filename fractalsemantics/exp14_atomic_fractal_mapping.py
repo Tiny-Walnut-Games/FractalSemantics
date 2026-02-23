@@ -631,7 +631,7 @@ def run_atomic_fractal_mapping_experiment_v2(
         # Use all available elements from the periodic table
         elements_to_test = list(shell_data.keys())
     elif isinstance(elements_to_test, str):
-        elements_to_test = [elements_to_test]
+        elements_to_test = [e.strip() for e in elements_to_test.split(",") if e.strip()]
 
     print("\n" + "=" * 80)
     print("EXP-14 v2: SHELL-BASED ATOMIC-FRACTAL MAPPING")
