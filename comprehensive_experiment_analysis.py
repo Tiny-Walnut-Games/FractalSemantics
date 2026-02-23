@@ -6,11 +6,15 @@ Based on actual experiment results structure
 
 import argparse
 import asyncio
+import getpass
+import hashlib
 import json
+import logging
+import os
 import shutil
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TypeAlias
 
@@ -19,6 +23,10 @@ from fractalsemantics.experiment_runner import ExperimentRunner
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
+
+_audit_logger = logging.getLogger("fractalsemantics.audit")
+if not _audit_logger.handlers:
+    _audit_logger.addHandler(logging.NullHandler())
 
 
 def _parse_cli_args(argv: list[str] | None = None) -> tuple[argparse.Namespace, list[str]]:
@@ -74,19 +82,129 @@ def _should_archive_before_wipe() -> bool:
         print("Please answer 'y' or 'n'.")
 
 
+def _write_audit_log(
+    action: str,
+    outcome: str,
+    details: JsonObject,
+    audit_log_path: Path,
+) -> None:
+    """Append a structured JSON-L audit entry recording a critical file-system action.
+
+    Each entry captures the actor, timestamp, action, and outcome so that the
+    wipe/archive workflow is fully traceable for scientific-integrity audits.
+    """
+    try:
+        actor = getpass.getuser()
+    except Exception:
+        actor = "unknown"
+    entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "actor": actor,
+        "action": action,
+        "outcome": outcome,
+        "details": details,
+    }
+    try:
+        audit_log_path.parent.mkdir(parents=True, exist_ok=True)
+        with audit_log_path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(entry) + "\n")
+    except OSError as exc:
+        _audit_logger.warning("Could not write audit log entry: %s", exc)
+
+
+def _write_archive_manifest(archive_dir: Path, moved: list[dict]) -> None:
+    """Write a manifest.json to *archive_dir* documenting all archived files.
+
+    Each entry includes the original path, destination path, file size in bytes,
+    and a SHA-256 content hash (for files) to support scientific reproducibility
+    and data-provenance verification.
+    """
+    manifest = {
+        "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "archive_dir": str(archive_dir),
+        "entries": moved,
+    }
+    manifest_path = archive_dir / "manifest.json"
+    try:
+        archive_dir.mkdir(parents=True, exist_ok=True)
+        with manifest_path.open("w", encoding="utf-8") as fh:
+            json.dump(manifest, fh, indent=2)
+    except OSError as exc:
+        _audit_logger.warning("Could not write archive manifest to %s: %s", manifest_path, exc)
+
+
+def _file_sha256(path: Path) -> str:
+    """Return the hex SHA-256 digest of a file's contents."""
+    h = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 def _archive_paths(paths: list[Path], results_dir: Path, project_root: Path) -> Path | None:
     """Archive paths under results/archive/<timestamp>/ preserving results-relative structure."""
     if not paths:
         return None
 
-    archive_dir = project_root / "results" / "archive" / datetime.now().strftime("%Y%m%d_%H%M%S")
+    archive_dir = project_root / "results" / "archive" / datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     archive_dir.mkdir(parents=True, exist_ok=True)
+    audit_log_path = project_root / "results" / "archive" / "audit.jsonl"
+    hash_enabled = os.environ.get("FRACTALSEMANTICS_ARCHIVE_HASH", "true").strip().lower() in {
+        "1", "true", "yes", "on"
+    }
+    moved: list[dict] = []
     for path in paths:
         if not path.exists():
             continue
-        destination = archive_dir / path.relative_to(results_dir)
+        try:
+            relative_path = path.relative_to(results_dir)
+        except ValueError:
+            relative_path = Path(path.name)
+        destination = archive_dir / relative_path
         destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.move(str(path), str(destination))
+        size = None
+        sha256 = None
+        if path.is_file():
+            try:
+                size = path.stat().st_size
+            except OSError as exc:
+                _audit_logger.warning("Could not stat file %s before archive move: %s", path, exc)
+            if hash_enabled:
+                try:
+                    sha256 = _file_sha256(path)
+                except OSError as exc:
+                    _audit_logger.warning("Failed to compute SHA-256 for %s: %s", path, exc)
+
+        try:
+            shutil.move(str(path), str(destination))
+        except OSError as exc:
+            _write_audit_log(
+                action="archive_move",
+                outcome="failure",
+                details={
+                    "source": str(path),
+                    "destination": str(destination),
+                    "error": str(exc),
+                },
+                audit_log_path=audit_log_path,
+            )
+            _audit_logger.warning("Failed to move %s to %s: %s", path, destination, exc)
+            continue
+
+        entry: dict = {"source": str(path), "destination": str(destination)}
+        if size is not None:
+            entry["size_bytes"] = size
+        if sha256 is not None:
+            entry["sha256"] = sha256
+        moved.append(entry)
+        _write_audit_log(
+            action="archive_move",
+            outcome="success",
+            details={"source": str(path), "destination": str(destination)},
+            audit_log_path=audit_log_path,
+        )
+    _write_archive_manifest(archive_dir, moved)
     return archive_dir
 
 
@@ -117,22 +235,47 @@ def _wipe_archive_store(project_root: Path) -> None:
 def _wipe_history(project_root: Path, force_delete: bool) -> None:
     """Wipe history paths, optionally archiving first."""
     targets = _collect_history_paths(project_root)
+    audit_log_path = project_root / "results" / "archive" / "audit.jsonl"
     if not targets:
         print("No history files found to wipe.")
         return
 
     if force_delete:
         deleted = _delete_paths(targets)
+        _write_audit_log(
+            action="wipe_history_force_delete",
+            outcome="success",
+            details={"deleted_count": deleted, "paths": [str(t) for t in targets]},
+            audit_log_path=audit_log_path,
+        )
         print(f"Wipe complete (force delete): removed {deleted} entries.")
         return
 
     if _should_archive_before_wipe():
         archive_dir = _archive_paths(targets, project_root / "results", project_root)
         if archive_dir:
-            print(f"Wipe complete (archived): moved history to {archive_dir}")
+            manifest_path = archive_dir / "manifest.json"
+            total_bytes = 0
+            if manifest_path.exists():
+                manifest_data = json.loads(manifest_path.read_text(encoding="utf-8"))
+                total_bytes = sum(
+                    e.get("size_bytes", 0)
+                    for e in manifest_data.get("entries", [])
+                    if isinstance(e.get("size_bytes"), int)
+                )
+            print(
+                f"Wipe complete (archived): moved history to {archive_dir}"
+                + (f" ({total_bytes:,} bytes)" if total_bytes else "")
+            )
         return
 
     deleted = _delete_paths(targets)
+    _write_audit_log(
+        action="wipe_history_delete",
+        outcome="success",
+        details={"deleted_count": deleted, "paths": [str(t) for t in targets]},
+        audit_log_path=audit_log_path,
+    )
     print(f"Wipe complete (delete): removed {deleted} entries.")
 
 
@@ -155,6 +298,36 @@ def _exp_name_to_experiment_id(exp_name: str) -> str | None:
     if prefix.startswith("exp") and len(prefix) == 5 and prefix[3:].isdigit():
         return f"EXP-{prefix[3:]}"
     return None
+
+
+def _extract_numeric_collision_rates(collision_rates: object) -> list[float]:
+    """Extract a list of numeric collision-rate floats from various container shapes.
+
+    Accepts a ``dict`` (values are the rates), a ``list``/``tuple`` (items are
+    the rates), or a bare scalar.  Non-numeric values are silently skipped so
+    that callers receive a clean list ready for statistical analysis without
+    risking an ``AttributeError`` when the data structure differs from the
+    expected dictionary shape.
+    """
+    candidates: list[object]
+    if isinstance(collision_rates, dict):
+        candidates = list(collision_rates.values())
+    elif isinstance(collision_rates, (list, tuple)):
+        candidates = list(collision_rates)
+    else:
+        candidates = [collision_rates]
+
+    result: list[float] = []
+    for value in candidates:
+        if isinstance(value, bool):
+            continue
+        if not isinstance(value, (int, float, str)):
+            continue
+        try:
+            result.append(float(value))
+        except (TypeError, ValueError):
+            continue
+    return result
 
 
 def _infer_technical_success_from_result(result: JsonObject) -> bool:
@@ -922,13 +1095,9 @@ def validate_exp11b(results: list[JsonObject]) -> tuple[bool, list[str], dict[st
 
     elif "collision_rates" in last_result:
         # Fallback to direct collision_rates field
-        raw_rates = last_result.get("collision_rates") or {}
-        numeric_rates: list[float] = []
-        for value in raw_rates.values():
-            try:
-                numeric_rates.append(float(value))
-            except (TypeError, ValueError):
-                continue
+        numeric_rates: list[float] = _extract_numeric_collision_rates(
+            last_result.get("collision_rates")
+        )
 
         if not numeric_rates:
             findings.append("✗ No valid collision rate values found")
