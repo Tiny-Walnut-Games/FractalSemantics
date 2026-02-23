@@ -3,7 +3,7 @@
 FractalSemantics Interactive Experiments - Hugging Face Space Application
 
 This is the main application file for the FractalSemantics interactive experiments platform.
-It provides a web-based interface for running and visualizing the 12 validation experiments
+It provides a web-based interface for running and visualizing the 21 validation experiments
 with real-time progress tracking, mathematical explanations, and data visualization.
 
 Features:
@@ -539,11 +539,11 @@ def create_gradio_interface():
         gr.Markdown("""
         # FractalSemantics Interactive Experiments
 
-        Welcome to the FractalSemantics validation experiments platform! This interactive interface allows you to run and visualize the 12 validation experiments that prove the FractalSemantics 8-dimensional addressing system works at scale.
+        Welcome to the FractalSemantics validation experiments platform! This interactive interface allows you to run and visualize the 21 validation experiments that prove the FractalSemantics 8-dimensional addressing system works at scale.
 
         ## What is FractalSemantics?
 
-        FractalSemantics is a research package containing **12 validation experiments** that prove the FractalSemantics addressing system works at scale. FractalSemantics expands FractalSemantics from a 7D to an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
+        FractalSemantics is a research package containing **21 validation experiments** that prove the FractalSemantics addressing system works at scale. It evolves the earlier 7D model into an 8-dimensional coordinate system for uniquely addressing data in fractal information spaces.
         """)
 
         # Experiment selection and controls

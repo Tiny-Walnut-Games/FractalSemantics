@@ -1,0 +1,21 @@
+{
+  "module_to_package": {
+    "PIL": "pillow",
+    "OpenSSL": "pyopenssl",
+    "bs4": "beautifulsoup4",
+    "cv2": "opencv-python",
+    "dateutil": "python-dateutil",
+    "dotenv": "python-dotenv",
+    "fitz": "pymupdf",
+    "googleapiclient": "google-api-python-client",
+    "jwt": "pyjwt",
+    "mpl_toolkits": "matplotlib",
+    "pymysql": "PyMySQL",
+    "serial": "pyserial",
+    "skimage": "scikit-image",
+    "sklearn": "scikit-learn",
+    "streamlit_autorefresh": "streamlit-autorefresh",
+    "yaml": "pyyaml",
+    "zbar": "pyzbar"
+  }
+}

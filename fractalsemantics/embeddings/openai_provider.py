@@ -5,7 +5,6 @@ OpenAI Embedding Provider - Cloud-based Semantic Grounding
 import hashlib
 import math
 import struct
-from types import ModuleType
 from typing import Any, Optional, TypeAlias
 
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
@@ -20,36 +19,74 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
     def __init__(self, config: Optional[dict[str, Any]] = None):
         super().__init__(config)
         self.api_key: Optional[str] = config.get("api_key") if config else None
-        model_default = "text-embedding-ada-002"
+        model_default = "text-embedding-3-small"
         self.model: str = (
             config.get("model", model_default) if config else model_default
         )
         self.dimension: int = config.get("dimension", 1536) if config else 1536
-        self._client: Optional[ModuleType] = None
+        self._client: Optional[Any] = None
 
-    def _get_client(self) -> ModuleType:
+    def _get_client(self) -> Any:
         """Lazy initialization of OpenAI client."""
         if self._client is None:
             try:
                 import openai
 
-                if self.api_key:
-                    openai.api_key = self.api_key
-                self._client = openai
+                if hasattr(openai, "OpenAI"):
+                    if self.api_key:
+                        self._client = openai.OpenAI(api_key=self.api_key)
+                    else:
+                        self._client = openai.OpenAI()
+                else:
+                    if self.api_key:
+                        openai.api_key = self.api_key
+                    self._client = openai
             except ImportError as exc:
                 raise ImportError(
                     "OpenAI package not installed. Run: pip install openai"
                 ) from exc
         return self._client
 
+    def _extract_embeddings(self, response: Any) -> list[list[float]]:
+        """Extract embedding vectors from both modern and legacy OpenAI responses."""
+        if isinstance(response, dict):
+            data = response.get("data", [])
+            return [list(item["embedding"]) for item in data if "embedding" in item]
+
+        data = getattr(response, "data", None)
+        if data is None:
+            return []
+
+        embeddings: list[list[float]] = []
+        for item in data:
+            value = getattr(item, "embedding", None)
+            if value is None and isinstance(item, dict):
+                value = item.get("embedding")
+            if value is not None:
+                embeddings.append(list(value))
+        return embeddings
+
+    def _request_embeddings(self, input_payload: Any) -> list[list[float]]:
+        """Request embeddings with SDK-version compatible API calls."""
+        client = self._get_client()
+
+        if hasattr(client, "embeddings") and hasattr(client.embeddings, "create"):
+            response = client.embeddings.create(model=self.model, input=input_payload)
+            return self._extract_embeddings(response)
+
+        if hasattr(client, "Embedding") and hasattr(client.Embedding, "create"):
+            response = client.Embedding.create(model=self.model, input=input_payload)  # pylint: disable=no-member
+            return self._extract_embeddings(response)
+
+        raise RuntimeError("Unsupported OpenAI client interface for embeddings")
+
     def embed_text(self, text: str) -> list[float]:
         """Generate OpenAI embedding for text."""
         try:
-            client = self._get_client()
-            response: dict[str, Any] = client.Embedding.create(  # pylint: disable=no-member
-                model=self.model, input=text
-            )
-            return response["data"][0]["embedding"]
+            embeddings = self._request_embeddings(text)
+            if embeddings:
+                return embeddings[0]
+            raise RuntimeError("Empty embedding response")
         except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"Warning: OpenAI API failed ({e}), using mock embedding")
             return self._create_mock_embedding(text)
@@ -57,11 +94,10 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
     def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """Generate OpenAI embeddings for multiple texts."""
         try:
-            client = self._get_client()
-            response: dict[str, Any] = client.Embedding.create(  # pylint: disable=no-member
-                model=self.model, input=texts
-            )
-            return [item["embedding"] for item in response["data"]]
+            embeddings = self._request_embeddings(texts)
+            if embeddings:
+                return embeddings
+            raise RuntimeError("Empty embedding response")
         except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"Warning: OpenAI API failed ({e}), using mock embeddings")
             return [self._create_mock_embedding(text) for text in texts]

@@ -9,6 +9,7 @@ It handles dependency installation, platform detection, and common troubleshooti
 import argparse
 import os
 import platform
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -26,23 +27,66 @@ class FractalSemanticsInstaller:
         self.venv_python = self.venv_path / 'bin' / 'python' if self.system != 'windows' else self.venv_path / 'Scripts' / 'python.exe'
         self.venv_pip = self.venv_path / 'bin' / 'pip' if self.system != 'windows' else self.venv_path / 'Scripts' / 'pip.exe'
 
-    def run_command(self, cmd, description="", check=True, shell=False):
+    def run_command(
+        self,
+        cmd,
+        description="",
+        check=True,
+        shell=False,
+        stream_output=False,
+        timeout: int | None = None,
+    ):
         """Run a command with proper error handling."""
         print(f"wrench {description}")
         print(f"   Command: {' '.join(cmd) if isinstance(cmd, list) else cmd}")
 
         try:
+            if stream_output:
+                process = subprocess.Popen(
+                    cmd,
+                    shell=shell,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    cwd=self.project_root,
+                    bufsize=1,
+                )
+
+                assert process.stdout is not None
+                for line in process.stdout:
+                    line = line.rstrip()
+                    if line:
+                        print(f"   {line}")
+
+                return_code = process.wait(timeout=timeout)
+                if check and return_code != 0:
+                    raise subprocess.CalledProcessError(return_code, cmd)
+
+                class _Result:
+                    def __init__(self, code: int):
+                        self.returncode = code
+                        self.stdout = ""
+                        self.stderr = ""
+
+                return _Result(return_code)
+
             result = subprocess.run(
                 cmd,
                 shell=shell,
                 check=check,
                 capture_output=True,
                 text=True,
-                cwd=self.project_root
+                cwd=self.project_root,
+                timeout=timeout,
             )
             if result.stdout:
                 print(f"   success {result.stdout.strip()}")
             return result
+        except subprocess.TimeoutExpired as e:
+            print(f"   error Timed out: {e}")
+            if check:
+                sys.exit(1)
+            return e
         except subprocess.CalledProcessError as e:
             print(f"   error Failed: {e}")
             if e.stderr:
@@ -135,12 +179,43 @@ class FractalSemanticsInstaller:
         elif platform_info['system'] == 'windows':
             print("🪟 Windows detected - no additional system dependencies needed")
 
-    def install_pytorch(self, platform_info):
+    def _has_nvidia_gpu(self) -> bool:
+        """Best-effort check for NVIDIA GPU visibility in current environment."""
+        if shutil.which('nvidia-smi') is None:
+            return False
+        try:
+            result = subprocess.run(
+                ['nvidia-smi', '-L'],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            return result.returncode == 0 and bool(result.stdout.strip())
+        except Exception:
+            return False
+
+    def install_pytorch(self, platform_info, force_cpu_only: bool = False):
         """Install PyTorch with platform-specific optimizations."""
         print("fire Installing PyTorch...")
 
+        in_docker = Path('/.dockerenv').exists() or os.environ.get('CONTAINER') is not None
+        in_wsl = bool(os.environ.get('WSL_DISTRO_NAME'))
+
+        cpu_only = force_cpu_only
+        if (
+            not cpu_only
+            and platform_info['system'] == 'linux'
+            and (in_docker or in_wsl)
+            and not self._has_nvidia_gpu()
+        ):
+            cpu_only = True
+
+        if cpu_only:
+            print("   Using CPU-only PyTorch wheels (recommended for WSL/Docker without visible GPU)")
+        print("   Note: PyTorch install can take several minutes depending on network and wheel size")
+
         # Determine PyTorch installation command
-        if platform_info['is_raspberry_pi']:
+        if platform_info['is_raspberry_pi'] or cpu_only:
             # Raspberry Pi - CPU only
             pytorch_cmd = [
                 str(self.venv_pip), 'install',
@@ -160,7 +235,13 @@ class FractalSemanticsInstaller:
                 'torch', 'torchvision', 'torchaudio'
             ]
 
-        self.run_command(pytorch_cmd, "Installing PyTorch", check=False)
+        self.run_command(
+            pytorch_cmd,
+            "Installing PyTorch",
+            check=False,
+            stream_output=True,
+            timeout=1800,
+        )
 
     def install_fractalsemantics(self, dev=False, minimal=False):
         """Install FractalSemantics dependencies."""
@@ -343,7 +424,7 @@ python -m fractalsemantics.fractalsemantics_experiments
             self.install_system_dependencies(platform_info)
 
         if not args.minimal:
-            self.install_pytorch(platform_info)
+            self.install_pytorch(platform_info, force_cpu_only=args.torch_cpu_only)
 
         self.install_fractalsemantics(dev=args.dev, minimal=args.minimal)
 
@@ -399,6 +480,11 @@ For Raspberry Pi:
     parser.add_argument(
         '--force', action='store_true',
         help='Continue even if tests fail'
+    )
+
+    parser.add_argument(
+        '--torch-cpu-only', action='store_true',
+        help='Force CPU-only PyTorch wheel installation (useful in WSL/Docker)'
     )
 
     args = parser.parse_args()
