@@ -14,6 +14,7 @@ Features:
 """
 
 import asyncio
+import importlib
 import json
 import logging
 import os
@@ -33,12 +34,43 @@ from streamlit_autorefresh import st_autorefresh
 # Add the fractalsemantics module to the path (must be done before local/package imports)
 # Use append (not insert) so installed packages and the stdlib take precedence,
 # preventing import-hijacking via writable directories placed earlier on sys.path.
-_pkg_dir = str(Path(__file__).parent)
-_project_dir = str(Path(__file__).parent.parent)
-if _pkg_dir not in sys.path:
-    sys.path.append(_pkg_dir)
-if _project_dir not in sys.path:
-    sys.path.append(_project_dir)
+_pkg_dir_path = Path(__file__).parent.resolve()
+_project_dir_path = Path(__file__).parent.parent.resolve()
+_resolved_sys_paths = {str(Path(path).resolve()) for path in sys.path if path}
+if str(_pkg_dir_path) not in _resolved_sys_paths:
+    sys.path.append(str(_pkg_dir_path))
+if str(_project_dir_path) not in _resolved_sys_paths:
+    sys.path.append(str(_project_dir_path))
+
+
+def _module_origin_within(module_name: str, allowed_root: Path) -> bool:
+    spec = importlib.util.find_spec(module_name)
+    if spec is None:
+        return False
+
+    candidates: list[str] = []
+    if spec.origin:
+        candidates.append(spec.origin)
+    if spec.submodule_search_locations:
+        candidates.extend(spec.submodule_search_locations)
+
+    root = allowed_root.resolve()
+    for candidate in candidates:
+        candidate_path = Path(candidate).resolve()
+        if candidate_path == root or root in candidate_path.parents:
+            return True
+    return False
+
+
+if not _module_origin_within("gui_state_manager", _pkg_dir_path):
+    raise ImportError(
+        "Unsafe module resolution for gui_state_manager; expected project-local module."
+    )
+
+if not _module_origin_within("fractalsemantics", _project_dir_path):
+    raise ImportError(
+        "Unsafe module resolution for fractalsemantics; expected project-local package."
+    )
 
 import gui_state_manager  # noqa: E402
 from fractalsemantics.experiment_runner import (  # noqa: E402

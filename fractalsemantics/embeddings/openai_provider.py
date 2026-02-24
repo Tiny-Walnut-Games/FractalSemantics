@@ -14,15 +14,24 @@ JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
 
 class OpenAIEmbeddingProvider(EmbeddingProvider):
-    """OpenAI API-based embedding provider."""
+    """OpenAI API-based embedding provider.
+
+    Defaults to the legacy model (``text-embedding-ada-002``) for backward
+    compatibility with existing persisted embeddings. To opt into the newer
+    default model behavior, pass ``{"use_new_default_model": True}`` in config,
+    or set an explicit ``model``.
+    """
 
     def __init__(self, config: Optional[dict[str, Any]] = None):
         super().__init__(config)
         self.api_key: Optional[str] = config.get("api_key") if config else None
-        model_default = "text-embedding-3-small"
-        self.model: str = (
-            config.get("model", model_default) if config else model_default
-        )
+        legacy_default_model = "text-embedding-ada-002"
+        new_default_model = "text-embedding-3-small"
+        if config and "model" in config:
+            self.model = str(config["model"])
+        else:
+            use_new_default = bool(config.get("use_new_default_model")) if config else False
+            self.model = new_default_model if use_new_default else legacy_default_model
         self.dimension: int = config.get("dimension", 1536) if config else 1536
         self._client: Optional[Any] = None
 
