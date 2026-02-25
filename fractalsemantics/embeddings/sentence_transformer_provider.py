@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, TypeAlias
 
+from fractalsemantics.coordinates_adapter import payload_to_fractalsemantics_coordinates
 from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 
 JsonScalar: TypeAlias = str | int | float | bool | None
@@ -20,6 +21,8 @@ if TYPE_CHECKING:
     from sentence_transformers import (
         SentenceTransformer as SentenceTransformerType,
     )
+
+    from fractalsemantics.fractalsemantics_entity import FractalSemanticsCoordinates
 
 try:
     from sentence_transformers import SentenceTransformer
@@ -228,8 +231,9 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         """
         Compute FractalSemantics coordinates from embedding vector.
 
-        Maps 384D embedding to 7D FractalSemantics addressing space using robust
-        statistical features.
+        Maps embedding features to the current 8D FractalSemantics coordinate schema:
+        realm, lineage, adjacency, horizon, luminosity, polarity, dimensionality,
+        and alignment.
         """
         import numpy as np
 
@@ -238,18 +242,30 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
 
         if dim == 0:
             return {
-                "lineage": 0.5,
-                "adjacency": 0.5,
-                "luminosity": 0.7,
-                "polarity": 0.5,
-                "dimensionality": 0.5,
-                "horizon": "scene",
-                "realm": {"type": "semantic", "label": "embedding-derived"},
+                "realm": "pattern",
+                "lineage": 0,
+                "adjacency": 50.0,
+                "horizon": "genesis",
+                "luminosity": 50.0,
+                "polarity": "balance",
+                "dimensionality": 1,
+                "alignment": "true_neutral",
             }
 
         abs_emb = np.abs(emb_array)
 
         seg_size = dim // 7
+        if seg_size == 0:
+            return {
+                "realm": "pattern",
+                "lineage": 0,
+                "adjacency": 50.0,
+                "horizon": "genesis",
+                "luminosity": 50.0,
+                "polarity": "balance",
+                "dimensionality": 1,
+                "alignment": "true_neutral",
+            }
 
         seg0 = emb_array[:seg_size]
         seg1 = emb_array[seg_size : 2 * seg_size]
@@ -259,7 +275,7 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         seg5 = emb_array[5 * seg_size : 6 * seg_size]
         seg6 = emb_array[6 * seg_size :]
 
-        lineage = float(np.mean(seg0**2))
+        lineage_raw = float(np.mean(seg0**2))
 
         if len(seg1) > 1 and len(seg2) > 1 and len(seg3) > 1:
 
@@ -302,20 +318,55 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         high_magnitude = float(np.sum(abs_emb > np.percentile(abs_emb, 75)) / dim)
         dimensionality = (high_magnitude + min(1.0, chunk_entropy * 0.2)) / 2.0
 
-        # Hybrid normalization preserving fractal structure:
-        # - Fractal dimensions (lineage, dimensionality): unbounded, keep scale
-        # - Relational dimensions (adjacency, polarity): symmetric [-1, 1]
-        # - Intensity dimensions (luminosity): asymmetric [0, 1]
-        adjacency = float(np.clip(adjacency * 2.0 - 1.0, -1.0, 1.0))
-        luminosity = float(np.clip(luminosity, 0.0, 1.0))
-        polarity = float(np.clip(polarity * 2.0 - 1.0, -1.0, 1.0))
+        # Normalize to current FractalSemantics coordinate ranges.
+        lineage = int(np.clip(round(lineage_raw * 1000), 0, 999))
+        adjacency_score = float(np.clip(adjacency * 100.0, 0.0, 100.0))
+        luminosity_score = float(np.clip(luminosity * 100.0, 0.0, 100.0))
+        dimensionality_level = int(np.clip(round(dimensionality * 9.0), 0, 9))
+
+        if polarity < 0.35:
+            polarity_label = "order"
+        elif polarity < 0.65:
+            polarity_label = "logic"
+        elif polarity < 0.95:
+            polarity_label = "balance"
+        elif polarity < 1.2:
+            polarity_label = "creativity"
+        else:
+            polarity_label = "chaos"
+
+        if luminosity_score < 25.0:
+            horizon_label = "genesis"
+        elif luminosity_score < 50.0:
+            horizon_label = "emergence"
+        elif luminosity_score < 80.0:
+            horizon_label = "peak"
+        else:
+            horizon_label = "crystallization"
+
+        if chunk_entropy < 0.15:
+            alignment_label = "lawful_neutral"
+        elif chunk_entropy < 0.35:
+            alignment_label = "true_neutral"
+        elif chunk_entropy < 0.6:
+            alignment_label = "chaotic_neutral"
+        else:
+            alignment_label = "harmonic"
 
         return {
+            "realm": "pattern",
             "lineage": lineage,
-            "adjacency": adjacency,
-            "luminosity": luminosity,
-            "polarity": polarity,
-            "dimensionality": dimensionality,
-            "horizon": "scene",
-            "realm": {"type": "semantic", "label": "embedding-derived"},
+            "adjacency": adjacency_score,
+            "horizon": horizon_label,
+            "luminosity": luminosity_score,
+            "polarity": polarity_label,
+            "dimensionality": dimensionality_level,
+            "alignment": alignment_label,
         }
+
+    def compute_fractalsemantics_coordinates(
+        self, embedding: list[float]
+    ) -> FractalSemanticsCoordinates:
+        """Compute typed FractalSemantics coordinates from embedding vector."""
+        payload = self.compute_fractalsemantics_from_embedding(embedding)
+        return payload_to_fractalsemantics_coordinates(payload)

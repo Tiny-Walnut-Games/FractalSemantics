@@ -1,0 +1,8 @@
+# Development, test, lint, and typing dependencies
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+black>=22.0.0
+ruff>=0.1.0
+mypy>=1.0.0
+types-click>=7.1.0
+types-requests>=2.28.0
