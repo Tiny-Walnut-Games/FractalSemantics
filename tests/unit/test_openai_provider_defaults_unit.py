@@ -14,3 +14,13 @@ def test_openai_provider_uses_new_default_when_opted_in() -> None:
 def test_openai_provider_respects_explicit_model_setting() -> None:
     provider = OpenAIEmbeddingProvider({"model": "text-embedding-3-large"})
     assert provider.model == "text-embedding-3-large"
+
+
+def test_openai_provider_uses_model_default_dimension_for_large_model() -> None:
+    provider = OpenAIEmbeddingProvider({"model": "text-embedding-3-large"})
+    assert provider.dimension == 3072
+
+
+def test_openai_provider_respects_explicit_dimension_override() -> None:
+    provider = OpenAIEmbeddingProvider({"model": "text-embedding-3-large", "dimension": 1024})
+    assert provider.dimension == 1024

@@ -27,6 +27,32 @@ class FractalSemanticsInstaller:
         self.venv_python = self.venv_path / 'bin' / 'python' if self.system != 'windows' else self.venv_path / 'Scripts' / 'python.exe'
         self.venv_pip = self.venv_path / 'bin' / 'pip' if self.system != 'windows' else self.venv_path / 'Scripts' / 'pip.exe'
 
+    @staticmethod
+    def _redact_command_for_display(cmd) -> str:
+        """Render command for logs while masking likely credential-bearing arguments."""
+        secret_markers = ("token", "key", "secret", "password", "pwd", "auth")
+
+        if isinstance(cmd, list):
+            redacted: list[str] = []
+            for part in cmd:
+                part_str = str(part)
+                lowered = part_str.lower()
+                if any(marker in lowered for marker in secret_markers):
+                    if "=" in part_str:
+                        prefix, _ = part_str.split("=", 1)
+                        redacted.append(f"{prefix}=***")
+                    else:
+                        redacted.append("***")
+                else:
+                    redacted.append(part_str)
+            return " ".join(redacted)
+
+        cmd_str = str(cmd)
+        lowered_cmd = cmd_str.lower()
+        if any(marker in lowered_cmd for marker in secret_markers):
+            return "[redacted command string]"
+        return cmd_str
+
     def run_command(
         self,
         cmd,
@@ -38,7 +64,7 @@ class FractalSemanticsInstaller:
     ):
         """Run a command with proper error handling."""
         print(f"wrench {description}")
-        print(f"   Command: {' '.join(cmd) if isinstance(cmd, list) else cmd}")
+        print(f"   Command: {self._redact_command_for_display(cmd)}")
 
         try:
             if stream_output:

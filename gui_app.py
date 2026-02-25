@@ -36,11 +36,16 @@ from streamlit_autorefresh import st_autorefresh
 # preventing import-hijacking via writable directories placed earlier on sys.path.
 _pkg_dir_path = Path(__file__).parent.resolve()
 _project_dir_path = Path(__file__).parent.parent.resolve()
-_resolved_sys_paths = {str(Path(path).resolve()) for path in sys.path if path}
-if str(_pkg_dir_path) not in _resolved_sys_paths:
-    sys.path.append(str(_pkg_dir_path))
-if str(_project_dir_path) not in _resolved_sys_paths:
-    sys.path.append(str(_project_dir_path))
+
+
+def _ensure_on_sys_path(path: Path) -> None:
+    resolved = str(path.resolve())
+    if not any(str(Path(existing).resolve()) == resolved for existing in sys.path if existing):
+        sys.path.append(resolved)
+
+
+_ensure_on_sys_path(_pkg_dir_path)
+_ensure_on_sys_path(_project_dir_path)
 
 
 def _module_origin_within(module_name: str, allowed_root: Path) -> bool:

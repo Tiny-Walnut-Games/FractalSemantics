@@ -255,6 +255,17 @@ class SentenceTransformerEmbeddingProvider(EmbeddingProvider):
         abs_emb = np.abs(emb_array)
 
         seg_size = dim // 7
+        if seg_size == 0:
+            return {
+                "realm": "pattern",
+                "lineage": 0,
+                "adjacency": 50.0,
+                "horizon": "genesis",
+                "luminosity": 50.0,
+                "polarity": "balance",
+                "dimensionality": 1,
+                "alignment": "true_neutral",
+            }
 
         seg0 = emb_array[:seg_size]
         seg1 = emb_array[seg_size : 2 * seg_size]

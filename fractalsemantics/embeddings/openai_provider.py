@@ -3,6 +3,7 @@ OpenAI Embedding Provider - Cloud-based Semantic Grounding
 """
 
 import hashlib
+import logging
 import math
 import struct
 from typing import Any, Optional, TypeAlias
@@ -12,6 +13,14 @@ from fractalsemantics.embeddings.base_provider import EmbeddingProvider
 JsonScalar: TypeAlias = str | int | float | bool | None
 JsonValue: TypeAlias = JsonScalar | list["JsonValue"] | dict[str, "JsonValue"]
 JsonObject: TypeAlias = dict[str, JsonValue]
+
+_MODEL_DEFAULT_DIMS: dict[str, int] = {
+    "text-embedding-ada-002": 1536,
+    "text-embedding-3-small": 1536,
+    "text-embedding-3-large": 3072,
+}
+
+logger = logging.getLogger(__name__)
 
 class OpenAIEmbeddingProvider(EmbeddingProvider):
     """OpenAI API-based embedding provider.
@@ -32,7 +41,8 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         else:
             use_new_default = bool(config.get("use_new_default_model")) if config else False
             self.model = new_default_model if use_new_default else legacy_default_model
-        self.dimension: int = config.get("dimension", 1536) if config else 1536
+        model_default_dim = _MODEL_DEFAULT_DIMS.get(self.model, 1536)
+        self.dimension = int(config.get("dimension", model_default_dim)) if config else model_default_dim
         self._client: Optional[Any] = None
 
     def _get_client(self) -> Any:
@@ -96,8 +106,9 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
             if embeddings:
                 return embeddings[0]
             raise RuntimeError("Empty embedding response")
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            print(f"Warning: OpenAI API failed ({e}), using mock embedding")
+        except Exception:  # pylint: disable=broad-exception-caught
+            logger.warning("OpenAI API request failed; using mock embedding fallback")
+            logger.debug("OpenAI embedding failure details", exc_info=True)
             return self._create_mock_embedding(text)
 
     def embed_batch(self, texts: list[str]) -> list[list[float]]:
@@ -107,8 +118,9 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
             if embeddings:
                 return embeddings
             raise RuntimeError("Empty embedding response")
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            print(f"Warning: OpenAI API failed ({e}), using mock embeddings")
+        except Exception:  # pylint: disable=broad-exception-caught
+            logger.warning("OpenAI API request failed; using mock embedding fallbacks")
+            logger.debug("OpenAI batch embedding failure details", exc_info=True)
             return [self._create_mock_embedding(text) for text in texts]
 
     def get_dimension(self) -> int:
