@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Progress Communication Module for FractalSemantics Experiments
 

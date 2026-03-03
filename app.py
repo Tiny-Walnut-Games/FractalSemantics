@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 FractalSemantics Interactive Experiments - Hugging Face Space Application
 

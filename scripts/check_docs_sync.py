@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Fail CI when public CLI documentation drifts from expected flag coverage."""
 
 from pathlib import Path

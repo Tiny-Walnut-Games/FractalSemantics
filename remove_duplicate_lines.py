@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 remove_duplicate_lines.py — remove duplicate lines from a file while preserving order.
 Usage:

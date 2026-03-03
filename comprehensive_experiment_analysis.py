@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Comprehensive Analysis of All FractalSemantics Experiments
 Based on actual experiment results structure

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 FractalSemantics GUI Launcher
 

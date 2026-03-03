@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Check progress file setup and environment.
 """

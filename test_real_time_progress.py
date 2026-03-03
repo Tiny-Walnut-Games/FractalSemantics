@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test real-time progress bar animation in the GUI.
 """

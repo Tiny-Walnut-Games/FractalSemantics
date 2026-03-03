@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test script for complete progress bar fix with real experiment.
 """

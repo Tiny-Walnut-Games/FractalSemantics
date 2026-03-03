@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Fix Unicode characters in Python files to ensure ASCII compatibility.
 This script replaces non-ASCII characters with ASCII equivalents.
