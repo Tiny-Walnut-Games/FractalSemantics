@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Fail CI when documented CLI command shapes drift from live CLI surfaces."""
 
 from __future__ import annotations

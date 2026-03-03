@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 # pylint: disable=C0301,C0116,W0404,W0621,W0212,W0718
 

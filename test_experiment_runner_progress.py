@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test experiment runner with progress file writing.
 """

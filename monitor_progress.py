@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Monitor progress file in real-time to verify progress updates are happening.
 """

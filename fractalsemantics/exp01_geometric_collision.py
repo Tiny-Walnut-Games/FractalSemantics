@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 EXP-01: FractalSemantics Address Collision Resistance Test
 

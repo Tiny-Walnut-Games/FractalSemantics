@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test script for real experiment with progress reporting.
 """

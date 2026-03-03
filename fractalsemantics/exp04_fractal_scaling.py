@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 EXP-04: Bit-Chain FractalSemantics Fractal Scaling Test
 

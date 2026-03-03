@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test ProgressReporter class directly to see if it writes to the progress file.
 """

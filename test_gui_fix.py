@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Test script to verify the GUI asyncio fix works correctly.
 

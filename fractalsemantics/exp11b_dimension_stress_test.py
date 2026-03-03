@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 EXP-11b: Dimensional Collision Stress Test
 

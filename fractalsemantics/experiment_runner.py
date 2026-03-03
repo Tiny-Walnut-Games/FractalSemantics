@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Experiment Runner for FractalSemantics HTML Web Application
 

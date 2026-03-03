@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # pylint: disable=W0621,W0212,W0718,
 """
 EXP-07: LUCA Bootstrap Test
